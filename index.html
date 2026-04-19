@@ -1,285 +1,548 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Codex Hub – Ace Your Exams</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-      <!-- Google AdSense Script -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9642494442871029"
-     crossorigin="anonymous"></script>
-    <style>
-        :root {
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --accent: #10b981;
-            --dark: #0f172a;
-            --glass: rgba(255, 255, 255, 0.05);
-            --border: rgba(255, 255, 255, 0.1);
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Codex Study Hub — Ace Your Exams</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9642494442871029" crossorigin="anonymous"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body {
-            margin: 0;
-            font-family: 'Inter', 'Segoe UI', sans-serif;
-            background: radial-gradient(circle at top right, #1e293b, #0f172a);
-            color: #f1f5f9;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
+    :root {
+      --bg: #05080f;
+      --s1: #0b1120;
+      --blue: #3b82f6;
+      --green: #10b981;
+      --gold: #f59e0b;
+      --text: #f0f4ff;
+      --muted: #7c8fa8;
+      --border: rgba(255,255,255,.07);
+      --glow-blue: rgba(59,130,246,.18);
+      --glow-green: rgba(16,185,129,.12);
+    }
 
-        /* --- Navigation --- */
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 5%;
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 1px solid var(--border);
-        }
+    html { scroll-behavior: smooth; }
 
-        .logo-text {
-            font-size: 1.5rem;
-            font-weight: 800;
-            background: linear-gradient(to right, #818cf8, #34d399);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-        /* --- Hero Section --- */
-        .hero {
-            text-align: center;
-            padding: 100px 20px 60px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+    /* ── BACKGROUND ORBS ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 70vw 60vh at 15% 10%, var(--glow-blue) 0%, transparent 55%),
+        radial-gradient(ellipse 50vw 40vh at 85% 80%, var(--glow-green) 0%, transparent 55%),
+        radial-gradient(ellipse 40vw 30vh at 50% 50%, rgba(245,158,11,.04) 0%, transparent 50%);
+    }
 
-        .cbt-logo {  
-            width: 90px;  
-            margin-bottom: 20px;
-            filter: drop-shadow(0 0 15px var(--primary));
-        }
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 5%;
+      background: rgba(5,8,15,.75);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+    }
 
-        .hero h1 {
-            font-size: clamp(2.5rem, 8vw, 4rem);
-            margin: 0;
-            line-height: 1.1;
-            font-weight: 800;
-        }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .nav-logo img { width: 34px; height: 34px; border-radius: 9px; }
+    .nav-logo-text {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem;
+      background: linear-gradient(90deg, #818cf8, #34d399);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: -.3px;
+    }
 
-        .hero p {
-            color: #94a3b8;
-            font-size: 1.25rem;
-            margin: 20px auto;
-            max-width: 600px;
-        }
+    .nav-cta {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .btn-nav-ghost {
+      padding: 8px 18px; border-radius: 8px; font-size: .88rem; font-weight: 600;
+      color: var(--muted); background: transparent; border: 1px solid var(--border);
+      cursor: pointer; text-decoration: none; transition: .2s;
+    }
+    .btn-nav-ghost:hover { border-color: var(--blue); color: var(--blue); }
 
-        /* --- Buttons --- */
-        .buttons {
-            margin-top: 40px;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
+    .btn-nav-solid {
+      padding: 9px 20px; border-radius: 8px; font-size: .88rem; font-weight: 700;
+      background: var(--blue); color: #fff; border: none; cursor: pointer;
+      text-decoration: none; transition: .2s;
+    }
+    .btn-nav-solid:hover { background: #2563eb; transform: translateY(-1px); }
 
-        .btn {
-            padding: 16px 32px;
-            border-radius: 12px;
-            border: none;
-            font-size: 1rem;
-            cursor: pointer;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+    /* ── HERO ── */
+    .hero {
+      position: relative; z-index: 1;
+      max-width: 900px; margin: 0 auto;
+      padding: 90px 20px 60px;
+      text-align: center;
+    }
 
-        .btn-login { background: var(--primary); color: white; }
-        .btn-login:hover { background: var(--primary-hover); transform: translateY(-2px); }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.25);
+      color: #93c5fd; border-radius: 30px; padding: 6px 16px;
+      font-size: .8rem; font-weight: 600; letter-spacing: .03em;
+      margin-bottom: 28px;
+    }
+    .hero-badge span { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); display: inline-block; animation: blink 1.8s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-        .btn-support { 
-            background: var(--glass); 
-            color: white; 
-            border: 1px solid var(--border);
-        }
-        .btn-support:hover { background: rgba(255,255,255,0.1); }
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.4rem, 7vw, 4.2rem);
+      font-weight: 800; line-height: 1.08; letter-spacing: -.03em;
+      margin-bottom: 22px;
+    }
+    .hero h1 .grad {
+      background: linear-gradient(135deg, #60a5fa 0%, #34d399 50%, #fbbf24 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
 
-        /* --- Slider --- */
-        .slider-container {
-            max-width: 900px;
-            margin: 60px auto;
-            position: relative;
-            border-radius: 24px;
-            padding: 10px;
-            background: var(--glass);
-            border: 1px solid var(--border);
-        }
+    .hero p {
+      font-size: 1.15rem; color: var(--muted); max-width: 560px;
+      margin: 0 auto 36px; line-height: 1.7;
+    }
 
-        .slider {
-            height: 450px;
-            border-radius: 16px;
-            overflow: hidden;
-            position: relative;
-        }
+    .hero-btns {
+      display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+    }
+    .btn-hero-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 15px 32px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--blue), #6366f1);
+      color: #fff; font-weight: 700; font-size: 1rem;
+      text-decoration: none; border: none; cursor: pointer;
+      box-shadow: 0 8px 30px rgba(59,130,246,.35);
+      transition: all .25s;
+    }
+    .btn-hero-primary:hover { transform: translateY(-3px); box-shadow: 0 14px 40px rgba(59,130,246,.45); }
 
-        .slider img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            position: absolute;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
-        }
+    .btn-hero-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 15px 28px; border-radius: 12px;
+      background: rgba(255,255,255,.05); color: var(--text);
+      border: 1px solid var(--border); font-weight: 600; font-size: 1rem;
+      text-decoration: none; cursor: pointer; transition: all .25s;
+    }
+    .btn-hero-ghost:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.2); transform: translateY(-2px); }
 
-        .slider img.active { opacity: 1; }
+    /* ── FLOATING LOGO ── */
+    .hero-logo-wrap {
+      position: relative; width: 100px; height: 100px;
+      margin: 0 auto 28px;
+    }
+    .hero-logo-wrap::before {
+      content: ''; position: absolute; inset: -14px; border-radius: 50%;
+      background: conic-gradient(from 0deg, #3b82f6, #10b981, #f59e0b, #3b82f6);
+      animation: spin-ring 4s linear infinite; opacity: .5;
+      filter: blur(8px);
+    }
+    .hero-logo-wrap img {
+      width: 100%; height: 100%; border-radius: 22px;
+      position: relative; z-index: 1;
+      filter: drop-shadow(0 0 20px rgba(59,130,246,.4));
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    @keyframes spin-ring { to { transform: rotate(360deg); } }
 
-        /* --- Features Section --- */
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            padding: 60px 5%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+    /* ── STATS BAR ── */
+    .stats-bar {
+      display: flex; justify-content: center; gap: 0;
+      background: var(--s1); border: 1px solid var(--border);
+      border-radius: 16px; max-width: 600px; margin: 56px auto 0;
+      overflow: hidden;
+    }
+    .stat-item {
+      flex: 1; padding: 20px 16px; text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-val {
+      font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--blue), var(--green));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .stat-lbl { font-size: .75rem; color: var(--muted); margin-top: 3px; }
 
-        .feature-card {
-            background: var(--glass);
-            padding: 30px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            text-align: left;
-            transition: 0.3s;
-        }
+    /* ── SLIDE PREVIEW ── */
+    .preview-section {
+      position: relative; z-index: 1;
+      max-width: 900px; margin: 60px auto;
+      padding: 0 20px;
+    }
+    .preview-frame {
+      border-radius: 20px; overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 40px 80px rgba(0,0,0,.6);
+      background: var(--s1);
+      position: relative;
+    }
+    .preview-frame::before {
+      content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background: linear-gradient(to bottom, transparent 60%, var(--bg) 100%);
+    }
+    .slider { height: 380px; position: relative; overflow: hidden; }
+    .slider img {
+      width: 100%; height: 100%; object-fit: cover;
+      position: absolute; opacity: 0; transition: opacity 1.2s ease-in-out;
+    }
+    .slider img.active { opacity: 1; }
+    .slider-dots {
+      position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 6px; z-index: 2;
+    }
+    .slider-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: rgba(255,255,255,.3); transition: .3s; cursor: pointer;
+    }
+    .slider-dot.active { background: var(--blue); width: 22px; border-radius: 4px; }
+    @media(max-width:768px) { .slider { height: 220px; } }
 
-        .feature-card:hover { border-color: var(--primary); }
+    /* ── FEATURES ── */
+    .features-section {
+      position: relative; z-index: 1;
+      max-width: 1100px; margin: 0 auto 80px;
+      padding: 0 20px;
+    }
+    .section-label {
+      text-align: center; margin-bottom: 40px;
+    }
+    .section-label h2 {
+      font-family: 'Syne', sans-serif; font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 800; margin-bottom: 10px;
+    }
+    .section-label p { color: var(--muted); font-size: .95rem; }
 
-        .feature-card i {
-            font-size: 2rem;
-            color: var(--accent);
-            margin-bottom: 20px;
-        }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
 
-        .feature-card h3 { margin: 0 0 10px; font-size: 1.4rem; }
+    .feature-card {
+      background: var(--s1); border: 1px solid var(--border);
+      border-radius: 18px; padding: 28px;
+      transition: all .25s; position: relative; overflow: hidden;
+    }
+    .feature-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--blue), var(--green));
+      opacity: 0; transition: .25s;
+    }
+    .feature-card:hover { transform: translateY(-4px); border-color: rgba(59,130,246,.25); }
+    .feature-card:hover::before { opacity: 1; }
 
-        footer {
-            text-align: center;
-            padding: 40px;
-            border-top: 1px solid var(--border);
-            color: #64748b;
-        }
+    .feat-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      background: linear-gradient(135deg, rgba(59,130,246,.15), rgba(16,185,129,.1));
+      border: 1px solid rgba(59,130,246,.2);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px;
+    }
+    .feat-icon svg { width: 24px; height: 24px; }
+    .feature-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .feature-card p { color: var(--muted); font-size: .87rem; line-height: 1.6; }
 
-        @media (max-width: 768px) {
-            .slider { height: 250px; }
-        }
-    </style>
+    /* ── HOW IT WORKS ── */
+    .how-section {
+      position: relative; z-index: 1;
+      max-width: 900px; margin: 0 auto 80px; padding: 0 20px;
+    }
+    .steps-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .step-card {
+      background: var(--s1); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px 20px; text-align: center; position: relative;
+    }
+    .step-num {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), #6366f1);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: .9rem;
+      margin: 0 auto 14px; color: #fff;
+    }
+    .step-card h4 { font-family: 'Syne', sans-serif; font-size: .92rem; font-weight: 700; margin-bottom: 6px; }
+    .step-card p { font-size: .8rem; color: var(--muted); line-height: 1.5; }
+
+    /* ── CTA BANNER ── */
+    .cta-banner {
+      position: relative; z-index: 1;
+      max-width: 800px; margin: 0 auto 80px; padding: 0 20px;
+    }
+    .cta-inner {
+      background: linear-gradient(135deg, #0d1e3a, #122444);
+      border: 1px solid rgba(59,130,246,.3); border-radius: 24px;
+      padding: 50px 40px; text-align: center;
+      box-shadow: 0 20px 60px rgba(59,130,246,.12);
+    }
+    .cta-inner h2 { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; margin-bottom: 12px; }
+    .cta-inner p { color: var(--muted); font-size: .95rem; margin-bottom: 28px; }
+    .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative; z-index: 1;
+      border-top: 1px solid var(--border); padding: 32px 20px;
+      text-align: center; color: var(--muted); font-size: .83rem;
+    }
+    footer a { color: var(--muted); text-decoration: none; margin: 0 10px; transition: .2s; }
+    footer a:hover { color: var(--blue); }
+    .footer-logo {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: .9rem;
+      background: linear-gradient(90deg, #818cf8, #34d399);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 10px; display: block;
+    }
+  </style>
 </head>
-
 <body>
 
+<!-- NAV -->
 <nav>
-    <div class="logo-text">CODEX STUDY HUB</div>
-    <div class="nav-links">
-        <a href="Login.html" class="btn btn-login" style="padding: 10px 20px; font-size: 0.9rem;">Start Now</a>
-    </div>
+  <div class="nav-logo">
+    <img src="logo.png" alt="Codex" onerror="this.style.display='none'">
+    <span class="nav-logo-text">CODEX STUDY HUB</span>
+  </div>
+  <div class="nav-cta">
+    <a href="signup.html" class="btn-nav-ghost">Sign Up</a>
+    <a href="Login.html" class="btn-nav-solid">Log In</a>
+  </div>
 </nav>
 
+<!-- HERO -->
 <section class="hero">
-    <img src="logo.png" alt="Logo" class="cbt-logo">
-    <h1>Master Your Exams <br><span style="color: var(--accent)">Without Stress.</span></h1>
-    <p>Access high-quality CBT practice questionsb from previous 100lv student, detailed study notes, and track your progress—all in one place.</p>
+  <div class="hero-logo-wrap">
+    <img src="logo.png" alt="Codex" onerror="this.style.display='none'">
+  </div>
 
-    <div class="buttons">
-        <a href="Login.html" class="btn btn-login">Get Started Free <i class="fas fa-arrow-right"></i></a>
-        <button class="btn btn-support" onclick="openSupport()">Talk to a Developer <i class="fab fa-whatsapp"></i></button>
+  <div class="hero-badge">
+    <span></span>
+    Built for OOU 100L Students
+  </div>
+
+  <h1>
+    Master Your Exams<br>
+    <span class="grad">Without the Stress.</span>
+  </h1>
+
+  <p>
+    High-quality CBT practice from past questions, structured study notes,
+    progress tracking, and real exam simulation — all in one place.
+  </p>
+
+  <div class="hero-btns">
+    <a href="Login.html" class="btn-hero-primary">
+      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      Start Studying Free
+    </a>
+    <button class="btn-hero-ghost" onclick="window.open('https://wa.me/2347011245168?text=Hi%20Codex%20Developer,%20I%27d%20like%20to%20know%20more.','_blank')">
+      <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Talk to Developer
+    </button>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-val">500+</div>
+      <div class="stat-lbl">Questions</div>
     </div>
+    <div class="stat-item">
+      <div class="stat-val">10+</div>
+      <div class="stat-lbl">Subjects</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val">100%</div>
+      <div class="stat-lbl">Free to Start</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val">OOU</div>
+      <div class="stat-lbl">Focused</div>
+    </div>
+  </div>
 </section>
 
-<div class="slider-container">
-    <div class="slider">
-        <img src="images/graduation.jpg" class="active">
-        <img src="images/phone.jpg">
-        <img src="images/students.jpg">
-        <img src="images/cbt.jpg">
+<!-- PREVIEW SLIDER -->
+<div class="preview-section">
+  <div class="preview-frame">
+    <div class="slider" id="slider">
+      <img src="images/graduation.jpg" class="active" onerror="this.style.display='none'">
+      <img src="images/phone.jpg" onerror="this.style.display='none'">
+      <img src="images/students.jpg" onerror="this.style.display='none'">
+      <img src="images/cbt.jpg" onerror="this.style.display='none'">
     </div>
+    <div class="slider-dots" id="sliderDots"></div>
+  </div>
 </div>
 
-<section class="features">
+<!-- FEATURES -->
+<section class="features-section">
+  <div class="section-label">
+    <h2>Everything You Need to <span style="color:var(--blue)">Pass</span></h2>
+    <p>Built specifically for OOU 100-Level students by someone who's been there.</p>
+  </div>
+
+  <div class="features-grid">
     <div class="feature-card">
-        <i class="fas fa-bolt"></i>
-        <h3>Timed CBT Mode</h3>
-        <p>Simulate real exam environments with our timed engine. Get used to the pressure before the big day.</p>
+      <div class="feat-icon">
+        <svg fill="none" stroke="#3b82f6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <h3>Timed CBT Mode</h3>
+      <p>Simulate real exam pressure with 30-minute timed tests. Practice until the clock doesn't scare you.</p>
     </div>
     <div class="feature-card">
-        <i class="fas fa-book-open"></i>
-        <h3>Structured Notes</h3>
-        <p>Not just questions—we provide simplified notes for subjects like MTH101, PHY101, and more.</p>
+      <div class="feat-icon">
+        <svg fill="none" stroke="#10b981" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+      </div>
+      <h3>Structured Study Notes</h3>
+      <p>Not just questions. Get simplified notes, key formulas, and definitions per topic, per subject.</p>
     </div>
     <div class="feature-card">
-        <i class="fas fa-chart-line"></i>
-        <h3>Progress Analytics</h3>
-        <p>Track your scores over time and see exactly which topics you need to study more.</p>
+      <div class="feat-icon">
+        <svg fill="none" stroke="#f59e0b" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      </div>
+      <h3>Progress Analytics</h3>
+      <p>Track your score history, accuracy rates, and weak topics per subject. Know exactly where to focus.</p>
     </div>
+    <div class="feature-card">
+      <div class="feat-icon">
+        <svg fill="none" stroke="#ec4899" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+      </div>
+      <h3>Topic Practice Mode</h3>
+      <p>Choose any specific topic and set your own question count. Laser-focus your revision where it matters.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon">
+        <svg fill="none" stroke="#6366f1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg>
+      </div>
+      <h3>PDF Resources</h3>
+      <p>Download past questions, lecture notes, and textbooks. All resources in one searchable library.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon">
+        <svg fill="none" stroke="#34d399" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+      </div>
+      <h3>Rank & Leaderboard</h3>
+      <p>Earn XP, climb from Rookie to Legend, and compete with other students on the marathon leaderboard.</p>
+    </div>
+  </div>
 </section>
 
-<footer>
-    <p>© 2025 Codex Hub • Built with ❤️ for OOU (0labisi Onabanjo) Students</p>
-    <div style="font-size: 0.8rem; margin-top: 10px;">
-        <a href="#" style="color: #64748b; margin: 0 10px;">Privacy</a>
-        <a href="#" style="color: #64748b; margin: 0 10px;">Terms</a>
+<!-- HOW IT WORKS -->
+<section class="how-section">
+  <div class="section-label">
+    <h2>How It Works</h2>
+    <p>Get started in under a minute.</p>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <h4>Create Account</h4>
+      <p>Sign up with email or Google. Select your faculty and department.</p>
     </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <h4>Pick a Subject</h4>
+      <p>Choose from your course subjects. Free access to select topics instantly.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <h4>Practice & Study</h4>
+      <p>Take timed tests, practice by topic, or read structured notes.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">4</div>
+      <h4>Track Progress</h4>
+      <p>View your scores, accuracy, and rank. Identify weak areas and improve.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-banner">
+  <div class="cta-inner">
+    <h2>Ready to Start Passing?</h2>
+    <p>Join hundreds of OOU students already using Codex to prepare smarter.</p>
+    <div class="cta-btns">
+      <a href="signup.html" class="btn-hero-primary">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+        Create Free Account
+      </a>
+      <a href="Login.html" class="btn-hero-ghost">Already have an account →</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-logo">CODEX STUDY HUB</span>
+  <p style="margin-bottom:12px">© 2025 Codex Hub • Built with ❤️ for OOU (Olabisi Onabanjo University) Students</p>
+  <div>
+    <a href="terms.html">Terms</a>
+    <a href="#">Privacy</a>
+    <a href="https://wa.me/2347011245168" target="_blank">Contact</a>
+  </div>
 </footer>
 
 <script>
-    // Slider Logic
-    let index = 0;
-    const slides = document.querySelectorAll('.slider img');
-    
-    if(slides.length > 0) {
-        setInterval(() => {
-            slides[index].classList.remove('active');
-            index = (index + 1) % slides.length;
-            slides[index].classList.add('active');
-        }, 4000);
-    }
+  // Slider
+  const slides = document.querySelectorAll('.slider img');
+  const dotsEl  = document.getElementById('sliderDots');
+  let idx = 0;
 
-    function openSupport() {
-        window.open(
-            "https://wa.me/2347011245168?text=Hi%20Codex%20Developer,%20I'd%20like%20to%20know%20more%20about%20the%20Study%20Hub.",
-            "_blank"
-        );
-    }
+  // Build dots
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'slider-dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  });
+
+  function goTo(i) {
+    slides[idx].classList.remove('active');
+    document.querySelectorAll('.slider-dot')[idx].classList.remove('active');
+    idx = i;
+    slides[idx].classList.add('active');
+    document.querySelectorAll('.slider-dot')[idx].classList.add('active');
+  }
+
+  if (slides.length > 0) {
+    setInterval(() => goTo((idx + 1) % slides.length), 4500);
+  }
 </script>
+
+<!-- Firebase: redirect logged-in users to splash -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
-const firebaseConfig = {
-    apiKey: "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
-    authDomain: "codex-study-hub-923c5.firebaseapp.com",
-    projectId: "codex-study-hub-923c5",
-    storageBucket: "codex-study-hub-923c5.appspot.com",
-    messagingSenderId: "750631534625",
-    appId: "1:750631534625:web:5f59e1841bb856bdbba360"
-  };
-
-
-
-const app = initializeApp(firebaseConfig);
+const app  = initializeApp({
+  apiKey: "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+  authDomain: "codex-study-hub-923c5.firebaseapp.com",
+  projectId: "codex-study-hub-923c5",
+  storageBucket: "codex-study-hub-923c5.appspot.com",
+  messagingSenderId: "750631534625",
+  appId: "1:750631534625:web:5f59e1841bb856bdbba360"
+});
 const auth = getAuth(app);
 
-// 🔥 THIS IS THE MAGIC
+// If user already logged in, go to splash → home (not index)
 onAuthStateChanged(auth, (user) => {
-  if (user) {
-    // Skip landing page completely
-    window.location.href = "splash.html";
-  }
+  if (user) window.location.href = "splash.html";
 });
 </script>
 </body>

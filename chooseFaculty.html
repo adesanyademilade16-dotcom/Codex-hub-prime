@@ -1,178 +1,439 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Codex Study Hub - Complete Profile</title>
-    <style>
-        :root { --primary:#007bff; --bg:#f8f9fa; --card:#fff; --border:#ced4da; }
-        *{box-sizing:border-box;margin:0;padding:0}
-        body { font-family:'Segoe UI',sans-serif; background:var(--bg); display:flex; justify-content:center; align-items:center; min-height:100vh; padding:24px 16px; }
-        .container { width:100%; max-width:420px; padding:2.5rem; background:var(--card); border-radius:14px; box-shadow:0 8px 24px rgba(0,0,0,.12); }
-        .icon { text-align:center; font-size:2.8rem; margin-bottom:8px; }
-        h2 { color:var(--primary); text-align:center; margin-bottom:6px; font-size:1.4rem; }
-        p.sub { text-align:center; color:#666; font-size:.88rem; margin-bottom:1.6rem; line-height:1.5; }
-        .form-group { margin-bottom:1.2rem; }
-        label { display:block; margin-bottom:.4rem; font-weight:600; color:#444; font-size:.88rem; }
-        select { width:100%; padding:.8rem; border-radius:8px; border:1.5px solid var(--border); font-size:.93rem; background:#fff; transition:border-color .2s; }
-        select:focus { border-color:var(--primary); outline:none; box-shadow:0 0 0 3px rgba(0,123,255,.15); }
-        select:disabled { background:#f5f5f5; color:#aaa; cursor:not-allowed; }
-        .btn { width:100%; padding:.9rem; border:none; border-radius:8px; background:linear-gradient(135deg,var(--primary),#0056b3); color:#fff; font-size:1rem; font-weight:600; cursor:pointer; margin-top:1rem; transition:all .2s; }
-        .btn:hover:not(:disabled) { opacity:.9; transform:translateY(-1px); }
-        .btn:disabled { opacity:.6; cursor:not-allowed; }
-        .alert { padding:10px 14px; border-radius:8px; margin-bottom:14px; font-size:.88rem; font-weight:600; display:none; }
-        .alert-error { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
-        .spinner { display:inline-block; width:14px; height:14px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin .6s linear infinite; vertical-align:middle; margin-right:6px; }
-        @keyframes spin { to { transform:rotate(360deg); } }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Codex Study Hub — Complete Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#080c14; --s1:#0f1623; --s2:#151e30;
+      --border:rgba(255,255,255,.06); --border2:rgba(255,255,255,.12);
+      --blue:#3b82f6; --blue-s:rgba(59,130,246,.12); --blue-b:rgba(59,130,246,.25);
+      --green:#10b981; --gold:#f59e0b;
+      --text:#f0f4ff; --muted:#8fa3c0; --r:14px;
+    }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text);
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      padding:24px 16px;
+    }
+    body::before {
+      content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+      background:radial-gradient(ellipse 70vw 50vh at 20% 10%, rgba(59,130,246,.08) 0%, transparent 55%);
+    }
+
+    .container {
+      position:relative; z-index:1;
+      width:100%; max-width:460px;
+      background:var(--s1); border:1px solid var(--border2);
+      border-radius:20px; padding:2rem;
+      box-shadow:0 20px 60px rgba(0,0,0,.5);
+    }
+
+    /* HEADER */
+    .logo-wrap { text-align:center; margin-bottom:24px; }
+    .logo-wrap img { width:60px; border-radius:14px; margin-bottom:10px; }
+    .logo-wrap h2 {
+      font-family:'Syne',sans-serif; font-size:1.35rem; font-weight:800;
+      background:linear-gradient(90deg,#818cf8,#34d399);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    }
+    .logo-wrap p { color:var(--muted); font-size:.85rem; margin-top:4px; }
+
+    /* PROGRESS STEPS */
+    .steps-bar { display:flex; align-items:center; gap:0; margin-bottom:24px; }
+    .step-dot {
+      width:28px; height:28px; border-radius:50%; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      font-size:.75rem; font-weight:700; border:2px solid var(--border2);
+      color:var(--muted); background:var(--s2); transition:.3s;
+    }
+    .step-dot.active { background:var(--blue); border-color:var(--blue); color:#fff; }
+    .step-dot.done { background:var(--green); border-color:var(--green); color:#fff; }
+    .step-line { flex:1; height:2px; background:var(--border2); transition:.3s; }
+    .step-line.done { background:var(--green); }
+
+    /* FORM GROUPS */
+    .form-group { margin-bottom:16px; }
+    .form-group label {
+      display:block; font-size:.82rem; font-weight:600; color:var(--muted); margin-bottom:7px;
+    }
+    .form-group input, .form-group select {
+      width:100%; padding:12px 14px;
+      background:var(--s2); border:1.5px solid var(--border2);
+      border-radius:10px; color:var(--text); font-size:.92rem;
+      font-family:inherit; transition:.2s; outline:none;
+    }
+    .form-group input:focus, .form-group select:focus { border-color:var(--blue); }
+    .form-group select option { background:var(--s2); }
+    .form-group select:disabled { opacity:.5; cursor:not-allowed; }
+
+    /* PASSWORD SECTION */
+    .pw-section {
+      background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(16,185,129,.06));
+      border:1px solid var(--blue-b); border-radius:12px;
+      padding:16px; margin-bottom:16px;
+    }
+    .pw-section-header {
+      display:flex; align-items:center; gap:10px; margin-bottom:12px;
+    }
+    .pw-section-header svg { width:18px; height:18px; color:var(--blue); flex-shrink:0; }
+    .pw-section-header div h4 { font-size:.88rem; font-weight:700; color:var(--text); }
+    .pw-section-header div p { font-size:.76rem; color:var(--muted); margin-top:2px; }
+    .pw-toggle {
+      display:flex; align-items:center; gap:8px; cursor:pointer;
+      font-size:.82rem; color:var(--blue); font-weight:600; margin-bottom:12px;
+      background:none; border:none; padding:0;
+    }
+    .pw-toggle input[type="checkbox"] { accent-color:var(--blue); width:16px; height:16px; cursor:pointer; }
+    .pw-fields { display:none; flex-direction:column; gap:10px; }
+    .pw-fields.show { display:flex; }
+
+    /* PASSWORD INPUT WRAPPER */
+    .pw-input-wrap { position:relative; }
+    .pw-input-wrap input { padding-right:44px; }
+    .pw-eye {
+      position:absolute; right:12px; top:50%; transform:translateY(-50%);
+      background:none; border:none; cursor:pointer; color:var(--muted); padding:4px;
+    }
+    .pw-eye svg { width:18px; height:18px; display:block; }
+
+    .pw-strength { margin-top:6px; }
+    .pw-strength-bar { height:4px; border-radius:2px; background:var(--border2); overflow:hidden; }
+    .pw-strength-fill { height:100%; border-radius:2px; transition:width .3s, background .3s; width:0%; }
+    .pw-strength-label { font-size:.72rem; color:var(--muted); margin-top:4px; }
+
+    /* ALERT */
+    .alert {
+      padding:11px 14px; border-radius:9px; margin-bottom:14px;
+      font-size:.85rem; font-weight:600; display:none;
+    }
+    .alert-error { background:rgba(239,68,68,.12); color:#f87171; border:1px solid rgba(239,68,68,.25); }
+    .alert-success { background:rgba(16,185,129,.12); color:#34d399; border:1px solid rgba(16,185,129,.25); }
+
+    /* BUTTON */
+    .btn {
+      width:100%; padding:13px; border:none; border-radius:10px;
+      background:linear-gradient(135deg,var(--blue),#2563eb);
+      color:#fff; font-family:inherit; font-size:.95rem; font-weight:700;
+      cursor:pointer; transition:.2s; display:flex; align-items:center; justify-content:center; gap:8px;
+    }
+    .btn:hover:not(:disabled) { opacity:.9; transform:translateY(-1px); }
+    .btn:disabled { opacity:.55; cursor:not-allowed; transform:none; }
+
+    .spinner {
+      display:inline-block; width:14px; height:14px;
+      border:2px solid rgba(255,255,255,.3); border-top-color:#fff;
+      border-radius:50%; animation:spin .6s linear infinite;
+    }
+    @keyframes spin { to{transform:rotate(360deg)} }
+  </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="icon">🎓</div>
+  <div class="logo-wrap">
+    <img src="logo.png" alt="Codex" onerror="this.style.display='none'">
     <h2>Complete Your Profile</h2>
-    <p class="sub">Almost there! Please tell us a bit about your academic details so we can show you the right subjects.</p>
+    <p>Tell us about your faculty so we show the right subjects.</p>
+  </div>
 
-    <div id="alertError" class="alert alert-error"></div>
+  <!-- Progress steps -->
+  <div class="steps-bar">
+    <div class="step-dot active" id="s1">1</div>
+    <div class="step-line" id="l1"></div>
+    <div class="step-dot" id="s2">2</div>
+    <div class="step-line" id="l2"></div>
+    <div class="step-dot" id="s3">3</div>
+  </div>
 
-    <form id="profileForm">
-        <div class="form-group">
-            <label>1. Select Faculty</label>
-            <!--
-                ⚠️ KEY FIX: onchange calls updateDepartments() which is defined
-                in a REGULAR <script> block below (not type="module"), so it works.
-            -->
-            <select id="faculty" required onchange="updateDepartments()">
-                <option value="">-- Choose Faculty --</option>
-                <option value="science">Science</option>
-                <option value="social_sciences">Social Science</option>
-                <option value="arts">Arts</option>
-                <option value="law">Law</option>
-            </select>
+  <div id="alertError" class="alert alert-error"></div>
+  <div id="alertSuccess" class="alert alert-success"></div>
+
+  <form id="profileForm">
+
+    <!-- FACULTY -->
+    <div class="form-group">
+      <label>Faculty</label>
+      <select id="faculty" required onchange="updateDepartments()">
+        <option value="">— Choose Faculty —</option>
+        <option value="science">Science</option>
+        <option value="social_sciences">Social Science</option>
+        <option value="arts">Arts</option>
+        <option value="law">Law</option>
+      </select>
+    </div>
+
+    <!-- DEPARTMENT -->
+    <div class="form-group">
+      <label>Department</label>
+      <select id="department" required disabled>
+        <option value="">— Select Faculty First —</option>
+      </select>
+    </div>
+
+    <!-- SEMESTER -->
+    <div class="form-group">
+      <label>Current Semester</label>
+      <select id="semester" required>
+        <option value="">— Choose Semester —</option>
+        <option value="1">First Semester (Harmattan)</option>
+        <option value="2">Second Semester (Rain)</option>
+      </select>
+    </div>
+
+    <!-- OPTIONAL PASSWORD SECTION (shown to Google users) -->
+    <div class="pw-section" id="pwSection" style="display:none">
+      <div class="pw-section-header">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0110 0v4"/>
+        </svg>
+        <div>
+          <h4>Set a Password (Optional)</h4>
+          <p>Lets you also log in with email if Google isn't available.</p>
         </div>
+      </div>
 
-        <div class="form-group">
-            <label>2. Select Department</label>
-            <select id="department" required disabled>
-                <option value="">-- Select Faculty First --</option>
-            </select>
+      <label class="pw-toggle">
+        <input type="checkbox" id="setPwCheck" onchange="togglePasswordFields()">
+        I want to add an email/password login
+      </label>
+
+      <div class="pw-fields" id="pwFields">
+        <div class="form-group" style="margin:0">
+          <label>Password</label>
+          <div class="pw-input-wrap">
+            <input type="password" id="newPassword" placeholder="Min 6 characters" minlength="6" oninput="checkStrength()">
+            <button type="button" class="pw-eye" onclick="toggleEye('newPassword',this)">
+              <svg id="eyeIcon1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="pw-strength">
+            <div class="pw-strength-bar"><div class="pw-strength-fill" id="strengthFill"></div></div>
+            <div class="pw-strength-label" id="strengthLabel"></div>
+          </div>
         </div>
-
-        <div class="form-group">
-            <label>3. Current Semester</label>
-            <select id="semester" required>
-                <option value="">-- Choose Semester --</option>
-                <option value="1">First Semester (Harmattan)</option>
-                <option value="2">Second Semester (Rain)</option>
-            </select>
+        <div class="form-group" style="margin:0">
+          <label>Confirm Password</label>
+          <div class="pw-input-wrap">
+            <input type="password" id="confirmPassword" placeholder="Repeat password">
+            <button type="button" class="pw-eye" onclick="toggleEye('confirmPassword',this)">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
         </div>
+      </div>
+    </div>
 
-        <button type="submit" class="btn" id="saveBtn">Save &amp; Enter Study Hub</button>
-    </form>
+    <button type="submit" class="btn" id="saveBtn">
+      Save &amp; Enter Study Hub
+    </button>
+  </form>
 </div>
 
-<!-- Regular script — accessible from onchange HTML attribute -->
+<!-- Department logic must be in regular (non-module) script -->
 <script>
 function updateDepartments() {
-    const faculty    = document.getElementById("faculty").value;
-    const deptSelect = document.getElementById("department");
+  const f  = document.getElementById('faculty').value;
+  const ds = document.getElementById('department');
+  const DEPTS = {
+    science:["Computer Science","Engineering","Agriculture","Medicine","Physics","Chemistry","Mathematics","Biology","Education","Other"],
+    social_sciences:["Economics","Political Science","Sociology","Mass Communication","Education","Other"],
+    arts:["English","History","Philosophy","French","Education","Other"],
+    law:["Law","Other"]
+  };
+  const list = DEPTS[f] || [];
+  ds.innerHTML = '<option value="">— Select Department —</option>';
+  ds.disabled = !list.length;
+  list.forEach(d => {
+    const o = document.createElement('option');
+    o.value = d.toLowerCase().replace(/\s+/g,'_'); o.textContent = d; ds.appendChild(o);
+  });
 
-    const DEPT_MAP = {
-        science:        ["Computer Science","Engineering","Agriculture","Medicine","Physics","Chemistry","Mathematics","Biology","Education","Other"],
-        social_sciences:["Economics","Political Science","Sociology","Mass Communication","Education","Other"],
-        arts:           ["English","History","Philosophy","French","Education","Other"],
-        law:            ["Law","Other"]
-    };
-
-    const depts = DEPT_MAP[faculty] || [];
-    deptSelect.innerHTML = `<option value="">-- Select Department --</option>`;
-    deptSelect.disabled = depts.length === 0;
-
-    depts.forEach(dept => {
-        const opt = document.createElement("option");
-        opt.value = dept.toLowerCase().replace(/\s+/g, '_');
-        opt.textContent = dept;
-        deptSelect.appendChild(opt);
-    });
+  // Step visual
+  if (f) { markStep(1); }
 }
+
+function togglePasswordFields() {
+  const show = document.getElementById('setPwCheck').checked;
+  document.getElementById('pwFields').classList.toggle('show', show);
+  if (!show) {
+    document.getElementById('newPassword').value = '';
+    document.getElementById('confirmPassword').value = '';
+    document.getElementById('strengthFill').style.width = '0%';
+    document.getElementById('strengthLabel').textContent = '';
+  }
+}
+
+function toggleEye(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  const isHide = inp.type === 'password';
+  inp.type = isHide ? 'text' : 'password';
+  btn.querySelector('svg').innerHTML = isHide
+    ? '<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
+    : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+}
+
+function checkStrength() {
+  const pw = document.getElementById('newPassword').value;
+  const fill = document.getElementById('strengthFill');
+  const label = document.getElementById('strengthLabel');
+  let score = 0;
+  if (pw.length >= 6)  score++;
+  if (pw.length >= 10) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  const colors = ['','#ef4444','#f59e0b','#f59e0b','#10b981','#10b981'];
+  const labels = ['','Weak','Fair','Fair','Strong','Very Strong'];
+  fill.style.width  = (score * 20) + '%';
+  fill.style.background = colors[score] || 'transparent';
+  label.textContent = pw.length ? labels[score] : '';
+  label.style.color = colors[score];
+}
+
+function markStep(n) {
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById('s' + i).className = 'step-dot' + (i < n ? ' done' : i === n ? ' active' : '');
+    if (i < 3) document.getElementById('l' + i).className = 'step-line' + (i < n ? ' done' : '');
+  }
+}
+
+document.getElementById('faculty').addEventListener('change', () => markStep(2));
+document.getElementById('semester').addEventListener('change', () => markStep(3));
 </script>
 
-<!-- Firebase module script -->
 <script type="module">
-import { initializeApp }          from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-import { getFirestore, doc, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import {
+  getAuth, onAuthStateChanged,
+  EmailAuthProvider, linkWithCredential, updatePassword
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey:            "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
-    authDomain:        "codex-study-hub-923c5.firebaseapp.com",
-    projectId:         "codex-study-hub-923c5",
-    storageBucket:     "codex-study-hub-923c5.appspot.com",
-    messagingSenderId: "750631534625",
-    appId:             "1:750631534625:web:5f59e1841bb856bdbba360"
+  apiKey:"AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+  authDomain:"codex-study-hub-923c5.firebaseapp.com",
+  projectId:"codex-study-hub-923c5",
+  storageBucket:"codex-study-hub-923c5.appspot.com",
+  messagingSenderId:"750631534625",
+  appId:"1:750631534625:web:5f59e1841bb856bdbba360"
 };
 
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
-const errEl = document.getElementById('alertError');
 
+const errEl  = document.getElementById('alertError');
+const okEl   = document.getElementById('alertSuccess');
 let currentUser = null;
 
-// Wait for auth to resolve — if no user, send to login
-onAuthStateChanged(auth, (user) => {
-    if (!user) {
-        window.location.href = 'Login.html';
-        return;
+function showErr(msg) { errEl.textContent=msg; errEl.style.display='block'; okEl.style.display='none'; }
+function showOk(msg)  { okEl.textContent=msg;  okEl.style.display='block'; errEl.style.display='none'; }
+function clearAlerts(){ errEl.style.display='none'; okEl.style.display='none'; }
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'Login.html'; return; }
+  currentUser = user;
+
+  // Show password section ONLY if user signed in with Google (no password provider)
+  const hasEmailPw = user.providerData.some(p => p.providerId === 'password');
+  const hasGoogle  = user.providerData.some(p => p.providerId === 'google.com');
+  if (hasGoogle && !hasEmailPw) {
+    document.getElementById('pwSection').style.display = 'block';
+  }
+
+  // Pre-fill if they have faculty data already
+  try {
+    const snap = await getDoc(doc(db, "users", user.uid));
+    if (snap.exists()) {
+      const d = snap.data();
+      if (d.faculty) {
+        document.getElementById('faculty').value = d.faculty;
+        window.updateDepartments();
+        if (d.department) document.getElementById('department').value = d.department;
+      }
+      if (d.semester) document.getElementById('semester').value = d.semester;
     }
-    currentUser = user;
+  } catch(e) {}
 });
 
 document.getElementById('profileForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!currentUser) { alert("Session expired. Please log in again."); return; }
+  e.preventDefault();
+  clearAlerts();
+  if (!currentUser) { showErr('Session expired. Please log in again.'); return; }
 
-    const faculty    = document.getElementById('faculty').value;
-    const department = document.getElementById('department').value;
-    const semester   = document.getElementById('semester').value;
-    const btn        = document.getElementById('saveBtn');
+  const faculty    = document.getElementById('faculty').value;
+  const department = document.getElementById('department').value;
+  const semester   = document.getElementById('semester').value;
+  const btn        = document.getElementById('saveBtn');
+  const wantsPw    = document.getElementById('setPwCheck').checked;
 
-    if (!faculty || !department || !semester) {
-        errEl.textContent = '❌ Please fill in all three fields.';
-        errEl.style.display = 'block';
-        return;
+  if (!faculty || !department || !semester) {
+    showErr('❌ Please fill in all fields.'); return;
+  }
+
+  // Validate password if they want to set one
+  if (wantsPw) {
+    const pw  = document.getElementById('newPassword').value;
+    const cpw = document.getElementById('confirmPassword').value;
+    if (pw.length < 6)   { showErr('❌ Password must be at least 6 characters.'); return; }
+    if (pw !== cpw)      { showErr('❌ Passwords do not match.'); return; }
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Saving...';
+
+  try {
+    // 1. Save faculty/department/semester to Firestore
+    await setDoc(doc(db, "users", currentUser.uid), { faculty, department, semester }, { merge: true });
+
+    // 2. Link email/password to Google account if requested
+    if (wantsPw) {
+      const pw = document.getElementById('newPassword').value;
+      const email = currentUser.email;
+
+      const hasEmailPw = currentUser.providerData.some(p => p.providerId === 'password');
+      if (hasEmailPw) {
+        // Already has email/pw — just update the password
+        await updatePassword(currentUser, pw);
+      } else {
+        // Link new email/password credential
+        const credential = EmailAuthProvider.credential(email, pw);
+        await linkWithCredential(currentUser, credential);
+      }
+      showOk('✅ Password set! You can now log in with email too.');
     }
 
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Saving...';
-    errEl.style.display = 'none';
-
-    try {
-        // Use setDoc with merge:true so it works whether doc exists or not
-        await setDoc(doc(db, "users", currentUser.uid), {
-            faculty, department, semester
-        }, { merge: true });
-
-        // Update session in localStorage for trial key prefixing
-        const snap = await getDoc(doc(db, "users", currentUser.uid));
-        if (snap.exists()) {
-            localStorage.setItem('loggedInUser', JSON.stringify({
-                uid:        currentUser.uid,
-                email:      currentUser.email,
-                fullName:   snap.data().fullName || '',
-                faculty, department, semester
-            }));
-        }
-
-        localStorage.setItem('selectedSemester', semester);
-        window.location.href = 'home.html';
-
-    } catch (error) {
-        btn.disabled = false;
-        btn.textContent = 'Save & Enter Study Hub';
-        errEl.textContent = '❌ Error saving: ' + error.message;
-        errEl.style.display = 'block';
+    // 3. Update localStorage session
+    const snap = await getDoc(doc(db, "users", currentUser.uid));
+    if (snap.exists()) {
+      localStorage.setItem('loggedInUser', JSON.stringify({
+        uid: currentUser.uid, email: currentUser.email,
+        fullName: snap.data().fullName || '',
+        faculty, department, semester
+      }));
     }
+    localStorage.setItem('selectedSemester', semester);
+
+    // Small delay so user sees the success message if password was set
+    await new Promise(r => setTimeout(r, wantsPw ? 1200 : 200));
+    window.location.href = 'home.html';
+
+  } catch(err) {
+    btn.disabled = false;
+    btn.textContent = 'Save & Enter Study Hub';
+
+    const msgs = {
+      'auth/email-already-in-use': '❌ This email already has an email/password account. Just use email login.',
+      'auth/provider-already-linked': '❌ A password is already linked to this account.',
+      'auth/requires-recent-login': '❌ Please sign out and sign in again before setting a password.',
+    };
+    showErr(msgs[err.code] || ('❌ ' + err.message));
+  }
 });
 </script>
 </body>
