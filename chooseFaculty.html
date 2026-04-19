@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codex Study Hub - Complete Profile</title>
+    <style>
+        :root { --primary:#007bff; --bg:#f8f9fa; --card:#fff; --border:#ced4da; }
+        *{box-sizing:border-box;margin:0;padding:0}
+        body { font-family:'Segoe UI',sans-serif; background:var(--bg); display:flex; justify-content:center; align-items:center; min-height:100vh; padding:24px 16px; }
+        .container { width:100%; max-width:420px; padding:2.5rem; background:var(--card); border-radius:14px; box-shadow:0 8px 24px rgba(0,0,0,.12); }
+        .icon { text-align:center; font-size:2.8rem; margin-bottom:8px; }
+        h2 { color:var(--primary); text-align:center; margin-bottom:6px; font-size:1.4rem; }
+        p.sub { text-align:center; color:#666; font-size:.88rem; margin-bottom:1.6rem; line-height:1.5; }
+        .form-group { margin-bottom:1.2rem; }
+        label { display:block; margin-bottom:.4rem; font-weight:600; color:#444; font-size:.88rem; }
+        select { width:100%; padding:.8rem; border-radius:8px; border:1.5px solid var(--border); font-size:.93rem; background:#fff; transition:border-color .2s; }
+        select:focus { border-color:var(--primary); outline:none; box-shadow:0 0 0 3px rgba(0,123,255,.15); }
+        select:disabled { background:#f5f5f5; color:#aaa; cursor:not-allowed; }
+        .btn { width:100%; padding:.9rem; border:none; border-radius:8px; background:linear-gradient(135deg,var(--primary),#0056b3); color:#fff; font-size:1rem; font-weight:600; cursor:pointer; margin-top:1rem; transition:all .2s; }
+        .btn:hover:not(:disabled) { opacity:.9; transform:translateY(-1px); }
+        .btn:disabled { opacity:.6; cursor:not-allowed; }
+        .alert { padding:10px 14px; border-radius:8px; margin-bottom:14px; font-size:.88rem; font-weight:600; display:none; }
+        .alert-error { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
+        .spinner { display:inline-block; width:14px; height:14px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin .6s linear infinite; vertical-align:middle; margin-right:6px; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="icon">🎓</div>
+    <h2>Complete Your Profile</h2>
+    <p class="sub">Almost there! Please tell us a bit about your academic details so we can show you the right subjects.</p>
+
+    <div id="alertError" class="alert alert-error"></div>
+
+    <form id="profileForm">
+        <div class="form-group">
+            <label>1. Select Faculty</label>
+            <!--
+                ⚠️ KEY FIX: onchange calls updateDepartments() which is defined
+                in a REGULAR <script> block below (not type="module"), so it works.
+            -->
+            <select id="faculty" required onchange="updateDepartments()">
+                <option value="">-- Choose Faculty --</option>
+                <option value="science">Science</option>
+                <option value="social_sciences">Social Science</option>
+                <option value="arts">Arts</option>
+                <option value="law">Law</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>2. Select Department</label>
+            <select id="department" required disabled>
+                <option value="">-- Select Faculty First --</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>3. Current Semester</label>
+            <select id="semester" required>
+                <option value="">-- Choose Semester --</option>
+                <option value="1">First Semester (Harmattan)</option>
+                <option value="2">Second Semester (Rain)</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn" id="saveBtn">Save &amp; Enter Study Hub</button>
+    </form>
+</div>
+
+<!-- Regular script — accessible from onchange HTML attribute -->
+<script>
+function updateDepartments() {
+    const faculty    = document.getElementById("faculty").value;
+    const deptSelect = document.getElementById("department");
+
+    const DEPT_MAP = {
+        science:        ["Computer Science","Engineering","Agriculture","Medicine","Physics","Chemistry","Mathematics","Biology","Education","Other"],
+        social_sciences:["Economics","Political Science","Sociology","Mass Communication","Education","Other"],
+        arts:           ["English","History","Philosophy","French","Education","Other"],
+        law:            ["Law","Other"]
+    };
+
+    const depts = DEPT_MAP[faculty] || [];
+    deptSelect.innerHTML = `<option value="">-- Select Department --</option>`;
+    deptSelect.disabled = depts.length === 0;
+
+    depts.forEach(dept => {
+        const opt = document.createElement("option");
+        opt.value = dept.toLowerCase().replace(/\s+/g, '_');
+        opt.textContent = dept;
+        deptSelect.appendChild(opt);
+    });
+}
+</script>
+
+<!-- Firebase module script -->
+<script type="module">
+import { initializeApp }          from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, doc, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey:            "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+    authDomain:        "codex-study-hub-923c5.firebaseapp.com",
+    projectId:         "codex-study-hub-923c5",
+    storageBucket:     "codex-study-hub-923c5.appspot.com",
+    messagingSenderId: "750631534625",
+    appId:             "1:750631534625:web:5f59e1841bb856bdbba360"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+const errEl = document.getElementById('alertError');
+
+let currentUser = null;
+
+// Wait for auth to resolve — if no user, send to login
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        window.location.href = 'Login.html';
+        return;
+    }
+    currentUser = user;
+});
+
+document.getElementById('profileForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!currentUser) { alert("Session expired. Please log in again."); return; }
+
+    const faculty    = document.getElementById('faculty').value;
+    const department = document.getElementById('department').value;
+    const semester   = document.getElementById('semester').value;
+    const btn        = document.getElementById('saveBtn');
+
+    if (!faculty || !department || !semester) {
+        errEl.textContent = '❌ Please fill in all three fields.';
+        errEl.style.display = 'block';
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Saving...';
+    errEl.style.display = 'none';
+
+    try {
+        // Use setDoc with merge:true so it works whether doc exists or not
+        await setDoc(doc(db, "users", currentUser.uid), {
+            faculty, department, semester
+        }, { merge: true });
+
+        // Update session in localStorage for trial key prefixing
+        const snap = await getDoc(doc(db, "users", currentUser.uid));
+        if (snap.exists()) {
+            localStorage.setItem('loggedInUser', JSON.stringify({
+                uid:        currentUser.uid,
+                email:      currentUser.email,
+                fullName:   snap.data().fullName || '',
+                faculty, department, semester
+            }));
+        }
+
+        localStorage.setItem('selectedSemester', semester);
+        window.location.href = 'home.html';
+
+    } catch (error) {
+        btn.disabled = false;
+        btn.textContent = 'Save & Enter Study Hub';
+        errEl.textContent = '❌ Error saving: ' + error.message;
+        errEl.style.display = 'block';
+    }
+});
+</script>
+</body>
+</html>
