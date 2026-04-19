@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Codex Study Hub</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    height:100vh; display:flex; align-items:center; justify-content:center;
+    background:#080c14; overflow:hidden; flex-direction:column; gap:0;
+  }
+  .ring {
+    position:absolute; width:220px; height:220px; border-radius:50%;
+    border:3px solid transparent;
+    border-top:3px solid #3b82f6; border-right:3px solid #10b981;
+    animation:spin 1.4s linear infinite;
+  }
+  .ring2 {
+    position:absolute; width:190px; height:190px; border-radius:50%;
+    border:2px solid transparent;
+    border-bottom:2px solid rgba(59,130,246,.3); border-left:2px solid rgba(16,185,129,.3);
+    animation:spin 2s linear infinite reverse;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .logo { width:100px; position:relative; z-index:2; animation:pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:.85;transform:scale(.97)} 50%{opacity:1;transform:scale(1.03)} }
+  .brand {
+    position:absolute; bottom:80px; left:50%; transform:translateX(-50%);
+    font-family:'Segoe UI',sans-serif; font-weight:800; font-size:1.1rem;
+    background:linear-gradient(90deg,#818cf8,#34d399); -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent; white-space:nowrap; letter-spacing:.05em;
+  }
+  .tagline {
+    position:absolute; bottom:56px; left:50%; transform:translateX(-50%);
+    font-family:'Segoe UI',sans-serif; font-size:.78rem; color:#4a6380;
+    white-space:nowrap;
+  }
+</style>
+</head>
+<body>
+  <div class="ring2"></div>
+  <div class="ring"></div>
+  <img src="logo.png" class="logo" onerror="this.style.display='none'">
+  <div class="brand">CODEX STUDY HUB</div>
+  <div class="tagline">Ace your exams with confidence</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+  authDomain: "codex-study-hub-923c5.firebaseapp.com",
+  projectId: "codex-study-hub-923c5",
+  storageBucket: "codex-study-hub-923c5.appspot.com",
+  messagingSenderId: "750631534625",
+  appId: "1:750631534625:web:5f59e1841bb856bdbba360"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+onAuthStateChanged(auth, (user) => {
+  // Wait for a brief animation then redirect
+  setTimeout(() => {
+    if (user) {
+      // Returning user — go directly to home, skip index
+      window.location.href = "home.html";
+    } else {
+      // New / logged out user — go to login/index
+      window.location.href = "index.html";
+    }
+  }, 2400);
+});
+</script>
+</body>
+</html>

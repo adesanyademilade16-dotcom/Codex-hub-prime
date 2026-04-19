@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stats & Progress — Codex Study Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#080c14; --s1:#0f1623; --s2:#151e30; --s3:#1c283d;
+      --border:rgba(255,255,255,.06); --border2:rgba(255,255,255,.1);
+      --blue:#3b82f6; --blue-s:rgba(59,130,246,.12); --blue-b:rgba(59,130,246,.25);
+      --green:#10b981; --gold:#f59e0b; --red:#ef4444;
+      --text:#f0f4ff; --muted:#8fa3c0; --dim:#4a6380; --r:14px;
+    }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+    body::before { content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+      background:radial-gradient(ellipse 70vw 50vh at 5% 0%, rgba(99,102,241,.07) 0%, transparent 60%); }
+    .shell { position:relative; z-index:1; max-width:860px; margin:0 auto; padding:18px 16px 80px; }
+
+    .topbar { display:flex; align-items:center; gap:12px; background:var(--s1); border:1px solid var(--border);
+      border-radius:var(--r); padding:13px 18px; margin-bottom:22px; }
+    .back-btn { width:36px; height:36px; border-radius:9px; background:var(--s2); border:1px solid var(--border2);
+      cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1rem;
+      text-decoration:none; color:var(--text); transition:.2s; }
+    .back-btn:hover { border-color:var(--blue); }
+    .page-title { font-family:'Syne',sans-serif; font-weight:800; font-size:1.05rem; }
+    .clear-btn { background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.2); color:#f87171;
+      padding:8px 16px; border-radius:8px; cursor:pointer; font-size:.82rem; font-weight:600;
+      transition:.2s; margin-left:auto; display:none; }
+    .clear-btn:hover { background:rgba(239,68,68,.22); }
+
+    /* RANK BANNER */
+    .rank-banner { display:flex; align-items:center; gap:16px;
+      background:linear-gradient(135deg,#1a1400,#231c00);
+      border:1px solid rgba(245,158,11,.25); border-radius:var(--r);
+      padding:18px 20px; margin-bottom:20px; }
+    .rank-icon { font-size:2.4rem; flex-shrink:0; }
+    .rank-info { flex:1; }
+    .rank-info h3 { font-family:'Syne',sans-serif; font-weight:800; font-size:1.1rem; }
+    .rank-info p { font-size:.78rem; color:var(--muted); margin-top:2px; }
+    .rank-bar-track { margin-top:8px; height:5px; background:rgba(255,255,255,.08); border-radius:3px; width:100%; max-width:200px; overflow:hidden; }
+    .rank-bar-fill { height:100%; border-radius:3px; transition:width .8s ease; }
+    .rank-pts-wrap { text-align:center; flex-shrink:0; }
+    .rank-pts-val { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:800; display:block; }
+    .rank-pts-lbl { font-size:.7rem; color:var(--muted); }
+
+    /* OVERVIEW */
+    .overview-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:20px; }
+    @media(max-width:500px) { .overview-strip { grid-template-columns:repeat(2,1fr); } }
+    .ov-card { background:var(--s1); border:1px solid var(--border); border-radius:14px; padding:16px; text-align:center; }
+    .ov-val { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:800; }
+    .ov-lbl { font-size:.72rem; color:var(--muted); margin-top:4px; }
+
+    .sec-row { display:flex; align-items:center; gap:10px; margin-bottom:12px; margin-top:4px; }
+    .sec-label { font-family:'Syne',sans-serif; font-weight:700; font-size:.7rem; text-transform:uppercase; letter-spacing:.1em; color:var(--dim); }
+    .sec-line { flex:1; height:1px; background:var(--border); }
+
+    /* SUBJECT CARD */
+    .subject-card { background:var(--s1); border:1px solid var(--border); border-radius:var(--r);
+      padding:22px; margin-bottom:14px; position:relative; overflow:hidden;
+      animation:fadeUp .4s ease both; }
+    .subject-card::before { content:''; position:absolute; top:0; left:0; width:4px; bottom:0;
+      background:linear-gradient(180deg,var(--blue),var(--green)); border-radius:4px 0 0 4px; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+    .card-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; flex-wrap:wrap; gap:10px; }
+    .subject-info { display:flex; align-items:center; gap:12px; }
+    .subj-icon { width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg,var(--blue),#6366f1);
+      display:flex; align-items:center; justify-content:center; font-size:1.3rem; }
+    .subj-name { font-family:'Syne',sans-serif; font-size:1.05rem; font-weight:800; }
+    .subj-tests { font-size:.78rem; color:var(--muted); margin-top:2px; }
+    .acc-badge { padding:6px 14px; border-radius:20px; font-family:'Syne',sans-serif; font-weight:700; font-size:.85rem; }
+
+    .stats-body { display:grid; grid-template-columns:130px 1fr; gap:22px; align-items:center; }
+    @media(max-width:500px) { .stats-body { grid-template-columns:1fr; justify-items:center; } }
+    .donut-wrap { position:relative; width:120px; height:120px; }
+    .donut-center { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; }
+    .donut-pct { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; }
+    .donut-lbl { font-size:.7rem; color:var(--muted); }
+
+    .stat-items { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+    .stat-it { background:var(--s2); border-radius:10px; padding:11px 8px; text-align:center; }
+    .stat-it .val { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:800; margin-bottom:2px; }
+    .stat-it .lbl { font-size:.68rem; color:var(--muted); }
+
+    .prog-section { margin-top:16px; }
+    .prog-head { display:flex; justify-content:space-between; font-size:.78rem; margin-bottom:6px; color:var(--muted); }
+    .prog-track { height:7px; background:var(--s2); border-radius:4px; overflow:hidden; }
+    .prog-fill { height:100%; background:linear-gradient(90deg,var(--blue),var(--green)); border-radius:4px; }
+
+    /* HISTORY */
+    .history-list { background:var(--s1); border:1px solid var(--border); border-radius:var(--r); overflow:hidden; margin-bottom:16px; }
+    .history-item { display:flex; align-items:center; padding:13px 18px; border-bottom:1px solid var(--border); gap:12px; }
+    .history-item:last-child { border-bottom:none; }
+    .hist-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .hist-info { flex:1; }
+    .hist-subj { font-weight:600; font-size:.9rem; }
+    .hist-date { font-size:.74rem; color:var(--muted); margin-top:2px; }
+    .hist-score { font-family:'Syne',sans-serif; font-weight:800; font-size:.95rem; }
+
+    /* EMPTY / LOADING */
+    .empty { text-align:center; padding:60px 20px; }
+    .empty .eicon { font-size:3.5rem; margin-bottom:16px; }
+    .empty h3 { font-family:'Syne',sans-serif; font-size:1.2rem; margin-bottom:8px; }
+    .empty p { font-size:.88rem; color:var(--muted); }
+    .empty a { display:inline-block; margin-top:16px; padding:11px 24px;
+      background:linear-gradient(135deg,var(--blue),#2563eb); color:#fff;
+      border-radius:10px; text-decoration:none; font-weight:700; }
+    .spinner { display:inline-block; width:28px; height:28px; border:3px solid var(--border2);
+      border-top-color:var(--blue); border-radius:50%; animation:spin .7s linear infinite; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <div class="topbar">
+    <a href="home.html" class="back-btn">←</a>
+    <div class="page-title">📊 Stats & Progress</div>
+    <button class="clear-btn" id="clearBtn" onclick="clearHistory()">🗑 Clear All</button>
+  </div>
+  <div id="mainContent">
+    <div class="empty"><div class="spinner"></div><p style="margin-top:14px;color:var(--muted)">Loading your stats...</p></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+  authDomain: "codex-study-hub-923c5.firebaseapp.com",
+  projectId: "codex-study-hub-923c5",
+  storageBucket: "codex-study-hub-923c5.appspot.com",
+  messagingSenderId: "750631534625",
+  appId: "1:750631534625:web:5f59e1841bb856bdbba360"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+let currentUID = null;
+
+// ── RANK SYSTEM ──────────────────────────────────────────────────────────────
+const RANKS = [
+  { name:"Rookie",     icon:"🌱", min:0,    color:"#8fa3c0" },
+  { name:"Scholar",    icon:"📖", min:100,  color:"#3b82f6" },
+  { name:"Apprentice", icon:"⚡", min:300,  color:"#6366f1" },
+  { name:"Challenger", icon:"🔥", min:600,  color:"#f59e0b" },
+  { name:"Expert",     icon:"🎯", min:1000, color:"#10b981" },
+  { name:"Master",     icon:"🏆", min:1500, color:"#ec4899" },
+  { name:"Legend",     icon:"👑", min:2500, color:"#f59e0b" },
+];
+
+function getRankInfo(pts) {
+  let rank = RANKS[0];
+  for (const r of RANKS) { if (pts >= r.min) rank = r; }
+  const ni = RANKS.indexOf(rank) + 1;
+  const next = ni < RANKS.length ? RANKS[ni] : null;
+  const pct = next ? Math.min(100, Math.round(((pts - rank.min) / (next.min - rank.min)) * 100)) : 100;
+  return { ...rank, next, pct };
+}
+
+function calcPoints(history) {
+  return history.reduce((pts, t) => {
+    const p = t.totalQuestions ? Math.round((t.score / t.totalQuestions) * 100) : 0;
+    pts += Math.round(p * 0.5);
+    if (p >= 80)  pts += 20;
+    if (p === 100) pts += 30;
+    return pts;
+  }, 0);
+}
+
+// ── AUTH ─────────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = "Login.html"; return; }
+  currentUID = user.uid;
+  await loadStats();
+});
+
+async function loadStats() {
+  try {
+    const snap = await getDoc(doc(db, "stats", currentUID));
+    const history = snap.exists() ? (snap.data().history || []) : [];
+    renderStats(history);
+  } catch(e) {
+    document.getElementById('mainContent').innerHTML =
+      `<div class="empty"><div class="eicon">⚠️</div><h3>Permission Error</h3>
+       <p style="color:#ef4444">${e.message}</p>
+       <p style="margin-top:8px">Make sure Firestore rules allow: <br><code style="font-size:.75rem">match /stats/{uid} { allow read,write: if request.auth.uid == uid; }</code></p></div>`;
+  }
+}
+
+function renderStats(history) {
+  const content = document.getElementById('mainContent');
+  if (!history.length) {
+    content.innerHTML = `<div class="empty"><div class="eicon">📈</div><h3>No History Yet</h3>
+      <p>Complete a test to start tracking your progress!</p>
+      <a href="subject_selection.html?mode=exam">Start a Test →</a></div>`;
+    return;
+  }
+
+  document.getElementById('clearBtn').style.display = 'block';
+
+  let totalCorrect = 0, totalQ = 0;
+  const bySubject = {};
+  history.forEach(t => {
+    totalCorrect += t.score || 0; totalQ += t.totalQuestions || 0;
+    if (!bySubject[t.subject]) bySubject[t.subject] = { tests:0, correct:0, totalQ:0, incorrect:0, durSum:0 };
+    const s = bySubject[t.subject];
+    s.tests++; s.correct += t.score||0; s.totalQ += t.totalQuestions||0;
+    s.incorrect += t.incorrect||0; s.durSum += t.duration||0;
+  });
+
+  const overallAcc = totalQ ? Math.round((totalCorrect/totalQ)*100) : 0;
+  const bestScore  = Math.max(...history.map(t => t.totalQuestions ? Math.round((t.score/t.totalQuestions)*100) : 0));
+  const pts  = calcPoints(history);
+  const rank = getRankInfo(pts);
+
+  content.innerHTML = `
+    <div class="rank-banner">
+      <div class="rank-icon">${rank.icon}</div>
+      <div class="rank-info">
+        <h3 style="color:${rank.color}">${rank.name}</h3>
+        <p>${rank.next ? `${rank.next.min - pts} pts to ${rank.next.name}` : 'Maximum rank reached! 🎉'}</p>
+        <div class="rank-bar-track">
+          <div class="rank-bar-fill" style="width:${rank.pct}%;background:${rank.color}"></div>
+        </div>
+      </div>
+      <div class="rank-pts-wrap">
+        <span class="rank-pts-val" style="color:${rank.color}">${pts}</span>
+        <span class="rank-pts-lbl">XP Points</span>
+      </div>
+    </div>
+
+    <div class="overview-strip">
+      <div class="ov-card"><div class="ov-val" style="color:var(--blue)">${history.length}</div><div class="ov-lbl">Tests Taken</div></div>
+      <div class="ov-card"><div class="ov-val" style="color:var(--green)">${overallAcc}%</div><div class="ov-lbl">Overall Accuracy</div></div>
+      <div class="ov-card"><div class="ov-val" style="color:var(--gold)">${bestScore}%</div><div class="ov-lbl">Best Score</div></div>
+      <div class="ov-card"><div class="ov-val" style="color:#ec4899">${Object.keys(bySubject).length}</div><div class="ov-lbl">Subjects</div></div>
+    </div>
+
+    <div class="sec-row"><div class="sec-label">By Subject</div><div class="sec-line"></div></div>
+    <div id="subjectCards"></div>
+
+    <div class="sec-row"><div class="sec-label">Recent History</div><div class="sec-line"></div></div>
+    <div class="history-list" id="historyList"></div>
+  `;
+
+  const scEl = document.getElementById('subjectCards');
+  Object.entries(bySubject).forEach(([name, data], i) => {
+    scEl.appendChild(createCard(name, data, i));
+  });
+
+  const hlEl = document.getElementById('historyList');
+  [...history].reverse().slice(0,20).forEach(t => {
+    const pct = t.totalQuestions ? Math.round((t.score/t.totalQuestions)*100) : 0;
+    const col = pct>=70?'var(--green)':pct>=50?'var(--gold)':'var(--red)';
+    const dt  = t.date ? new Date(t.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'}) : '—';
+    const el  = document.createElement('div'); el.className='history-item';
+    el.innerHTML = `
+      <div class="hist-dot" style="background:${col}"></div>
+      <div class="hist-info"><div class="hist-subj">${t.subject}</div><div class="hist-date">${dt}${t.mode?' · '+t.mode:''}</div></div>
+      <div class="hist-score" style="color:${col}">${pct}%</div>`;
+    hlEl.appendChild(el);
+  });
+}
+
+function createCard(name, data, delay) {
+  const el = document.createElement('div'); el.className='subject-card';
+  el.style.animationDelay = (delay*0.08)+'s';
+  const acc = data.totalQ ? Math.round((data.correct/data.totalQ)*100) : 0;
+  const wrong = data.incorrect || Math.max(0, data.totalQ - data.correct);
+  const ans = data.correct + wrong;
+  const ansPct = data.totalQ ? Math.round((ans/data.totalQ)*100) : 0;
+  const dur = data.tests ? Math.round(data.durSum/data.tests) : 0;
+  const durStr = dur ? `${Math.floor(dur/60)}m ${dur%60}s` : '—';
+  const col = acc>=70?'var(--green)':acc>=50?'var(--gold)':'var(--red)';
+  const r = 48; const circ = 2*Math.PI*r;
+  const dash = (acc/100)*circ;
+
+  el.innerHTML = `
+    <div class="card-head">
+      <div class="subject-info">
+        <div class="subj-icon">📚</div>
+        <div><div class="subj-name">${name}</div><div class="subj-tests">${data.tests} test${data.tests>1?'s':''}</div></div>
+      </div>
+      <div class="acc-badge" style="background:${col}22;color:${col};border:1px solid ${col}44">${acc}% accuracy</div>
+    </div>
+    <div class="stats-body">
+      <div class="donut-wrap">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--s2)" stroke-width="14"/>
+          <circle cx="60" cy="60" r="${r}" fill="none" stroke="${col}" stroke-width="14"
+            stroke-dasharray="${dash} ${circ}" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+        </svg>
+        <div class="donut-center">
+          <div class="donut-pct" style="color:${col}">${acc}%</div>
+          <div class="donut-lbl">correct</div>
+        </div>
+      </div>
+      <div class="stat-items">
+        <div class="stat-it"><div class="val" style="color:var(--green)">${data.correct}</div><div class="lbl">✅ Correct</div></div>
+        <div class="stat-it"><div class="val" style="color:var(--red)">${wrong}</div><div class="lbl">❌ Wrong</div></div>
+        <div class="stat-it"><div class="val">${data.totalQ}</div><div class="lbl">📝 Total Qs</div></div>
+        <div class="stat-it"><div class="val" style="color:var(--blue)">${data.tests}</div><div class="lbl">🎯 Tests</div></div>
+        <div class="stat-it"><div class="val" style="color:var(--gold)">${durStr}</div><div class="lbl">⏱ Avg Time</div></div>
+        <div class="stat-it"><div class="val" style="color:#ec4899">${ansPct}%</div><div class="lbl">📋 Answered</div></div>
+      </div>
+    </div>
+    <div class="prog-section">
+      <div class="prog-head"><span>Answered Rate</span><span>${ansPct}%</span></div>
+      <div class="prog-track"><div class="prog-fill" style="width:${ansPct}%"></div></div>
+    </div>`;
+  return el;
+}
+
+window.clearHistory = async function() {
+  if (!confirm("Clear ALL your test history? This cannot be undone.")) return;
+  try {
+    await setDoc(doc(db, "stats", currentUID), { history: [] });
+    document.getElementById('clearBtn').style.display = 'none';
+    await loadStats();
+  } catch(e) { alert("Error: " + e.message); }
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Codex CBT Engine</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9642494442871029" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#0d1b2a; --ink2:#1b2e44; --ink3:#2c4a6e;
+    --sky:#e8f4fd; --sky2:#d0e8f8; --sky3:#b8ddf5;
+    --gold:#f0a500; --gold2:#fbbf24; --gold3:#fef3c7;
+    --green:#059669; --green2:#d1fae5;
+    --red:#dc2626; --red2:#fee2e2;
+    --amber:#d97706; --amber2:#fef3c7;
+    --border:#dde6f0; --bg:#f2f7fc;
+    --card:#ffffff; --radius:14px;
+    --shadow:0 2px 12px rgba(13,27,42,.08);
+    --font:'Sora',system-ui,sans-serif;
+    --mono:'JetBrains Mono',monospace;
+
+    /* FIXED DIMENSIONS - THIS IS WHAT STOPS THE JUMPING */
+    --card-min-height: 580px;
+    --question-text-max-height: 220px;
+    --options-max-height: 320px;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font);min-height:100vh}
+
+  .app-layout{
+    display:flex;min-height:100vh;
+    max-width:1240px;margin:0 auto;
+    padding:0;gap:0;
+  }
+
+  /* TOP BAR */
+  .cbt-topbar{
+    position:sticky;top:0;z-index:30;
+    background:linear-gradient(135deg,var(--ink),var(--ink3));
+    padding:10px 18px;
+    display:flex;justify-content:space-between;align-items:center;
+    box-shadow:0 3px 16px rgba(13,27,42,.25);
+    height:60px;
+  }
+  .cbt-topbar h2{font-size:1rem;font-weight:700;color:#fff;letter-spacing:-.2px;margin:0;}
+  .cbt-topbar-right{display:flex;align-items:center;gap:8px}
+
+  .timer-box{
+    display:flex;align-items:center;gap:6px;
+    background:rgba(255,255,255,.12);
+    border:1.5px solid rgba(255,255,255,.2);
+    border-radius:20px;padding:5px 14px;
+  }
+  #timerDisplay,#timerDisplayMobile{font-size:1.1rem;font-weight:800;color:#fff;font-family:var(--mono);}
+
+  #calcBtn,#finishTestBtn{
+    padding:6px 14px;border-radius:20px;cursor:pointer;
+    font-size:.78rem;font-weight:600;font-family:var(--font);
+  }
+  #calcBtn{background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.22);color:#fff}
+  #finishTestBtn{background:var(--red);color:#fff;border:none}
+
+  /* MAIN + SIDEBAR */
+  .main-content{flex:1;padding:16px;min-width:0;display:flex;justify-content:center;align-items:flex-start}
+  .sidebar{width:300px;flex-shrink:0;padding:16px;display:flex;flex-direction:column;gap:14px}
+
+  /* QUESTION CARD - NOW FIXED HEIGHT */
+  .question-card{
+    background:var(--card);
+    border-radius:14px;
+    padding:22px;
+    box-shadow:var(--shadow);
+    border:1px solid var(--border);
+    width:100%;
+    max-width:820px;
+    min-height:var(--card-min-height);   /* ← THIS IS THE KEY */
+    display:flex;
+    flex-direction:column;
+  }
+
+  .question-header{
+    flex-shrink:0;
+    margin-bottom:16px;
+    padding-bottom:12px;
+    border-bottom:2px solid var(--sky);
+  }
+  #questionNumber{font-size:.78rem;font-weight:700;color:var(--ink3);margin-bottom:4px}
+  #questionTopic{font-size:.72rem;color:#94a3b8;margin-bottom:12px;background:var(--sky);display:inline-block;padding:2px 10px;border-radius:12px;font-weight:600}
+
+  /* QUESTION TEXT - FIXED MAX HEIGHT + SCROLL */
+  .question-text-container{
+    flex-shrink:0;
+    max-height:var(--question-text-max-height);
+    overflow-y:auto;
+    margin-bottom:20px;
+    padding-right:8px;
+  }
+  #questionText{font-size:1.02rem;line-height:1.7;font-weight:500;color:var(--ink)}
+
+  /* OPTIONS - FIXED HEIGHT + SCROLL */
+  .options-wrapper{
+    flex:1;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+  }
+  .options-list{
+    list-style:none;
+    padding:0;
+    margin:0;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    max-height:var(--options-max-height);
+    overflow-y:auto;
+    flex:1;
+  }
+
+  .option-label{
+    display:flex;align-items:center;gap:12px;
+    background:var(--bg);padding:14px;
+    border-radius:10px;cursor:pointer;
+    border:1.5px solid var(--border);
+    transition:all .18s ease;font-size:.93rem;color:var(--ink);font-weight:500;
+    min-height:64px;
+  }
+  .option-label:hover{background:var(--sky);border-color:var(--ink3)}
+  .option-letter{width:28px;height:28px;border-radius:8px;flex-shrink:0;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:var(--ink2)}
+
+  .option-item input[type="radio"]{display:none}
+  .option-item input[type="radio"]:checked + .option-label{
+    background:var(--sky2);border-color:var(--ink3);font-weight:600;
+  }
+  .option-item input[type="radio"]:checked + .option-label .option-letter{
+    background:var(--ink2);color:#fff;
+  }
+
+  /* NAVIGATION - STAYS AT BOTTOM */
+  .navigation-controls{
+    display:flex;gap:12px;
+    margin-top:auto;
+    padding-top:16px;
+    border-top:2px solid var(--sky);
+  }
+  .nav-btn{
+    flex:1;height:52px;border:none;border-radius:10px;
+    font-size:.95rem;font-weight:700;cursor:pointer;
+  }
+  #prevBtn{background:var(--bg);color:var(--ink2);border:1.5px solid var(--border)}
+  #nextBtn{background:linear-gradient(135deg,var(--ink2),var(--ink3));color:#fff}
+
+  /* SIDEBAR */
+  .sidebar-panel{background:var(--card);border-radius:12px;padding:16px;box-shadow:var(--shadow);border:1px solid var(--border)}
+
+  .progress-text{display:flex;justify-content:space-between;font-size:.8rem;font-weight:600;color:var(--ink2);margin-bottom:6px}
+  .progress-bar{height:8px;background:var(--border);border-radius:6px;overflow:hidden}
+  .progress-bar-inner{height:100%;background:linear-gradient(90deg,var(--ink3),var(--gold2));border-radius:6px;transition:width .4s ease}
+
+  .navigator-title{font-size:.82rem;font-weight:700;color:var(--ink2);margin:14px 0 10px;text-transform:uppercase;letter-spacing:.5px}
+  #navContainer{display:grid;grid-template-columns:repeat(auto-fit,minmax(40px,1fr));gap:6px}
+
+  .nav-button{padding:8px 0;border:1.5px solid var(--border);background:var(--bg);color:var(--ink);border-radius:6px;cursor:pointer;font-size:.78rem;font-weight:600;text-align:center}
+  .nav-button.current{background:var(--ink3);color:#fff;border-color:var(--ink3)}
+  .nav-button.answered{background:var(--green);color:#fff;border-color:var(--green)}
+
+ .calculator{
+    position:fixed;bottom:20px;right:20px;width:300px;
+    background:var(--card);border-radius:18px;
+    box-shadow:var(--shadow-lg);display:none;z-index:9999;
+    border:2px solid var(--border);overflow:hidden;
+  }
+  .calc-header{
+    background:linear-gradient(135deg,var(--ink),var(--ink3));
+    color:#fff;padding:14px 18px;font-weight:700;font-size:1rem;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .calc-header button{
+    background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;
+    width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+    border-radius:8px;
+  }
+  .calc-header button:hover{background:rgba(255,255,255,.2)}
+
+  #calcDisplay{
+    width:100%;height:70px;font-size:1.8rem;text-align:right;
+    padding:0 20px;border:none;border-bottom:1px solid var(--border);
+    font-family:var(--mono);background:#f8fafc;color:var(--ink);
+    outline:none;border-radius:0;
+  }
+
+  .calc-buttons{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+    background:var(--border);
+  }
+  .calc-buttons button{
+    padding:18px 10px;font-size:1.1rem;font-weight:600;
+    border:none;background:var(--card);cursor:pointer;
+    font-family:var(--font);transition:all .15s;
+    color:var(--ink);
+  }
+  .calc-buttons button:hover{background:var(--sky)}
+  .calc-buttons button:active{transform:scale(0.95)}
+
+  .calc-buttons .operator{
+    background:var(--sky2);color:var(--ink3);font-weight:700;
+  }
+  .calc-buttons .equals{
+    background:linear-gradient(135deg,var(--gold2),var(--gold));
+    color:#fff;font-weight:700;
+  }
+  .calc-buttons .clear{
+    background:var(--red2);color:var(--red);font-weight:700;
+  }
+  .calc-buttons .clear:hover{background:var(--red);color:#fff}
+
+  /* RESPONSIVE */
+  @media(max-width:900px){
+    .app-layout{flex-direction:column}
+    .sidebar{width:100%;order:3;padding:12px}
+    .main-content{padding:12px}
+    .sidebar #timerBox{display:none!important}
+    .cbt-topbar #mobileTimerBox{display:flex!important}
+  }
+</style>
+</head>
+<body>
+
+<div style="display:flex;flex-direction:column;min-height:100vh">
+
+<!-- TOP BAR -->
+<div class="cbt-topbar">
+  <h2 id="subjectTitle">📚 CBT Engine</h2>
+  <div class="cbt-topbar-right">
+    <div id="mobileTimerBox" class="timer-box" style="display:none"><p id="timerDisplayMobile">--:--</p></div>
+    <button id="calcBtn" onclick="toggleCalculator()">🧮 Calc</button>
+    <button id="finishTestBtn" onclick="confirmSubmission()">Finish Test</button>
+  </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="app-layout">
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <div class="question-card">
+      <div class="question-header">
+        <p id="questionNumber">Question 1 of —</p>
+        <p id="questionTopic">Topic</p>
+      </div>
+
+      <!-- FIXED HEIGHT QUESTION AREA -->
+      <div class="question-text-container">
+        <p id="questionText">Loading question...</p>
+        <div id="questionImageContainer"></div>
+      </div>
+
+      <!-- FIXED HEIGHT OPTIONS AREA -->
+      <div class="options-wrapper">
+        <ul id="optionsList" class="options-list"></ul>
+      </div>
+
+      <!-- NAVIGATION ALWAYS AT BOTTOM -->
+      <div class="navigation-controls">
+        <button id="prevBtn" class="nav-btn">← Previous</button>
+        <button id="nextBtn" class="nav-btn">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-panel" id="timerBox" style="display:none">
+      <div class="timer-box" style="background:transparent;border:none;justify-content:space-between">
+        <h3>Time Remaining</h3>
+        <p id="timerDisplay" style="font-size:1.4rem">--:--</p>
+      </div>
+    </div>
+
+    <div class="sidebar-panel">
+      <div class="progress-text"><span>Progress</span><span id="progressCount">0 / 0</span></div>
+      <div class="progress-bar"><div id="progressBarInner" class="progress-bar-inner" style="width:0%"></div></div>
+    </div>
+
+    <div class="sidebar-panel">
+      <div class="navigator-title">Question Navigator</div>
+      <div id="navContainer"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- CALCULATOR (draggable) -->
+<div class="calculator" id="calculator" onmousedown="startDrag(event)" ontouchstart="startDrag(event)">
+  <div class="calc-header">
+    <span>Calculator</span>
+    <button onclick="toggleCalculator()">✖</button>
+  </div>
+  <input type="text" id="calcDisplay" readonly>
+  <div class="calc-buttons">
+    <button onclick="calcInput('7')">7</button>
+    <button onclick="calcInput('8')">8</button>
+    <button onclick="calcInput('9')">9</button>
+    <button onclick="calcInput('/')">÷</button>
+    <button onclick="calcInput('4')">4</button>
+    <button onclick="calcInput('5')">5</button>
+    <button onclick="calcInput('6')">6</button>
+    <button onclick="calcInput('*')">×</button>
+    <button onclick="calcInput('1')">1</button>
+    <button onclick="calcInput('2')">2</button>
+    <button onclick="calcInput('3')">3</button>
+    <button onclick="calcInput('-')">−</button>
+    <button onclick="calcInput('0')">0</button>
+    <button onclick="calcInput('.')">.</button>
+    <button onclick="calculate()">=</button>
+    <button onclick="calcInput('+')">+</button>
+    <button onclick="squareRoot()">√</button>
+    <button class="clear" onclick="clearCalc()">C</button>
+  </div>
+</div>
+
+
+<script src="cbt.js"></script>
+
+ <script type="module"> 
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import {
+  getFirestore,
+  doc, getDoc, setDoc, updateDoc, arrayUnion,
+  collection, query, where, orderBy, limit, getDocs
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+  authDomain:        "codex-study-hub-923c5.firebaseapp.com",
+  projectId:         "codex-study-hub-923c5",
+  storageBucket:     "codex-study-hub-923c5.appspot.com",
+  messagingSenderId: "750631534625",
+  appId:             "1:750631534625:web:5f59e1841bb856bdbba360"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+let _currentUser  = null;
+let _pendingResult = null;   // holds a result that arrived before auth resolved
+
+// ── RANK SYSTEM (mirrors stats.html) ────────────────────────────────────────
+const RANKS = [
+  { name:"Rookie",     icon:"🌱", min:0,    color:"#8fa3c0" },
+  { name:"Scholar",    icon:"📖", min:100,  color:"#3b82f6" },
+  { name:"Apprentice", icon:"⚡", min:300,  color:"#6366f1" },
+  { name:"Challenger", icon:"🔥", min:600,  color:"#f59e0b" },
+  { name:"Expert",     icon:"🎯", min:1000, color:"#10b981" },
+  { name:"Master",     icon:"🏆", min:1500, color:"#ec4899" },
+  { name:"Legend",     icon:"👑", min:2500, color:"#f59e0b" },
+];
+
+function calcPoints(history) {
+  return history.reduce((pts, t) => {
+    const p = t.totalQuestions ? Math.round((t.score / t.totalQuestions) * 100) : 0;
+    pts += Math.round(p * 0.5);
+    if (p >= 80)   pts += 20;
+    if (p === 100) pts += 30;
+    return pts;
+  }, 0);
+}
+
+function getRank(pts) {
+  let rank = RANKS[0];
+  for (const r of RANKS) { if (pts >= r.min) rank = r; }
+  return rank;
+}
+
+// ── WAIT FOR AUTH ────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  _currentUser = user || null;
+  if (user && _pendingResult) {
+    await _saveResultToFirestore(_pendingResult);
+    _pendingResult = null;
+  }
+});
+
+// ── OVERRIDE window.saveToHistory ───────────────────────────────────────────
+// The original cbt.js defines saveToHistory as a plain function (not on window).
+// We override it by reassigning it as a global AFTER cbt.js has loaded.
+// Because this module runs after DOMContentLoaded (via defer semantics of modules),
+// this override will be in effect before any submit can fire.
+window.__firestoreSaveToHistory = async function(newResult) {
+  // Always save locally first as fallback
+  try {
+    const local = JSON.parse(localStorage.getItem('cbtHistory') || '[]');
+    local.push(newResult);
+    localStorage.setItem('cbtHistory', JSON.stringify(local));
+  } catch(e) {}
+
+  if (_currentUser) {
+    await _saveResultToFirestore(newResult);
+  } else {
+    _pendingResult = newResult;   // will fire once auth resolves
+  }
+};
+
+/**
+ * Patch the global saveToHistory that cbt.js uses.
+ * cbt.js declares it as a plain `function saveToHistory()` in the global scope,
+ * so we can override it on window after the script loads.
+ */
+window.addEventListener('load', () => {
+  if (typeof window.saveToHistory === 'function') {
+    const _original = window.saveToHistory;
+    window.saveToHistory = function(newResult) {
+      _original(newResult);                         // keep local storage write
+      window.__firestoreSaveToHistory(newResult);   // also write to Firestore
+    };
+  } else {
+    // cbt.js declares saveToHistory without `window.` — patch by redefining
+    // We watch for the function to exist
+    let attempts = 0;
+    const iv = setInterval(() => {
+      attempts++;
+      if (typeof saveToHistory !== 'undefined') {
+        const _orig = saveToHistory;
+        // eslint-disable-next-line no-global-assign
+        saveToHistory = function(newResult) {
+          _orig(newResult);
+          window.__firestoreSaveToHistory(newResult);
+        };
+        clearInterval(iv);
+      }
+      if (attempts > 20) clearInterval(iv);
+    }, 200);
+  }
+});
+
+// ── FIRESTORE WRITE ──────────────────────────────────────────────────────────
+async function _saveResultToFirestore(result) {
+  if (!_currentUser) return;
+  const uid = _currentUser.uid;
+
+  try {
+    const ref  = doc(db, "stats", uid);
+    const snap = await getDoc(ref);
+
+    if (snap.exists()) {
+      // Append to existing history array
+      await updateDoc(ref, { history: arrayUnion(result) });
+    } else {
+      // First test ever — create the doc
+      await setDoc(ref, { history: [result] });
+    }
+
+    // ── UPDATE LEADERBOARD ───────────────────────────────────────────────────
+    // Write to leaderboard/{subject} so admin & leaderboard page can read top scores
+    const pct       = result.totalQuestions ? Math.round((result.score / result.totalQuestions) * 100) : 0;
+    const userSnap  = await getDoc(doc(db, "users", uid));
+    const userName  = userSnap.exists() ? (userSnap.data().fullName || "Student") : "Student";
+    const photoURL  = userSnap.exists() ? (userSnap.data().photoURL || "") : "";
+    const avatarEmoji = userSnap.exists() ? (userSnap.data().avatarEmoji || "") : "";
+
+    // leaderboard doc: one doc per user per subject, keeps their BEST score
+    const lbRef  = doc(db, "leaderboard", `${result.subject}_${uid}`);
+    const lbSnap = await getDoc(lbRef);
+
+    if (!lbSnap.exists() || pct > (lbSnap.data().percentage || 0)) {
+      await setDoc(lbRef, {
+        uid, userName, photoURL, avatarEmoji,
+        subject:        result.subject,
+        score:          result.score,
+        totalQuestions: result.totalQuestions,
+        percentage:     pct,
+        duration:       result.duration,
+        date:           result.date,
+        timestamp:      Date.now()
+      });
+    }
+
+    // ── UPDATE USER'S XP / RANK IN users COLLECTION ─────────────────────────
+    const allSnap = await getDoc(ref);
+    if (allSnap.exists()) {
+      const fullHistory = allSnap.data().history || [];
+      const pts  = calcPoints(fullHistory);
+      const rank = getRank(pts);
+      await updateDoc(doc(db, "users", uid), {
+        xpPoints: pts,
+        rank:     rank.name,
+        rankIcon: rank.icon
+      });
+    }
+
+  } catch(e) {
+    console.warn("[cbt_firestore_patch] Could not save to Firestore:", e.message);
+  }
+}
+</script>
+</body>
+</html>

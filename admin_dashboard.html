@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — Codex Study Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#080c14;--s1:#0f1623;--s2:#151e30;--s3:#1c283d;
+      --border:rgba(255,255,255,.06);--border2:rgba(255,255,255,.1);
+      --blue:#3b82f6;--blue-s:rgba(59,130,246,.12);--blue-b:rgba(59,130,246,.25);
+      --green:#10b981;--green-s:rgba(16,185,129,.12);--green-b:rgba(16,185,129,.25);
+      --gold:#f59e0b;--gold-s:rgba(245,158,11,.1);--gold-b:rgba(245,158,11,.25);
+      --pink:#ec4899;--pink-s:rgba(236,72,153,.12);--pink-b:rgba(236,72,153,.25);
+      --red:#ef4444;--text:#f0f4ff;--muted:#8fa3c0;--dim:#4a6380;--r:14px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 80vw 55vh at 8% -5%,rgba(59,130,246,.07) 0%,transparent 60%)}
+    .shell{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:18px 16px 80px}
+
+    .topbar{display:flex;align-items:center;gap:12px;background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:13px 18px;margin-bottom:22px}
+    .back-btn{width:36px;height:36px;border-radius:9px;background:var(--s2);border:1px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;color:var(--text);transition:.2s;flex-shrink:0}
+    .back-btn:hover{border-color:var(--blue)}
+    .back-btn svg{width:18px;height:18px}
+    .page-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem}
+    .admin-chip{margin-left:auto;background:var(--gold-s);border:1px solid var(--gold-b);color:var(--gold);padding:5px 12px;border-radius:20px;font-size:.75rem;font-weight:700}
+
+    #accessDenied{display:none;text-align:center;padding:60px 20px}
+    #accessDenied h2{font-size:1.5rem;margin-bottom:10px;color:var(--red)}
+
+    .sec-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;margin-top:18px}
+    .sec-label{font-family:'Syne',sans-serif;font-weight:700;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+    .sec-line{flex:1;height:1px;background:var(--border)}
+
+    .stats-4{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:6px}
+    @media(min-width:600px){.stats-4{grid-template-columns:repeat(4,1fr)}}
+    .stat-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:20px 16px;position:relative;overflow:hidden}
+    .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+    .stat-card.blue::before{background:var(--blue)}.stat-card.green::before{background:var(--green)}
+    .stat-card.gold::before{background:var(--gold)}.stat-card.pink::before{background:var(--pink)}
+    .stat-card .icon{margin-bottom:10px;display:flex;align-items:center;gap:6px;font-size:.82rem;color:var(--muted)}
+    .stat-card .icon svg{width:20px;height:20px}
+    .stat-card .val{font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800}
+    .stat-card .lbl{font-size:.78rem;color:var(--muted);margin-top:2px}
+    .stat-card.blue .val{color:var(--blue)}.stat-card.green .val{color:var(--green)}
+    .stat-card.gold .val{color:var(--gold)}.stat-card.pink .val{color:var(--pink)}
+
+    .online-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.5s ease-in-out infinite;margin-right:4px}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+    .tabs{display:flex;gap:6px;background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:5px;margin-bottom:16px;overflow-x:auto}
+    .tab-btn{flex-shrink:0;padding:10px 14px;border:none;border-radius:8px;background:transparent;color:var(--muted);font-size:.82rem;font-weight:600;cursor:pointer;transition:.2s;white-space:nowrap;display:flex;align-items:center;gap:6px}
+    .tab-btn svg{width:15px;height:15px}
+    .tab-btn.active{background:var(--s3);color:var(--text)}
+
+    .table-wrap{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:16px}
+    .table-search{padding:12px 16px;border-bottom:1px solid var(--border)}
+    .table-search input{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:9px 12px;color:var(--text);font-size:.88rem;outline:none}
+    .table-search input:focus{border-color:var(--blue)}
+    .tbl{width:100%;border-collapse:collapse}
+    .tbl thead th{padding:11px 14px;text-align:left;font-size:.72rem;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+    .tbl tbody tr{border-bottom:1px solid var(--border);transition:.15s}
+    .tbl tbody tr:last-child{border-bottom:none}
+    .tbl tbody tr:hover{background:var(--s2)}
+    .tbl tbody td{padding:11px 14px;font-size:.84rem}
+    .user-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--green));display:inline-flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:700;margin-right:8px;overflow:hidden;vertical-align:middle}
+    .user-av img{width:100%;height:100%;object-fit:cover}
+    .badge-pro{display:inline-block;background:var(--gold-s);border:1px solid var(--gold-b);color:var(--gold);padding:2px 8px;border-radius:10px;font-size:.72rem;font-weight:700}
+    .badge-free{display:inline-block;background:var(--blue-s);border:1px solid var(--blue-b);color:var(--blue);padding:2px 8px;border-radius:10px;font-size:.72rem}
+    .del-btn{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#f87171;padding:5px 9px;border-radius:6px;cursor:pointer;font-size:.75rem;transition:.2s;display:inline-flex;align-items:center;gap:4px}
+    .del-btn:hover{background:rgba(239,68,68,.25)}
+    .del-btn svg{width:12px;height:12px}
+    .pagination{display:flex;gap:6px;justify-content:center;padding:12px}
+    .pg-btn{width:32px;height:32px;border-radius:7px;background:var(--s2);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:.82rem;display:flex;align-items:center;justify-content:center;transition:.2s}
+    .pg-btn.active{background:var(--blue);border-color:var(--blue)}
+    .pg-btn:hover:not(.active){border-color:var(--blue)}
+
+    .gen-card{background:var(--s1);border:1px solid var(--gold-b);border-radius:var(--r);padding:22px;margin-bottom:16px}
+    .gen-card h3{font-family:'Syne',sans-serif;font-weight:700;margin-bottom:14px;color:var(--gold);font-size:1rem}
+    .gen-row{display:flex;gap:10px;flex-wrap:wrap}
+    .gen-select{background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:var(--text);font-size:.88rem;outline:none}
+    .gen-btn{padding:10px 20px;background:linear-gradient(135deg,var(--gold),#d97706);color:#1a0e00;border:none;border-radius:8px;font-weight:700;font-size:.88rem;cursor:pointer;transition:.2s}
+    .gen-btn:hover{opacity:.9}
+    .key-output{margin-top:12px;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-family:monospace;font-size:.9rem;color:var(--green);letter-spacing:.05em;display:none;word-break:break-all}
+
+    /* LEADERBOARD EDITOR */
+    .lb-editor{background:var(--s1);border:1px solid var(--blue-b);border-radius:var(--r);padding:22px;margin-bottom:16px}
+    .lb-editor h3{font-family:'Syne',sans-serif;color:var(--blue);margin-bottom:16px;font-size:1rem}
+    .lb-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:12px}
+    .lb-input{background:var(--s2);border:1.5px solid var(--border2);border-radius:8px;padding:10px 12px;color:var(--text);font-family:inherit;font-size:.88rem;outline:none;transition:.2s}
+    .lb-input:focus{border-color:var(--blue)}
+    .lb-input::placeholder{color:var(--dim)}
+    .lb-add-btn{padding:10px 18px;background:linear-gradient(135deg,var(--blue),#2563eb);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.88rem;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:6px}
+    .lb-add-btn:hover{opacity:.9}
+    .lb-add-btn svg{width:14px;height:14px}
+    .lb-list{display:flex;flex-direction:column;gap:8px}
+    .lb-item{display:flex;align-items:center;gap:10px;background:var(--s2);border-radius:9px;padding:12px 14px;border:1px solid var(--border)}
+    .lb-item .rank{font-size:1.2rem;width:28px;text-align:center}
+    .lb-item .info{flex:1}
+    .lb-item .name{font-weight:700;font-size:.9rem}
+    .lb-item .meta{font-size:.75rem;color:var(--muted);margin-top:2px}
+    .lb-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;transition:.2s;padding:4px}
+    .lb-del:hover{color:var(--red)}
+
+    .loading-row{text-align:center;padding:30px;color:var(--muted)}
+    .spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--s2);border:1px solid var(--border2);color:var(--text);padding:11px 18px;border-radius:12px;font-size:.84rem;font-weight:500;box-shadow:0 8px 28px rgba(0,0,0,.4);z-index:9999;animation:toastIn .25s ease}
+    @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <div class="topbar">
+    <a href="home.html" class="back-btn">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+    </a>
+    <div class="page-title">🛡️ Admin Dashboard</div>
+    <span class="admin-chip">Admin Only</span>
+  </div>
+
+  <div id="accessDenied">
+    <h2>🚫 Access Denied</h2>
+    <p style="color:var(--muted)">This page is only for admin accounts.</p>
+  </div>
+
+  <div id="dashContent" style="display:none">
+
+    <div class="sec-row"><div class="sec-label">Overview</div><div class="sec-line"></div></div>
+    <div class="stats-4">
+      <div class="stat-card blue">
+        <div class="icon"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg> Users</div>
+        <div class="val" id="statTotalUsers">—</div>
+        <div class="lbl">Total Registered</div>
+      </div>
+      <div class="stat-card green">
+        <div class="icon"><span class="online-dot"></span> Active</div>
+        <div class="val" id="statOnline">—</div>
+        <div class="lbl">Online (5 min)</div>
+      </div>
+      <div class="stat-card gold">
+        <div class="icon"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Pro</div>
+        <div class="val" id="statPro">—</div>
+        <div class="lbl">Pro Members</div>
+      </div>
+      <div class="stat-card pink">
+        <div class="icon"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> Docs</div>
+        <div class="val" id="statDocs">—</div>
+        <div class="lbl">Resources</div>
+      </div>
+    </div>
+
+    <div class="sec-row"><div class="sec-label">Manage</div><div class="sec-line"></div></div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('users',this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg> Users
+      </button>
+      <button class="tab-btn" onclick="switchTab('subjects',this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg> Subjects
+      </button>
+      <button class="tab-btn" onclick="switchTab('leaderboard',this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg> Leaderboard
+      </button>
+      <button class="tab-btn" onclick="switchTab('keys',this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg> Keys
+      </button>
+      <button class="tab-btn" onclick="switchTab('resources',this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> Resources
+      </button>
+    </div>
+
+    <!-- USERS -->
+    <div id="tab-users">
+      <div class="table-wrap">
+        <div class="table-search"><input type="text" id="userSearch" placeholder="Search by name or email..." oninput="filterUsers()"></div>
+        <div style="overflow-x:auto">
+          <table class="tbl">
+            <thead><tr><th>User</th><th>Email</th><th>Faculty</th><th>Plan</th><th>Joined</th><th></th></tr></thead>
+            <tbody id="userTableBody"><tr><td colspan="6" class="loading-row"><div class="spinner"></div></td></tr></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="userPagination"></div>
+      </div>
+    </div>
+
+    <!-- SUBJECTS -->
+    <div id="tab-subjects" style="display:none">
+      <div class="table-wrap">
+        <div style="overflow-x:auto">
+          <table class="tbl">
+            <thead><tr><th>Subject</th><th>Users Unlocked</th><th>% of Pro Users</th></tr></thead>
+            <tbody id="subjectTableBody"><tr><td colspan="3" class="loading-row"><div class="spinner"></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD EDITOR -->
+    <div id="tab-leaderboard" style="display:none">
+      <div class="lb-editor">
+        <h3>🏆 Leaderboard Editor</h3>
+        <div class="lb-form">
+          <input type="text" class="lb-input" id="lbDay" placeholder="Day label e.g. DAY 1: MTH101">
+          <input type="text" class="lb-input" id="lbDate" placeholder="Date e.g. Jan 7th">
+          <input type="text" class="lb-input" id="lbName" placeholder="Winner name">
+          <input type="text" class="lb-input" id="lbScore" placeholder="Score e.g. 40/50">
+          <input type="text" class="lb-input" id="lbPercent" placeholder="% e.g. 80%">
+          <input type="text" class="lb-input" id="lbTime" placeholder="Time e.g. 6m:28s">
+        </div>
+        <button class="lb-add-btn" onclick="addLeaderboardEntry()">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Add Entry
+        </button>
+        <div style="margin-top:16px">
+          <div class="lb-list" id="lbList"><div class="loading-row"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KEYS -->
+    <div id="tab-keys" style="display:none">
+      <div class="gen-card">
+        <h3>🔑 Generate Access Key</h3>
+        <p style="font-size:.83rem;color:var(--muted);margin-bottom:14px">Keys allow students to unlock Pro access.</p>
+        <div class="gen-row">
+          <select class="gen-select" id="keyDuration">
+            <option value="30">30 Days</option>
+            <option value="90">90 Days</option>
+            <option value="180">6 Months</option>
+            <option value="365">1 Year</option>
+            <option value="9999">Lifetime</option>
+          </select>
+          <select class="gen-select" id="keySubject">
+            <option value="all">All Subjects</option>
+            <option value="mth101">MTH101</option>
+            <option value="phy101">PHY101</option>
+            <option value="chm101">CHM101</option>
+            <option value="bio101">BIO101</option>
+            <option value="gst101">GST101</option>
+          </select>
+          <button class="gen-btn" onclick="generateKey()">⚡ Generate</button>
+        </div>
+        <div class="key-output" id="keyOutput"></div>
+      </div>
+    </div>
+
+    <!-- RESOURCES -->
+    <div id="tab-resources" style="display:none">
+      <div class="table-wrap">
+        <div style="overflow-x:auto">
+          <table class="tbl">
+            <thead><tr><th>Title</th><th>Category</th><th>Uploader</th><th>Level</th><th></th></tr></thead>
+            <tbody id="resourceTableBody"><tr><td colspan="5" class="loading-row"><div class="spinner"></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import {
+  getFirestore, collection, getDocs, deleteDoc, doc,
+  addDoc, query, orderBy, setDoc, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey:"AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+  authDomain:"codex-study-hub-923c5.firebaseapp.com",
+  projectId:"codex-study-hub-923c5",
+  storageBucket:"codex-study-hub-923c5.appspot.com",
+  messagingSenderId:"750631534625",
+  appId:"1:750631534625:web:5f59e1841bb856bdbba360"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+const ADMIN = 'codexhub16@gmail.com';
+
+let allUsers = [], filteredUsers = [], currentPage = 1;
+const PAGE_SIZE = 10;
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user || user.email !== ADMIN) {
+    document.getElementById('accessDenied').style.display = 'block';
+    return;
+  }
+  document.getElementById('dashContent').style.display = 'block';
+  await Promise.all([loadUsers(), loadResourceCount()]);
+  loadResources();
+  loadLeaderboard();
+});
+
+async function loadUsers() {
+  try {
+    const snap = await getDocs(query(collection(db, "users"), orderBy("createdAt","desc")));
+    allUsers = [];
+    snap.forEach(d => allUsers.push({ id:d.id, ...d.data() }));
+    const now = Date.now(), five = now - 5*60*1000;
+    const online = allUsers.filter(u => u.lastSeen?.toMillis && u.lastSeen.toMillis() > five).length;
+    const pro    = allUsers.filter(u => u.isPro).length;
+    document.getElementById('statTotalUsers').textContent = allUsers.length;
+    document.getElementById('statOnline').textContent     = online || 0;
+    document.getElementById('statPro').textContent        = pro;
+    filteredUsers = [...allUsers];
+    renderUsers();
+    loadSubjects();
+  } catch(e) {
+    document.getElementById('userTableBody').innerHTML = `<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--red)">Error: ${e.message}<br><small style="color:var(--muted)">⚠️ Make sure Firestore security rules allow admin to read users. See FIRESTORE_RULES.txt</small></td></tr>`;
+    document.getElementById('statTotalUsers').textContent = 'ERR';
+  }
+}
+
+async function loadResourceCount() {
+  try {
+    const snap = await getDocs(collection(db, "pdfs"));
+    document.getElementById('statDocs').textContent = snap.size;
+  } catch(e) {}
+}
+
+function renderUsers() {
+  const tbody = document.getElementById('userTableBody');
+  const start = (currentPage-1)*PAGE_SIZE;
+  const page  = filteredUsers.slice(start, start+PAGE_SIZE);
+  if (!page.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)">No users found</td></tr>`;
+    document.getElementById('userPagination').innerHTML = '';
+    return;
+  }
+  tbody.innerHTML = page.map(u => {
+    const init   = (u.fullName||'U')[0].toUpperCase();
+    const joined = u.createdAt?.toDate ? u.createdAt.toDate().toLocaleDateString() : '—';
+    const plan   = u.isPro ? `<span class="badge-pro">⚡ Pro</span>` : `<span class="badge-free">Free</span>`;
+    return `<tr>
+      <td><div style="display:flex;align-items:center"><div class="user-av">${u.photoURL?`<img src="${u.photoURL}">`:(u.avatarEmoji||init)}</div>${u.fullName||'Unknown'}</div></td>
+      <td style="color:var(--muted);font-size:.8rem">${u.email||'—'}</td>
+      <td style="font-size:.8rem">${u.faculty||'—'}</td>
+      <td>${plan}</td>
+      <td style="color:var(--muted);font-size:.78rem">${joined}</td>
+      <td><button class="del-btn" onclick="deleteUser('${u.id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button></td>
+    </tr>`;
+  }).join('');
+  const totalPages = Math.ceil(filteredUsers.length/PAGE_SIZE);
+  const pag = document.getElementById('userPagination');
+  pag.innerHTML = '';
+  for (let i=1; i<=totalPages; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'pg-btn'+(i===currentPage?' active':'');
+    btn.textContent = i;
+    btn.onclick = () => { currentPage=i; renderUsers(); };
+    pag.appendChild(btn);
+  }
+}
+
+window.filterUsers = function() {
+  const q = document.getElementById('userSearch').value.toLowerCase();
+  filteredUsers = allUsers.filter(u => (u.fullName||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q));
+  currentPage = 1; renderUsers();
+};
+
+window.deleteUser = async function(uid) {
+  if (!confirm('Delete this user from Firestore?')) return;
+  try {
+    await deleteDoc(doc(db,"users",uid));
+    allUsers = allUsers.filter(u=>u.id!==uid);
+    filteredUsers = filteredUsers.filter(u=>u.id!==uid);
+    renderUsers();
+    document.getElementById('statTotalUsers').textContent = allUsers.length;
+    showToast('✅ User deleted');
+  } catch(e) { showToast('❌ '+e.message); }
+};
+
+function loadSubjects() {
+  const proUsers  = allUsers.filter(u=>u.isPro);
+  const subjectMap = {};
+  proUsers.forEach(u => { (u.unlockedSubjects||[]).forEach(s => { subjectMap[s]=(subjectMap[s]||0)+1; }); });
+  const rows = Object.entries(subjectMap).sort((a,b)=>b[1]-a[1]);
+  const tbody = document.getElementById('subjectTableBody');
+  if (!rows.length) { tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:30px;color:var(--muted)">No subject unlock data</td></tr>`; return; }
+  tbody.innerHTML = rows.map(([s,cnt]) => `<tr><td><strong>${s}</strong></td><td style="color:var(--green);font-weight:700">${cnt}</td><td>${proUsers.length?Math.round(cnt/proUsers.length*100)+'%':'—'}</td></tr>`).join('');
+}
+
+// LEADERBOARD
+let lbEntries = [];
+async function loadLeaderboard() {
+  try {
+    const snap = await getDocs(query(collection(db,"leaderboard"),orderBy("createdAt","asc")));
+    lbEntries = [];
+    snap.forEach(d => lbEntries.push({ id:d.id, ...d.data() }));
+    renderLBList();
+  } catch(e) { document.getElementById('lbList').innerHTML = `<div style="color:var(--red);padding:16px">Error: ${e.message}</div>`; }
+}
+
+function renderLBList() {
+  const medals = ['🥇','🥈','🥉'];
+  const list = document.getElementById('lbList');
+  if (!lbEntries.length) { list.innerHTML = `<div style="color:var(--muted);padding:16px;text-align:center">No entries yet — add the first winner!</div>`; return; }
+  list.innerHTML = lbEntries.map((e,i) => `
+    <div class="lb-item">
+      <span class="rank">${medals[i]||'🏅'}</span>
+      <div class="info">
+        <div class="name">${e.name||'—'} — ${e.day||'—'}</div>
+        <div class="meta">${e.date||''} · Score: ${e.score||'—'} · ${e.percent||''} · ${e.time||''}</div>
+      </div>
+      <button class="lb-del" onclick="deleteLBEntry('${e.id}')">🗑</button>
+    </div>`).join('');
+}
+
+window.addLeaderboardEntry = async function() {
+  const day     = document.getElementById('lbDay').value.trim();
+  const date    = document.getElementById('lbDate').value.trim();
+  const name    = document.getElementById('lbName').value.trim();
+  const score   = document.getElementById('lbScore').value.trim();
+  const percent = document.getElementById('lbPercent').value.trim();
+  const time    = document.getElementById('lbTime').value.trim();
+  if (!day||!name) return showToast('❌ Day and name are required');
+  try {
+    const ref = await addDoc(collection(db,"leaderboard"), { day,date,name,score,percent,time,createdAt:serverTimestamp() });
+    lbEntries.push({ id:ref.id, day,date,name,score,percent,time });
+    renderLBList();
+    ['lbDay','lbDate','lbName','lbScore','lbPercent','lbTime'].forEach(id=>document.getElementById(id).value='');
+    showToast('✅ Entry added!');
+  } catch(e) { showToast('❌ '+e.message); }
+};
+
+window.deleteLBEntry = async function(id) {
+  if (!confirm('Delete this entry?')) return;
+  try {
+    await deleteDoc(doc(db,"leaderboard",id));
+    lbEntries = lbEntries.filter(e=>e.id!==id);
+    renderLBList();
+    showToast('✅ Deleted');
+  } catch(e) { showToast('❌ '+e.message); }
+};
+
+// GENERATE KEY
+window.generateKey = async function() {
+  const duration = document.getElementById('keyDuration').value;
+  const subject  = document.getElementById('keySubject').value;
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let key = '';
+  for (let i=0;i<16;i++) { if(i>0&&i%4===0)key+='-'; key+=chars[Math.floor(Math.random()*chars.length)]; }
+  try {
+    await addDoc(collection(db,"keys"), { key, duration:parseInt(duration), subject, used:false, createdAt:serverTimestamp() });
+    const el = document.getElementById('keyOutput');
+    el.style.display = 'block';
+    el.innerHTML = `<strong>${key}</strong>  <span style="color:var(--muted);font-size:.8rem">✅ saved · ${duration} days · ${subject}</span>`;
+    showToast('✅ Key: '+key);
+  } catch(e) { showToast('❌ '+e.message); }
+};
+
+// RESOURCES
+async function loadResources() {
+  try {
+    const snap = await getDocs(query(collection(db,"pdfs"),orderBy("createdAt","desc")));
+    const tbody = document.getElementById('resourceTableBody');
+    if (snap.empty) { tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted)">No resources yet</td></tr>`; return; }
+    tbody.innerHTML = '';
+    snap.forEach(d => {
+      const data = d.data();
+      const row = document.createElement('tr');
+      row.innerHTML = `<td><a href="${data.url}" target="_blank" style="color:var(--blue)">${data.title||'—'}</a></td><td style="font-size:.8rem">${data.category||'—'}</td><td style="font-size:.8rem;color:var(--muted)">${data.uploader||'—'}</td><td style="font-size:.8rem">${data.level||'—'}</td><td><button class="del-btn" onclick="deleteResource('${d.id}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="12" height="12"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button></td>`;
+      tbody.appendChild(row);
+    });
+  } catch(e) {}
+}
+
+window.deleteResource = async function(id) {
+  if (!confirm('Delete this resource?')) return;
+  try {
+    await deleteDoc(doc(db,"pdfs",id));
+    showToast('✅ Deleted'); loadResources();
+    const cnt = parseInt(document.getElementById('statDocs').textContent)||0;
+    document.getElementById('statDocs').textContent = Math.max(0, cnt-1);
+  } catch(e) { showToast('❌ '+e.message); }
+};
+
+function showToast(msg) {
+  const t = document.createElement('div'); t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t); setTimeout(()=>t.remove(),2500);
+}
+</script>
+
+<script>
+function switchTab(name, btn) {
+  ['users','subjects','leaderboard','keys','resources'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===name ? '' : 'none';
+  });
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+}
+</script>
+</body>
+</html>

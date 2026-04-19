@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Codex Study Hub — PDF Library</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#080c14; --s1:#0f1623; --s2:#151e30; --s3:#1c283d;
+  --border:rgba(255,255,255,.06); --border2:rgba(255,255,255,.12);
+  --blue:#3b82f6; --blue-s:rgba(59,130,246,.12); --blue-b:rgba(59,130,246,.28);
+  --green:#10b981; --green-s:rgba(16,185,129,.12); --green-b:rgba(16,185,129,.28);
+  --gold:#f59e0b; --gold-s:rgba(245,158,11,.1); --gold-b:rgba(245,158,11,.28);
+  --red:#ef4444; --red-s:rgba(239,68,68,.12); --red-b:rgba(239,68,68,.28);
+  --text:#f0f4ff; --muted:#8fa3c0; --dim:#4a6380; --r:14px;
+  --shadow:0 4px 20px rgba(0,0,0,.28); --shadow-hover:0 8px 30px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Space Grotesk',sans-serif;background:var(--bg);min-height:100vh;color:var(--text)}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 80vw 55vh at 8% -5%,rgba(59,130,246,.07) 0%,transparent 60%),
+             radial-gradient(ellipse 50vw 40vh at 92% 105%,rgba(16,185,129,.05) 0%,transparent 60%)}
+
+.top-bar{display:flex;justify-content:space-between;align-items:center;padding:16px 28px;
+  background:var(--s1);border-bottom:1px solid var(--border2);position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:12px;font-size:1.15rem;font-weight:700}
+.logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--blue),var(--green));
+  border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.cbt-logo{width:36px;height:36px;object-fit:cover;border-radius:8px}
+.back-btn{display:flex;align-items:center;gap:7px;padding:9px 18px;background:var(--s2);
+  border:1px solid var(--border2);color:var(--text);border-radius:9px;cursor:pointer;
+  font-family:inherit;font-weight:600;font-size:.88rem;transition:all .25s;text-decoration:none}
+.back-btn:hover{background:var(--s3);border-color:var(--blue);transform:translateX(-2px)}
+.back-btn svg{width:16px;height:16px;transition:transform .25s}
+.back-btn:hover svg{transform:translateX(-3px)}
+
+.page-wrap{position:relative;z-index:1;max-width:1200px;margin:auto;padding:32px 20px 100px}
+
+.search-container{position:relative;margin-bottom:20px}
+.search-box{width:100%;padding:14px 18px 14px 46px;border:1.5px solid var(--border2);
+  background:var(--s1);border-radius:12px;font-family:inherit;font-size:.93rem;color:var(--text);transition:.25s}
+.search-box:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-s)}
+.search-box::placeholder{color:var(--dim)}
+.search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+
+.filters{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+.filter-chip{padding:7px 15px;background:var(--s1);border:1.5px solid var(--border2);border-radius:20px;
+  cursor:pointer;font-size:.83rem;font-weight:600;color:var(--muted);transition:.25s;font-family:inherit}
+.filter-chip:hover,.filter-chip.active{border-color:var(--blue);color:var(--blue);background:var(--blue-s)}
+
+.pdf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px;margin-bottom:40px}
+
+.pdf-card{background:var(--s1);border-radius:var(--r);padding:22px;position:relative;
+  box-shadow:var(--shadow);transition:all .3s;border:1px solid var(--border);overflow:hidden}
+.pdf-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--blue),var(--green));opacity:0;transition:.3s}
+.pdf-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover);border-color:var(--border2)}
+.pdf-card:hover::before{opacity:1}
+
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.category-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:12px;
+  font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.category-past-questions{background:var(--red-s);color:#fca5a5;border:1px solid var(--red-b)}
+.category-lecture-notes{background:var(--blue-s);color:#93c5fd;border:1px solid var(--blue-b)}
+.category-textbook{background:var(--green-s);color:#6ee7b7;border:1px solid var(--green-b)}
+.category-other{background:var(--s2);color:var(--muted);border:1px solid var(--border2)}
+
+.delete-icon{width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+  background:var(--red-s);color:#fca5a5;border-radius:7px;cursor:pointer;
+  transition:.2s;border:1px solid var(--red-b)}
+.delete-icon:hover{background:var(--red);color:#fff;transform:scale(1.05);border-color:var(--red)}
+
+.file-type-icon{font-size:2rem;margin-bottom:10px;display:block}
+.pdf-title{font-weight:700;font-size:1rem;margin-bottom:10px;color:var(--text);line-height:1.4}
+.pdf-meta{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.meta-item{display:flex;align-items:center;gap:7px;font-size:.82rem;color:var(--muted)}
+.meta-icon{width:15px;height:15px;opacity:.6;flex-shrink:0}
+
+.btn-download{width:100%;padding:11px;border:none;border-radius:9px;cursor:pointer;
+  font-family:inherit;font-weight:600;font-size:.88rem;display:flex;align-items:center;
+  justify-content:center;gap:7px;transition:.25s}
+.btn-download:hover{transform:translateY(-1px)}
+.btn-download svg{width:16px;height:16px}
+
+/* UPLOAD FAB */
+.upload-fab{position:fixed;bottom:28px;right:24px;z-index:50;padding:13px 22px;
+  background:linear-gradient(135deg,var(--blue),#2563eb);color:#fff;border:none;border-radius:50px;
+  font-family:inherit;font-weight:700;font-size:.9rem;cursor:pointer;
+  box-shadow:0 4px 20px rgba(59,130,246,.45);display:flex;align-items:center;gap:8px;transition:.25s;display:none}
+.upload-fab:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(59,130,246,.55)}
+.upload-fab svg{width:18px;height:18px}
+
+/* UPLOAD SECTION */
+.upload-section{background:var(--s1);border-radius:20px;padding:32px;box-shadow:var(--shadow);
+  border:1px solid var(--gold-b);display:none;margin-bottom:30px;animation:slideDown .3s ease}
+.upload-section.visible{display:block}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+
+.section-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;
+  padding-bottom:18px;border-bottom:1px solid var(--border2)}
+.section-header h3{margin:0;font-size:1.2rem;color:var(--gold)}
+.upload-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--gold),#d97706);
+  border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+.close-upload{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;
+  font-size:1.4rem;line-height:1;transition:.2s}
+.close-upload:hover{color:var(--red)}
+
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:20px}
+.form-group{display:flex;flex-direction:column;gap:7px}
+.form-group.full-width{grid-column:1/-1}
+label{font-weight:600;font-size:.83rem;color:var(--muted);display:flex;align-items:center;gap:5px}
+label .required{color:var(--red)}
+.text-input,select{padding:12px 14px;border:1.5px solid var(--border2);border-radius:9px;
+  font-family:inherit;font-size:.9rem;background:var(--s2);color:var(--text);transition:.25s}
+.text-input:focus,select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-s)}
+.text-input::placeholder{color:var(--dim)}
+select option{background:var(--s2)}
+
+.upload-toggle{display:flex;gap:0;margin-bottom:20px;background:var(--s2);
+  padding:4px;border-radius:10px;width:fit-content}
+.toggle-btn{padding:10px 20px;border:none;background:transparent;cursor:pointer;font-family:inherit;
+  font-weight:600;border-radius:7px;transition:.25s;color:var(--muted);
+  display:flex;align-items:center;gap:7px;font-size:.85rem}
+.toggle-btn.active{background:var(--s3);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.toggle-btn:hover:not(.active){color:var(--text)}
+
+.file-input-wrapper{position:relative;width:100%}
+.file-input-wrapper input[type=file]{position:absolute;left:-9999px}
+.file-label{display:flex;align-items:center;justify-content:center;gap:12px;padding:32px 20px;
+  border:2px dashed var(--border2);border-radius:12px;background:var(--s2);cursor:pointer;
+  transition:.25s;color:var(--muted);font-weight:500;font-size:.9rem}
+.file-label:hover{border-color:var(--blue);background:var(--blue-s);color:var(--blue)}
+.file-label svg{width:28px;height:28px}
+
+/* FILE PREVIEW */
+#filePreview{display:none;background:var(--blue-s);border:1px solid var(--blue-b);
+  border-radius:10px;padding:14px 16px;margin:10px 0}
+.preview-inner{display:flex;align-items:center;gap:12px}
+#previewIcon{font-size:2rem;flex-shrink:0}
+.preview-meta{flex:1;min-width:0}
+#previewName{font-weight:600;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+#previewSize{font-size:.74rem;color:var(--muted);margin-top:2px}
+.preview-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;flex-shrink:0;transition:.2s}
+.preview-close:hover{color:var(--red)}
+#previewImg{display:none;max-width:100%;max-height:160px;border-radius:8px;margin-top:10px;object-fit:contain}
+
+.upload-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--green),#059669);
+  color:#fff;border:none;border-radius:11px;cursor:pointer;font-family:inherit;
+  font-weight:700;font-size:.95rem;display:flex;align-items:center;justify-content:center;
+  gap:9px;transition:.25s;margin-top:8px;box-shadow:0 4px 15px rgba(16,185,129,.3)}
+.upload-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(16,185,129,.4)}
+
+.hidden{display:none!important}
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-state svg{width:70px;height:70px;margin-bottom:18px;opacity:.22}
+.empty-state h3{color:var(--text);margin-bottom:8px;font-size:1.1rem}
+.loading{display:flex;align-items:center;justify-content:center;
+  padding:60px;color:var(--muted);gap:12px;grid-column:1/-1}
+.spinner{width:22px;height:22px;border:3px solid var(--border2);border-top-color:var(--blue);
+  border-radius:50%;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:768px){
+  .top-bar{padding:13px 16px}
+  .page-wrap{padding:20px 14px 100px}
+  .upload-section{padding:22px 16px}
+  .form-grid{grid-template-columns:1fr}
+  .pdf-grid{grid-template-columns:1fr;gap:14px}
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="logo">
+    <div class="logo-icon">
+      <img src="logo.png" alt="Codex" class="cbt-logo" onerror="this.style.display='none'">
+    </div>
+    <span>Codex Resources</span>
+  </div>
+  <a href="home.html" class="back-btn">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+    </svg>
+    Back
+  </a>
+</div>
+
+<div class="page-wrap">
+
+  <div class="search-container">
+    <span class="search-icon">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+    </span>
+    <input type="text" id="searchInput" class="search-box" placeholder="Search by title, subject or category..." oninput="renderPDFs()">
+  </div>
+
+  <div class="filters">
+    <button class="filter-chip active" onclick="filterByCategory('all')">All</button>
+    <button class="filter-chip" onclick="filterByCategory('Past Questions')">Past Questions</button>
+    <button class="filter-chip" onclick="filterByCategory('Lecture Notes')">Lecture Notes</button>
+    <button class="filter-chip" onclick="filterByCategory('Textbook')">Textbook</button>
+    <button class="filter-chip" onclick="filterByCategory('Other')">Other</button>
+  </div>
+
+  <!-- UPLOAD SECTION — hidden until FAB pressed -->
+  <div class="upload-section" id="uploadSection">
+    <div class="section-header">
+      <div class="upload-icon">📤</div>
+      <h3>Upload New Material</h3>
+      <button class="close-upload" onclick="toggleUpload()" title="Close">✕</button>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Title <span class="required">*</span></label>
+        <input type="text" id="pdfTitle" class="text-input" placeholder="e.g., PHY101 Midterm 2023">
+      </div>
+      <div class="form-group">
+        <label>Subject <span class="required">*</span></label>
+        <input type="text" id="pdfSubject" class="text-input" placeholder="e.g., PHY101">
+      </div>
+      <div class="form-group">
+        <label>Category <span class="required">*</span></label>
+        <select id="pdfCategory">
+          <option value="">Select Category</option>
+          <option value="Past Questions">Past Questions</option>
+          <option value="Lecture Notes">Lecture Notes</option>
+          <option value="Textbook">Textbook</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Level <span class="required">*</span></label>
+        <select id="pdfLevel">
+          <option value="100L">100 Level</option>
+          <option value="200L">200 Level</option>
+          <option value="300L">300 Level</option>
+          <option value="400L">400 Level</option>
+          <option value="500L">500 Level</option>
+          <option value="General">General</option>
+        </select>
+      </div>
+      <div class="form-group full-width">
+        <label>Your Name <span class="required">*</span></label>
+        <input type="text" id="pdfUploader" class="text-input" placeholder="Enter your full name">
+      </div>
+    </div>
+
+    <div class="upload-toggle">
+      <button id="modeFile" class="toggle-btn active" onclick="setUploadMode('file')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        Upload File
+      </button>
+      <button id="modeLink" class="toggle-btn" onclick="setUploadMode('link')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+        </svg>
+        Paste Link
+      </button>
+    </div>
+
+    <div id="fileInputContainer">
+      <div class="file-input-wrapper">
+        <input type="file" id="pdfFile" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.png,.jpg,.jpeg">
+        <label for="pdfFile" class="file-label">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+          </svg>
+          <span>Click to upload — PDF, Word, PPT, Excel, Image…</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- FILE PREVIEW (unchanged from your original) -->
+    <div id="filePreview">
+      <div class="preview-inner">
+        <span id="previewIcon">📄</span>
+        <div class="preview-meta">
+          <div id="previewName"></div>
+          <div id="previewSize"></div>
+        </div>
+        <button class="preview-close" onclick="clearFilePreview()">✕</button>
+      </div>
+      <img id="previewImg" alt="preview">
+    </div>
+
+    <input type="url" id="pdfLink" class="text-input hidden" placeholder="https://example.com/document.pdf" style="margin-bottom:8px">
+
+    <button onclick="handleUpload()" class="upload-btn">
+      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+      </svg>
+      Upload Material
+    </button>
+  </div>
+
+  <div id="pdfGrid" class="pdf-grid">
+    <div class="loading"><div class="spinner"></div>Loading resources...</div>
+  </div>
+
+</div>
+
+<!-- FAB shown to all logged-in users -->
+<button class="upload-fab" id="uploadFab" onclick="toggleUpload()">
+  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+  </svg>
+  Upload
+</button>
+
+<script>
+// Toggle upload panel
+window.toggleUpload = function() {
+  const sec = document.getElementById('uploadSection');
+  sec.classList.toggle('visible');
+  if (sec.classList.contains('visible')) {
+    setTimeout(() => sec.scrollIntoView({ behavior:'smooth', block:'start' }), 50);
+  }
+};
+
+window.setUploadMode = function(mode) {
+  document.getElementById('modeFile').classList.toggle('active', mode === 'file');
+  document.getElementById('modeLink').classList.toggle('active', mode === 'link');
+  document.getElementById('fileInputContainer').classList.toggle('hidden', mode === 'link');
+  document.getElementById('pdfLink').classList.toggle('hidden', mode === 'file');
+  window._uploadMode = mode;
+};
+window._uploadMode = 'file';
+
+// File preview — unchanged from your original logic
+const pdfFileInput = document.getElementById('pdfFile');
+if (pdfFileInput) {
+  pdfFileInput.addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+    const preview = document.getElementById('filePreview');
+    const iconEl  = document.getElementById('previewIcon');
+    const nameEl  = document.getElementById('previewName');
+    const sizeEl  = document.getElementById('previewSize');
+    const imgEl   = document.getElementById('previewImg');
+    preview.style.display = 'block';
+    nameEl.textContent = file.name;
+    sizeEl.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+    const ext = file.name.split('.').pop().toLowerCase();
+    const iconMap = { pdf:'📄', doc:'📝', docx:'📝', ppt:'📊', pptx:'📊', xls:'📈', xlsx:'📈', txt:'📃', png:'🖼️', jpg:'🖼️', jpeg:'🖼️' };
+    iconEl.textContent = iconMap[ext] || '📁';
+    if (['png','jpg','jpeg','gif','webp'].includes(ext)) {
+      const reader = new FileReader();
+      reader.onload = e => { imgEl.src = e.target.result; imgEl.style.display = 'block'; };
+      reader.readAsDataURL(file);
+    } else { imgEl.style.display = 'none'; imgEl.src = ''; }
+  });
+}
+
+window.clearFilePreview = function() {
+  document.getElementById('pdfFile').value = '';
+  document.getElementById('filePreview').style.display = 'none';
+  document.getElementById('previewImg').style.display = 'none';
+};
+
+window.filterByCategory = function(category) {
+  window._currentFilter = category;
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.classList.toggle('active',
+      (category === 'all' && chip.textContent.trim() === 'All') ||
+      chip.textContent.trim() === category
+    );
+  });
+  renderPDFs();
+};
+window._currentFilter = 'all';
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+  authDomain: "codex-study-hub-923c5.firebaseapp.com",
+  projectId: "codex-study-hub-923c5",
+  storageBucket: "codex-study-hub-923c5.appspot.com",
+  messagingSenderId: "750631534625",
+  appId: "1:750631534625:web:5f59e1841bb856bdbba360"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const auth = getAuth(app);
+
+const ADMIN_EMAIL   = "codexhub16@gmail.com";
+const CLOUD_NAME    = "dngom9ylf";
+const UPLOAD_PRESET = "codex_pdf";
+
+let currentUser = null;
+
+onAuthStateChanged(auth, (user) => {
+  currentUser = user;
+  if (user) {
+    document.getElementById('uploadFab').style.display = 'flex';
+  }
+});
+
+window.handleUpload = async function() {
+  if (!currentUser) return alert("Please login first!");
+  const title    = document.getElementById('pdfTitle').value.trim();
+  const subject  = document.getElementById('pdfSubject').value.trim();
+  const category = document.getElementById('pdfCategory').value;
+  const uploader = document.getElementById('pdfUploader').value.trim();
+  const level    = document.getElementById('pdfLevel').value;
+  if (!title || !subject || !category || !uploader) return alert("Please fill all required fields");
+
+  let url = "";
+  try {
+    if (window._uploadMode === "file") {
+      const file = document.getElementById('pdfFile').files[0];
+      if (!file) throw new Error("Please select a file");
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", UPLOAD_PRESET);
+      formData.append("resource_type", "auto");
+      const res  = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`, { method:"POST", body:formData });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+      url = data.secure_url;
+    } else {
+      url = document.getElementById('pdfLink').value.trim();
+      if (!url) throw new Error("Please enter a valid link");
+    }
+
+    await addDoc(collection(db, "pdfs"), {
+      title, subject, category, uploader, level, url,
+      uploadedBy: currentUser.uid, createdAt: new Date()
+    });
+
+    ['pdfTitle','pdfSubject','pdfUploader','pdfLink'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('pdfCategory').value = '';
+    document.getElementById('pdfFile').value = '';
+    window.clearFilePreview();
+    document.getElementById('uploadSection').classList.remove('visible');
+    alert("✅ Uploaded successfully!");
+    renderPDFs();
+  } catch(e) { alert("Error: " + e.message); }
+};
+
+// ADMIN ONLY delete
+window.deleteDoc = async function(id) {
+  if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
+    alert("❌ Only admin can delete resources.");
+    return;
+  }
+  if (confirm("Delete this resource permanently?")) {
+    await deleteDoc(doc(db, "pdfs", id));
+    renderPDFs();
+  }
+};
+
+window.renderPDFs = async function() {
+  const grid   = document.getElementById('pdfGrid');
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  grid.innerHTML = '<div class="loading"><div class="spinner"></div>Loading resources...</div>';
+
+  try {
+    const q    = query(collection(db, "pdfs"), orderBy("createdAt", "desc"));
+    const snap = await getDocs(q);
+    const isAdmin = currentUser && currentUser.email === ADMIN_EMAIL;
+    let html = "", count = 0;
+
+    snap.forEach(docSnap => {
+      const d  = docSnap.data();
+      const id = docSnap.id;
+      if (search && !d.title?.toLowerCase().includes(search) &&
+          !d.subject?.toLowerCase().includes(search) &&
+          !d.category?.toLowerCase().includes(search)) return;
+      if (window._currentFilter !== 'all' && d.category !== window._currentFilter) return;
+
+      count++;
+      const catKey   = (d.category || 'other').toLowerCase().replace(/\s+/g,'-');
+      const catEmoji = {'past-questions':'📝','lecture-notes':'📖','textbook':'📚'}[catKey] || '📄';
+      const catClass = `category-${catKey}`;
+
+      html += `
+        <div class="pdf-card">
+          <div class="card-header">
+            <span class="category-badge ${catClass}">${catEmoji} ${d.category || 'Other'}</span>
+            ${isAdmin ? `<button class="delete-icon" onclick="deleteDoc('${id}')" title="Delete">
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+            </button>` : ""}
+          </div>
+          <span class="file-type-icon">${catEmoji}</span>
+          <div class="pdf-title">${d.title}</div>
+          <div class="pdf-meta">
+            <div class="meta-item">
+              <svg class="meta-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+              ${d.subject || 'No Subject'}
+            </div>
+            <div class="meta-item">
+              <svg class="meta-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+              ${d.level || 'No Level'}
+            </div>
+            <div class="meta-item">
+              <svg class="meta-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              by ${d.uploader || 'Anonymous'}
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <button class="btn-download" onclick="window.open('${d.url}','_blank')" style="flex:1;background:var(--blue-s);color:var(--blue);border:1px solid var(--blue-b)">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              View
+            </button>
+            <button class="btn-download" onclick="downloadPDF('${d.url}','${(d.title||'document').replace(/['"]/g,'')}')" style="flex:1;background:var(--green-s);color:var(--green);border:1px solid var(--green-b)">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              Download
+            </button>
+          </div>
+        </div>`;
+    });
+
+    grid.innerHTML = count === 0
+      ? `<div class="empty-state" style="grid-column:1/-1">
+           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+           <h3>No resources found</h3><p>Try adjusting your filters or be the first to upload!</p>
+         </div>`
+      : html;
+  } catch(e) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;color:var(--red)">Error loading: ${e.message}</div>`;
+  }
+};
+
+window.downloadPDF = async function(url, filename) {
+  if (!url) return alert('No file URL found.');
+  let dlUrl = url;
+  if (url.includes('cloudinary.com')) dlUrl = url.replace('/upload/', '/upload/fl_attachment/');
+  try {
+    const resp = await fetch(dlUrl);
+    if (!resp.ok) throw new Error('Download failed');
+    const blob = await resp.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = `${filename.replace(/\s+/g,'_')}.pdf`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(blobUrl);
+  } catch(err) { window.open(dlUrl, '_blank'); }
+};
+
+window.onload = renderPDFs;
+</script>
+</body>
+</html>

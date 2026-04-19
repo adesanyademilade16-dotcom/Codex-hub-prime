@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Result — Codex Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e3a5f;
+            --primary-light: #2d5a87;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg: #f0f4f8;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        /* Header */
+        .header {
+            background: var(--primary);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-img {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .brand-text h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1.2;
+        }
+
+        .brand-text span {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            color: white;
+            font-weight: 400;
+        }
+
+        .restart-btn {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.25);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-1px);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 24px 16px 40px;
+        }
+
+        .result-card {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 32px 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            text-align: center;
+            animation: fadeUp 0.6s ease-out;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-title {
+            font-size: 1.6rem;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 24px;
+            font-family: Georgia, serif;
+            letter-spacing: -0.5px;
+        }
+
+        /* Score Circle with SVG */
+        .score-circle-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .score-circle {
+            width: 160px;
+            height: 160px;
+            position: relative;
+        }
+
+        .score-svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+
+        .score-bg {
+            fill: none;
+            stroke: #e2e8f0;
+            stroke-width: 12;
+        }
+
+        .score-progress {
+            fill: none;
+            stroke: url(#scoreGradient);
+            stroke-width: 12;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1.5s ease-out;
+        }
+
+        .score-center {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .score-number {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .score-total {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        /* Percentage */
+        .percentage {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 12px 0 8px;
+        }
+
+        /* Grade Badge */
+        .grade-badge {
+            display: inline-block;
+            padding: 8px 24px;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .grade-a { background: #dcfce7; color: #166534; }
+        .grade-b { background: #dbeafe; color: #1e40af; }
+        .grade-c { background: #fef3c7; color: #92400e; }
+        .grade-d { background: #ffedd5; color: #9a3412; }
+        .grade-f { background: #fee2e2; color: #991b1b; }
+
+        /* Compact Circular Stats */
+        .stats-grid {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-circle {
+            width: 64px;
+            height: 64px;
+            position: relative;
+        }
+
+        .stat-circle svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+
+        .stat-circle-bg {
+            fill: none;
+            stroke: #f1f5f9;
+            stroke-width: 8;
+        }
+
+        .stat-circle-fill {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s ease-out;
+        }
+
+        .stat-circle-text {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Mini Pie Chart */
+        .chart-section {
+            margin: 24px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 16px;
+        }
+
+        .chart-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .pie-chart-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+        }
+
+        .pie-chart {
+            width: 120px;
+            height: 120px;
+        }
+
+        .pie-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        /* Bar Chart */
+        .bar-chart {
+            margin-top: 16px;
+        }
+
+        .bar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .bar-label {
+            width: 60px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-align: right;
+        }
+
+        .bar-track {
+            flex: 1;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease-out;
+            position: relative;
+        }
+
+        .bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .bar-value {
+            width: 30px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-align: left;
+        }
+
+        /* Home Button */
+        .home-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(30, 58, 95, 0.3);
+            margin-top: 8px;
+        }
+
+        .home-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(30, 58, 95, 0.4);
+        }
+
+        /* Review Section */
+        .review-section {
+            margin-top: 24px;
+            background: var(--card);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            animation: fadeUp 0.6s 0.2s both;
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .review-header h2 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .question-review {
+            margin-bottom: 16px;
+            padding: 16px;
+            border-radius: 12px;
+            background: #f8fafc;
+            border-left: 3px solid var(--border);
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+        .question-review:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .question-review.correct { border-left-color: var(--success); background: #f0fdf4; }
+        .question-review.incorrect { border-left-color: var(--danger); background: #fef2f2; }
+        .question-review.unanswered { border-left-color: var(--warning); background: #fffbeb; }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .question-text {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.9rem;
+            flex: 1;
+            line-height: 1.4;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-correct { background: #dcfce7; color: #166534; }
+        .status-incorrect { background: #fee2e2; color: #991b1b; }
+        .status-unanswered { background: #fef3c7; color: #92400e; }
+
+        .topic-tag {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .option {
+            padding: 8px 12px;
+            margin: 4px 0;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .option.correct-answer {
+            background: #dcfce7;
+            color: #166534;
+            font-weight: 600;
+            border: 1px solid #86efac;
+        }
+
+        .option.wrong-answer {
+            background: #fee2e2;
+            color: #991b1b;
+            text-decoration: line-through;
+            border: 1px solid #fca5a5;
+        }
+
+        .option.neutral {
+            background: white;
+            color: var(--text-light);
+            border: 1px solid var(--border);
+        }
+
+        /* SVG Icons */
+        .icon { width: 20px; height: 20px; vertical-align: middle; }
+
+        @media (max-width: 480px) {
+            .stats-grid { gap: 12px; }
+            .stat-circle { width: 56px; height: 56px; }
+            .score-circle { width: 140px; height: 140px; }
+            .score-number { font-size: 2.4rem; }
+            .percentage { font-size: 1.8rem; }
+            .result-title { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <img src="logo.png" alt="Codex Hub" class="logo-img" onerror="this.style.display='none'">
+            <div class="brand-text">
+                <h1>Codex Hub</h1>
+                <span>CBT Practice</span>
+            </div>
+        </div>
+        <button class="restart-btn" onclick="restartTest()">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            RESTART
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="result-card">
+            <h1 class="result-title">Your Result</h1>
+
+            <!-- Score Circle -->
+            <div class="score-circle-container">
+                <div class="score-circle">
+                    <svg class="score-svg" viewBox="0 0 160 160">
+                        <defs>
+                            <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3b82f6"/>
+                                <stop offset="100%" style="stop-color:#1e3a5f"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="score-bg" cx="80" cy="80" r="70"/>
+                        <circle class="score-progress" cx="80" cy="80" r="70" 
+                                stroke-dasharray="439.8" stroke-dashoffset="439.8" id="scoreCircleProgress"/>
+                    </svg>
+                    <div class="score-center">
+                        <div class="score-number" id="scoreNumber">0</div>
+                        <div class="score-total" id="scoreTotal">out of 0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="percentage" id="percentage">0%</div>
+
+            <div class="grade-badge" id="gradeBadge">F — Below Average</div>
+
+            <!-- Compact Circular Stats -->
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-circle">
+                        <svg viewBox="0 0 64 64">
+                            <circle class="stat-circle-bg" cx="32" cy="32" r="26"/>
+                            <circle class="stat-circle-fill" cx="32" cy="32" r="26" 
+                                    stroke="#10b981" stroke-dasharray="163.4" stroke-dashoffset="163.4" id="correctCircle"/>
+                        </svg>
+                        <div class="stat-circle-text" style="color: var(--success);" id="correctStat">0</div>
+                    </div>
+                    <span class="stat-label">Correct</span>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-circle">
+                        <svg viewBox="0 0 64 64">
+                            <circle class="stat-circle-bg" cx="32" cy="32" r="26"/>
+                            <circle class="stat-circle-fill" cx="32" cy="32" r="26" 
+                                    stroke="#ef4444" stroke-dasharray="163.4" stroke-dashoffset="163.4" id="wrongCircle"/>
+                        </svg>
+                        <div class="stat-circle-text" style="color: var(--danger);" id="wrongStat">0</div>
+                    </div>
+                    <span class="stat-label">Wrong</span>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-circle">
+                        <svg viewBox="0 0 64 64">
+                            <circle class="stat-circle-bg" cx="32" cy="32" r="26"/>
+                            <circle class="stat-circle-fill" cx="32" cy="32" r="26" 
+                                    stroke="#f59e0b" stroke-dasharray="163.4" stroke-dashoffset="163.4" id="timeCircle"/>
+                        </svg>
+                        <div class="stat-circle-text" style="color: var(--warning);" id="timeStat">0m</div>
+                    </div>
+                    <span class="stat-label">Time</span>
+                </div>
+            </div>
+
+            <!-- Mini Pie Chart -->
+            <div class="chart-section">
+                <div class="chart-title">Performance Breakdown</div>
+                <div class="pie-chart-container">
+                    <svg class="pie-chart" viewBox="0 0 120 120" id="pieChart">
+                        <circle cx="60" cy="60" r="50" fill="#e2e8f0"/>
+                    </svg>
+                    <div class="pie-legend">
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background: #10b981;"></div>
+                            <span id="legendCorrect">Correct (0%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background: #ef4444;"></div>
+                            <span id="legendWrong">Wrong (0%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background: #f59e0b;"></div>
+                            <span id="legendSkipped">Skipped (0%)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bar Chart -->
+                <div class="bar-chart" id="barChart">
+                    <div class="bar-item">
+                        <span class="bar-label">Correct</span>
+                        <div class="bar-track">
+                            <div class="bar-fill" style="background: linear-gradient(90deg, #10b981, #34d399); width: 0%;" id="barCorrect"></div>
+                        </div>
+                        <span class="bar-value" style="color: #10b981;" id="barCorrectVal">0</span>
+                    </div>
+                    <div class="bar-item">
+                        <span class="bar-label">Wrong</span>
+                        <div class="bar-track">
+                            <div class="bar-fill" style="background: linear-gradient(90deg, #ef4444, #f87171); width: 0%;" id="barWrong"></div>
+                        </div>
+                        <span class="bar-value" style="color: #ef4444;" id="barWrongVal">0</span>
+                    </div>
+                    <div class="bar-item">
+                        <span class="bar-label">Skipped</span>
+                        <div class="bar-track">
+                            <div class="bar-fill" style="background: linear-gradient(90deg, #f59e0b, #fbbf24); width: 0%;" id="barSkipped"></div>
+                        </div>
+                        <span class="bar-value" style="color: #f59e0b;" id="barSkippedVal">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <button class="home-btn" onclick="returnToHome()">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" style="margin-right: 6px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                Back to Home
+            </button>
+        </div>
+
+        <!-- Review Section -->
+        <div class="review-section">
+            <div class="review-header">
+                <svg class="icon" fill="none" stroke="#1e3a5f" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75m-6 3.75h12a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0018.75 4.5h-12A2.25 2.25 0 004.5 6.75v12.75A2.25 2.25 0 006.75 21z"/>
+                </svg>
+                <h2>Detailed Review</h2>
+            </div>
+            <div id="reviewContainer"></div>
+        </div>
+    </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+  authDomain: "codex-study-hub-923c5.firebaseapp.com",
+  projectId: "codex-study-hub-923c5",
+  storageBucket: "codex-study-hub-923c5.appspot.com",
+  messagingSenderId: "750631534625",
+  appId: "1:750631534625:web:5f59e1841bb856bdbba360"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+let results = null;
+
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = "Login.html";
+    return;
+  }
+  currentUser = user;
+  loadResults();
+});
+
+function loadResults() {
+  const stored = localStorage.getItem('cbtResults');
+  if (!stored) {
+    window.location.href = "home.html";
+    return;
+  }
+
+  results = JSON.parse(stored);
+  displayResults();
+  renderReview();
+  saveResultToFirestore();
+}
+
+async function saveResultToFirestore() {
+  if (!currentUser) return;
+  try {
+    const statsRef = doc(db, "stats", currentUser.uid);
+    const testEntry = {
+      subject: results.subject || "Unknown Subject",
+      score: results.score || 0,
+      totalQuestions: results.questions ? results.questions.length : 0,
+      incorrect: results.incorrect || 0,
+      unanswered: results.unanswered || 0,
+      duration: results.duration || 0,
+      date: new Date().toISOString(),
+      mode: results.mode || "practice"
+    };
+
+    await setDoc(statsRef, {
+      history: arrayUnion(testEntry)
+    }, { merge: true });
+
+    localStorage.removeItem('cbtResults');
+  } catch (e) {
+    console.error("Failed to save result:", e);
+  }
+}
+
+function displayResults() {
+  const totalQ = results.questions ? results.questions.length : 0;
+  const score = results.score || 0;
+  const percentage = results.percentage || Math.round((score / totalQ) * 100);
+  const wrong = results.incorrect || (totalQ - score - (results.unanswered || 0));
+  const skipped = results.unanswered || 0;
+  const duration = results.duration || 0;
+  const minutes = Math.floor(duration / 60);
+
+  // Grade
+  let gradeClass = 'grade-f';
+  let gradeText = 'F — Below Average';
+  if (percentage >= 70) { gradeClass = 'grade-a'; gradeText = 'A — Excellent'; }
+  else if (percentage >= 60) { gradeClass = 'grade-b'; gradeText = 'B — Good'; }
+  else if (percentage >= 50) { gradeClass = 'grade-c'; gradeText = 'C — Average'; }
+  else if (percentage >= 40) { gradeClass = 'grade-d'; gradeText = 'D — Pass'; }
+
+  document.getElementById('scoreNumber').textContent = score;
+  document.getElementById('scoreTotal').textContent = `out of ${totalQ}`;
+  document.getElementById('percentage').textContent = `${percentage}%`;
+
+  const badge = document.getElementById('gradeBadge');
+  badge.className = `grade-badge ${gradeClass}`;
+  badge.textContent = gradeText;
+
+  // Animate main score circle
+  const circleCircum = 2 * Math.PI * 70;
+  const offset = circleCircum - (percentage / 100) * circleCircum;
+  setTimeout(() => {
+    document.getElementById('scoreCircleProgress').style.strokeDashoffset = offset;
+  }, 300);
+
+  // Compact circular stats
+  const correctPct = totalQ > 0 ? (score / totalQ) * 100 : 0;
+  const wrongPct = totalQ > 0 ? (wrong / totalQ) * 100 : 0;
+  const timePct = Math.min(100, (duration / 1800) * 100); // 30 min max
+
+  document.getElementById('correctStat').textContent = score;
+  document.getElementById('wrongStat').textContent = wrong;
+  document.getElementById('timeStat').textContent = minutes > 0 ? `${minutes}m` : `${duration}s`;
+
+  // Animate small circles
+  const smallCircum = 2 * Math.PI * 26;
+  setTimeout(() => {
+    document.getElementById('correctCircle').style.strokeDashoffset = smallCircum - (correctPct / 100) * smallCircum;
+    document.getElementById('wrongCircle').style.strokeDashoffset = smallCircum - (wrongPct / 100) * smallCircum;
+    document.getElementById('timeCircle').style.strokeDashoffset = smallCircum - (timePct / 100) * smallCircum;
+  }, 500);
+
+  // Pie Chart
+  const correctDeg = totalQ > 0 ? (score / totalQ) * 360 : 0;
+  const wrongDeg = totalQ > 0 ? (wrong / totalQ) * 360 : 0;
+  const skippedDeg = totalQ > 0 ? (skipped / totalQ) * 360 : 0;
+
+  const pieSvg = document.getElementById('pieChart');
+  pieSvg.innerHTML = `
+    <circle cx="60" cy="60" r="50" fill="none" stroke="#e2e8f0" stroke-width="20"/>
+    <circle cx="60" cy="60" r="50" fill="none" stroke="#10b981" stroke-width="20"
+            stroke-dasharray="${(correctDeg / 360) * 314} 314" 
+            stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+    <circle cx="60" cy="60" r="50" fill="none" stroke="#ef4444" stroke-width="20"
+            stroke-dasharray="${(wrongDeg / 360) * 314} 314" 
+            stroke-dashoffset="-${(correctDeg / 360) * 314}" transform="rotate(-90 60 60)"/>
+    <circle cx="60" cy="60" r="50" fill="none" stroke="#f59e0b" stroke-width="20"
+            stroke-dasharray="${(skippedDeg / 360) * 314} 314" 
+            stroke-dashoffset="-${((correctDeg + wrongDeg) / 360) * 314}" transform="rotate(-90 60 60)"/>
+  `;
+
+  document.getElementById('legendCorrect').textContent = `Correct (${Math.round(correctPct)}%)`;
+  document.getElementById('legendWrong').textContent = `Wrong (${Math.round(wrongPct)}%)`;
+  document.getElementById('legendSkipped').textContent = `Skipped (${Math.round((skipped / totalQ) * 100)}%)`;
+
+  // Bar Chart
+  setTimeout(() => {
+    document.getElementById('barCorrect').style.width = `${correctPct}%`;
+    document.getElementById('barWrong').style.width = `${wrongPct}%`;
+    document.getElementById('barSkipped').style.width = `${(skipped / totalQ) * 100}%`;
+  }, 800);
+
+  document.getElementById('barCorrectVal').textContent = score;
+  document.getElementById('barWrongVal').textContent = wrong;
+  document.getElementById('barSkippedVal').textContent = skipped;
+}
+
+function renderReview() {
+  const container = document.getElementById('reviewContainer');
+  container.innerHTML = '';
+
+  if (!results.questions) return;
+
+  results.questions.forEach((qData, index) => {
+    const userAnswer = results.userAnswers ? results.userAnswers[index] : null;
+    const isCorrect = userAnswer === qData.ans;
+    const isAnswered = userAnswer !== null && userAnswer !== undefined;
+
+    let statusClass = isCorrect ? 'correct' : (isAnswered ? 'incorrect' : 'unanswered');
+    let statusText = isCorrect ? 'Correct' : (isAnswered ? 'Incorrect' : 'Skipped');
+    let statusBadgeClass = isCorrect ? 'status-correct' : (isAnswered ? 'status-incorrect' : 'status-unanswered');
+
+    let optionsHtml = qData.options.map((option, i) => {
+      const letter = String.fromCharCode(65 + i);
+      const isCorrectAns = option === qData.ans;
+      const isUserAns = option === userAnswer;
+
+      let cls = 'option neutral';
+      if (isCorrectAns) cls = 'option correct-answer';
+      else if (isUserAns && !isCorrect) cls = 'option wrong-answer';
+
+      return `<div class="${cls}"><strong>${letter}.</strong> ${option}</div>`;
+    }).join('');
+
+    const div = document.createElement('div');
+    div.className = `question-review ${statusClass}`;
+    div.innerHTML = `
+      <div class="question-header">
+        <span class="question-text">Q${index + 1}. ${qData.q}</span>
+        <span class="status-badge ${statusBadgeClass}">${statusText}</span>
+      </div>
+      <div class="topic-tag">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
+        </svg>
+        ${qData.topic || 'General'}
+      </div>
+      ${optionsHtml}
+    `;
+    container.appendChild(div);
+  });
+}
+
+window.restartTest = () => {
+  const subject = localStorage.getItem('currentSubject') || '';
+  window.location.href = `cbt_engine.html?subject=${encodeURIComponent(subject)}`;
+};
+
+window.returnToHome = () => {
+  window.location.href = "home.html";
+};
+</script>
+</body>
+</html>

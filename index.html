@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codex Hub – Ace Your Exams</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+      <!-- Google AdSense Script -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9642494442871029"
+     crossorigin="anonymous"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --accent: #10b981;
+            --dark: #0f172a;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+            color: #f1f5f9;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- Navigation --- */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #818cf8, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            text-align: center;
+            padding: 100px 20px 60px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .cbt-logo {  
+            width: 90px;  
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 15px var(--primary));
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            margin: 0;
+            line-height: 1.1;
+            font-weight: 800;
+        }
+
+        .hero p {
+            color: #94a3b8;
+            font-size: 1.25rem;
+            margin: 20px auto;
+            max-width: 600px;
+        }
+
+        /* --- Buttons --- */
+        .buttons {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border-radius: 12px;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-login { background: var(--primary); color: white; }
+        .btn-login:hover { background: var(--primary-hover); transform: translateY(-2px); }
+
+        .btn-support { 
+            background: var(--glass); 
+            color: white; 
+            border: 1px solid var(--border);
+        }
+        .btn-support:hover { background: rgba(255,255,255,0.1); }
+
+        /* --- Slider --- */
+        .slider-container {
+            max-width: 900px;
+            margin: 60px auto;
+            position: relative;
+            border-radius: 24px;
+            padding: 10px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+        }
+
+        .slider {
+            height: 450px;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slider img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .slider img.active { opacity: 1; }
+
+        /* --- Features Section --- */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            padding: 60px 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: var(--glass);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            text-align: left;
+            transition: 0.3s;
+        }
+
+        .feature-card:hover { border-color: var(--primary); }
+
+        .feature-card i {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 { margin: 0 0 10px; font-size: 1.4rem; }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            border-top: 1px solid var(--border);
+            color: #64748b;
+        }
+
+        @media (max-width: 768px) {
+            .slider { height: 250px; }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav>
+    <div class="logo-text">CODEX STUDY HUB</div>
+    <div class="nav-links">
+        <a href="Login.html" class="btn btn-login" style="padding: 10px 20px; font-size: 0.9rem;">Start Now</a>
+    </div>
+</nav>
+
+<section class="hero">
+    <img src="logo.png" alt="Logo" class="cbt-logo">
+    <h1>Master Your Exams <br><span style="color: var(--accent)">Without Stress.</span></h1>
+    <p>Access high-quality CBT practice questionsb from previous 100lv student, detailed study notes, and track your progress—all in one place.</p>
+
+    <div class="buttons">
+        <a href="Login.html" class="btn btn-login">Get Started Free <i class="fas fa-arrow-right"></i></a>
+        <button class="btn btn-support" onclick="openSupport()">Talk to a Developer <i class="fab fa-whatsapp"></i></button>
+    </div>
+</section>
+
+<div class="slider-container">
+    <div class="slider">
+        <img src="images/graduation.jpg" class="active">
+        <img src="images/phone.jpg">
+        <img src="images/students.jpg">
+        <img src="images/cbt.jpg">
+    </div>
+</div>
+
+<section class="features">
+    <div class="feature-card">
+        <i class="fas fa-bolt"></i>
+        <h3>Timed CBT Mode</h3>
+        <p>Simulate real exam environments with our timed engine. Get used to the pressure before the big day.</p>
+    </div>
+    <div class="feature-card">
+        <i class="fas fa-book-open"></i>
+        <h3>Structured Notes</h3>
+        <p>Not just questions—we provide simplified notes for subjects like MTH101, PHY101, and more.</p>
+    </div>
+    <div class="feature-card">
+        <i class="fas fa-chart-line"></i>
+        <h3>Progress Analytics</h3>
+        <p>Track your scores over time and see exactly which topics you need to study more.</p>
+    </div>
+</section>
+
+<footer>
+    <p>© 2025 Codex Hub • Built with ❤️ for OOU (0labisi Onabanjo) Students</p>
+    <div style="font-size: 0.8rem; margin-top: 10px;">
+        <a href="#" style="color: #64748b; margin: 0 10px;">Privacy</a>
+        <a href="#" style="color: #64748b; margin: 0 10px;">Terms</a>
+    </div>
+</footer>
+
+<script>
+    // Slider Logic
+    let index = 0;
+    const slides = document.querySelectorAll('.slider img');
+    
+    if(slides.length > 0) {
+        setInterval(() => {
+            slides[index].classList.remove('active');
+            index = (index + 1) % slides.length;
+            slides[index].classList.add('active');
+        }, 4000);
+    }
+
+    function openSupport() {
+        window.open(
+            "https://wa.me/2347011245168?text=Hi%20Codex%20Developer,%20I'd%20like%20to%20know%20more%20about%20the%20Study%20Hub.",
+            "_blank"
+        );
+    }
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+    authDomain: "codex-study-hub-923c5.firebaseapp.com",
+    projectId: "codex-study-hub-923c5",
+    storageBucket: "codex-study-hub-923c5.appspot.com",
+    messagingSenderId: "750631534625",
+    appId: "1:750631534625:web:5f59e1841bb856bdbba360"
+  };
+
+
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// 🔥 THIS IS THE MAGIC
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // Skip landing page completely
+    window.location.href = "splash.html";
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Codex Study Hub — Select Subject</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#0d1b2a; --ink2:#1b2e44; --ink3:#2c4a6e;
+    --sky:#e8f4fd; --sky2:#d0e8f8; --sky3:#b8ddf5;
+    --gold:#f0a500; --gold2:#fbbf24; --gold3:#fef3c7;
+    --green:#059669; --green2:#d1fae5;
+    --red:#dc2626; --red2:#fee2e2;
+    --amber:#d97706; --amber2:#fef3c7;
+    --border:#dde6f0; --bg:#f2f7fc;
+    --card:#ffffff; --radius:14px;
+    --shadow:0 2px 12px rgba(13,27,42,.08);
+    --shadow-md:0 6px 24px rgba(13,27,42,.12);
+    --shadow-lg:0 16px 48px rgba(13,27,42,.16);
+    --font:'Sora',system-ui,sans-serif;
+    --mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font);min-height:100vh;-webkit-font-smoothing:antialiased}
+  ::-webkit-scrollbar{width:5px;height:5px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:var(--sky3);border-radius:4px}
+
+  body{display:block;padding:0}
+  .top-bar{
+    background:linear-gradient(135deg,var(--ink) 0%,var(--ink3) 100%);
+    padding:14px 20px;position:sticky;top:0;z-index:50;
+    display:flex;align-items:center;gap:12px;
+    box-shadow:0 3px 16px rgba(13,27,42,.22);
+  }
+  .top-bar-logo{font-size:.95rem;font-weight:700;color:#fff;letter-spacing:-.3px}
+  .top-bar-logo span{color:var(--gold2)}
+  .page-wrap{max-width:960px;margin:0 auto;padding:24px 16px 60px}
+  .page-header{text-align:center;margin-bottom:28px;padding-bottom:18px;border-bottom:2px solid var(--border)}
+  .mode-pill{
+    display:inline-block;background:var(--gold3);color:var(--amber);
+    padding:5px 16px;border-radius:20px;font-size:.78rem;font-weight:700;
+    border:1.5px solid var(--gold2);margin-bottom:10px;
+  }
+  .page-header h1{font-size:1.7rem;font-weight:800;color:var(--ink);letter-spacing:-.4px;margin-bottom:4px}
+  #modeDisplay{font-size:.95rem;color:#64748b;margin-top:4px}
+  .subject-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+    gap:14px;
+  }
+  .subject-card{
+    background:var(--card);border-radius:12px;padding:18px 20px;
+    cursor:pointer;border:1.5px solid var(--border);
+    box-shadow:var(--shadow);transition:all .22s ease;position:relative;
+    overflow:hidden;
+  }
+  .subject-card::before{
+    content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
+    background:linear-gradient(to bottom,var(--ink2),var(--ink3));
+    border-radius:4px 0 0 4px;
+  }
+  .subject-card:hover{
+    border-color:var(--ink3);transform:translateY(-3px);
+    box-shadow:var(--shadow-md);background:var(--sky);
+  }
+  .card-icon{font-size:1.6rem;margin-bottom:8px;display:block}
+  .code{font-size:1.15rem;font-weight:800;color:var(--ink);letter-spacing:-.3px}
+  .name{font-size:.82rem;color:#64748b;margin-top:3px;line-height:1.4}
+  .lock-badge{
+    position:absolute;top:10px;right:10px;
+    background:var(--red);color:#fff;
+    padding:3px 9px;border-radius:12px;font-size:.7rem;font-weight:700;
+  }
+  .trial-badge{
+    position:absolute;top:10px;right:10px;
+    background:var(--gold2);color:#78350f;
+    padding:3px 9px;border-radius:12px;font-size:.7rem;font-weight:700;
+  }
+  .unlocked-badge{
+    position:absolute;top:10px;right:10px;
+    background:var(--green2);color:var(--green);
+    padding:3px 9px;border-radius:12px;font-size:.7rem;font-weight:700;
+  }
+  .back-btn{
+    background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.28);
+    color:#fff;padding:7px 16px;border-radius:8px;cursor:pointer;
+    font-size:.8rem;font-weight:600;font-family:var(--font);
+    margin-left:auto;transition:.2s;
+  }
+  .back-btn:hover{background:rgba(255,255,255,.24)}
+  .cbt-logo {
+    width: 60px;
+    height: auto;
+    margin: 0 auto;
+    display: block;
+    animation: fadeIn 0.6s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .loading-msg{text-align:center;padding:40px;color:#64748b;font-size:.95rem;grid-column:1/-1}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <span style="font-size:1.4rem"><img src="logo.png" alt="Codex Study Hub Logo" class="cbt-logo"></span>
+  <div class="top-bar-logo">Codex <span>Study Hub</span></div>
+  <button class="back-btn" onclick="window.location.href='home.html'">← Home</button>
+</div>
+<div class="page-wrap">
+  <div class="page-header">
+    <div class="mode-pill" id="modePill">📚 Study Mode</div>
+    <h1>Select Your Subject</h1>
+    <div id="modeDisplay">Loading...</div>
+  </div>
+  <div class="subject-grid" id="subjectGrid">
+    <div class="loading-msg">Loading subjects...</div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp }              from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, doc, getDoc }  from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey:            "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+    authDomain:        "codex-study-hub-923c5.firebaseapp.com",
+    projectId:         "codex-study-hub-923c5",
+    storageBucket:     "codex-study-hub-923c5.appspot.com",
+    messagingSenderId: "750631534625",
+    appId:             "1:750631534625:web:5f59e1841bb856bdbba360"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const SUBJECT_DATA = [
+    // ====================== 1ST SEMESTER (HARMATTAN) ======================
+    { code: "MTH101", name: "Mathematics", semester: 1, faculty: "science", dept: "all", icon: "🔢" },
+    { code: "PHY101", name: "Physics", semester: 1, faculty: "science", dept: "all", icon: "⚙️" },
+    { code: "CHM101", name: "Chemistry", semester: 1, faculty: "science", dept: "all", icon: "🧪" },
+    { code: "COS101", name: "Computer Science", semester: 1, faculty: "science", dept: "all", icon: "💻" },
+    { code: "STA111", name: "Statistics", semester: 1, faculty: "science", dept: "all", icon: "📊" },
+    { code: "STA121", name: "Statistics 2", semester: 1, faculty: "science", dept: "all", icon: "📊" },
+    { code: "BIO101", name: "Biology", semester: 1, faculty: "science", dept: "all", icon: "🧬" },
+    { code: "GST111", name: "General Studies (English)", semester: 1, faculty: "general", dept: "all", icon: "🇬🇧" },
+    { code: "FRE105", name: "FRANCE Studies", semester: 1, faculty: "arts", dept: ["french", "education"], icon: "🇫🇷" },
+    { code: "FRE109", name: "FRENCH", semester: 1, faculty: "arts", dept: ["french", "education"], icon: "🇫🇷" },
+    { code: "GES151", name: "Agriculture", semester: 1, faculty: "science", dept: "all", icon: "🌱" },
+    { code: "BIO107", name: "General Biology Practical I", semester: 1, faculty: "science", dept: ["biology","education","agriculture","medicine"], icon: "🔬" },
+    { code: "BOT101", name: "Diversity of Plants", semester: 1, faculty: "science", dept: ["biology","agriculture","education"], icon: "🌿" },
+    { code: "CHM107", name: "General Chemistry Practical I", semester: 1, faculty: "science", dept: ["chemistry","education","biology"], icon: "🔬" },
+    { code: "PHY107", name: "General Physics Practical I", semester: 1, faculty: "science", dept: ["physics","engineering","education"], icon: "🔬" },
+    { code: "OOU-GES105", name: "Modern Agriculture and Rural Development", semester: 1, faculty: "science", dept: ["agriculture"], icon: "🌱" },
+    { code: "CRD103", name: "Rural Development I", semester: 1, faculty: "social_sciences", dept: ["other"], icon: "🏘️" },
+
+    // ====================== 2ND SEMESTER ======================
+    { code: "GST112", name: "Nigerian Peoples and Culture", semester: 2, faculty: "general", dept: "all", icon: "🏛️" },
+    { code: "BIO102", name: "General Biology II", semester: 2, faculty: "science", dept: ["biology","education","agriculture","medicine","chemistry"], icon: "🧬" },
+    { code: "BIO108", name: "General Biology Practical II", semester: 2, faculty: "science", dept: ["biology","education","agriculture","medicine","chemistry"], icon: "🔬" },
+    { code: "BOT102", name: "Introductory Botany", semester: 2, faculty: "science", dept: ["biology","agriculture","education"], icon: "🌿" },
+    { code: "CHM102", name: "General Chemistry II", semester: 2, faculty: "science", dept: "all", icon: "🧪" },
+    { code: "CHM108", name: "General Chemistry Practical II", semester: 2, faculty: "science", dept: ["chemistry","medicine","agriculture","engineering","other","education"], icon: "🔬" },
+    { code: "MTH102", name: "Elementary Mathematics II", semester: 2, faculty: "science", dept: "all", icon: "🔢" },
+    { code: "PHY102", name: "General Physics II", semester: 2, faculty: "science", dept: "all", icon: "⚙️" },
+    { code: "CSC102", name: "Computer Science", semester: 2, faculty: "science", dept: "computer_science", icon: "💻" },
+    { code: "PHY104", name: "General Physics IV", semester: 2, faculty: "science", dept: ["physics","engineering","education"], icon: "⚙️" },
+    { code: "PHY108", name: "General Physics Practical II", semester: 2, faculty: "science", dept: ["physics","engineering","education"], icon: "🔬" },
+    { code: "STA102", name: "Statistical Computing I", semester: 2, faculty: "science", dept: ["mathematics","computer_science","statistics"], icon: "💾" },
+    { code: "STA112", name: "Probability I", semester: 2, faculty: "science", dept: ["mathematics","computer_science","engineering","statistics"], icon: "📊" },
+    { code: "GET102", name: "Engineering Graphics and Solid Modelling I", semester: 2, faculty: "science", dept: ["engineering"], icon: "📐" },
+    { code: "AGG102", name: "Introduction to Agriculture I", semester: 2, faculty: "science", dept: ["agriculture","education"], icon: "🌾" },
+    { code: "AGG112", name: "Introduction to Agriculture II", semester: 2, faculty: "science", dept: ["agriculture","education"], icon: "🌾" },
+    { code: "ZOO102", name: "Animal Diversity", semester: 2, faculty: "science", dept: ["biology","medicine","agriculture","education","other"], icon: "🦒" },
+    { code: "FRS102", name: "Forensic science", semester: 2, faculty: "science", dept: ["biology","medicine","agriculture","education","other"], icon: "🐾" },
+    { code: "COS102", name: "PROBLEM SOLVING", semester: 2, faculty: "science", dept: "all", icon: "👩‍💻" },
+    { code: "ACC102", name: "Introduction to Financial Accounting II", semester: 2, faculty: "social_sciences", dept: ["other"], icon: "📒" },
+    { code: "AMS102", name: "Basic Mathematics", semester: 2, faculty: "social_sciences", dept: ["other"], icon: "🔢" },
+    { code: "AMS104", name: "Principles of Project Management", semester: 2, faculty: "social_sciences", dept: ["other"], icon: "📋" },
+    { code: "CRD102", name: "Organization and Management of Cooperatives", semester: 2, faculty: "social_sciences", dept: ["other"], icon: "🤝" },
+    { code: "CRD104", name: "Rural Development II", semester: 2, faculty: "social_sciences", dept: ["other"], icon: "🏘️" },
+    { code: "CRD106", name: "Cooperative Education", semester: 2, faculty: "social_sciences", dept: ["other"], icon: "📚" },
+    { code: "OOU-CRD152", name: "Principles of Cooperatives", semester: 2, faculty: "social_sciences", dept: ["other"], icon: "🤝" },
+    { code: "OOU-CRD154", name: "Introduction to Cooperative Business Management", semester: 2, faculty: "social_sciences", dept: ["other"], icon: "💼" },
+    { code: "TPM102", name: "Fundamentals of Tourism", semester: 2, faculty: "social_sciences", dept: ["other"], icon: "🗺️" },
+    { code: "FRE102", name: "Laboratory Exercise", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","education"], icon: "🇫🇷" },
+    { code: "FRE104", name: "Introduction to Composition writing in French", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","other","education"], icon: "🇫🇷" },
+    { code: "FRE106", name: "Introduction to Literary Appreciation", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","other","education"], icon: "📖" },
+    { code: "FRE108", name: "Introduction to Negro-African Literature in French", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","other","education"], icon: "📜" },
+    { code: "FRE110", name: "History of the French Language", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","other","education"], icon: "📜" },
+    { code: "OOU-FRE152", name: "Introduction to Comprehension in French", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","other","education"], icon: "🇫🇷" },
+    { code: "OOU-FRE154", name: "Introduction to a Second Foreign Language II", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","other","education"], icon: "🌍" },
+    { code: "OOU-FRE156", name: "Conversation in French II", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","other","education"], icon: "🗣️" },
+    { code: "OOU-FRE158", name: "Gender", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","other","education"], icon: "⚧️" },
+    { code: "OOU-FRE160", name: "Socio-educative activities in French II", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","other","education"], icon: "👥" },
+    { code: "OOU-THA112", name: "Drama as literature", semester: 2, faculty: "arts", dept: ["french","education"], icon: "🎭" }
+];
+
+let currentMode = null;
+// Map of subjectCode -> true/false, populated from Firestore
+let firestoreUnlocks = {};
+
+function getQueryParameter(name) {
+    return new URLSearchParams(window.location.search).get(name);
+}
+
+function getUserPrefix(email) {
+    return (email || 'guest').replace(/[^a-z0-9]/gi, '_');
+}
+
+function renderSubjects(currentUserEmail, firestoreData) {
+    const mode = currentMode;
+    const session = JSON.parse(localStorage.getItem('loggedInUser') || '{}');
+    const userPrefix = getUserPrefix(currentUserEmail || session.email);
+    const userDept = (session.department || "all").toLowerCase().trim();
+    const userFaculty = (session.faculty || "general").toLowerCase().trim();
+    const selectedSemester = localStorage.getItem('selectedSemester') || "1";
+
+    const modeText = mode === 'read' ? 'Reading / Study Notes' : 'Practice / Exam Mode';
+    document.getElementById('modeDisplay').textContent = `Semester ${selectedSemester} - ${modeText}`;
+
+    const grid = document.getElementById('subjectGrid');
+    grid.innerHTML = "";
+
+    const filteredSubjects = SUBJECT_DATA.filter(s => {
+        const matchSem = String(s.semester) === String(selectedSemester);
+
+        const targetFac = userFaculty.toLowerCase().trim();
+        const targetDept = userDept.toLowerCase().trim();
+
+        let matchFac = false;
+        if (Array.isArray(s.faculty)) {
+            matchFac = s.faculty.map(f => f.toLowerCase().trim()).includes(targetFac);
+        } else {
+            matchFac = (
+                s.faculty.toLowerCase().trim() === targetFac ||
+                s.faculty.toLowerCase().trim() === "general"
+            );
+        }
+
+        let matchDept = false;
+        if (s.dept === "all") {
+            matchDept = true;
+        } else if (Array.isArray(s.dept)) {
+            matchDept = s.dept.map(d => d.toLowerCase().trim()).includes(targetDept);
+        } else {
+            matchDept = s.dept.toLowerCase().trim() === targetDept;
+        }
+
+        return matchSem && matchFac && matchDept;
+    });
+
+    if (filteredSubjects.length === 0) {
+        grid.innerHTML = "<p style='text-align:center; grid-column: 1/-1; color: #666;'>No subjects found for your profile this semester.</p>";
+        return;
+    }
+
+    filteredSubjects.forEach(subject => {
+        const card = document.createElement('div');
+        card.className = 'subject-card';
+
+        const trialKey = `trials_${userPrefix}_${subject.code}`;
+        const trials = parseInt(localStorage.getItem(trialKey) || '0');
+
+        // Check unlock: Firestore data takes priority, then localStorage
+        const firestoreUnlocked = firestoreData && firestoreData[`unlocked_${subject.code}`] === true;
+        const localUnlocked = localStorage.getItem(`unlocked_${userPrefix}_${subject.code}`) === 'true';
+        const isUnlocked = firestoreUnlocked || localUnlocked;
+
+        // Sync Firestore unlock back to localStorage so future page loads are instant
+        if (firestoreUnlocked && !localUnlocked) {
+            try { localStorage.setItem(`unlocked_${userPrefix}_${subject.code}`, 'true'); } catch(e) {}
+        }
+
+        const isLocked = !isUnlocked && trials >= 3;
+
+        let badge = '';
+        if (isUnlocked) badge = '<div class="unlocked-badge">✓ UNLOCKED</div>';
+        else if (isLocked) badge = '<div class="lock-badge">🔒 LOCKED</div>';
+        else if (trials > 0) badge = `<div class="trial-badge">${3 - trials} Trials Left</div>`;
+
+        card.innerHTML = `
+            ${badge}
+            <div class="code">${subject.icon} ${subject.code}</div>
+            <div class="name">${subject.name}</div>
+        `;
+
+        card.onclick = () => {
+            if (isLocked) {
+                alert("Subject Locked! Please unlock this subject from the Home screen.");
+            } else {
+                selectSubject(subject.code, mode);
+            }
+        };
+        grid.appendChild(card);
+    });
+}
+
+function selectSubject(subjectCode, mode) {
+    localStorage.setItem(`access_time_${subjectCode}`, new Date().toISOString());
+    if (mode === 'read') {
+        window.location.href = `notes_display.html?subject=${subjectCode}`;
+    } else {
+        window.location.href = `topic_exam_selection.html?subject=${subjectCode}`;
+    }
+}
+
+function initializeSubjectSelection() {
+    const mode = getQueryParameter('mode');
+    currentMode = mode;
+
+    if (!mode) {
+        window.location.href = 'home.html';
+        return;
+    }
+
+    // Render immediately with localStorage data (fast), then re-render once Firestore loads
+    renderSubjects(null, null);
+
+    // Load Firestore unlock data for the logged-in user
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            // Not logged in with Firebase — rely on localStorage only
+            return;
+        }
+        try {
+            const userRef  = doc(db, "users", user.uid);
+            const userSnap = await getDoc(userRef);
+            const firestoreData = userSnap.exists() ? userSnap.data() : {};
+            // Re-render with accurate Firestore data
+            renderSubjects(user.email, firestoreData);
+        } catch(e) {
+            // Firestore error — keep using localStorage data
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initializeSubjectSelection);
+</script>
+</body>
+</html>

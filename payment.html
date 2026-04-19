@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unlock Access — Codex Study Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #080c14; --s1: #0f1623; --s2: #151e30; --s3: #1c283d;
+            --border: rgba(255,255,255,.06); --border2: rgba(255,255,255,.1);
+            --blue: #3b82f6; --blue-s: rgba(59,130,246,.12); --blue-b: rgba(59,130,246,.25);
+            --green: #10b981; --green-s: rgba(16,185,129,.12); --green-b: rgba(16,185,129,.25);
+            --gold: #f59e0b; --gold-s: rgba(245,158,11,.1); --gold-b: rgba(245,158,11,.25);
+            --red: #ef4444; --red-s: rgba(239,68,68,.1); --red-b: rgba(239,68,68,.25);
+            --text: #f0f4ff; --muted: #8fa3c0; --dim: #4a6380;
+            --mono: 'JetBrains Mono', monospace; --r: 14px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+        body::before {
+            content: ''; position: fixed; inset: 0;
+            background: radial-gradient(ellipse 70vw 60vh at 10% -5%, rgba(245,158,11,.07) 0%, transparent 60%),
+                        radial-gradient(ellipse 50vw 40vh at 90% 110%, rgba(59,130,246,.07) 0%, transparent 60%);
+            pointer-events: none; z-index: 0;
+        }
+        .shell { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; padding: 24px 16px 80px; }
+        .back-btn {
+            background: var(--s1); border: 1px solid var(--border2); color: var(--muted);
+            padding: 8px 14px; border-radius: 9px; cursor: pointer; font-size: .8rem;
+            font-family: 'DM Sans',sans-serif; transition: all .2s; margin-bottom: 22px;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .back-btn:hover { border-color: var(--blue); color: var(--blue); }
+        .hero {
+            background: linear-gradient(135deg, rgba(245,158,11,.08), rgba(245,158,11,.02));
+            border: 1px solid var(--gold-b); border-radius: var(--r);
+            padding: 32px 24px 28px; text-align: center; margin-bottom: 20px;
+            position: relative; overflow: hidden; animation: fadeUp .4s ease both;
+        }
+        .hero::before {
+            content: ''; position: absolute; top: -60px; right: -60px;
+            width: 200px; height: 200px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(245,158,11,.08), transparent 70%);
+            pointer-events: none;
+        }
+        .hero-icon { font-size: 3rem; margin-bottom: 14px; display: block; }
+        .hero h1 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.55rem; color: var(--text); margin-bottom: 6px; }
+        .hero p { font-size: .88rem; color: var(--muted); line-height: 1.6; }
+        .price-tag {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: var(--gold-s); border: 1px solid var(--gold-b);
+            border-radius: 20px; padding: 6px 16px; margin-top: 14px;
+            font-family: 'Syne', sans-serif; font-weight: 700; font-size: .95rem; color: var(--gold);
+        }
+        .card { background: var(--s1); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; margin-bottom: 14px; animation: fadeUp .4s .1s both ease; }
+        .card-head { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 9px; }
+        .card-head .ch-num {
+            width: 24px; height: 24px; border-radius: 50%;
+            background: var(--blue-s); border: 1px solid var(--blue-b);
+            display: flex; align-items: center; justify-content: center;
+            font-family: var(--mono); font-size: .7rem; color: var(--blue); flex-shrink: 0;
+        }
+        .card-head h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: .9rem; color: var(--text); }
+        .card-body { padding: 18px; }
+        .styled-select {
+            width: 100%; background: var(--s2); border: 1.5px solid var(--border2);
+            border-radius: 10px; color: var(--text); padding: 12px 14px;
+            font-family: 'DM Sans', sans-serif; font-size: .9rem;
+            cursor: pointer; outline: none; transition: border-color .2s; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238fa3c0' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
+        }
+        .styled-select:focus { border-color: var(--blue); }
+        .styled-select option { background: #1a2236; color: var(--text); }
+        #priceDisplay {
+            display: none; margin-top: 12px;
+            background: var(--green-s); border: 1px solid var(--green-b);
+            border-radius: 9px; padding: 10px 14px;
+            font-size: .85rem; color: var(--green); align-items: center; gap: 8px;
+        }
+        .pay-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .pay-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 10px; border-radius: 10px; border: none; font-family: 'Syne', sans-serif; font-weight: 700; font-size: .88rem; cursor: pointer; transition: all .22s; }
+        .btn-wa { background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; box-shadow: 0 4px 18px rgba(37,211,102,.25); }
+        .btn-wa:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(37,211,102,.35); }
+        .btn-bank { background: linear-gradient(135deg, var(--gold), #d97706); color: #1a0e00; box-shadow: 0 4px 18px rgba(245,158,11,.2); }
+        .btn-bank:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(245,158,11,.35); }
+        .key-input-wrap { display: flex; gap: 10px; align-items: stretch; margin-bottom: 12px; }
+        .key-input {
+            flex: 1; background: var(--s2); border: 1.5px solid var(--border2);
+            border-radius: 10px; color: var(--text); padding: 12px 14px;
+            font-family: var(--mono); font-size: .95rem; letter-spacing: .08em;
+            outline: none; transition: border-color .2s; text-transform: uppercase;
+        }
+        .key-input::placeholder { color: var(--dim); text-transform: none; font-size: .82rem; }
+        .key-input:focus { border-color: var(--blue); }
+        .verify-btn {
+            background: linear-gradient(135deg, var(--blue), #2563eb); color: #fff;
+            border: none; border-radius: 10px; padding: 12px 20px;
+            font-family: 'Syne', sans-serif; font-weight: 700; font-size: .88rem;
+            cursor: pointer; transition: all .22s; white-space: nowrap;
+            box-shadow: 0 4px 16px rgba(59,130,246,.25);
+        }
+        .verify-btn:hover { box-shadow: 0 6px 22px rgba(59,130,246,.4); transform: translateY(-1px); }
+        .verify-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .msg { padding: 12px 16px; border-radius: 10px; font-size: .88rem; font-weight: 500; display: none; margin-top: 10px; }
+        .error-msg { background: var(--red-s); border: 1px solid var(--red-b); color: var(--red); }
+        .success-msg { background: var(--green-s); border: 1px solid var(--green-b); color: var(--green); }
+        .spinner {
+            display: inline-block; width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,.3); border-radius: 50%;
+            border-top-color: #fff; animation: spin 1s linear infinite;
+            vertical-align: middle; margin-right: 6px;
+        }
+        .modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.7); backdrop-filter: blur(6px); justify-content: center; align-items: center; }
+        .modal.open { display: flex; }
+        .modal-box { background: var(--s1); border: 1px solid var(--border2); border-radius: var(--r); padding: 28px 24px; max-width: 360px; width: 90%; position: relative; animation: fadeUp .3s ease; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+        .modal-close { position: absolute; top: 14px; right: 16px; background: var(--s2); border: 1px solid var(--border2); color: var(--muted); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: .85rem; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+        .modal-close:hover { border-color: var(--red); color: var(--red); }
+        .modal-box h3 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; margin-bottom: 18px; color: var(--text); text-align: center; }
+        .bank-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--border); font-size: .86rem; }
+        .bank-row:last-of-type { border-bottom: none; }
+        .bank-row .br-label { color: var(--muted); }
+        .bank-row .br-val { font-weight: 600; color: var(--text); font-family: var(--mono); font-size: .82rem; }
+        .modal-note { margin-top: 14px; background: var(--blue-s); border: 1px solid var(--blue-b); border-radius: 8px; padding: 10px 13px; font-size: .8rem; color: var(--muted); line-height: 1.5; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);} }
+    </style>
+</head>
+<body>
+<div class="shell">
+    <button class="back-btn" onclick="window.location.href='home.html'">← Back to Home</button>
+
+    <div class="hero">
+        <span class="hero-icon">🔓</span>
+        <h1>Unlock Premium Access</h1>
+        <p>Pay once per subject — unlimited practice, all topics, all sessions.</p>
+        <div class="price-tag">⚡ Only ₦300 per Subject</div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="card">
+        <div class="card-head"><span class="ch-num">1</span><h3>Select Subject to Unlock</h3></div>
+        <div class="card-body">
+            <select id="subjectSelect" class="styled-select" onchange="onSubjectChange()">
+                <option value="">— Choose a Subject —</option>
+                <optgroup label="─── 1st Semester ───">
+                    <option value="MTH101">🔢 MTH101 — Mathematics I</option>
+                    <option value="PHY101">⚙️ PHY101 — Physics I</option>
+                    <option value="CHM101">🧪 CHM101 — Chemistry I</option>
+                    <option value="COS101">💻 COS101 — Computer Science I</option>
+                    <option value="STA111">📊 STA111 — Statistics I</option>
+                    <option value="STA121">📊 STA121 — Statistics II</option>
+                    <option value="BIO101">🧬 BIO101 — Biology I</option>
+                    <option value="GST111">🇬🇧 GST111 — General Studies (English)</option>
+                    <option value="GES151">🌱 GES151 — Agriculture I</option>
+                    <option value="FRE105">🇫🇷 FRE105 — Initiation to Translation</option>
+                    <option value="FRE109">🌍 FRE109 — Colonial Studies (French)</option>
+                    <option value="BIO107">🔬 BIO107 — General Biology Practical I</option>
+                    <option value="BOT101">🌿 BOT101 — Diversity of Plants</option>
+                    <option value="CHM107">🔬 CHM107 — General Chemistry Practical I</option>
+                    <option value="PHY107">🔬 PHY107 — General Physics Practical I</option>
+                    <option value="OOU-GES105">🌱 OOU-GES105 — Modern Agriculture & Rural Dev.</option>
+                    <option value="CRD103">🏘️ CRD103 — Rural Development I</option>
+                </optgroup>
+                <optgroup label="─── 2nd Semester ───">
+                    <option value="GST112">🏛️ GST112 — Nigerian Peoples & Culture</option>
+                    <option value="MTH102">🔢 MTH102 — Mathematics II</option>
+                    <option value="PHY102">⚙️ PHY102 — Physics II</option>
+                    <option value="PHY104">🌊 PHY104 — Vibration, Waves & Optics</option>
+                    <option value="PHY108">🔬 PHY108 — General Physics Practical II</option>
+                    <option value="BIO102">🧬 BIO102 — General Biology II</option>
+                    <option value="BIO108">🔬 BIO108 — General Biology Practical II</option>
+                    <option value="BOT102">🌿 BOT102 — Introductory Botany</option>
+                    <option value="CHM102">🧪 CHM102 — Chemistry II</option>
+                    <option value="CHM108">🔬 CHM108 — General Chemistry Practical II</option>
+                    <option value="ZOO102">🦒 ZOO102 — Animal Diversity</option>
+                    <option value="FRS102">🐾 FRS102 — Forensic Science</option>
+                    <option value="CSC102">💻 CSC102 — Visual Basic</option>
+                    <option value="COS102">👩‍💻 COS102 — Problem Solving</option>
+                    <option value="STA102">💾 STA102 — Statistical Computing I</option>
+                    <option value="STA112">📊 STA112 — Probability I</option>
+                    <option value="AGG102">🌾 AGG102 — Introduction to Agriculture I</option>
+                    <option value="AGG112">🌾 AGG112 — Introduction to Agriculture II</option>
+                    <option value="GET102">📐 GET102 — Engineering Graphics</option>
+                    <option value="ACC102">📒 ACC102 — Financial Accounting II</option>
+                    <option value="AMS102">🔢 AMS102 — Basic Mathematics</option>
+                    <option value="AMS104">📋 AMS104 — Principles of Project Management</option>
+                    <option value="CRD102">🤝 CRD102 — Organisation & Management of Cooperatives</option>
+                    <option value="CRD104">🏘️ CRD104 — Rural Development II</option>
+                    <option value="CRD106">📚 CRD106 — Cooperative Education</option>
+                    <option value="OOU-CRD152">🤝 OOU-CRD152 — Principles of Cooperatives</option>
+                    <option value="OOU-CRD154">💼 OOU-CRD154 — Cooperative Business Management</option>
+                    <option value="TPM102">🗺️ TPM102 — Fundamentals of Tourism</option>
+                    <option value="FRE102">🇫🇷 FRE102 — Laboratory Exercise (French)</option>
+                    <option value="FRE104">🇫🇷 FRE104 — Composition Writing in French</option>
+                    <option value="FRE106">📖 FRE106 — Literary Appreciation</option>
+                    <option value="FRE108">📜 FRE108 — Negro-African Literature in French</option>
+                    <option value="FRE110">📜 FRE110 — History of the French Language</option>
+                    <option value="OOU-FRE152">🇫🇷 OOU-FRE152 — Comprehension in French</option>
+                    <option value="OOU-FRE154">🌍 OOU-FRE154 — Second Foreign Language II</option>
+                    <option value="OOU-FRE156">🗣️ OOU-FRE156 — Conversation in French II</option>
+                    <option value="OOU-FRE158">⚧️ OOU-FRE158 — Gender (French)</option>
+                    <option value="OOU-FRE160">👥 OOU-FRE160 — Socio-educative Activities in French II</option>
+                    <option value="OOU-THA112">🎭 OOU-THA112 — Drama as Literature</option>
+                </optgroup>
+            </select>
+            <div id="priceDisplay">
+                <span>✅</span>
+                <span>Unlock <strong id="subjName"></strong> for <strong>₦300</strong></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="card">
+        <div class="card-head"><span class="ch-num">2</span><h3>Make Payment</h3></div>
+        <div class="card-body">
+            <div class="pay-grid">
+                <button class="pay-btn btn-wa" onclick="openWhatsApp()">💬 Pay via WhatsApp</button>
+                <button class="pay-btn btn-bank" onclick="showBankDetails()">🏦 Bank Transfer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="card">
+        <div class="card-head"><span class="ch-num">3</span><h3>Enter Verification Key</h3></div>
+        <div class="card-body">
+            <p style="color:var(--muted);font-size:.85rem;margin-bottom:12px;">
+                After payment, you'll receive a verification key. Enter it below to unlock instantly.
+            </p>
+            <div class="key-input-wrap">
+                <input type="text" id="keyInput" class="key-input" placeholder="e.g. CX-MTH101-ABC12" maxlength="30">
+                <button class="verify-btn" id="verifyBtn" onclick="verifyKey()">Verify & Unlock</button>
+            </div>
+            <div id="errorMsg" class="msg error-msg"></div>
+            <div id="successMsg" class="msg success-msg"></div>
+        </div>
+    </div>
+</div>
+
+<!-- BANK MODAL -->
+<div id="bankModal" class="modal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeBankModal()">✕</button>
+        <h3>🏦 Bank Transfer Details</h3>
+        <div class="bank-row"><span class="br-label">Bank</span><span class="br-val">PALMPAY</span></div>
+        <div class="bank-row"><span class="br-label">Account Name</span><span class="br-val">MARIAM AKOREDE</span></div>
+        <div class="bank-row"><span class="br-label">Account Number</span><span class="br-val">9071319328</span></div>
+        <div class="bank-row"><span class="br-label">Amount</span><span class="br-val" style="color:var(--gold)">₦300</span></div>
+        <div class="modal-note">After payment, send your receipt via WhatsApp to receive your verification key.</div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp }               from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged }  from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+    import {
+        getFirestore, doc, getDoc, updateDoc, setDoc, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey:            "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+        authDomain:        "codex-study-hub-923c5.firebaseapp.com",
+        projectId:         "codex-study-hub-923c5",
+        storageBucket:     "codex-study-hub-923c5.appspot.com",
+        messagingSenderId: "750631534625",
+        appId:             "1:750631534625:web:5f59e1841bb856bdbba360"
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    const WHATSAPP_NUMBER = "2347011245168";
+
+    const LEGACY_KEYS = [
+        "CX-4927-Q","CX-8103-M","CX-2759-Z","CX-6381-A","CX-9402-K",
+        "CX-1876-R","CX-5590-B","CX-7024-Y","CX-3669-P","CX-8241-W",
+        "CX-5937-H","CX-1048-X","CX-9472-N","CX-6805-C","CX-2519-T",
+        "CX-7386-J","CX-4097-F","CX-8921-D","CX-5604-L","CX-9738-E",
+        "CX-6148-V","CX-2957-S","CX-8401-G","CX-1769-U","CX-5328-M",
+        "CX-9604-Q","CX-3475-B","CX-7812-Z","CX-4590-A","CX-6087-K",
+        "CX-1946-R","CX-8359-Y","CX-2704-P","CX-9168-W","CX-5421-H",
+        "CX-7093-X","CX-3865-N","CX-8249-C","CX-1570-T","CX-6914-J",
+        "CX-4386-F","CX-9207-D","CX-5649-L","CX-1783-E","CX-7035-V",
+        "CX-8492-S","CX-2157-G","CX-9061-U","CX-4328-M","CX-6709-Q",
+        "CX-3984-B","CX-7541-Z","CX-2806-A","CX-9153-K","CX-6472-R",
+        "CX-5019-Y","CX-8634-P","CX-2948-W","CX-7106-H","CX-4827-X",
+        "CX-9360-N","CX-1584-C","CX-6942-T","CX-3075-J","CX-8219-F"
+    ];
+
+    let currentUser = null;
+
+    onAuthStateChanged(auth, user => { currentUser = user; });
+
+    // Returns the same user prefix that subject_selection.html and topic_exam_selection.html use
+    function getUserPrefix() {
+        try {
+            const session = JSON.parse(localStorage.getItem('loggedInUser') || '{}');
+            return (session.email || 'guest').replace(/[^a-z0-9]/gi, '_');
+        } catch(e) { return 'guest'; }
+    }
+
+    window.onSubjectChange = function () {
+        const sel      = document.getElementById("subjectSelect");
+        const code     = sel.value;
+        const priceDiv = document.getElementById("priceDisplay");
+        const subjName = document.getElementById("subjName");
+
+        if (code) {
+            subjName.textContent   = sel.selectedOptions[0].textContent.trim();
+            priceDiv.style.display = "flex";
+        } else {
+            priceDiv.style.display = "none";
+        }
+    };
+
+    window.openWhatsApp = function () {
+        const sel = document.getElementById("subjectSelect");
+        if (!sel.value) { showError("⚠️ Please select a subject first."); return; }
+        const label   = sel.selectedOptions[0].textContent.trim();
+        const userInfo = currentUser ? `\nAccount: ${currentUser.email}` : "";
+        const msg = encodeURIComponent(`Hi! I want to unlock ${label} for ₦300.${userInfo}\nPlease send me a verification key.`);
+        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
+    };
+
+    window.showBankDetails = function () {
+        if (!document.getElementById("subjectSelect").value) { showError("⚠️ Please select a subject first."); return; }
+        document.getElementById("bankModal").classList.add("open");
+    };
+
+    window.closeBankModal = function () {
+        document.getElementById("bankModal").classList.remove("open");
+    };
+
+    window.verifyKey = async function () {
+        const subjectCode = document.getElementById("subjectSelect").value;
+        const keyRaw      = document.getElementById("keyInput").value.trim().toUpperCase();
+
+        hideMessages();
+
+        if (!subjectCode) { showError("⚠️ Please select a subject first."); return; }
+        if (!keyRaw)      { showError("⚠️ Please enter a verification key."); return; }
+        if (!currentUser) { showError("⚠️ You must be logged in to verify a key."); return; }
+
+        const btn          = document.getElementById("verifyBtn");
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML      = '<span class="spinner"></span> Verifying...';
+        btn.disabled       = true;
+
+        try {
+            // STEP 1: Check Firestore valid_keys
+            const keyDocRef  = doc(db, "valid_keys", keyRaw);
+            const keyDocSnap = await getDoc(keyDocRef);
+
+            let keyIsValid    = false;
+            let keySubject    = subjectCode;
+            let isFirebaseKey = false;
+
+            if (keyDocSnap.exists()) {
+                const keyData = keyDocSnap.data();
+
+                if (keyData.used === true) {
+                    showError("❌ This key has already been used."); return;
+                }
+
+                // keyData.subject stores the CODE e.g. "MTH101"
+                if (keyData.subject && keyData.subject !== subjectCode) {
+                    showError(`❌ This key is for ${keyData.subject}, not ${subjectCode}. Please select ${keyData.subject} from the dropdown.`);
+                    return;
+                }
+
+                keySubject    = keyData.subject || subjectCode;
+                keyIsValid    = true;
+                isFirebaseKey = true;
+
+            } else {
+                // STEP 2: Fallback legacy keys
+                if (LEGACY_KEYS.includes(keyRaw)) {
+                    keyIsValid    = true;
+                    isFirebaseKey = false;
+                }
+            }
+
+            if (!keyIsValid) { showError("❌ Invalid verification key. Please check and try again."); return; }
+
+            // STEP 3: Check user hasn't used this key already
+            const userRef  = doc(db, "users", currentUser.uid);
+            const userSnap = await getDoc(userRef);
+            const userData = userSnap.exists() ? userSnap.data() : {};
+            const usedKeys = userData.used_keys || [];
+
+            if (usedKeys.includes(keyRaw)) { showError("❌ You have already used this key."); return; }
+
+            // STEP 4: Write unlocked_SUBJECTCODE = true to Firestore
+            const unlockPayload = {
+                [`unlocked_${keySubject}`]:   true,
+                [`unlockedAt_${keySubject}`]: serverTimestamp(),
+                used_keys:   [...usedKeys, keyRaw],
+                lastUpdated: serverTimestamp()
+            };
+
+            if (userSnap.exists()) {
+                await updateDoc(userRef, unlockPayload);
+            } else {
+                await setDoc(userRef, { email: currentUser.email, createdAt: serverTimestamp(), ...unlockPayload });
+            }
+
+            // STEP 5: Mark Firebase key as used
+            if (isFirebaseKey) {
+                await updateDoc(keyDocRef, { used: true, usedBy: currentUser.email, usedAt: serverTimestamp() });
+            }
+
+            // STEP 6: Write unlock to localStorage using the SAME prefixed key format
+            // that subject_selection.html and topic_exam_selection.html both read.
+            // They use: 'unlocked_' + userEmail.replace(/[^a-z0-9]/gi, '_') + '_' + subjectCode
+            try {
+                const userPrefix = getUserPrefix();
+
+                // Write the standalone prefixed unlock key (what the other pages read)
+                localStorage.setItem(`unlocked_${userPrefix}_${keySubject}`, 'true');
+
+                // Also update the loggedInUser session object for any pages that check it there
+                const sess = JSON.parse(localStorage.getItem('loggedInUser') || '{}');
+                sess[`unlocked_${keySubject}`] = true;
+                localStorage.setItem('loggedInUser', JSON.stringify(sess));
+            } catch(e) {}
+
+            const label = document.getElementById("subjectSelect").selectedOptions[0].textContent.trim();
+            showSuccess(`✅ ${label} unlocked successfully! Redirecting to home...`);
+            document.getElementById("keyInput").value = "";
+            setTimeout(() => { window.location.href = "home.html"; }, 2200);
+
+        } catch (error) {
+            console.error("Unlock error:", error);
+            showError("❌ Error verifying key: " + error.message);
+        } finally {
+            btn.innerHTML = originalHTML;
+            btn.disabled  = false;
+        }
+    };
+
+    function showError(msg) {
+        document.getElementById("errorMsg").textContent   = msg;
+        document.getElementById("errorMsg").style.display = "block";
+        document.getElementById("successMsg").style.display = "none";
+    }
+    function showSuccess(msg) {
+        document.getElementById("successMsg").textContent   = msg;
+        document.getElementById("successMsg").style.display = "block";
+        document.getElementById("errorMsg").style.display   = "none";
+    }
+    function hideMessages() {
+        document.getElementById("errorMsg").style.display   = "none";
+        document.getElementById("successMsg").style.display = "none";
+    }
+
+    window.goBack = function () { window.history.back(); };
+</script>
+</body>
+</html>

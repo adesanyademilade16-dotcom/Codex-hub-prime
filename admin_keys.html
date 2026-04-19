@@ -1,0 +1,289 @@
+:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — Generate Keys | Codex Study Hub</title>
+    <link href__="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 40px 20px; }
+        .container { max-width: 640px; margin: 0 auto; }
+
+        #blockedScreen { background: white; border-radius: 20px; padding: 48px 40px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        #blockedScreen .lock-icon { font-size: 3rem; margin-bottom: 16px; }
+        #blockedScreen h2 { color: #1e293b; margin-bottom: 10px; }
+        #blockedScreen p  { color: #64748b; font-size: .92rem; line-height: 1.6; }
+
+        .card { background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: none; }
+        h1 { color: #1e293b; font-size: 1.9rem; margin-bottom: 6px; text-align: center; }
+        .subtitle { color: #64748b; text-align: center; margin-bottom: 26px; font-size: .9rem; }
+        .badge-wrap { text-align: center; margin-bottom: 26px; }
+        .admin-badge { display: inline-block; background: #d1fae5; color: #065f46; padding: 6px 16px; border-radius: 20px; font-size: .8rem; font-weight: 700; border: 1.5px solid #6ee7b7; }
+
+        .form-group { margin-bottom: 22px; }
+        label { display: block; font-weight: 600; color: #374151; margin-bottom: 8px; font-size: .92rem; }
+        select, input { width: 100%; padding: 13px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: .95rem; font-family: 'Inter', sans-serif; color: #1e293b; background: #f9fafb; transition: border-color .2s; outline: none; }
+        select:focus, input:focus { border-color: #6366f1; background: #fff; }
+        .hint { margin-top: 6px; font-size: .78rem; color: #94a3b8; }
+
+        .btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(99,102,241,0.4); }
+        .btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+        .result { margin-top: 28px; padding: 24px; background: #f0fdf4; border: 2px solid #86efac; border-radius: 16px; display: none; }
+        .result.show { display: block; }
+        .result-label { font-weight: 700; color: #166534; margin-bottom: 12px; font-size: .95rem; }
+        .key-display { font-family: 'Courier New', monospace; font-size: 1.3rem; font-weight: 700; color: #166534; background: white; padding: 18px; border-radius: 10px; text-align: center; margin: 12px 0 16px; border: 2px dashed #86efac; word-break: break-all; letter-spacing: .04em; }
+        .meta-info { font-size: .8rem; color: #15803d; margin-bottom: 12px; background: rgba(16,185,129,.08); border-radius: 8px; padding: 8px 12px; line-height: 1.6; }
+        .copy-btn { background: #10b981; color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 700; width: 100%; font-family: 'Inter', sans-serif; font-size: .9rem; transition: background .2s; }
+        .copy-btn:hover { background: #059669; }
+        .copy-btn.copied { background: #6366f1; }
+
+        .history-section { margin-top: 32px; }
+        .history-section h3 { font-size: 1rem; font-weight: 700; color: #374151; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1.5px solid #e5e7eb; }
+        .history-list { max-height: 300px; overflow-y: auto; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-radius: 10px; background: #f8fafc; border: 1px solid #e5e7eb; margin-bottom: 8px; font-size: .82rem; flex-wrap: wrap; gap: 6px; }
+        .hi-key { font-family: 'Courier New', monospace; font-weight: 700; color: #1e293b; letter-spacing: .03em; }
+        .hi-subj { color: #6366f1; font-weight: 600; }
+        .hi-status { padding: 2px 10px; border-radius: 12px; font-size: .72rem; font-weight: 700; }
+        .hi-status.unused { background: #dcfce7; color: #166534; }
+        .no-history { color: #94a3b8; text-align: center; padding: 20px; font-size: .88rem; }
+
+        .spinner { display: inline-block; width: 16px; height: 16px; border: 2.5px solid rgba(255,255,255,.4); border-radius: 50%; border-top-color: #fff; animation: spin .8s linear infinite; vertical-align: middle; margin-right: 8px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- BLOCKED SCREEN (default) -->
+    <div id="blockedScreen">
+        <div class="lock-icon">🔒</div>
+        <h2>Admin Access Only</h2>
+        <p>This page is restricted to <strong>codexhub16@gmail.com</strong>.<br>
+        Please make sure you are signed in with the admin account.</p>
+    </div>
+
+    <!-- ADMIN PANEL (only shown to admin) -->
+    <div class="card" id="adminPanel">
+        <h1>🔐 Admin Key Generator</h1>
+        <p class="subtitle">Generate one-time verification keys to unlock subjects for paying users.</p>
+
+        <div class="badge-wrap">
+            <span class="admin-badge" id="adminBadge">✓ Signed in as admin</span>
+        </div>
+
+        <div class="form-group">
+            <label for="adminSubject">Subject to Unlock</label>
+            <select id="adminSubject">
+                <option value="">-- Choose Subject --</option>
+                <optgroup label="─── 1st Semester ───">
+                    <option value="MTH101">MTH101 — Mathematics I</option>
+                    <option value="PHY101">PHY101 — Physics I</option>
+                    <option value="CHM101">CHM101 — Chemistry I</option>
+                    <option value="COS101">COS101 — Computer Science I</option>
+                    <option value="STA111">STA111 — Statistics I</option>
+                    <option value="STA121">STA121 — Statistics II</option>
+                    <option value="BIO101">BIO101 — Biology I</option>
+                    <option value="GST111">GST111 — General Studies (English)</option>
+                    <option value="GES151">GES151 — Agriculture I</option>
+                    <option value="FRE105">FRE105 — Initiation to Translation</option>
+                    <option value="FRE109">FRE109 — Colonial Studies (French)</option>
+                    <option value="BIO107">BIO107 — General Biology Practical I</option>
+                    <option value="BOT101">BOT101 — Diversity of Plants</option>
+                    <option value="CHM107">CHM107 — General Chemistry Practical I</option>
+                    <option value="PHY107">PHY107 — General Physics Practical I</option>
+                    <option value="OOU-GES105">OOU-GES105 — Modern Agriculture & Rural Dev.</option>
+                    <option value="CRD103">CRD103 — Rural Development I</option>
+                </optgroup>
+                <optgroup label="─── 2nd Semester ───">
+                    <option value="GST112">GST112 — Nigerian Peoples & Culture</option>
+                    <option value="MTH102">MTH102 — Mathematics II</option>
+                    <option value="PHY102">PHY102 — Physics II</option>
+                    <option value="PHY104">PHY104 — Vibration, Waves & Optics</option>
+                    <option value="PHY108">PHY108 — General Physics Practical II</option>
+                    <option value="BIO102">BIO102 — General Biology II</option>
+                    <option value="BIO108">BIO108 — General Biology Practical II</option>
+                    <option value="BOT102">BOT102 — Introductory Botany</option>
+                    <option value="CHM102">CHM102 — Chemistry II</option>
+                    <option value="CHM108">CHM108 — General Chemistry Practical II</option>
+                    <option value="ZOO102">ZOO102 — Animal Diversity</option>
+                    <option value="FRS102">FRS102 — Forensic Science</option>
+                    <option value="CSC102">CSC102 — Visual Basic</option>
+                    <option value="COS102">COS102 — Problem Solving</option>
+                    <option value="STA102">STA102 — Statistical Computing I</option>
+                    <option value="STA112">STA112 — Probability I</option>
+                    <option value="AGG102">AGG102 — Introduction to Agriculture I</option>
+                    <option value="AGG112">AGG112 — Introduction to Agriculture II</option>
+                    <option value="GET102">GET102 — Engineering Graphics</option>
+                    <option value="ACC102">ACC102 — Financial Accounting II</option>
+                    <option value="AMS102">AMS102 — Basic Mathematics</option>
+                    <option value="AMS104">AMS104 — Principles of Project Management</option>
+                    <option value="CRD102">CRD102 — Organisation & Management of Cooperatives</option>
+                    <option value="CRD104">CRD104 — Rural Development II</option>
+                    <option value="CRD106">CRD106 — Cooperative Education</option>
+                    <option value="OOU-CRD152">OOU-CRD152 — Principles of Cooperatives</option>
+                    <option value="OOU-CRD154">OOU-CRD154 — Cooperative Business Management</option>
+                    <option value="TPM102">TPM102 — Fundamentals of Tourism</option>
+                    <option value="FRE102">FRE102 — Laboratory Exercise (French)</option>
+                    <option value="FRE104">FRE104 — Composition Writing in French</option>
+                    <option value="FRE106">FRE106 — Literary Appreciation</option>
+                    <option value="FRE108">FRE108 — Negro-African Literature in French</option>
+                    <option value="FRE110">FRE110 — History of the French Language</option>
+                    <option value="OOU-FRE152">OOU-FRE152 — Comprehension in French</option>
+                    <option value="OOU-FRE154">OOU-FRE154 — Second Foreign Language II</option>
+                    <option value="OOU-FRE156">OOU-FRE156 — Conversation in French II</option>
+                    <option value="OOU-FRE158">OOU-FRE158 — Gender (French)</option>
+                    <option value="OOU-FRE160">OOU-FRE160 — Socio-educative Activities in French II</option>
+                    <option value="OOU-THA112">OOU-THA112 — Drama as Literature</option>
+                </optgroup>
+            </select>
+            <p class="hint">The key will be locked to this subject code — user must select the same subject when verifying.</p>
+        </div>
+
+        <div class="form-group">
+            <label for="adminEmail">User Email <span style="font-weight:400;color:#94a3b8">(optional — for tracking)</span></label>
+            <input type="email" id="adminEmail" placeholder="user@example.com">
+        </div>
+
+        <button class="btn" id="generateBtn" onclick="generateKey()">🔑 Generate Verification Key</button>
+
+        <div id="resultBox" class="result">
+            <div class="result-label">✅ Key Generated Successfully!</div>
+            <div class="key-display" id="generatedKey"></div>
+            <div class="meta-info" id="keyMeta"></div>
+            <button class="copy-btn" id="copyBtn" onclick="copyKey()">📋 Copy Key</button>
+        </div>
+
+        <div class="history-section">
+            <h3>📋 Recently Generated Keys (This Session)</h3>
+            <div class="history-list" id="historyList">
+                <p class="no-history">No keys generated yet this session.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script type="module">
+    import { initializeApp }               from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged }  from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey:            "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+        authDomain:        "codex-study-hub-923c5.firebaseapp.com",
+        projectId:         "codex-study-hub-923c5",
+        storageBucket:     "codex-study-hub-923c5.appspot.com",
+        messagingSenderId: "750631534625",
+        appId:             "1:750631534625:web:5f59e1841bb856bdbba360"
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    const ADMIN_EMAIL    = "codexhub16@gmail.com";
+    let   currentUser    = null;
+    const sessionHistory = [];
+
+    // ── Auth gate: only show admin panel to the admin email ──────────────────
+    onAuthStateChanged(auth, user => {
+        currentUser = user;
+        const isAdmin = user && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+        document.getElementById('blockedScreen').style.display = isAdmin ? 'none'  : 'block';
+        document.getElementById('adminPanel').style.display    = isAdmin ? 'block' : 'none';
+
+        if (isAdmin) {
+            document.getElementById('adminBadge').textContent = `✓ Signed in as ${user.email}`;
+        }
+    });
+
+    // ── Generate key ─────────────────────────────────────────────────────────
+    window.generateKey = async function () {
+        if (!currentUser || currentUser.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+            alert("❌ Admin access required."); return;
+        }
+
+        const subject = document.getElementById('adminSubject').value;
+        const email   = document.getElementById('adminEmail').value.trim();
+
+        if (!subject) { alert("⚠️ Please select a subject first."); return; }
+
+        const btn = document.getElementById('generateBtn');
+        btn.innerHTML = '<span class="spinner"></span> Generating...';
+        btn.disabled  = true;
+
+        // Key format: CX-{SUBJECTCODE}-{RANDOM5}
+        // e.g. CX-MTH101-AB3KZ
+        // The subject CODE is embedded so payment.js can read it from Firestore
+        const random = Math.random().toString(36).substring(2, 7).toUpperCase();
+        const key    = `CX-${subject}-${random}`;
+
+        try {
+            // Firestore document ID = the key string itself
+            // payment.js does: getDoc(doc(db, "valid_keys", keyRaw))
+            // and reads keyData.subject  ← must be the subject CODE
+            await setDoc(doc(db, "valid_keys", key), {
+                key:         key,
+                subject:     subject,          // e.g. "MTH101"
+                used:        false,
+                forEmail:    email || null,
+                generatedBy: currentUser.email,
+                createdAt:   serverTimestamp()
+            });
+
+            document.getElementById('generatedKey').textContent = key;
+            document.getElementById('keyMeta').innerHTML =
+                `Subject: <strong>${subject}</strong>` +
+                (email ? ` · For: <strong>${email}</strong>` : '') +
+                ` · By: <strong>${currentUser.email}</strong>`;
+
+            document.getElementById('resultBox').classList.add('show');
+            document.getElementById('copyBtn').textContent = '📋 Copy Key';
+            document.getElementById('copyBtn').className  = 'copy-btn';
+
+            sessionHistory.unshift({ key, subject, email: email || '—' });
+            renderHistory();
+
+        } catch (err) {
+            alert("❌ Error: " + err.message);
+            console.error(err);
+        } finally {
+            btn.innerHTML = '🔑 Generate Verification Key';
+            btn.disabled  = false;
+        }
+    };
+
+    // ── Copy ─────────────────────────────────────────────────────────────────
+    window.copyKey = function () {
+        const key = document.getElementById('generatedKey').textContent;
+        navigator.clipboard.writeText(key).then(() => {
+            const btn = document.getElementById('copyBtn');
+            btn.textContent = '✅ Copied!';
+            btn.classList.add('copied');
+            setTimeout(() => { btn.textContent = '📋 Copy Key'; btn.classList.remove('copied'); }, 2000);
+        });
+    };
+
+    // ── Session history ───────────────────────────────────────────────────────
+    function renderHistory() {
+        const list = document.getElementById('historyList');
+        if (!sessionHistory.length) {
+            list.innerHTML = '<p class="no-history">No keys generated yet this session.</p>';
+            return;
+        }
+        list.innerHTML = sessionHistory.map(item => `
+            <div class="history-item">
+                <span class="hi-key">${item.key}</span>
+                <span class="hi-subj">${item.subject}</span>
+                <span class="hi-status unused">UNUSED</span>
+            </div>
+        `).join('');
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codex Leaderboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --gold: #f59e0b;
+            --silver: #94a3b8;
+            --bronze: #f97316;
+            --success: #10b981;
+            --glass: rgba(255, 255, 255, 0.9);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .leaderboard-container {
+            width: 100%;
+            max-width: 650px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            background: linear-gradient(to right, #6366f1, #a855f7);
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2rem;
+            letter-spacing: -1px;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-weight: 300;
+            margin-top: 5px;
+        }
+
+        .filter-section {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        select option {
+            background: #1e1b4b;
+            color: #fff;
+        }
+
+        .subject-section {
+            padding: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .subject-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .subject-badge {
+            background: rgba(99, 102, 241, 0.2);
+            padding: 6px 12px;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            color: #818cf8;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            font-weight: 700;
+        }
+
+        .date-text {
+            font-size: 0.85rem;
+            opacity: 0.6;
+        }
+
+        .top3-grid {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .winner-card {
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 18px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            transition: 0.3s;
+        }
+
+        .winner-card:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-3px);
+        }
+
+        .winner-card.rank-1 {
+            border-color: var(--gold);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .winner-card.rank-2 {
+            border-color: var(--silver);
+            background: rgba(148, 163, 184, 0.1);
+        }
+
+        .winner-card.rank-3 {
+            border-color: var(--bronze);
+            background: rgba(249, 115, 22, 0.1);
+        }
+
+        .rank-badge {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            flex-shrink: 0;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-details .name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .user-details .dept {
+            font-size: 0.75rem;
+            opacity: 0.6;
+        }
+
+        .score-badge {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--success);
+            padding: 8px 16px;
+            border-radius: 99px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .stats-mini {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            opacity: 0.5;
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .back-btn {
+            display: block;
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover { background: rgba(255, 255, 255, 0.1); }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            opacity: 0.6;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="leaderboard-container">
+    <div class="header">
+        <h1>🏆 Codex Elite</h1>
+        <p>Weekly Top Performers</p>
+    </div>
+
+    <div class="filter-section">
+        <div class="filter-grid">
+            <select id="facultyFilter" onchange="filterLeaderboard()">
+                <option value="all">All Faculties</option>
+                <option value="science">Science</option>
+                <option value="social_sciences">Social Sciences</option>
+                <option value="arts">Arts</option>
+                <option value="law">Law</option>
+            </select>
+            <select id="subjectFilter" onchange="filterLeaderboard()">
+                <option value="all">All Subjects</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="leaderboardContent">
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading leaderboard...</p>
+        </div>
+    </div>
+
+    <a href="home.html" class="back-btn">← RETURN TO DASHBOARD</a>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+    authDomain: "codex-study-hub-923c5.firebaseapp.com",
+    projectId: "codex-study-hub-923c5",
+    storageBucket: "codex-study-hub-923c5.appspot.com",
+    messagingSenderId: "750631534625",
+    appId: "1:750631534625:web:5f59e1841bb856bdbba360"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let allLeaderboardData = [];
+let currentUserFaculty = '';
+let currentUserDepartment = '';
+
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        await loadLeaderboard(user.uid);
+    } else {
+        await loadLeaderboard(null);
+    }
+});
+
+async function loadLeaderboard(currentUserId) {
+    try {
+        // Get current user's faculty/department if logged in
+        if (currentUserId) {
+            const usersRef = collection(db, "users");
+            const userQuery = query(usersRef, where("uid", "==", currentUserId));
+            const userSnapshot = await getDocs(userQuery);
+            
+            if (!userSnapshot.empty) {
+                const userData = userSnapshot.docs[0].data();
+                currentUserFaculty = userData.faculty || '';
+                currentUserDepartment = userData.department || '';
+            }
+        }
+
+        // Get all user stats
+        const statsRef = collection(db, "stats");
+        const statsSnapshot = await getDocs(statsRef);
+        
+        const usersRef = collection(db, "users");
+        const usersSnapshot = await getDocs(usersRef);
+        
+        // Create user lookup map
+        const userLookup = {};
+        usersSnapshot.forEach(doc => {
+            const data = doc.data();
+            userLookup[doc.id] = {
+                name: data.fullName || 'Anonymous',
+                faculty: data.faculty || '',
+                department: data.department || '',
+                email: data.email || ''
+            };
+        });
+
+        // Process all test results
+        allLeaderboardData = [];
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+        statsSnapshot.forEach(doc => {
+            const userId = doc.id;
+            const data = doc.data();
+            const history = data.history || [];
+            
+            const userInfo = userLookup[userId] || { name: 'Anonymous', faculty: '', department: '' };
+
+            history.forEach(test => {
+                const testDate = test.date ? new Date(test.date) : new Date();
+                
+                // Only include tests from the last 7 days
+                if (testDate >= oneWeekAgo) {
+                    const percentage = test.totalQuestions > 0 
+                        ? Math.round((test.score / test.totalQuestions) * 100) 
+                        : 0;
+
+                    allLeaderboardData.push({
+                        userId: userId,
+                        name: userInfo.name,
+                        faculty: userInfo.faculty,
+                        department: userInfo.department,
+                        subject: test.subject || 'Unknown',
+                        score: test.score || 0,
+                        totalQuestions: test.totalQuestions || 0,
+                        percentage: percentage,
+                        duration: test.duration || 0,
+                        date: testDate
+                    });
+                }
+            });
+        });
+
+        // Populate subject filter
+        const subjects = [...new Set(allLeaderboardData.map(d => d.subject))].sort();
+        const subjectFilter = document.getElementById('subjectFilter');
+        subjectFilter.innerHTML = '<option value="all">All Subjects</option>';
+        subjects.forEach(subj => {
+            const option = document.createElement('option');
+            option.value = subj;
+            option.textContent = subj;
+            subjectFilter.appendChild(option);
+        });
+
+        // Default to user's faculty if available
+        if (currentUserFaculty) {
+            document.getElementById('facultyFilter').value = currentUserFaculty;
+        }
+
+        filterLeaderboard();
+
+    } catch (error) {
+        console.error("Error loading leaderboard:", error);
+        document.getElementById('leaderboardContent').innerHTML = `
+            <div class="empty-state">
+                <p>❌ Error loading leaderboard</p>
+                <p style="font-size:0.8rem;margin-top:10px">${error.message}</p>
+            </div>
+        `;
+    }
+}
+
+window.filterLeaderboard = function() {
+    const facultyFilter = document.getElementById('facultyFilter').value;
+    const subjectFilter = document.getElementById('subjectFilter').value;
+    
+    let filteredData = [...allLeaderboardData];
+    
+    // Filter by faculty
+    if (facultyFilter !== 'all') {
+        filteredData = filteredData.filter(d => d.faculty === facultyFilter);
+    }
+    
+    // Filter by subject
+    if (subjectFilter !== 'all') {
+        filteredData = filteredData.filter(d => d.subject === subjectFilter);
+    }
+    
+    displayLeaderboard(filteredData);
+};
+
+function displayLeaderboard(data) {
+    const content = document.getElementById('leaderboardContent');
+    
+    if (data.length === 0) {
+        content.innerHTML = `
+            <div class="empty-state">
+                <p>📊 No results for this filter</p>
+                <p style="font-size:0.8rem;margin-top:10px">Try selecting different options</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Group by subject
+    const bySubject = {};
+    data.forEach(test => {
+        if (!bySubject[test.subject]) {
+            bySubject[test.subject] = [];
+        }
+        bySubject[test.subject].push(test);
+    });
+
+    // Sort each subject's tests by percentage (descending), then by duration (ascending)
+    Object.keys(bySubject).forEach(subject => {
+        bySubject[subject].sort((a, b) => {
+            if (b.percentage !== a.percentage) {
+                return b.percentage - a.percentage;
+            }
+            return a.duration - b.duration;
+        });
+    });
+
+    // Build HTML
+    let html = '';
+    
+    Object.entries(bySubject).forEach(([subject, tests]) => {
+        const top3 = tests.slice(0, 3);
+        
+        html += `
+            <div class="subject-section">
+                <div class="subject-title">
+                    <span class="subject-badge">📍 ${subject}</span>
+                    <span class="date-text">This Week</span>
+                </div>
+                <div class="top3-grid">
+        `;
+        
+        top3.forEach((test, index) => {
+            const medal = ['🥇', '🥈', '🥉'][index];
+            const rankClass = `rank-${index + 1}`;
+            const minutes = Math.floor(test.duration / 60);
+            const seconds = test.duration % 60;
+            const timeStr = `${minutes}m ${seconds}s`;
+            
+            html += `
+                <div class="winner-card ${rankClass}">
+                    <div class="rank-badge">${medal}</div>
+                    <div class="user-details">
+                        <span class="name">${test.name}</span>
+                        <span class="dept">${test.department || 'Student'}</span>
+                        <div class="stats-mini">
+                            <div class="stat-item">
+                                <span class="stat-label">Score</span>
+                                <span class="stat-value">${test.score}/${test.totalQuestions}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Time</span>
+                                <span class="stat-value">${timeStr}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="score-badge">${test.percentage}%</div>
+                </div>
+            `;
+        });
+        
+        html += `
+                </div>
+            </div>
+        `;
+    });
+    
+    content.innerHTML = html;
+}
+
+// Confetti effect on load
+window.onload = function() {
+    var duration = 3 * 1000;
+    var end = Date.now() + duration;
+
+    (function frame() {
+      confetti({
+        particleCount: 3,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0 },
+        colors: ['#6366f1', '#a855f7']
+      });
+      confetti({
+        particleCount: 3,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1 },
+        colors: ['#6366f1', '#a855f7']
+      });
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    }());
+};
+</script>
+
+</body>
+</html>

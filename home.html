@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Codex Study Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9642494442871029" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg:#080c14;--s1:#0f1623;--s2:#151e30;--s3:#1c283d;
+      --border:rgba(255,255,255,.06);--border2:rgba(255,255,255,.1);
+      --blue:#3b82f6;--blue-s:rgba(59,130,246,.12);--blue-b:rgba(59,130,246,.25);
+      --green:#10b981;--green-s:rgba(16,185,129,.12);--green-b:rgba(16,185,129,.25);
+      --gold:#f59e0b;--gold-s:rgba(245,158,11,.1);--gold-b:rgba(245,158,11,.25);
+      --red:#ef4444;--text:#f0f4ff;--muted:#8fa3c0;--dim:#4a6380;--r:14px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+      background:radial-gradient(ellipse 80vw 55vh at 8% -5%,rgba(59,130,246,.09) 0%,transparent 60%),
+                 radial-gradient(ellipse 55vw 40vh at 92% 105%,rgba(16,185,129,.07) 0%,transparent 60%)}
+
+    /* DRAWER */
+    #drawerOverlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(3px)}
+    #drawerOverlay.open{opacity:1;pointer-events:all}
+    #drawer{position:fixed;top:0;left:0;height:100%;width:290px;background:var(--s1);border-right:1px solid var(--border2);z-index:300;transform:translateX(-100%);transition:transform .32s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow-y:auto}
+    #drawer.open{transform:translateX(0)}
+
+    .drawer-header{padding:28px 22px 20px;background:linear-gradient(135deg,rgba(59,130,246,.15),rgba(16,185,129,.08));border-bottom:1px solid var(--border)}
+    .drawer-avatar-wrap{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+    .drawer-avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--green));display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;border:2px solid rgba(255,255,255,.15);overflow:hidden;font-size:1.5rem}
+    .drawer-avatar img{width:100%;height:100%;object-fit:cover}
+    .drawer-user-info h3{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700}
+    .drawer-user-info p{font-size:.8rem;color:var(--muted);margin-top:2px}
+    .drawer-badge{display:inline-flex;align-items:center;gap:5px;background:var(--blue-s);border:1px solid var(--blue-b);color:var(--blue);padding:5px 11px;border-radius:20px;font-size:.75rem;font-weight:600}
+
+    .drawer-nav{flex:1;padding:14px 0}
+    .nav-section-label{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);padding:10px 22px 6px}
+    .nav-item{display:flex;align-items:center;gap:13px;padding:13px 22px;cursor:pointer;transition:all .2s;font-size:.9rem;font-weight:500;color:var(--muted);text-decoration:none;border:none;background:none;width:100%;text-align:left}
+    .nav-item:hover{background:var(--s2);color:var(--text)}
+    .nav-item .ni{width:20px;height:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+    .nav-item .ni svg{width:100%;height:100%}
+    .nav-item.admin-item{color:var(--gold)}
+    .nav-item.admin-item:hover{background:var(--gold-s)}
+    .nav-item.danger{color:#f87171}
+    .nav-item.danger:hover{background:rgba(239,68,68,.08)}
+    .nav-divider{height:1px;background:var(--border);margin:6px 22px}
+
+    /* SHELL */
+    .shell{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:18px 16px 100px}
+
+    /* TOPBAR */
+    .topbar{display:flex;align-items:center;justify-content:space-between;background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:13px 18px;margin-bottom:18px}
+    .topbar-left{display:flex;align-items:center;gap:12px}
+    .menu-btn{width:38px;height:38px;border-radius:10px;background:var(--s2);border:1px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;transition:all .2s}
+    .menu-btn:hover{background:var(--s3);border-color:var(--blue)}
+    .menu-btn span{width:17px;height:2px;background:var(--text);border-radius:2px;display:block;transition:all .2s}
+    .brand-name{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;background:linear-gradient(90deg,var(--blue),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .topbar-right{display:flex;align-items:center;gap:10px}
+    .top-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--green));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;cursor:pointer;overflow:hidden;border:2px solid rgba(59,130,246,.3);transition:.2s}
+    .top-avatar:hover{border-color:var(--blue)}
+    .top-avatar img{width:100%;height:100%;object-fit:cover}
+    .user-greeting{font-size:.85rem;font-weight:500}
+    .user-greeting em{color:var(--blue);font-style:normal}
+    .cbt-logo{width:30px;height:30px;border-radius:7px;object-fit:cover}
+
+    /* SEMESTER */
+    .sem-wrap{display:flex;gap:7px;background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:5px;margin-bottom:16px}
+    .sem-btn{flex:1;padding:11px 6px;border:none;border-radius:8px;background:transparent;color:var(--muted);font-size:.88rem;font-weight:500;cursor:pointer;transition:all .22s;display:flex;align-items:center;justify-content:center;gap:7px}
+    .sem-btn svg{width:16px;height:16px}
+    .sem-btn.active{background:linear-gradient(135deg,var(--blue),#2563eb);color:#fff;box-shadow:0 4px 18px rgba(59,130,246,.3)}
+
+    /* HERO */
+    .hero-greeting{background:linear-gradient(135deg,#0d1e3a,#122444);border:1px solid var(--blue-b);border-radius:var(--r);padding:22px;margin-bottom:18px;position:relative;overflow:hidden}
+    .hero-greeting::before{content:'';position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.15),transparent 70%)}
+    .hero-greeting h2{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700;margin-bottom:4px}
+    .hero-greeting p{font-size:.82rem;color:var(--muted)}
+    .streak-badge{position:absolute;right:18px;top:50%;transform:translateY(-50%);background:var(--gold-s);border:1px solid var(--gold-b);border-radius:10px;padding:8px 12px;text-align:center}
+    .streak-badge span{display:block;font-size:1.4rem;line-height:1}
+    .streak-badge small{font-size:.7rem;color:var(--gold);font-weight:600}
+
+    /* QUICK STATS */
+    .quick-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+    .qs-card{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:14px 12px;text-align:center}
+    .qs-val{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800}
+    .qs-lbl{font-size:.72rem;color:var(--muted);margin-top:3px}
+
+    /* PRO BANNER */
+    .pro-banner{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#1a0e00,#231500);border:1px solid var(--gold-b);border-radius:var(--r);padding:16px 20px;margin-bottom:20px;cursor:pointer;transition:all .22s}
+    .pro-banner:hover{transform:translateY(-2px);border-color:var(--gold)}
+    .pro-text h3{font-family:'Syne',sans-serif;font-weight:700;font-size:.92rem;margin-bottom:3px}
+    .pro-text p{font-size:.78rem;color:var(--muted)}
+    .pro-chip{background:linear-gradient(135deg,var(--gold),#d97706);color:#1a0e00;padding:8px 16px;border-radius:9px;font-weight:700;font-size:.82rem}
+
+    /* SECTION */
+    .sec-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .sec-label{font-family:'Syne',sans-serif;font-weight:700;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+    .sec-line{flex:1;height:1px;background:var(--border)}
+
+    /* CATEGORY GRID */
+    .category-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;margin-bottom:11px}
+    .category-card{background:var(--s1);border:1.5px solid var(--border);border-radius:var(--r);padding:22px 18px 20px;cursor:pointer;transition:all .22s;position:relative;text-decoration:none;color:inherit;display:block}
+    .category-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.13);background:var(--s2)}
+    .card-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+    .card-icon svg{width:24px;height:24px}
+    .card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:5px}
+    .card-description{font-size:.8rem;color:var(--muted);line-height:1.5}
+    .card-arrow{position:absolute;top:14px;right:14px;color:var(--dim);transition:all .2s;width:16px;height:16px}
+    .category-card:hover .card-arrow{color:var(--blue);transform:translate(2px,-2px)}
+
+    /* LEADERBOARD */
+    .leaderboard-card{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#1a1400,#231c00);border:1px solid var(--gold-b);border-radius:var(--r);padding:18px 20px;cursor:pointer;margin-bottom:12px;text-decoration:none;color:inherit;transition:all .22s}
+    .leaderboard-card:hover{border-color:rgba(245,158,11,.5);transform:translateY(-2px)}
+    .lb-icon{width:44px;height:44px;border-radius:12px;background:var(--gold-s);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .lb-icon svg{width:24px;height:24px;color:var(--gold)}
+    .lb-info h3{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;color:var(--gold)}
+    .lb-info p{font-size:.78rem;color:var(--muted)}
+    .lb-arrow{margin-left:auto;color:var(--gold);width:20px;height:20px}
+
+    #adBanner{background:var(--s1);border:1px dashed rgba(255,255,255,.07);border-radius:10px;min-height:72px;display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:.76rem;margin-bottom:14px}
+
+    /* WA BUBBLE */
+    #waBubble{position:fixed;bottom:24px;right:20px;z-index:150;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#25d366,#128c3e);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.4);cursor:pointer;transition:all .25s;text-decoration:none}
+    #waBubble:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(27,201,102,.55)}
+    #waBubble svg{width:26px;height:26px;fill:#fff}
+    .wa-tooltip{position:absolute;right:60px;top:50%;transform:translateY(-50%);background:var(--s2);border:1px solid var(--border2);color:var(--text);padding:7px 12px;border-radius:8px;font-size:.78rem;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:opacity .2s}
+    #waBubble:hover .wa-tooltip{opacity:1}
+
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--s2);border:1px solid var(--border2);color:var(--text);padding:11px 18px;border-radius:12px;font-size:.84rem;font-weight:500;box-shadow:0 8px 28px rgba(0,0,0,.4);z-index:9999;animation:toastIn .25s ease}
+    @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+    @media(max-width:480px){
+      .category-grid{grid-template-columns:1fr}
+      .streak-badge{display:none}
+    }
+  </style>
+</head>
+<body>
+
+<div id="drawerOverlay" onclick="closeDrawer()"></div>
+
+<nav id="drawer">
+  <div class="drawer-header">
+    <div class="drawer-avatar-wrap">
+      <div class="drawer-avatar" id="drawerAvatarEl">G</div>
+      <div class="drawer-user-info">
+        <h3 id="drawerName">Student</h3>
+        <p id="drawerEmail">Loading...</p>
+      </div>
+    </div>
+    <span class="drawer-badge" id="drawerBadge">🎓 Free Plan</span>
+  </div>
+
+  <div class="drawer-nav">
+    <div class="nav-section-label">Account</div>
+    <a href="profile.html" class="nav-item">
+      <span class="ni"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></span> My Profile
+    </a>
+    <a href="stats.html" class="nav-item">
+      <span class="ni"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></span> My Progress
+    </a>
+    <a href="payment.html" class="nav-item">
+      <span class="ni"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></span> Upgrade to Pro
+    </a>
+
+    <div class="nav-divider"></div>
+    <div class="nav-section-label">Explore</div>
+    <a href="subject_selection.html?mode=exam" class="nav-item">
+      <span class="ni"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></span> Exam Mode
+    </a>
+    <a href="pdf_resources.html" class="nav-item">
+      <span class="ni"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span> Resources
+    </a>
+    <a href="leaderboard.html" class="nav-item">
+      <span class="ni"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></span> Leaderboard
+    </a>
+
+    <div id="adminSection" style="display:none">
+      <div class="nav-divider"></div>
+      <div class="nav-section-label">Admin</div>
+      <a href="admin_dashboard.html" class="nav-item admin-item">
+        <span class="ni"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></span> Admin Dashboard
+      </a>
+      <a href="admin_keys.html" class="nav-item admin-item">
+        <span class="ni"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg></span> Generate Keys
+      </a>
+    </div>
+
+    <div class="nav-divider"></div>
+    <div class="nav-section-label">More</div>
+    <a href="terms.html" class="nav-item">
+      <span class="ni"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span> Terms & Conditions
+    </a>
+    <a href="https://wa.me/2347011245168?text=Hi%20Codex%20Developer," target="_blank" class="nav-item">
+      <span class="ni"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></span> Contact Developer
+    </a>
+    <div class="nav-divider"></div>
+    <button class="nav-item danger" id="drawerLogoutBtn">
+      <span class="ni"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg></span> Sign Out
+    </button>
+  </div>
+</nav>
+
+<div class="shell">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="menu-btn" onclick="openDrawer()"><span></span><span></span><span></span></div>
+      <img src="logo.png" alt="Codex" class="cbt-logo" onerror="this.style.display='none'">
+      <span class="brand-name">Codex</span>
+    </div>
+    <div class="topbar-right">
+      <div class="top-avatar" id="avatarEl" onclick="window.location.href='profile.html'">G</div>
+      <span class="user-greeting">Hi, <em id="userName">Student</em></span>
+    </div>
+  </div>
+
+  <div class="sem-wrap">
+    <button class="sem-btn active" data-sem="1">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+      First Semester
+    </button>
+    <button class="sem-btn" data-sem="2">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+      Second Semester
+    </button>
+  </div>
+
+  <div class="hero-greeting">
+    <h2>Ready to study today? 🎯</h2>
+    <p>Consistency beats intensity every time.</p>
+    <div class="streak-badge"><span>🔥</span><small id="streakCount">0 day</small></div>
+  </div>
+
+  <div class="sec-row"><div class="sec-label">Your Overview</div><div class="sec-line"></div></div>
+  <div class="quick-stats">
+    <div class="qs-card"><div class="qs-val" id="qsTotalTests" style="color:var(--blue)">—</div><div class="qs-lbl">Tests Taken</div></div>
+    <div class="qs-card"><div class="qs-val" id="qsAvgScore" style="color:var(--green)">—</div><div class="qs-lbl">Avg Score</div></div>
+    <div class="qs-card"><div class="qs-val" id="qsBestScore" style="color:var(--gold)">—</div><div class="qs-lbl">Best Score</div></div>
+  </div>
+
+  <div class="pro-banner" id="proBanner">
+    <div class="pro-text"><h3>🚀 Unlock All Subjects</h3><p>Unlimited access · Every subject · All exam modes</p></div>
+    <div class="pro-chip">⚡ Go Pro</div>
+  </div>
+
+  <div class="sec-row"><div class="sec-label">Study Modes</div><div class="sec-line"></div></div>
+  <div class="category-grid">
+
+    <a href="subject_selection.html?mode=read" class="category-card">
+      <svg class="card-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+      <div class="card-icon" style="background:var(--blue-s)"><svg fill="none" stroke="#3b82f6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg></div>
+      <div class="card-title">Study Notes</div>
+      <div class="card-description">Short notes, definitions & key formulas per topic</div>
+    </a>
+
+    <a href="subject_selection.html?mode=practice" class="category-card">
+      <svg class="card-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+      <div class="card-icon" style="background:var(--green-s)"><svg fill="none" stroke="#10b981" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div>
+      <div class="card-title">Topic Practice</div>
+      <div class="card-description">Choose any topic and set your own question count</div>
+    </a>
+
+    <a href="subject_selection.html?mode=exam" class="category-card">
+      <svg class="card-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+      <div class="card-icon" style="background:rgba(245,158,11,.12)"><svg fill="none" stroke="#f59e0b" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></div>
+      <div class="card-title">Exam Simulation</div>
+      <div class="card-description">Timed 50-question mock exams — 30 minutes</div>
+    </a>
+
+    <a href="stats.html" class="category-card">
+      <svg class="card-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+      <div class="card-icon" style="background:rgba(236,72,153,.1)"><svg fill="none" stroke="#ec4899" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
+      <div class="card-title">Stats & Progress</div>
+      <div class="card-description">Track scores, history & weak topics</div>
+    </a>
+
+    <a href="pdf_resources.html" class="category-card" style="grid-column:1/-1">
+      <svg class="card-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+      <div class="card-icon" style="background:rgba(139,92,246,.1)"><svg fill="none" stroke="#8b5cf6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+      <div class="card-title">PDF & Resources</div>
+      <div class="card-description">Download past questions, notes & textbooks</div>
+    </a>
+
+  </div>
+
+  <a href="leaderboard.html" class="leaderboard-card">
+    <div class="lb-icon"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
+    <div class="lb-info"><h3>Leaderboard</h3><p>Daily Marathon — see today's top scorers</p></div>
+    <svg class="lb-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+  </a>
+
+  <div id="adBanner"><span>Advertisement</span></div>
+</div>
+
+<a id="waBubble" href="https://wa.me/2347011245168?text=Hi%20Codex%20Developer," target="_blank">
+  <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  <span class="wa-tooltip">Chat with Developer</span>
+</a>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey:"AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+  authDomain:"codex-study-hub-923c5.firebaseapp.com",
+  projectId:"codex-study-hub-923c5",
+  storageBucket:"codex-study-hub-923c5.appspot.com",
+  messagingSenderId:"750631534625",
+  appId:"1:750631534625:web:5f59e1841bb856bdbba360"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+const ADMIN = 'codexhub16@gmail.com';
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href='Login.html'; return; }
+  try {
+    const snap = await getDoc(doc(db,"users",user.uid));
+    if (snap.exists()) {
+      const d = snap.data();
+      const name = d.fullName?.split(' ')[0] || 'Student';
+      document.getElementById('userName').textContent = name;
+      document.getElementById('drawerName').textContent = d.fullName || 'Student';
+      document.getElementById('drawerEmail').textContent = d.email || user.email || '';
+      // Avatar
+      const av = d.photoURL ? `<img src="${d.photoURL}">` : (d.avatarEmoji || name[0].toUpperCase());
+      document.getElementById('avatarEl').innerHTML = typeof av === 'string' && av.startsWith('<') ? av : `<span>${av}</span>`;
+      document.getElementById('drawerAvatarEl').innerHTML = typeof av === 'string' && av.startsWith('<') ? av : `<span style="font-size:1.4rem">${av}</span>`;
+      if (d.isPro) {
+        const b = document.getElementById('drawerBadge');
+        b.textContent='⚡ Pro Member'; b.style.background='var(--gold-s)';
+        b.style.borderColor='var(--gold-b)'; b.style.color='var(--gold)';
+      }
+    }
+    if (user.email===ADMIN) document.getElementById('adminSection').style.display='block';
+  } catch(e) {}
+
+  // Load stats from Firestore
+  try {
+    const snap = await getDoc(doc(db,"stats",user.uid));
+    const hist = snap.exists() ? (snap.data().history||[]) : JSON.parse(localStorage.getItem('cbtHistory')||'[]');
+    if (hist.length > 0) {
+      document.getElementById('qsTotalTests').textContent = hist.length;
+      const avg = Math.round(hist.reduce((s,t)=>s+t.score/t.totalQuestions*100,0)/hist.length);
+      const best = Math.max(...hist.map(t=>Math.round(t.score/t.totalQuestions*100)));
+      document.getElementById('qsAvgScore').textContent = avg+'%';
+      document.getElementById('qsBestScore').textContent = best+'%';
+    } else {
+      document.getElementById('qsTotalTests').textContent = '0';
+    }
+  } catch(e) {}
+
+  const today = new Date().toDateString();
+  const last  = localStorage.getItem('lastStudyDay');
+  let streak  = parseInt(localStorage.getItem('studyStreak')||'0');
+  if (last !== today) {
+    streak = last===new Date(Date.now()-86400000).toDateString() ? streak+1 : 1;
+    localStorage.setItem('studyStreak', streak);
+    localStorage.setItem('lastStudyDay', today);
+  }
+  document.getElementById('streakCount').textContent = streak+(streak===1?' day':' days');
+});
+
+document.getElementById('drawerLogoutBtn').addEventListener('click', async()=>{
+  if(confirm('Sign out?')){ await signOut(auth); window.location.href='Login.html'; }
+});
+document.getElementById('proBanner').addEventListener('click',()=>{ window.location.href='payment.html'; });
+
+function showToast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2200);}
+
+const savedSem = localStorage.getItem('selectedSemester')||'1';
+document.querySelectorAll('.sem-btn').forEach(btn=>{
+  btn.classList.toggle('active',btn.dataset.sem===savedSem);
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.sem-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    localStorage.setItem('selectedSemester',btn.dataset.sem);
+    showToast('Semester '+btn.dataset.sem+' selected ✅');
+  });
+});
+</script>
+<script>
+function openDrawer(){document.getElementById('drawer').classList.add('open');document.getElementById('drawerOverlay').classList.add('open');document.body.style.overflow='hidden'}
+function closeDrawer(){document.getElementById('drawer').classList.remove('open');document.getElementById('drawerOverlay').classList.remove('open');document.body.style.overflow=''}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
+</script>
+</body>
+</html>

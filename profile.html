@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile — Codex Study Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#080c14; --s1:#0f1623; --s2:#151e30; --s3:#1c283d;
+      --border:rgba(255,255,255,.06); --border2:rgba(255,255,255,.1);
+      --blue:#3b82f6; --blue-s:rgba(59,130,246,.12); --blue-b:rgba(59,130,246,.25);
+      --green:#10b981; --green-s:rgba(16,185,129,.12); --green-b:rgba(16,185,129,.25);
+      --gold:#f59e0b; --gold-s:rgba(245,158,11,.1); --gold-b:rgba(245,158,11,.25);
+      --red:#ef4444; --text:#f0f4ff; --muted:#8fa3c0; --dim:#4a6380; --r:14px;
+    }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+    body::before { content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+      background:radial-gradient(ellipse 80vw 55vh at 20% 0%, rgba(59,130,246,.08) 0%, transparent 60%); }
+    .shell { position:relative; z-index:1; max-width:560px; margin:0 auto; padding:18px 16px 80px; }
+
+    .topbar { display:flex; align-items:center; gap:12px; background:var(--s1); border:1px solid var(--border);
+      border-radius:var(--r); padding:13px 18px; margin-bottom:22px; }
+    .back-btn { width:36px; height:36px; border-radius:9px; background:var(--s2); border:1px solid var(--border2);
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+      font-size:1rem; text-decoration:none; color:var(--text); transition:.2s; }
+    .back-btn:hover { border-color:var(--blue); }
+    .page-title { font-family:'Syne',sans-serif; font-weight:800; font-size:1.05rem; }
+
+    /* PROFILE HERO */
+    .profile-hero { background:linear-gradient(135deg,#0d1e3a,#122444);
+      border:1px solid var(--blue-b); border-radius:var(--r);
+      padding:30px 22px; margin-bottom:18px; text-align:center; }
+    .avatar-big { width:90px; height:90px; border-radius:50%; margin:0 auto 14px;
+      background:linear-gradient(135deg,var(--blue),var(--green));
+      display:flex; align-items:center; justify-content:center;
+      font-size:36px; font-weight:700; border:3px solid rgba(59,130,246,.4);
+      overflow:hidden; position:relative; cursor:pointer; }
+    .avatar-big img { width:100%; height:100%; object-fit:cover; }
+    .avatar-big .change-overlay { position:absolute; inset:0; background:rgba(0,0,0,.55);
+      display:flex; align-items:center; justify-content:center;
+      font-size:.7rem; opacity:0; transition:.2s; border-radius:50%; }
+    .avatar-big:hover .change-overlay { opacity:1; }
+    .profile-name { font-family:'Syne',sans-serif; font-size:1.3rem; font-weight:800; margin-bottom:2px; }
+    .profile-email { font-size:.83rem; color:var(--muted); margin-bottom:12px; }
+
+    /* BADGES ROW */
+    .badges-row { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:4px; }
+    .badge-pill { display:inline-flex; align-items:center; gap:5px;
+      padding:5px 14px; border-radius:20px; font-size:.78rem; font-weight:700; }
+    .badge-free  { background:var(--blue-s); border:1px solid var(--blue-b); color:var(--blue); }
+    .badge-pro   { background:var(--gold-s); border:1px solid var(--gold-b); color:var(--gold); }
+    .badge-rank  { border:1px solid rgba(255,255,255,.15); }
+
+    /* RANK CARD */
+    .rank-card { display:flex; align-items:center; gap:14px; margin:14px 0 0;
+      background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.08);
+      border-radius:12px; padding:14px 16px; }
+    .rank-icon-big { font-size:2rem; }
+    .rank-details { flex:1; text-align:left; }
+    .rank-name { font-family:'Syne',sans-serif; font-size:1rem; font-weight:800; }
+    .rank-sub { font-size:.75rem; color:var(--muted); margin-top:2px; }
+    .rank-bar-track { margin-top:6px; height:4px; background:rgba(255,255,255,.1); border-radius:2px; }
+    .rank-bar-fill { height:100%; border-radius:2px; transition:width .8s ease; }
+    .xp-val { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:800; }
+    .xp-lbl { font-size:.65rem; color:var(--muted); }
+
+    /* SEC */
+    .sec-row { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+    .sec-label { font-family:'Syne',sans-serif; font-weight:700; font-size:.7rem; text-transform:uppercase; letter-spacing:.1em; color:var(--dim); }
+    .sec-line { flex:1; height:1px; background:var(--border); }
+
+    /* STATS ROW */
+    .stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px; }
+    .stat-mini { background:var(--s1); border:1px solid var(--border); border-radius:12px; padding:14px; text-align:center; }
+    .stat-mini .val { font-family:'Syne',sans-serif; font-size:1.3rem; font-weight:800; }
+    .stat-mini .lbl { font-size:.72rem; color:var(--muted); margin-top:3px; }
+
+    /* AVATAR GRID */
+    .avatar-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:18px; }
+    .av-option { width:100%; aspect-ratio:1; border-radius:50%; border:2.5px solid var(--border2);
+      cursor:pointer; font-size:1.8rem; display:flex; align-items:center;
+      justify-content:center; transition:all .2s; background:var(--s1); }
+    .av-option:hover { border-color:var(--blue); transform:scale(1.08); }
+    .av-option.selected { border-color:var(--green); box-shadow:0 0 0 3px var(--green-b); }
+
+    /* UPLOAD */
+    .upload-zone { border:2px dashed var(--border2); border-radius:12px;
+      padding:18px; text-align:center; cursor:pointer; margin-bottom:18px;
+      transition:.2s; background:var(--s1); }
+    .upload-zone:hover { border-color:var(--blue); background:var(--blue-s); }
+    .upload-zone p { font-size:.83rem; color:var(--muted); margin-top:4px; }
+    #photoInput { display:none; }
+
+    /* FORM */
+    .form-card { background:var(--s1); border:1px solid var(--border); border-radius:var(--r); padding:20px; margin-bottom:16px; }
+    .form-group { margin-bottom:14px; }
+    .form-group label { display:block; font-size:.82rem; font-weight:600; color:var(--muted); margin-bottom:6px; }
+    .form-group input, .form-group select { width:100%; padding:11px 14px; background:var(--s2);
+      border:1.5px solid var(--border2); border-radius:9px; color:var(--text); font-size:.9rem; transition:.2s; }
+    .form-group input:focus, .form-group select:focus { border-color:var(--blue); outline:none; }
+    .form-group select option { background:var(--s2); }
+
+    /* BUTTONS */
+    .btn { width:100%; padding:13px; border:none; border-radius:10px; font-size:.95rem; font-weight:700; cursor:pointer; transition:all .22s; }
+    .btn-primary { background:linear-gradient(135deg,var(--blue),#2563eb); color:#fff; margin-bottom:10px; }
+    .btn-primary:hover { opacity:.9; transform:translateY(-1px); }
+    .btn-danger { background:rgba(239,68,68,.1); color:#f87171; border:1px solid rgba(239,68,68,.2); }
+    .btn-danger:hover { background:rgba(239,68,68,.2); }
+
+    .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--s2);
+      border:1px solid var(--border2); color:var(--text); padding:11px 18px; border-radius:12px;
+      font-size:.84rem; font-weight:500; box-shadow:0 8px 28px rgba(0,0,0,.4); z-index:9999;
+      animation:toastIn .25s ease; }
+    @keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(10px);} to{opacity:1;transform:translateX(-50%) translateY(0);} }
+    .spinner { display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,.3);
+      border-top-color:#fff; border-radius:50%; animation:spin .6s linear infinite; vertical-align:middle; margin-right:6px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="topbar">
+    <a href="home.html" class="back-btn">←</a>
+    <div class="page-title">My Profile</div>
+  </div>
+
+  <!-- PROFILE HERO -->
+  <div class="profile-hero">
+    <div class="avatar-big" id="avatarBig" onclick="document.getElementById('photoInput').click()">
+      <span id="avatarInitial">G</span>
+      <div class="change-overlay">📷 Change</div>
+    </div>
+    <input type="file" id="photoInput" accept="image/*" onchange="previewPhoto(event)">
+    <div class="profile-name" id="profileName">Loading...</div>
+    <div class="profile-email" id="profileEmail">loading...</div>
+
+    <div class="badges-row">
+      <span class="badge-pill badge-free" id="proBadge">🎓 Free Plan</span>
+      <span class="badge-pill badge-rank" id="rankBadge" style="display:none"></span>
+    </div>
+
+    <!-- RANK CARD (shown once stats load) -->
+    <div class="rank-card" id="rankCard" style="display:none">
+      <div class="rank-icon-big" id="rcIcon">🌱</div>
+      <div class="rank-details">
+        <div class="rank-name" id="rcName">Rookie</div>
+        <div class="rank-sub" id="rcSub">Keep studying!</div>
+        <div class="rank-bar-track">
+          <div class="rank-bar-fill" id="rcBar" style="width:0%"></div>
+        </div>
+      </div>
+      <div style="text-align:center">
+        <div class="xp-val" id="rcXP">0</div>
+        <div class="xp-lbl">XP</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUICK STATS -->
+  <div class="sec-row"><div class="sec-label">Your Stats</div><div class="sec-line"></div></div>
+  <div class="stats-row">
+    <div class="stat-mini"><div class="val" id="stTests" style="color:var(--blue)">—</div><div class="lbl">Tests</div></div>
+    <div class="stat-mini"><div class="val" id="stAvg" style="color:var(--green)">—</div><div class="lbl">Avg Score</div></div>
+    <div class="stat-mini"><div class="val" id="stBest" style="color:var(--gold)">—</div><div class="lbl">Best</div></div>
+  </div>
+
+  <!-- AVATAR PICKER -->
+  <div class="sec-row"><div class="sec-label">Choose Avatar</div><div class="sec-line"></div></div>
+  <div class="avatar-grid" id="avatarGrid"></div>
+
+  <!-- UPLOAD OWN PHOTO -->
+  <div class="upload-zone" onclick="document.getElementById('photoInput').click()">
+    <div style="font-size:1.5rem">📷</div>
+    <p>Tap to upload your own photo (JPG/PNG)</p>
+  </div>
+
+  <!-- EDIT FORM -->
+  <div class="sec-row"><div class="sec-label">Edit Details</div><div class="sec-line"></div></div>
+  <div class="form-card">
+    <div class="form-group"><label>Full Name</label><input type="text" id="inputName" placeholder="Your full name"></div>
+    <div class="form-group">
+      <label>Faculty</label>
+      <select id="inputFaculty" onchange="updateDepts()">
+        <option value="">-- Select Faculty --</option>
+        <option value="science">Science</option>
+        <option value="social_sciences">Social Science</option>
+        <option value="arts">Arts</option>
+        <option value="law">Law</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Department</label><select id="inputDept"><option value="">-- Select Faculty First --</option></select></div>
+  </div>
+
+  <button class="btn btn-primary" id="saveBtn" onclick="saveProfile()">Save Changes</button>
+  <button class="btn btn-danger" onclick="if(confirm('Sign out?')){signOutUser()}">Sign Out</button>
+
+</div>
+
+<script>
+function updateDepts() {
+  const f = document.getElementById('inputFaculty').value;
+  const ds = document.getElementById('inputDept');
+  const DEPTS = {
+    science:["Computer Science","Engineering","Agriculture","Medicine","Physics","Chemistry","Mathematics","Biology","Education","Other"],
+    social_sciences:["Economics","Political Science","Sociology","Mass Communication","Education","Other"],
+    arts:["English","History","Philosophy","French","Education","Other"],
+    law:["Law","Other"]
+  };
+  const list = DEPTS[f] || [];
+  ds.innerHTML = '<option value="">-- Select Department --</option>';
+  ds.disabled = !list.length;
+  list.forEach(d => {
+    const o = document.createElement('option');
+    o.value = d.toLowerCase().replace(/\s+/g,'_'); o.textContent = d; ds.appendChild(o);
+  });
+}
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+  authDomain: "codex-study-hub-923c5.firebaseapp.com",
+  projectId: "codex-study-hub-923c5",
+  storageBucket: "codex-study-hub-923c5.appspot.com",
+  messagingSenderId: "750631534625",
+  appId: "1:750631534625:web:5f59e1841bb856bdbba360"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+const CLOUD_NAME    = "dngom9ylf";
+const UPLOAD_PRESET = "codex_pdf";
+
+// ── RANK SYSTEM ──────────────────────────────────────────────────────────────
+const RANKS = [
+  { name:"Rookie",     icon:"🌱", min:0,    color:"#8fa3c0" },
+  { name:"Scholar",    icon:"📖", min:100,  color:"#3b82f6" },
+  { name:"Apprentice", icon:"⚡", min:300,  color:"#6366f1" },
+  { name:"Challenger", icon:"🔥", min:600,  color:"#f59e0b" },
+  { name:"Expert",     icon:"🎯", min:1000, color:"#10b981" },
+  { name:"Master",     icon:"🏆", min:1500, color:"#ec4899" },
+  { name:"Legend",     icon:"👑", min:2500, color:"#f59e0b" },
+];
+
+function getRankInfo(pts) {
+  let rank = RANKS[0];
+  for (const r of RANKS) { if (pts >= r.min) rank = r; }
+  const ni = RANKS.indexOf(rank) + 1;
+  const next = ni < RANKS.length ? RANKS[ni] : null;
+  const pct  = next ? Math.min(100, Math.round(((pts - rank.min) / (next.min - rank.min)) * 100)) : 100;
+  return { ...rank, next, pct };
+}
+
+function calcPoints(history) {
+  return history.reduce((pts, t) => {
+    const p = t.totalQuestions ? Math.round((t.score / t.totalQuestions) * 100) : 0;
+    pts += Math.round(p * 0.5);
+    if (p >= 80)   pts += 20;
+    if (p === 100) pts += 30;
+    return pts;
+  }, 0);
+}
+
+// ── AVATARS ───────────────────────────────────────────────────────────────────
+const AVATARS = ['🦅','🐯','🦁','🐼','🦊','🐺','🦋','🐬','🦄','🐉','🦖','🐸','🦝','🦥','🐙','🦩','🧠','🚀','⚡','🎓'];
+let currentUser = null, selectedAvatarEmoji = '', pendingPhotoFile = null;
+
+const grid = document.getElementById('avatarGrid');
+AVATARS.forEach(emoji => {
+  const el = document.createElement('div');
+  el.className = 'av-option'; el.textContent = emoji; el.dataset.emoji = emoji;
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.av-option').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedAvatarEmoji = emoji; pendingPhotoFile = null;
+    document.getElementById('avatarBig').innerHTML = `<span style="font-size:38px">${emoji}</span><div class="change-overlay">📷 Change</div>`;
+    document.getElementById('avatarBig').onclick = () => document.getElementById('photoInput').click();
+  });
+  grid.appendChild(el);
+});
+
+// ── AUTH ─────────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'Login.html'; return; }
+  currentUser = user;
+
+  try {
+    // Load Firestore user doc
+    const snap = await getDoc(doc(db, "users", user.uid));
+    if (!snap.exists()) return;
+    const d = snap.data();
+
+    document.getElementById('profileName').textContent  = d.fullName || 'Student';
+    document.getElementById('profileEmail').textContent = d.email || user.email;
+    document.getElementById('inputName').value = d.fullName || '';
+    if (d.faculty)    { document.getElementById('inputFaculty').value = d.faculty; window.updateDepts(); }
+    if (d.department) { document.getElementById('inputDept').value = d.department; }
+
+    if (d.isPro) {
+      const b = document.getElementById('proBadge');
+      b.textContent = '⚡ Pro Member'; b.className = 'badge-pill badge-pro';
+    }
+
+    // Avatar
+    if (d.photoURL) {
+      document.getElementById('avatarBig').innerHTML = `<img src="${d.photoURL}"><div class="change-overlay">📷 Change</div>`;
+      document.getElementById('avatarBig').onclick = () => document.getElementById('photoInput').click();
+    } else if (d.avatarEmoji) {
+      document.getElementById('avatarBig').innerHTML = `<span style="font-size:38px">${d.avatarEmoji}</span><div class="change-overlay">📷 Change</div>`;
+      document.getElementById('avatarBig').onclick = () => document.getElementById('photoInput').click();
+      selectedAvatarEmoji = d.avatarEmoji;
+      document.querySelectorAll('.av-option').forEach(el => { if (el.dataset.emoji === d.avatarEmoji) el.classList.add('selected'); });
+    } else {
+      document.getElementById('avatarInitial').textContent = (d.fullName||'S')[0].toUpperCase();
+    }
+
+    // ── LOAD STATS FROM FIRESTORE (per user) ─────────────────────────────────
+    const statsSnap = await getDoc(doc(db, "stats", user.uid));
+    const history   = statsSnap.exists() ? (statsSnap.data().history || []) : [];
+
+    if (history.length > 0) {
+      const avg  = Math.round(history.reduce((s,t) => s + (t.totalQuestions ? t.score/t.totalQuestions*100 : 0), 0) / history.length);
+      const best = Math.max(...history.map(t => t.totalQuestions ? Math.round(t.score/t.totalQuestions*100) : 0));
+      document.getElementById('stTests').textContent = history.length;
+      document.getElementById('stAvg').textContent   = avg + '%';
+      document.getElementById('stBest').textContent  = best + '%';
+    } else {
+      document.getElementById('stTests').textContent = '0';
+    }
+
+    // ── RENDER RANK ──────────────────────────────────────────────────────────
+    // Use stored xpPoints or calculate from history
+    const pts  = d.xpPoints || calcPoints(history);
+    const rank = getRankInfo(pts);
+
+    // Show rank badge in hero
+    const rb = document.getElementById('rankBadge');
+    rb.style.display    = 'inline-flex';
+    rb.style.background = rank.color + '22';
+    rb.style.borderColor = rank.color + '44';
+    rb.style.color      = rank.color;
+    rb.textContent      = rank.icon + ' ' + rank.name;
+
+    // Show rank card
+    const card = document.getElementById('rankCard');
+    card.style.display = 'flex';
+    document.getElementById('rcIcon').textContent  = rank.icon;
+    document.getElementById('rcName').textContent  = rank.name;
+    document.getElementById('rcName').style.color  = rank.color;
+    document.getElementById('rcSub').textContent   = rank.next
+      ? `${rank.next.min - pts} XP to ${rank.next.name}`
+      : 'Maximum rank achieved! 👑';
+    document.getElementById('rcBar').style.width      = rank.pct + '%';
+    document.getElementById('rcBar').style.background = rank.color;
+    document.getElementById('rcXP').textContent       = pts;
+    document.getElementById('rcXP').style.color       = rank.color;
+
+  } catch(e) { console.error(e); }
+});
+
+// ── PHOTO PREVIEW ─────────────────────────────────────────────────────────────
+window.previewPhoto = function(e) {
+  const file = e.target.files[0]; if (!file) return;
+  pendingPhotoFile = file; selectedAvatarEmoji = '';
+  document.querySelectorAll('.av-option').forEach(el => el.classList.remove('selected'));
+  const reader = new FileReader();
+  reader.onload = ev => {
+    document.getElementById('avatarBig').innerHTML = `<img src="${ev.target.result}"><div class="change-overlay">📷 Change</div>`;
+    document.getElementById('avatarBig').onclick = () => document.getElementById('photoInput').click();
+  };
+  reader.readAsDataURL(file);
+};
+
+// ── SAVE PROFILE ─────────────────────────────────────────────────────────────
+window.saveProfile = async function() {
+  if (!currentUser) return;
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Saving...';
+
+  try {
+    let updates = {
+      fullName:   document.getElementById('inputName').value.trim(),
+      faculty:    document.getElementById('inputFaculty').value,
+      department: document.getElementById('inputDept').value,
+    };
+
+    if (selectedAvatarEmoji) { updates.avatarEmoji = selectedAvatarEmoji; updates.photoURL = ''; }
+
+    if (pendingPhotoFile) {
+      const fd = new FormData();
+      fd.append('file', pendingPhotoFile); fd.append('upload_preset', UPLOAD_PRESET);
+      const res  = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`, { method:'POST', body:fd });
+      const data = await res.json();
+      updates.photoURL = data.secure_url; updates.avatarEmoji = '';
+    }
+
+    await updateDoc(doc(db, "users", currentUser.uid), updates);
+    document.getElementById('profileName').textContent = updates.fullName;
+    showToast('✅ Profile saved!');
+  } catch(e) { showToast('❌ Error: ' + e.message); }
+  finally { btn.disabled = false; btn.textContent = 'Save Changes'; pendingPhotoFile = null; }
+};
+
+window.signOutUser = async function() { await signOut(auth); window.location.href = 'Login.html'; };
+
+function showToast(msg) {
+  const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
+}
+</script>
+</body>
+</html>

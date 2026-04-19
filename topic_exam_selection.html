@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Codex Study Hub — Test Setup</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9642494442871029" crossorigin="anonymous"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#0d1b2a; --ink2:#1b2e44; --ink3:#2c4a6e;
+    --sky:#e8f4fd; --sky2:#d0e8f8; --sky3:#b8ddf5;
+    --gold:#f0a500; --gold2:#fbbf24; --gold3:#fef3c7;
+    --green:#059669; --green2:#d1fae5;
+    --red:#dc2626; --red2:#fee2e2;
+    --amber:#d97706; --amber2:#fef3c7;
+    --border:#dde6f0; --bg:#f2f7fc;
+    --card:#ffffff; --radius:14px;
+    --shadow:0 2px 12px rgba(13,27,42,.08);
+    --shadow-md:0 6px 24px rgba(13,27,42,.12);
+    --shadow-lg:0 16px 48px rgba(13,27,42,.16);
+    --font:'Sora',system-ui,sans-serif;
+    --mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font);min-height:100vh;-webkit-font-smoothing:antialiased}
+  ::-webkit-scrollbar{width:5px;height:5px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:var(--sky3);border-radius:4px}
+
+  body{display:block;padding:0}
+  .top-bar{
+    background:linear-gradient(135deg,var(--ink) 0%,var(--ink3) 100%);
+    padding:14px 20px;position:sticky;top:0;z-index:50;
+    display:flex;align-items:center;gap:12px;
+    box-shadow:0 3px 16px rgba(13,27,42,.22);
+  }
+  .top-bar-logo{font-size:.95rem;font-weight:700;color:#fff}
+  .top-bar-logo span{color:var(--gold2)}
+  .btn-back2{
+    margin-left:auto;background:rgba(255,255,255,.12);
+    border:1.5px solid rgba(255,255,255,.25);color:#fff;
+    padding:7px 16px;border-radius:8px;cursor:pointer;
+    font-size:.8rem;font-weight:600;font-family:var(--font);transition:.2s;
+  }
+  .btn-back2:hover{background:rgba(255,255,255,.22)}
+  .page-wrap{max-width:780px;margin:0 auto;padding:24px 16px 60px}
+  .page-header{text-align:center;margin-bottom:24px;padding-bottom:18px;border-bottom:2px solid var(--border)}
+  .page-header h1{font-size:1.6rem;font-weight:800;color:var(--ink);letter-spacing:-.4px}
+  #subjectName{font-size:1rem;font-weight:600;color:var(--ink3);margin-top:6px}
+  
+  /* TRIAL ALERT */
+  .trial-card{
+    background:linear-gradient(135deg,#fffbeb,#fef3c7);
+    border:1.5px solid var(--gold2);border-radius:12px;
+    padding:16px 20px;margin-bottom:24px;
+    display:flex;align-items:center;gap:14px;
+  }
+  .trial-icon{font-size:1.6rem;flex-shrink:0}
+  .trial-text p{margin:0;font-size:.82rem;color:#78350f;line-height:1.5}
+  .trial-text strong{display:block;font-size:.92rem;margin-bottom:2px}
+  #trialStatus{font-size:.92rem;margin:0}
+  .trial-status{font-weight:600}
+  .trial-status.good{color:var(--green)}
+  .trial-status.warning{color:var(--red)}
+
+  /* MODE CARDS */
+  h2.mode-label{font-size:.85rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px}
+  .mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px}
+  @media(max-width:500px){.mode-grid{grid-template-columns:1fr}}
+  .mode-card{
+    background:var(--card);border-radius:14px;padding:22px 20px;
+    cursor:pointer;border:2px solid var(--border);
+    box-shadow:var(--shadow);transition:all .24s ease;text-align:center;
+  }
+  .mode-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}
+  .mode-card.practice-card:hover{border-color:var(--green);background:#f0fdf9}
+  .mode-card.exam-card:hover{border-color:var(--ink3);background:var(--sky)}
+  .mode-card-icon{font-size:2rem;margin-bottom:8px}
+  .mode-card h3{font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:6px}
+  .mode-card p{font-size:.82rem;color:#64748b;line-height:1.5}
+  .mode-badge{
+    display:inline-block;margin-top:8px;font-size:.72rem;font-weight:700;
+    padding:3px 10px;border-radius:12px;
+  }
+  .practice-badge{background:var(--green2);color:var(--green)}
+  .exam-badge{background:var(--sky2);color:var(--ink3)}
+
+  /* PRACTICE SETUP PANEL */
+  #topicPracticeSetup{
+    display:none;background:var(--card);border-radius:14px;
+    border:2px solid var(--ink3);box-shadow:var(--shadow-md);overflow:hidden;
+    margin-top:4px;
+  }
+  .setup-header{
+    background:linear-gradient(135deg,var(--ink2),var(--ink3));
+    padding:16px 22px;
+  }
+  .setup-header h3{color:#fff;font-size:1rem;font-weight:700;margin:0}
+  .setup-body{padding:22px}
+  .form-group{margin-bottom:18px}
+  .form-group label{
+    display:block;font-size:.83rem;font-weight:700;color:var(--ink2);
+    margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px;
+  }
+  .form-group select,.form-group input[type="number"]{
+    width:100%;padding:11px 14px;border:1.5px solid var(--border);
+    border-radius:8px;font-family:var(--font);font-size:.9rem;
+    color:var(--ink);background:var(--card);
+    transition:border-color .2s;outline:none;
+  }
+  .form-group select:focus,.form-group input:focus{border-color:var(--ink3)}
+  .time-options{display:flex;gap:8px;flex-wrap:wrap}
+  .time-btn{
+    flex:1;min-width:72px;padding:10px 8px;
+    background:var(--bg);border:1.5px solid var(--border);
+    border-radius:8px;cursor:pointer;transition:.2s;
+    font-weight:600;font-size:.85rem;font-family:var(--font);color:var(--ink);
+  }
+  .time-btn:hover{border-color:var(--ink3);background:var(--sky)}
+  .time-btn.selected{
+    background:var(--red);color:#fff;border-color:var(--red);
+    box-shadow:0 0 0 3px rgba(220,38,38,.2);
+  }
+  .start-btn{
+    width:100%;padding:13px;border:none;border-radius:8px;
+    background:linear-gradient(135deg,var(--green),#047857);
+    color:#fff;font-size:.95rem;font-weight:700;font-family:var(--font);
+    cursor:pointer;transition:.2s;margin-top:4px;
+  }
+  .start-btn:hover{opacity:.9;transform:translateY(-1px)}
+  .cbt-logo {
+    width: 70px;
+    height: auto;
+    margin: 0 auto;
+    display: block;
+    animation: fadeIn 0.6s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <span style="font-size:1.3rem"><img src="logo.png" alt="Codex Study Hub Logo" class="cbt-logo"> </span>
+  <div class="top-bar-logo">Codex <span>Study Hub</span></div>
+  <button class="btn-back2" onclick="window.history.back()">← Change Subject</button>
+</div>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <h1>Setup Your Test</h1>
+    <div id="subjectName">Loading...</div>
+  </div>
+
+  <div class="trial-card">
+    <div class="trial-icon">📊</div>
+    <div class="trial-text">
+      <strong>Your Trial Status</strong>
+      <div id="trialStatus" class="trial-status good">Checking...</div>
+      <p>After 3 trials, unlock this subject from the Home screen.</p>
+    </div>
+  </div>
+
+  <h2 class="mode-label">Choose Your Mode</h2>
+  <div class="mode-grid">
+    <div class="mode-card practice-card" onclick="showTopicSetup()">
+      <div class="mode-card-icon">📚</div>
+      <h3>Topic Practice</h3>
+      <p>Select topic, question count, and time limit.</p>
+      <span class="mode-badge practice-badge">Flexible</span>
+    </div>
+    <div class="mode-card exam-card" onclick="launchExamMode()">
+      <div class="mode-card-icon">📝</div>
+      <h3>Exam Simulation</h3>
+      <p>Full subject test. 50 Questions. 30 Minutes.</p>
+      <span class="mode-badge exam-badge">Timed</span>
+    </div>
+  </div>
+
+  <div id="topicPracticeSetup">
+    <div class="setup-header"><h3>⚙️ Customize Practice Session</h3></div>
+    <div class="setup-body">
+      <form id="practiceForm">
+        <div class="form-group">
+          <label for="topicSelect">1. Select Topic</label>
+          <select id="topicSelect" required size="5">
+            <option value="" disabled selected>— Choose a Topic —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="numQuestionsPractice">2. Number of Questions (10–50)</label>
+          <input type="number" id="numQuestionsPractice" value="10" min="10" max="50" required>
+        </div>
+        <div class="form-group">
+          <label>3. Time Limit</label>
+          <div class="time-options" id="timeOptions">
+            <button type="button" class="time-btn" data-time="10">10 min</button>
+            <button type="button" class="time-btn" data-time="15">15 min</button>
+            <button type="button" class="time-btn" data-time="20">20 min</button>
+            <button type="button" class="time-btn" data-time="25">25 min</button>
+            <button type="button" class="time-btn selected" data-time="30">30 min</button>
+          </div>
+          <input type="hidden" id="selectedTime" value="30">
+        </div>
+        <button type="submit" class="start-btn">▶ Start Timed Session</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp }              from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, doc, getDoc }  from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey:            "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+    authDomain:        "codex-study-hub-923c5.firebaseapp.com",
+    projectId:         "codex-study-hub-923c5",
+    storageBucket:     "codex-study-hub-923c5.appspot.com",
+    messagingSenderId: "750631534625",
+    appId:             "1:750631534625:web:5f59e1841bb856bdbba360"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const TOPIC_MAP = {
+    // ==================== 1ST SEMESTER (HARMATTAN) ====================
+    "MTH101": ["Set Theory", "Number Systems", "Mathematical Induction", "Sequences & Series", "Quadratic Equations", "Complex Numbers", "Binomial Theorem", "Partial Fractions", "Circular Measures", "Trigonometry"],
+    "PHY101": ["Units & Dimensions", "Vectors & Scalars", "Dot Product", "Newton's Laws", "Projectile Motion", "Kinematics", "Center of Mass", "Angular Velocity", "Simple Harmonic Motion", "Work Energy Power", "Equilibrium", "Thermodynamics"],
+    "CHM101": ["Atomic Structure", "Redox Reactions", "Energetics", "Electronic Configuration", "Chemical Bonding", "Stoichiometry", "Acids and Bases", "Reaction Kinetics", "Electrolysis", "Chemical Equilibrium"],
+    "COS101": ["History of Computers", "Basic Components of Computer", "Algorithms & Flowcharts", "FORTRAN", "Data Structures", "Hardware & Software", "Programming Fundamentals", "Operating Systems"],
+    "STA111": ["Data Collection", "Measures of Central Tendency", "Probability Theory", "Errors and Approximation"],
+    "BIO101": ["The Cell", "Cell Division", "Mitosis and Meiosis", "Genetics", "Taxonomy", "Ecology", "Mutation", "Adaptation", "Plant and Animal Physiology"],
+    "GST111": ["Language", "Nature and Function of Language", "Sentence Errors", "Listening & Speaking Skills", "Speech Sounds", "Comprehension", "Lexis and Structure", "Phonetics & Phonology", "Stress", "Note Taking", "Summary Writing", "Effective Public Speaking"],
+    "FRE105": ["Definitions of Translation", "Importance of Translation", "Translation of Simple Words & Sentences", "Present Tense Translation", "Status and Importance of French in West Africa", "Status and Importance of French in Contemporary World", "Varieties of French"],
+    "FRE109": ["Effect of Colonial Demarcation", "Geopolitical Context", "Concentric Circle and Core Interest", "Challenges of Arbitrary Borders", "Structural Porosity", "British vs French Colonial Administration", "French Assimilation and Association", "Colonial Legacy", "Implication for Nigeria-Francophone Relations"],
+    "GES151": ["Agricultural Systems", "Principles of Agricultural Extension", "Soil Science", "Crop Production", "Aquaculture", "Livestock Management", "Farm Machinery", "Rural Development", "Importance and Challenges of Agriculture"],
+
+    // ==================== 2ND SEMESTER (RAIN) - GENERAL ====================
+    "GST112": ["Concept of Culture", "Mapping Nigerian Cultures", "Ethics and Discipline", "Norms and Values", "Moral Values Reorientation", "African Religion", "Pre-Colonial Arts", "Economic Self-Reliance", "Transitional Society", "Negative Attitudes in Society"],
+
+    // ==================== 2ND SEMESTER - SCIENCE ====================
+    "MTH102": ["Functions of a Real Variable", "Limits and Continuity", "Mean Value Theorem", "Differential Calculus", "Implicit Functions", "Parametric Equations", "Application of Differentiation", "Integration", "Definite Integrals", "Area and Volume Applications"],
+    "PHY102": ["Sound Waves", "Electromagnetic Waves", "Interference, Diffraction, Reflection & Polarization", "Geometrical Optics", "Electrostatics & Gauss's Law", "Electric Potential", "DC Circuits", "Magnetic Fields", "Electromagnetic Induction", "AC Voltages", "Maxwell's Equations", "Bohr's Theory", "Photoelectric Effect"],
+    "PHY104": ["Simple Harmonic Motion (SHM)", "Energy in Vibrating Systems", "Damped SHM", "Resonance and Transients", "Coupled Oscillations", "Q-value and Power Response", "Normal Modes", "Wave Types", "Wave Interference", "Diffraction and Refraction", "Wave Equations", "Wave Energy and Power", "Doppler Effect", "Nature of Light", "Reflection and Refraction", "Optical Instruments"],
+    "BIO102": ["Hierarchy of Living Things", "Characteristics of Bacteria", "Characteristics of Viruses", "Characteristics of Fungi", "Classification of Living Organisms", "Evolution", "Ecology of Populations", "Plant and Animal Diversity"],
+    "BIO108": ["Microscopy Techniques", "Cell Structure Observation", "Mitosis and Meiosis in Cells", "Plant Tissue Preparation", "Animal Tissue Preparation", "Microorganism Culturing", "Aseptic Techniques", "Staining Techniques", "Biological Drawing and Documentation", "Laboratory Safety and Ethics"],
+    "BOT102": ["Plant Classification and Biodiversity", "Morphology of Flowering Plants", "Anatomy of Flowering Plants", "Plant Physiology", "Photosynthesis and Respiration", "Plant Reproduction", "Seed Structure and Germination", "Ecological Adaptations of Plants", "Medicinal Plants", "Economic Botany"],
+    "CHM102": ["Introduction to Organic Chemistry", "Empirical & Molecular Formula", "Nomenclature of Organic Compounds", "Alkanes, Alkenes, Alkynes", "Haloalkanes, Alcohols, Ethers", "Aldehydes, Ketones, Carboxylic Acids", "Amines, Amino Acids & Proteins", "Polymers", "Transition Metal Chemistry", "Nuclear Chemistry"],
+    "CHM108": ["Volumetric Analysis Techniques", "Acid-Base Titrations", "Redox Titrations", "Precipitation Titrations", "Gravimetric Analysis", "Qualitative Analysis of Cations", "Qualitative Analysis of Anions", "Organic Chemistry Qualitative Tests", "Melting Point and Boiling Point Determination", "Chromatography Techniques", "Laboratory Safety and First Aid"],
+    "ZOO102": ["Introduction to Animal Diversity", "Phylum Protozoa", "Phylum Coelenterata", "Phylum Platyhelminthes", "Phylum Nematoda", "Phylum Arthropoda", "Phylum Mollusca", "Phylum Annelida", "Phylum Echinodermata", "Phylum Chordata"],
+    "FRS102": ["Historical Development of Forensic Science", "Scopes and Areas in Forensic Science", "Medical and Legal Aspects", "Analytical Techniques in Forensic Science", "Documentation and Court Presentation", "Fingerprint Detection, Preservation & Analysis", "Patterns and Classification of Fingerprints"],
+    "CSC102": ["Introduction to Visual Basic", "Windows Forms Designer", "Memory & Arithmetic Operators", "Relational Operators", "Subroutines & Functions", "Pass-by-Value vs Pass-by-Reference", "One-dimensional Arrays", "Sorting & Searching Arrays"],
+    "COS102": ["Core Concepts of Computing", "Routine vs Non-routine Problems", "Algorithms & Heuristics", "Abstraction & Analogy", "Brainstorming & Trial/Error", "Flowcharts & Pseudocode", "Decision Tables & Trees"],
+    "STA102": ["Statistical Computing Tools", "Data Visualization", "Descriptive Statistics with Software", "Probability Computations"],
+    "STA112": ["Permutations & Combinations", "Probability Principles", "Random Variables", "Binomial & Poisson Distribution", "Normal Distribution"],
+    "AGG102": ["Introduction to Agriculture", "Agricultural Systems and Practices", "Soil Science Basics", "Crop Production Principles", "Agricultural Economics Introduction", "Farm Management Principles", "Agricultural Extension Services"],
+    "AGG112": ["Introduction to Agriculture II", "Livestock Management", "Farm Machinery", "Animal Nutrition", "Breeding and Genetics", "Disease Control and Prevention", "Pasture and Range Management"],
+    "GET102": ["Engineering Graphics", "Orthographic Projection", "Isometric Drawing", "Sectional Views", "Dimensioning and Tolerancing", "Solid Modelling Basics", "Computer-Aided Design (CAD) Introduction", "Technical Drawing Standards"],
+    "PHY108": ["Verification of Ohm's Law", "Measurement of Resistivity", "Internal Resistance of a Cell", "Potentiometer Experiments", "Refraction Through Glass Slab", "Refraction in Triangular Prism", "Focal Length of Convex Lens", "Focal Length of Concave Lens", "Electrical Circuit Analysis", "Measurement Errors and Data Analysis", "Graphical Analysis of Experimental Data"],
+
+    // ==================== 2ND SEMESTER - SOCIAL SCIENCES ====================
+    "ACC102": ["Introduction to Financial Accounting II", "Double Entry System", "Trial Balance", "Long-term Liabilities", "Stockholders Equity", "Statement of Cash Flows", "Financial Statement Analysis", "Managerial Accounting Concepts", "Budgeting and Variance Analysis", "Job Costing for Service Sector", "Cost Analysis for Decision-Making"],
+    "AMS102": ["Basic Mathematics for Social Sciences", "Algebraic Functions", "Linear Equations and Inequalities", "Quadratic Functions", "Exponential and Logarithmic Functions", "Basic Calculus for Social Sciences", "Optimization Techniques", "Mathematical Modeling"],
+    "AMS104": ["Concept of Project and Project Management", "Project Objectives and Constraints", "Project Life Cycle", "Project Management Processes", "Actors in Project Management", "Traditional Project Management Methods", "Contemporary Project Management Methods", "Project Management Tools and Techniques", "Project Bottlenecks and Solutions", "Risk Management in Projects", "Stakeholder Engagement", "Communication in Project Management"],
+    "CRD102": ["Organization and Management of Cooperatives", "Cooperative Principles and Values", "Cooperative Governance Structure", "Membership and Capital Formation", "Cooperative Business Management", "Financial Management in Cooperatives", "Marketing and Supply Cooperatives", "Consumer Cooperatives", "Credit and Thrift Cooperatives", "Cooperative Education and Training"],
+    "CRD104": ["Concept of Rural and Rural Development", "Meaning and Dimensions of Development", "Goals and Objectives of Rural Development", "Principles of Rural Development", "Approaches to Rural Development", "Planning and Implementation of Rural Projects", "Appraisal of Rural Development Projects", "Problems of Rural Development in Nigeria", "Community Development and Social Actions", "Rural Financing and Cooperatives"],
+    "CRD106": ["Cooperative Education and Training", "Job Readiness and Workplace Skills", "Health and Safety in Cooperatives", "Rights and Responsibilities in Cooperatives", "Workplace Challenges and Ethics", "Professional Development in Cooperatives", "Integration of Theory and Practice", "Work Experience and Log Sheets", "Career Research and Planning"],
+    "OOU-CRD152": ["Principles of Cooperatives", "History and Evolution of Cooperatives", "Cooperative Identity and Values", "Rochdale Principles", "Cooperative Democracy", "Economic Rationale of Cooperatives", "Social Rationale of Cooperatives", "Cooperatives and Rural Development", "Cooperative Legislation and Policy"],
+    "OOU-CRD154": ["Introduction to Cooperative Business Management", "Business Planning for Cooperatives", "Cooperative Marketing Strategies", "Supply Chain Management in Cooperatives", "Human Resource Management in Cooperatives", "Record Keeping and Accountability", "Cooperative Audit and Control", "Strategic Management for Cooperatives"],
+    "TPM102": ["Fundamentals of Tourism", "Evolution and Classification of Tourism", "Tourist Motivations and Behaviors", "Tourism Service Suppliers", "Transportation in Tourism", "Accommodation and Hospitality", "Tourism Attractions and Activities", "Tourism Organizations and Agencies", "Economic Impacts of Tourism", "Socio-cultural Impacts of Tourism", "Environmental Impacts of Tourism", "Tourism Planning and Development"],
+
+    // ==================== 2ND SEMESTER - FRENCH COURSES ====================
+    "FRE102": ["Laboratory Exercise in French", "Oral Practice and Drills", "Listening Comprehension Exercises", "Pronunciation and Phonetics Practice", "Laboratory Language Games", "Interactive French Communication"],
+    "FRE104": ["Introduction to Composition Writing in French", "Sentence Structure and Syntax", "Paragraph Development", "Essay Writing Techniques", "Formal and Informal Writing", "Creative Writing in French", "Letter Writing", "Descriptive and Narrative Writing"],
+    "FRE106": ["Introduction to Literary Appreciation", "Elements of Literature", "Genres of Literature", "Literary Devices and Figures of Speech", "Text Analysis and Interpretation", "Explication de Texte", "Resume de Texte", "Analyse Litteraire"],
+    "FRE108": ["Introduction to Negro-African Literature in French", "Historical Development of Francophone African Literature", "Negritude Movement", "Early Francophone African Writers", "Folktales and Oral Traditions", "Myths and Legends in Francophone Africa", "Post-colonial African Literature", "Major Themes in African Literature", "Literary Analysis of African Texts"],
+    "FRE110": ["History of the French Language", "Origins and Evolution of French", "Latin Roots of French", "Old French Period", "Middle French Period", "Classical French", "Modern French", "Regional Varieties of French", "Language Planning and Policy in France"],
+    "OOU-FRE152": ["Introduction to Comprehension in French", "Reading Comprehension Strategies", "Text Analysis Techniques", "Vocabulary Acquisition from Context", "Identifying Main Ideas and Supporting Details", "Inference and Deduction in Reading", "Note-taking from French Texts"],
+    "OOU-FRE154": ["Introduction to a Second Foreign Language II", "Basic Communication in Second Language", "Grammar Fundamentals", "Vocabulary Building", "Listening and Speaking Skills", "Reading and Writing Basics", "Cultural Awareness of Second Language Community"],
+    "OOU-FRE156": ["Conversation in French II", "Advanced Oral Expression", "Dialogue and Discussion Techniques", "Debating in French", "Presentation Skills in French", "Negotiation and Persuasion"],
+    "OOU-FRE158": ["Gender Studies in French Context", "Concept of Gender in French Society", "Gender Roles and Stereotypes", "Feminism and Women's Rights in France", "Gender Equality and Legislation", "Representation of Gender in French Literature", "Masculinity and Femininity in French Culture", "Gender and Language in French"],
+    "OOU-FRE160": ["Socio-educative Activities in French II", "Community Engagement in French", "Social Projects and French Language", "Educational Outreach Programs", "Cultural Exchange Activities", "Volunteering in French-speaking Communities", "Leadership Skills in French Context", "Teamwork and Collaboration in French Projects"],
+    "OOU-THA112": ["Drama as Literature", "Elements of Drama", "Dramatic Structure and Plot", "Characterization in Drama", "Dialogue and Dramatic Language", "Setting and Atmosphere", "Dramatic Genres (Tragedy, Comedy, Tragicomedy)", "History of Drama", "Dramatic Theory and Criticism", "Analysis of Dramatic Texts", "Theatre and Performance Studies", "Dramaturgy and Play Analysis"]
+};
+
+let selectedSubject = null;
+
+function getQueryParameter(name) {
+    return new URLSearchParams(window.location.search).get(name);
+}
+
+// Returns user-prefixed key matching the format used everywhere
+function getUserPrefix() {
+    try {
+        const session = JSON.parse(localStorage.getItem('loggedInUser') || '{}');
+        return (session.email || 'guest').replace(/[^a-z0-9]/gi, '_');
+    } catch(e) { return 'guest'; }
+}
+
+function trialKey(subject) {
+    return 'trials_' + getUserPrefix() + '_' + subject;
+}
+
+function localUnlockedKey(subject) {
+    return 'unlocked_' + getUserPrefix() + '_' + subject;
+}
+
+function isSubjectUnlocked(subject) {
+    return localStorage.getItem(localUnlockedKey(subject)) === 'true';
+}
+
+function updateTrialStatus() {
+    const trials = parseInt(localStorage.getItem(trialKey(selectedSubject)) || '0');
+    const unlocked = isSubjectUnlocked(selectedSubject);
+    const remaining = Math.max(0, 3 - trials);
+    const trialStatus = document.getElementById('trialStatus');
+
+    if (unlocked) {
+        trialStatus.innerHTML = '<span style="color:#28a745;">✓ UNLOCKED - Full Access</span>';
+        trialStatus.className = 'trial-status good';
+    } else if (remaining > 0) {
+        trialStatus.innerHTML = '<span style="color:#28a745;">✓ ' + remaining + ' free trial(s) remaining</span>';
+        trialStatus.className = 'trial-status good';
+    } else {
+        trialStatus.innerHTML = '<span style="color:#dc3545;">✗ No trials left - Go to Home to unlock</span>';
+        trialStatus.className = 'trial-status warning';
+    }
+}
+
+function populateTopics() {
+    const topicSelect = document.getElementById('topicSelect');
+    topicSelect.innerHTML = '<option value="" disabled selected>-- Select a Topic --</option>';
+    const topics = TOPIC_MAP[selectedSubject] || [];
+    topics.forEach(function(topic) {
+        const option = document.createElement('option');
+        option.value = topic;
+        option.textContent = topic;
+        topicSelect.appendChild(option);
+    });
+}
+
+function showTopicSetup() {
+    const setup = document.getElementById('topicPracticeSetup');
+    setup.style.display = 'block';
+    setup.scrollIntoView({ behavior: 'smooth' });
+}
+
+function setupTimeButtons() {
+    document.querySelectorAll('#timeOptions .time-btn').forEach(function(button) {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('#timeOptions .time-btn').forEach(function(btn) {
+                btn.classList.remove('selected');
+            });
+            this.classList.add('selected');
+            document.getElementById('selectedTime').value = this.getAttribute('data-time');
+        });
+    });
+}
+
+function checkTrialLimit() {
+    const unlocked = isSubjectUnlocked(selectedSubject);
+    const trials = parseInt(localStorage.getItem(trialKey(selectedSubject)) || '0');
+    if (!unlocked && trials >= 3) {
+        alert('No trials left. Please unlock this subject from the Home screen.');
+        return false;
+    }
+    return true;
+}
+
+function incrementTrial() {
+    const unlocked = isSubjectUnlocked(selectedSubject);
+    if (!unlocked) {
+        const t = parseInt(localStorage.getItem(trialKey(selectedSubject)) || '0');
+        localStorage.setItem(trialKey(selectedSubject), String(t + 1));
+    }
+}
+
+function launchPracticeMode(event) {
+    event.preventDefault();
+
+    const topicSelect = document.getElementById('topicSelect');
+    const selectedTopic = topicSelect.value;
+    const numQuestions = document.getElementById('numQuestionsPractice').value;
+    const timeLimit = document.getElementById('selectedTime').value;
+
+    if (!selectedTopic) {
+        alert('Please select a topic to start the session.');
+        return;
+    }
+
+    const qCount = parseInt(numQuestions);
+    if (isNaN(qCount) || qCount < 10 || qCount > 50) {
+        alert('Please enter a valid question count between 10 and 50.');
+        return;
+    }
+
+    if (!checkTrialLimit()) return;
+    incrementTrial();
+
+    const params = new URLSearchParams();
+    params.append('mode', 'practice');
+    params.append('subject', selectedSubject);
+    params.append('count', qCount);
+    params.append('topics', selectedTopic);
+    params.append('time', timeLimit);
+    window.location.href = 'cbt_engine.html?' + params.toString();
+}
+
+function launchExamMode() {
+    if (!checkTrialLimit()) return;
+    incrementTrial();
+
+    const params = new URLSearchParams();
+    params.append('mode', 'exam');
+    params.append('subject', selectedSubject);
+    params.append('count', 50);
+    params.append('time', 30);
+    params.append('topics', 'all');
+    window.location.href = 'cbt_engine.html?' + params.toString();
+}
+
+function initializeSetup() {
+    selectedSubject = getQueryParameter('subject');
+
+    if (!selectedSubject || !TOPIC_MAP[selectedSubject]) {
+        document.getElementById('subjectName').textContent = "Error: Invalid Subject Selected";
+        return;
+    }
+
+    document.getElementById('subjectName').textContent = 'Subject: ' + selectedSubject;
+    updateTrialStatus();
+    populateTopics();
+    setupTimeButtons();
+
+    document.getElementById('practiceForm').addEventListener('submit', launchPracticeMode);
+
+    // Sync Firestore unlock status to localStorage so this page always reflects
+    // the most current unlock state, even if payment was done on another device
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) return;
+        try {
+            const userRef  = doc(db, "users", user.uid);
+            const userSnap = await getDoc(userRef);
+            if (userSnap.exists()) {
+                const data = userSnap.data();
+                const userPrefix = getUserPrefix();
+                if (data[`unlocked_${selectedSubject}`] === true) {
+                    // Write to the local prefixed key if not already there
+                    if (!isSubjectUnlocked(selectedSubject)) {
+                        localStorage.setItem(localUnlockedKey(selectedSubject), 'true');
+                    }
+                    // Refresh the trial status display now that unlock is confirmed
+                    updateTrialStatus();
+                }
+            }
+        } catch(e) {
+            // Firestore unavailable — localStorage data already shown
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initializeSetup);
+
+// MAKE FUNCTIONS GLOBAL (Fix for onclick errors)
+window.showTopicSetup = showTopicSetup;
+window.launchExamMode = launchExamMode;
+</script>
+</body>
+</html>

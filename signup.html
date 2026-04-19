@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codex Study Hub - Sign Up</title>
+    <style>
+        :root { --primary:#007bff; --green:#28a745; --bg:#f8f9fa; --card:#fff; --border:#ced4da; }
+        *{box-sizing:border-box;margin:0;padding:0}
+        body { font-family:'Segoe UI',sans-serif; background:var(--bg); display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:24px 16px; }
+        .container { width:100%; max-width:460px; padding:2rem; background:var(--card); border-radius:14px; box-shadow:0 6px 22px rgba(0,0,0,.11); }
+        .header { text-align:center; margin-bottom:1.5rem; }
+        .cbt-logo { width:90px; display:block; margin:0 auto 10px; }
+        h2 { font-size:1.5rem; color:#343a40; margin-bottom:4px; }
+        .header p { color:#6c757d; font-size:.9rem; }
+        .form-group { margin-bottom:1rem; }
+        label { display:block; margin-bottom:.3rem; font-weight:600; color:#495057; font-size:.88rem; }
+        input, select {
+            width:100%; padding:.75rem; border:1.5px solid var(--border);
+            border-radius:8px; font-size:.93rem; transition:border-color .2s;
+            background:#fff; color:#333;
+        }
+        input:focus, select:focus { border-color:var(--primary); outline:none; box-shadow:0 0 0 3px rgba(0,123,255,.15); }
+        select:disabled { background:#f5f5f5; color:#aaa; cursor:not-allowed; }
+        .btn { width:100%; padding:.8rem; border:none; border-radius:8px; font-size:1rem; font-weight:600; cursor:pointer; margin-top:.5rem; transition:all .2s; }
+        .btn-primary { background:var(--primary); color:#fff; }
+        .btn-primary:hover:not(:disabled) { background:#0056b3; }
+        .btn-primary:disabled { opacity:.6; cursor:not-allowed; }
+        .btn-google { background:#fff; color:#333; border:2px solid #ddd; display:flex; align-items:center; justify-content:center; gap:10px; font-weight:600; margin-bottom:14px; }
+        .btn-google:hover { background:#f8f9fa; border-color:#4285f4; color:#4285f4; }
+        .divider { text-align:center; margin:14px 0; color:#aaa; font-size:.88rem; position:relative; }
+        .divider::before,.divider::after { content:''; position:absolute; top:50%; width:42%; height:1px; background:#e9ecef; }
+        .divider::before { left:0; }
+        .divider::after { right:0; }
+        .links { text-align:center; margin-top:1.2rem; font-size:.9rem; color:#555; }
+        .links a { color:var(--primary); text-decoration:none; font-weight:600; }
+        .alert { padding:10px 14px; border-radius:8px; margin-bottom:14px; font-size:.88rem; font-weight:600; display:none; }
+        .alert-error { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
+        .spinner { display:inline-block; width:14px; height:14px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin .6s linear infinite; vertical-align:middle; margin-right:6px; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <img src="logo.png" alt="Codex" class="cbt-logo">
+        <h2>Create Account</h2>
+        <p>Join the Codex Study community</p>
+    </div>
+
+    <div id="alertError" class="alert alert-error"></div>
+
+    <!-- Google Sign Up -->
+    <button class="btn btn-google" id="googleBtn" onclick="signUpWithGoogle()">
+        <img src="https://www.google.com/favicon.ico" width="20" height="20" alt="G">
+        Sign up with Google
+    </button>
+
+    <div class="divider">— or sign up with email —</div>
+
+    <!-- Email / Password Form -->
+    <form id="signupForm">
+        <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="fullName" required placeholder="e.g. Amaka Johnson">
+        </div>
+        <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="email" required placeholder="you@gmail.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+            <label>Faculty</label>
+            <!--
+                ⚠️ KEY FIX: onchange must call a function that is on window.
+                updateDepartments is defined below in a regular <script> tag
+                (NOT inside type="module") so it IS accessible from HTML attributes.
+            -->
+            <select id="faculty" required onchange="updateDepartments()">
+                <option value="">-- Select Faculty --</option>
+                <option value="science">Science</option>
+                <option value="social_sciences">Social Science</option>
+                <option value="arts">Arts</option>
+                <option value="law">Law</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Department</label>
+            <select id="department" required disabled>
+                <option value="">-- Select Faculty First --</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Password <span style="color:#aaa;font-weight:400">(min 6 characters)</span></label>
+            <input type="password" id="password" required minlength="6" placeholder="••••••••" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" id="confirmPassword" required placeholder="••••••••" autocomplete="new-password">
+        </div>
+        <button type="submit" class="btn btn-primary" id="submitBtn">Create Account</button>
+    </form>
+
+    <div class="links">Already have an account? <a href="Login.html">Log In</a></div>
+</div>
+
+<!--
+    ⚠️ CRITICAL FIX — Department dropdown must be in a REGULAR <script>,
+    NOT in a type="module" script. Module scripts are private scope and
+    cannot be called from HTML onchange="" attributes.
+-->
+<script>
+function updateDepartments() {
+    const faculty    = document.getElementById("faculty").value;
+    const deptSelect = document.getElementById("department");
+
+    const DEPT_MAP = {
+        science:        ["Computer Science","Engineering","Agriculture","Medicine","Physics","Chemistry","Mathematics","Biology","Education","Other"],
+        social_sciences:["Economics","Political Science","Sociology","Mass Communication","Education","Other"],
+        arts:           ["English","History","Philosophy","French","Education","Other"],
+        law:            ["Law","Other"]
+    };
+
+    const depts = DEPT_MAP[faculty] || [];
+    deptSelect.innerHTML = `<option value="">-- Select Department --</option>`;
+    deptSelect.disabled = depts.length === 0;
+
+    depts.forEach(dept => {
+        const opt = document.createElement("option");
+        opt.value = dept.toLowerCase().replace(/\s+/g, '_');
+        opt.textContent = dept;
+        deptSelect.appendChild(opt);
+    });
+}
+</script>
+
+<!-- Firebase module script — handles auth only -->
+<!-- Firebase module script — handles auth only -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { 
+    getAuth, 
+    createUserWithEmailAndPassword,
+    GoogleAuthProvider, 
+    signInWithPopup,
+    signOut,
+    sendEmailVerification
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+
+import { 
+    getFirestore, 
+    doc, 
+    setDoc, 
+    getDoc 
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey:            "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+    authDomain:        "codex-study-hub-923c5.firebaseapp.com",
+    projectId:         "codex-study-hub-923c5",
+    storageBucket:     "codex-study-hub-923c5.appspot.com",
+    messagingSenderId: "750631534625",
+    appId:             "1:750631534625:web:5f59e1841bb856bdbba360"
+};
+
+const app      = initializeApp(firebaseConfig);
+const auth     = getAuth(app);
+const db       = getFirestore(app);
+const provider = new GoogleAuthProvider();
+const errEl    = document.getElementById('alertError');
+
+function showError(msg) {
+    errEl.textContent = msg;
+    errEl.style.display = 'block';
+    window.scrollTo(0, 0);
+}
+
+// ── Google Sign Up ──────────────────────────────────────────────────────────
+window.signUpWithGoogle = async function() {
+    const btn = document.getElementById('googleBtn');
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Connecting...';
+    errEl.style.display = 'none';
+
+    try {
+        const result = await signInWithPopup(auth, provider);
+        const user   = result.user;
+
+        // Check if already has a doc (returning user via Google)
+        const snap = await getDoc(doc(db, "users", user.uid));
+        if (!snap.exists()) {
+            await setDoc(doc(db, "users", user.uid), {
+                fullName:     user.displayName || "Student",
+                email:        user.email,
+                faculty:      "",
+                department:   "",
+                semester:     "",
+                createdAt:    new Date(),
+                authProvider: "google",
+                uid:          user.uid
+            });
+        }
+        // Always go to chooseFaculty so they can fill in/confirm their details
+        window.location.href = 'chooseFaculty.html';
+
+    } catch (e) {
+        btn.disabled = false;
+        btn.innerHTML = '<img src="https://www.google.com/favicon.ico" width="20" height="20" alt="G"> Sign up with Google';
+        if (e.code !== 'auth/popup-closed-by-user') {
+            showError('❌ Google sign-up failed: ' + e.message);
+        }
+    }
+};
+
+// ── Email / Password Sign Up ────────────────────────────────────────────────
+document.getElementById('signupForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errEl.style.display = 'none';
+
+    const fullName        = document.getElementById('fullName').value.trim();
+    const email           = document.getElementById('email').value.trim().toLowerCase();
+    const faculty         = document.getElementById('faculty').value;
+    const department      = document.getElementById('department').value;
+    const password        = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const btn             = document.getElementById('submitBtn');
+
+    // Validation
+    if (!faculty)     { showError('❌ Please select a faculty.'); return; }
+    if (!department)  { showError('❌ Please select a department.'); return; }
+    if (password !== confirmPassword) { showError('❌ Passwords do not match.'); return; }
+    if (password.length < 6) { showError('❌ Password must be at least 6 characters.'); return; }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Creating Account...';
+
+    try {
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        const user = cred.user;
+
+        // 1. SAVE TO FIRESTORE
+        await setDoc(doc(db, "users", user.uid), {
+            fullName,
+            email,
+            faculty,
+            department,
+            semester: "1",
+            trialsUsed: 0,
+            isPro: false,
+            createdAt: new Date(),
+            authProvider: "email",
+            uid: user.uid
+        });
+
+        // 2. SEND VERIFICATION EMAIL
+        await sendEmailVerification(user);
+
+        // 3. SIGN OUT IMMEDIATELY so they can't skip verification
+        // (createUserWithEmailAndPassword auto-logs them in — we reverse that)
+        await signOut(auth);
+
+        // 4. Clear any localStorage session
+        localStorage.removeItem('loggedInUser');
+
+        // 5. Show success popup then go to Login
+        btn.disabled = false;
+        btn.textContent = 'Account Created ✓';
+        const errElSuccess = document.getElementById('alertError');
+        errElSuccess.style.background = '#d4edda';
+        errElSuccess.style.color = '#155724';
+        errElSuccess.style.border = '1px solid #c3e6cb';
+        errElSuccess.textContent = '🎉 Account created! A verification email has been sent to ' + email + '. Please verify before logging in.';
+        errElSuccess.style.display = 'block';
+        window.scrollTo(0, 0);
+
+        setTimeout(() => { window.location.href = 'Login.html'; }, 4000);
+
+    } catch (e) {
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+
+        const msgs = {
+            'auth/email-already-in-use': '❌ This email already has an account. Please log in instead.',
+            'auth/invalid-email':        '❌ Invalid email address.',
+            'auth/weak-password':        '❌ Password is too weak.',
+            'auth/operation-not-allowed': '❌ Email/password sign up is not enabled in Firebase Console.'
+        };
+
+        showError(msgs[e.code] || ('❌ ' + e.message));
+    }
+});
+</script>
+</body>
+</html>
