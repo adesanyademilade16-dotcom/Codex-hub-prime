@@ -120,12 +120,25 @@
 
     #adBanner{background:var(--s1);border:1px dashed rgba(255,255,255,.07);border-radius:10px;min-height:72px;display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:.76rem;margin-bottom:14px}
 
-    /* WA BUBBLE */
-    #waBubble{position:fixed;bottom:24px;right:20px;z-index:150;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#25d366,#128c3e);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.4);cursor:pointer;transition:all .25s;text-decoration:none}
-    #waBubble:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(27,201,102,.55)}
-    #waBubble svg{width:26px;height:26px;fill:#fff}
-    .wa-tooltip{position:absolute;right:60px;top:50%;transform:translateY(-50%);background:var(--s2);border:1px solid var(--border2);color:var(--text);padding:7px 12px;border-radius:8px;font-size:.78rem;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:opacity .2s}
-    #waBubble:hover .wa-tooltip{opacity:1}
+    /* NOVA AI CHARACTER BUTTON */
+    #novaBtn{position:fixed;bottom:22px;right:18px;z-index:150;display:flex;flex-direction:column;align-items:center;cursor:pointer;text-decoration:none;gap:4px}
+    @keyframes novaFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+    @keyframes blink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(.05)}}
+    @keyframes antPulse{0%,100%{r:3;opacity:.9}50%{r:4.5;opacity:1}}
+    @keyframes ringGlow{0%,100%{opacity:.5}50%{opacity:1}}
+    @keyframes speechBounce{0%,100%{transform:scale(1) translateY(0)}50%{transform:scale(1.04) translateY(-2px)}}
+    #novaBtn .nova-float-wrap{animation:novaFloat 2.8s ease-in-out infinite;filter:drop-shadow(0 6px 18px rgba(59,130,246,.45));position:relative}
+    #novaBtn .nova-char{width:60px;height:60px}
+    .nova-eye-l,.nova-eye-r{animation:blink 3.5s ease-in-out infinite;transform-box:fill-box}
+    .nova-eye-r{animation-delay:.12s}
+    .nova-ant-tip{animation:antPulse 1.8s ease-in-out infinite}
+    .nova-ear-l,.nova-ear-r{animation:ringGlow 2.2s ease-in-out infinite}
+    .nova-ear-r{animation-delay:.6s}
+    .nova-speech{position:absolute;bottom:72px;right:0;background:var(--s1);border:1.5px solid var(--blue-b);border-radius:12px 12px 4px 12px;padding:7px 11px;font-size:.74rem;font-weight:600;color:var(--text);white-space:nowrap;box-shadow:0 4px 18px rgba(0,0,0,.4);animation:speechBounce 3s ease-in-out infinite;pointer-events:none;transition:opacity .2s}
+    .nova-speech::after{content:'';position:absolute;bottom:-7px;right:14px;width:0;height:0;border-left:7px solid transparent;border-right:0;border-top:7px solid var(--blue-b)}
+    #novaBtn:hover .nova-speech{opacity:0}
+    #novaBtn:hover .nova-float-wrap{filter:drop-shadow(0 8px 26px rgba(59,130,246,.65))}
+    .nova-label{font-size:.64rem;font-weight:700;color:var(--blue);letter-spacing:.04em;text-transform:uppercase;background:var(--s1);border:1px solid var(--blue-b);border-radius:6px;padding:2px 7px}
 
     .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--s2);border:1px solid var(--border2);color:var(--text);padding:11px 18px;border-radius:12px;font-size:.84rem;font-weight:500;box-shadow:0 8px 28px rgba(0,0,0,.4);z-index:9999;animation:toastIn .25s ease}
     @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
@@ -168,6 +181,9 @@
     <div class="nav-section-label">Explore</div>
     <a href="subject_selection.html?mode=exam" class="nav-item">
       <span class="ni"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></span> Exam Mode
+    </a>
+    <a href="student_tools.html" class="nav-item">
+      <span class="ni"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg></span> Student Tools
     </a>
     <a href="pdf_resources.html" class="nav-item">
       <span class="ni"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span> Resources
@@ -275,6 +291,14 @@
       <div class="card-description">Track scores, history & weak topics</div>
     </a>
 
+    <a href="student_tools.html" class="category-card">
+      <svg class="card-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+      <div class="card-icon" style="background:rgba(16,185,129,.12)"><svg fill="none" stroke="#10b981" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
+      <div class="card-title">Student Tools</div>
+      <div class="card-description">Useful academic tools & resources</div>
+    </a>
+
+    <a href="pdf_resources.html" class="category-card">
     <a href="pdf_resources.html" class="category-card" style="grid-column:1/-1">
       <svg class="card-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7v10"/></svg>
       <div class="card-icon" style="background:rgba(139,92,246,.1)"><svg fill="none" stroke="#8b5cf6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
@@ -293,10 +317,76 @@
   <div id="adBanner"><span>Advertisement</span></div>
 </div>
 
-<a id="waBubble" href="https://wa.me/2347011245168?text=Hi%20Codex%20Developer," target="_blank">
-  <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-  <span class="wa-tooltip">Chat with Developer</span>
+
+<!-- NOVA AI CHARACTER — links to codex_assistant.html -->
+<a id="novaBtn" href="codex_assistant.html">
+  <div class="nova-speech">Hi! Got questions? 🤔</div>
+  <div class="nova-float-wrap">
+    <!-- NOVA SVG character — animated robot face, no emoji -->
+    <svg class="nova-char" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="nbody" cx="50%" cy="40%" r="55%">
+          <stop offset="0%" stop-color="#1e3a5f"/>
+          <stop offset="100%" stop-color="#0a1520"/>
+        </radialGradient>
+        <radialGradient id="nscreen" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#152840"/>
+          <stop offset="100%" stop-color="#080f1a"/>
+        </radialGradient>
+        <linearGradient id="naccent" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3b82f6"/>
+          <stop offset="100%" stop-color="#a855f7"/>
+        </linearGradient>
+        <filter id="nglow"><feGaussianBlur stdDeviation="1.5" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
+      </defs>
+
+      <!-- Antenna stem -->
+      <line x1="30" y1="2" x2="30" y2="11" stroke="url(#naccent)" stroke-width="2" stroke-linecap="round"/>
+      <!-- Antenna tip — pulsing -->
+      <circle class="nova-ant-tip" cx="30" cy="2" r="3" fill="#a855f7" filter="url(#nglow)"/>
+      <!-- Antenna halo -->
+      <ellipse cx="30" cy="2" rx="6" ry="2.5" fill="none" stroke="rgba(168,85,247,.3)" stroke-width=".8" class="nova-ear-l"/>
+
+      <!-- Head/body -->
+      <rect x="7" y="11" width="46" height="38" rx="9" fill="url(#nbody)" stroke="#2a4a7a" stroke-width="1.2"/>
+
+      <!-- Screen -->
+      <rect x="11" y="15" width="38" height="26" rx="5" fill="url(#nscreen)" stroke="#1a3a5f" stroke-width=".9"/>
+
+      <!-- LEFT EYE — animated blink -->
+      <g class="nova-eye-l">
+        <rect x="14" y="20" width="13" height="9" rx="4.5" fill="url(#naccent)"/>
+        <!-- Highlight -->
+        <rect x="16.5" y="22" width="5" height="2.5" rx="1.25" fill="rgba(255,255,255,.65)"/>
+        <circle cx="22" cy="22.5" r="2" fill="rgba(255,255,255,.9)"/>
+      </g>
+
+      <!-- RIGHT EYE — animated blink (slightly delayed) -->
+      <g class="nova-eye-r">
+        <rect x="33" y="20" width="13" height="9" rx="4.5" fill="url(#naccent)"/>
+        <rect x="35.5" y="22" width="5" height="2.5" rx="1.25" fill="rgba(255,255,255,.65)"/>
+        <circle cx="41" cy="22.5" r="2" fill="rgba(255,255,255,.9)"/>
+      </g>
+
+      <!-- Smile mouth -->
+      <path d="M19 34 Q30 41 41 34" stroke="url(#naccent)" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+
+      <!-- Chin connector -->
+      <rect x="25" y="49" width="10" height="5" rx="2.5" fill="#1a2e4a"/>
+
+      <!-- Left ear light — pulsing -->
+      <circle class="nova-ear-l" cx="8" cy="28" r="4" fill="#3b82f6" opacity=".5"/>
+      <!-- Right ear light — pulsing delayed -->
+      <circle class="nova-ear-r" cx="52" cy="28" r="4" fill="#a855f7" opacity=".5"/>
+
+      <!-- Decorative scan lines on screen -->
+      <line x1="12" y1="30" x2="48" y2="30" stroke="rgba(59,130,246,.07)" stroke-width="1"/>
+      <line x1="12" y1="34" x2="48" y2="34" stroke="rgba(59,130,246,.05)" stroke-width="1"/>
+    </svg>
+  </div>
+  <span class="nova-label">Nova AI</span>
 </a>
+
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";

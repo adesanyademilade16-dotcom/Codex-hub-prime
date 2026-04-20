@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Tools — Codex Study Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#080c14; --s1:#0f1623; --s2:#151e30; --s3:#1c283d;
+      --border:rgba(255,255,255,.06); --border2:rgba(255,255,255,.1);
+      --blue:#3b82f6; --blue-s:rgba(59,130,246,.12); --blue-b:rgba(59,130,246,.25);
+      --green:#10b981; --gold:#f59e0b; --red:#ef4444;
+      --text:#f0f4ff; --muted:#8fa3c0; --dim:#4a6380; --r:14px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 70vw 50vh at 5% 0%,rgba(99,102,241,.07) 0%,transparent 60%)}
+    .shell{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:18px 16px 80px}
+    
+    .topbar{display:flex;align-items:center;gap:12px;background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:13px 18px;margin-bottom:22px}
+    .back-btn{width:36px;height:36px;border-radius:9px;background:var(--s2);border:1px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;text-decoration:none;color:var(--text);transition:.2s}
+    .back-btn:hover{border-color:var(--blue)}
+    .page-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem}
+    .admin-btn{margin-left:auto;padding:8px 16px;background:var(--gold);color:#000;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:.85rem;display:none}
+    .admin-btn:hover{opacity:.9}
+
+    .tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:30px}
+    .tool-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:18px;text-align:center;cursor:pointer;transition:all .22s;position:relative;text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center}
+    .tool-card:hover{transform:translateY(-3px);border-color:var(--blue)}
+    .tool-img{width:100%;height:120px;object-fit:cover;border-radius:10px;margin-bottom:12px;background:var(--s2)}
+    .tool-name{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:5px}
+    .delete-btn{position:absolute;top:8px;right:8px;width:28px;height:28px;background:var(--red);border:none;border-radius:6px;color:#fff;cursor:pointer;display:none;font-size:.9rem}
+    .delete-btn:hover{opacity:.8}
+
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999;display:none;align-items:center;justify-content:center;padding:20px}
+    .modal.show{display:flex}
+    .modal-content{background:var(--s1);border:1px solid var(--border2);border-radius:16px;padding:28px;max-width:460px;width:100%}
+    .modal-title{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:20px;text-align:center}
+    .form-group{margin-bottom:16px}
+    .form-group label{display:block;margin-bottom:6px;font-size:.88rem;font-weight:600;color:var(--muted)}
+    .form-group input{width:100%;padding:12px;background:var(--s2);border:1.5px solid var(--border2);border-radius:8px;color:var(--text);font-size:.9rem}
+    .form-group input:focus{border-color:var(--blue);outline:none}
+    .btn{width:100%;padding:12px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.95rem;margin-top:8px}
+    .btn-primary{background:var(--blue);color:#fff}
+    .btn-primary:hover{opacity:.9}
+    .btn-secondary{background:var(--s2);color:var(--muted);border:1px solid var(--border2)}
+    .btn-secondary:hover{background:var(--s3)}
+
+    .empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
+    .empty-state .icon{font-size:4rem;margin-bottom:16px}
+
+    .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <div class="topbar">
+    <a href="home.html" class="back-btn">←</a>
+    <div class="page-title">🛠️ Student Tools</div>
+    <button class="admin-btn" id="adminBtn" onclick="openAddModal()">+ Add Tool</button>
+  </div>
+
+  <div id="toolsContainer" class="tools-grid">
+    <div class="empty-state">
+      <div class="icon">⏳</div>
+      <p>Loading tools...</p>
+    </div>
+  </div>
+</div>
+
+<!-- Add Tool Modal -->
+<div class="modal" id="addModal">
+  <div class="modal-content">
+    <div class="modal-title">Add New Tool</div>
+    <div class="form-group">
+      <label>Tool Name</label>
+      <input type="text" id="toolName" placeholder="e.g. ArchiGuide">
+    </div>
+    <div class="form-group">
+      <label>Tool URL</label>
+      <input type="url" id="toolUrl" placeholder="https://example.com">
+    </div>
+    <div class="form-group">
+      <label>Image URL</label>
+      <input type="url" id="toolImage" placeholder="https://example.com/image.jpg">
+    </div>
+    <button class="btn btn-primary" onclick="saveTool()">Save Tool</button>
+    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+  authDomain: "codex-study-hub-923c5.firebaseapp.com",
+  projectId: "codex-study-hub-923c5",
+  storageBucket: "codex-study-hub-923c5.appspot.com",
+  messagingSenderId: "750631534625",
+  appId: "1:750631534625:web:5f59e1841bb856bdbba360"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const ADMIN_EMAIL = "codexhub16@gmail.com";
+let isAdmin = false;
+let currentUser = null;
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "Login.html";
+    return;
+  }
+  
+  currentUser = user;
+  isAdmin = user.email === ADMIN_EMAIL;
+  
+  if (isAdmin) {
+    document.getElementById('adminBtn').style.display = 'block';
+  }
+  
+  await loadTools();
+});
+
+async function loadTools() {
+  try {
+    const toolsRef = collection(db, "student_tools");
+    const snapshot = await getDocs(toolsRef);
+    
+    const container = document.getElementById('toolsContainer');
+    
+    if (snapshot.empty) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">🔧</div>
+          <p>No tools available yet.</p>
+          ${isAdmin ? '<p style="font-size:.85rem;margin-top:10px">Click "Add Tool" to add the first tool.</p>' : ''}
+        </div>
+      `;
+      return;
+    }
+    
+    container.innerHTML = '';
+    
+    snapshot.forEach((docSnap) => {
+      const tool = docSnap.data();
+      const toolCard = document.createElement('a');
+      toolCard.className = 'tool-card';
+      toolCard.href = tool.url;
+      toolCard.target = '_blank';
+      toolCard.rel = 'noopener noreferrer';
+      
+      toolCard.innerHTML = `
+        ${isAdmin ? `<button class="delete-btn" onclick="deleteTool(event, '${docSnap.id}')">×</button>` : ''}
+        <img src="${tool.image}" alt="${tool.name}" class="tool-img" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 120%22%3E%3Crect fill=%22%230f1623%22 width=%22200%22 height=%22120%22/%3E%3Ctext x=%22100%22 y=%2260%22 text-anchor=%22middle%22 fill=%22%238fa3c0%22 font-family=%22sans-serif%22 font-size=%2216%22%3E🛠️%3C/text%3E%3C/svg%3E'">
+        <div class="tool-name">${tool.name}</div>
+      `;
+      
+      container.appendChild(toolCard);
+    });
+    
+    if (isAdmin) {
+      const deleteButtons = document.querySelectorAll('.delete-btn');
+      deleteButtons.forEach(btn => btn.style.display = 'flex');
+    }
+    
+  } catch (error) {
+    console.error("Error loading tools:", error);
+    document.getElementById('toolsContainer').innerHTML = `
+      <div class="empty-state">
+        <div class="icon">❌</div>
+        <p>Error loading tools</p>
+      </div>
+    `;
+  }
+}
+
+window.openAddModal = function() {
+  document.getElementById('addModal').classList.add('show');
+};
+
+window.closeModal = function() {
+  document.getElementById('addModal').classList.remove('show');
+  document.getElementById('toolName').value = '';
+  document.getElementById('toolUrl').value = '';
+  document.getElementById('toolImage').value = '';
+};
+
+window.saveTool = async function() {
+  const name = document.getElementById('toolName').value.trim();
+  const url = document.getElementById('toolUrl').value.trim();
+  const image = document.getElementById('toolImage').value.trim();
+  
+  if (!name || !url || !image) {
+    alert('Please fill in all fields');
+    return;
+  }
+  
+  try {
+    const toolsRef = collection(db, "student_tools");
+    await addDoc(toolsRef, {
+      name: name,
+      url: url,
+      image: image,
+      createdAt: new Date(),
+      createdBy: currentUser.email
+    });
+    
+    closeModal();
+    await loadTools();
+    alert('✅ Tool added successfully!');
+    
+  } catch (error) {
+    console.error("Error adding tool:", error);
+    alert('❌ Error adding tool: ' + error.message);
+  }
+};
+
+window.deleteTool = async function(event, toolId) {
+  event.preventDefault();
+  event.stopPropagation();
+  
+  if (!confirm('Delete this tool?')) return;
+  
+  try {
+    await deleteDoc(doc(db, "student_tools", toolId));
+    await loadTools();
+    alert('✅ Tool deleted');
+  } catch (error) {
+    console.error("Error deleting tool:", error);
+    alert('❌ Error: ' + error.message);
+  }
+};
+</script>
+</body>
+</html>
