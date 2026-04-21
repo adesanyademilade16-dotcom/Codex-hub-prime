@@ -1,0 +1,11 @@
+# robots.txt for Codex Study Hub
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/sitemap.xml
+
+# Disallow sensitive or duplicate pages (optional but good practice)
+Disallow: /admin*
+Disallow: /payment-success*
+Disallow: /*?mode=*
