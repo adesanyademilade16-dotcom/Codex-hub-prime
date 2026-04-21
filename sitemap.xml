@@ -15,7 +15,7 @@
     <priority>1.0</priority>
   </url>
 
-  <!-- Core User Pages -->
+  <!-- Core Pages -->
   <url>
     <loc>https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/home.html</loc>
     <lastmod>2026-04-21</lastmod>
@@ -44,7 +44,6 @@
     <priority>0.6</priority>
   </url>
 
-  <!-- Key App Pages -->
   <url>
     <loc>https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/chooseFaculty.html</loc>
     <lastmod>2026-04-21</lastmod>
@@ -52,20 +51,13 @@
     <priority>0.8</priority>
   </url>
 
+  <!-- Main App Functionality -->
   <url>
     <loc>https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/subject_selection.html</loc>
     <lastmod>2026-04-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
-
-<url>
-    <loc>https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/codex_assistant.html</loc>
-    <lastmod>2026-04-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.65</priority>
-  </url>
-
 
   <url>
     <loc>https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/topic_exam_selection.html</loc>
@@ -79,8 +71,7 @@
     <lastmod>2026-04-21</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
-  </url>  
-
+  </url>
 
   <url>
     <loc>https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/results.html</loc>
@@ -111,6 +102,14 @@
   </url>
 
   <url>
+    <loc>https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/notes_display.html</loc>
+    <lastmod>2026-04-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Other Important Pages -->
+  <url>
     <loc>https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/payment.html</loc>
     <lastmod>2026-04-21</lastmod>
     <changefreq>monthly</changefreq>
@@ -125,21 +124,20 @@
   </url>
 
   <url>
-    <loc>https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/notes_display.html</loc>
-    <lastmod>2026-04-21</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <!-- Student Tools & Others -->
-  <url>
     <loc>https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/student_tools.html</loc>
     <lastmod>2026-04-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
 
-  <!-- Reset Password & Terms -->
+  <url>
+    <loc>https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/codex_assistant.html</loc>
+    <lastmod>2026-04-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+
+  <!-- Reset & Terms -->
   <url>
     <loc>https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/reset-password.html</loc>
     <lastmod>2026-04-21</lastmod>
@@ -154,7 +152,7 @@
     <priority>0.5</priority>
   </url>
 
-  <!-- Admin Pages (lower priority) -->
+  <!-- Admin Pages -->
   <url>
     <loc>https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/admin_dashboard.html</loc>
     <lastmod>2026-04-21</lastmod>
