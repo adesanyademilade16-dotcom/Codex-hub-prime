@@ -3,129 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Codex Study Hub - Log In</title>
-      <!-- Basic Meta -->
-  <meta name="description" content="Codex Study Hub helps OOU students master CBT exams with past questions, structured notes, AI assistance, progress tracking, and leaderboards.">
-  <meta name="keywords" content="Codex Study Hub, OOU CBT, past questions, exam practice, study notes, leaderboard, OOU 100 level">
-  <meta name="author" content="Codex Study Hub">
-  <meta name="robots" content="index, follow">
-
-  <!-- Open Graph / Social -->
-<!-- Open Graph -->
-  <meta property="og:title" content="Codex Study Hub - CBT Practice & Exam Prep for OOU Students">
-  <meta property="og:description" content="Practice real CBT exams, access study notes, track progress, and climb the leaderboard. Built for Olabisi Onabanjo University students.">
-  <meta property="og:image" content="https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/og-image.png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:url" content="https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/">
-  <meta property="og:type" content="website">
-
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Codex Study Hub - CBT Practice & Exam Prep for OOU Students">
-  <meta name="twitter:description" content="Practice real CBT exams, access study notes, track progress, and climb the leaderboard.">
-  <meta name="twitter:image" content="https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/og-image.png">
-
-    <!-- Favicon -->
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
-  <link rel="apple-touch-icon" href="favicon.png">
-
+    <title>Codex Study Hub — Log In</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root { --primary:#007bff; --bg:#f8f9fa; --card:#ffffff; --border:#ced4da; }
-        *{box-sizing:border-box;margin:0;padding:0}
-        body { font-family:'Segoe UI',sans-serif; background:var(--bg); display:flex; justify-content:center; align-items:center; min-height:100vh; }
-        .container { width:100%; max-width:420px; padding:2rem; background:var(--card); border-radius:14px; box-shadow:0 8px 28px rgba(0,0,0,.13); }
-        .header { text-align:center; margin-bottom:1.8rem; }
-        .cbt-logo { width:90px; display:block; margin:0 auto 12px; }
-        h2 { font-size:1.4rem; color:#343a40; }
-        .form-group { margin-bottom:1rem; }
-        label { display:block; margin-bottom:.3rem; font-weight:600; color:#495057; font-size:.9rem; }
-        input { width:100%; padding:.75rem; border:1.5px solid var(--border); border-radius:8px; font-size:.95rem; transition:border-color .2s; }
-        input:focus { border-color:var(--primary); outline:none; box-shadow:0 0 0 3px rgba(0,123,255,.15); }
-        .btn { width:100%; padding:.8rem; border:none; border-radius:8px; font-size:1rem; font-weight:600; cursor:pointer; margin-top:.5rem; transition:all .2s; }
-        .btn-primary { background:var(--primary); color:#fff; }
-        .btn-primary:hover { background:#0056b3; }
-        .btn-google { background:#fff; color:#333; border:2px solid #ddd; display:flex; align-items:center; justify-content:center; gap:10px; font-weight:600; margin-bottom:14px; }
-        .btn-google:hover { background:#f8f9fa; border-color:#4285f4; color:#4285f4; }
-        .divider { text-align:center; margin:14px 0; color:#aaa; font-size:.88rem; position:relative; }
-        .divider::before,.divider::after { content:''; position:absolute; top:50%; width:42%; height:1px; background:#e9ecef; }
-        .divider::before { left:0; }
-        .divider::after { right:0; }
-        .links { text-align:center; margin-top:1.2rem; font-size:.9rem; color:#555; }
-        .links a { color:var(--primary); text-decoration:none; font-weight:600; }
-        .links a:hover { text-decoration:underline; }
-        .alert { padding:10px 14px; border-radius:8px; margin-bottom:14px; font-size:.88rem; font-weight:600; display:none; }
-        .alert-error { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
-        .alert-success { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
-        .spinner { display:inline-block; width:16px; height:16px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin .6s linear infinite; vertical-align:middle; margin-right:6px; }
-        @keyframes spin { to { transform:rotate(360deg); } }
-        .loading-overlay { display:none; position:fixed; inset:0; background:rgba(255,255,255,.8); z-index:999; justify-content:center; align-items:center; flex-direction:column; gap:12px; }
+        :root {
+            --bg:#080c14; --s1:#0f1623; --s2:#151e30;
+            --border:rgba(255,255,255,.08); --border2:rgba(255,255,255,.14);
+            --blue:#3b82f6; --blue-s:rgba(59,130,246,.12); --blue-b:rgba(59,130,246,.28);
+            --green:#10b981; --text:#f0f4ff; --muted:#8fa3c0; --r:14px;
+        }
+        *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+        body {
+            font-family:'DM Sans',sans-serif;
+            background:var(--bg); color:var(--text);
+            min-height:100vh; display:flex; align-items:center; justify-content:center;
+            padding:24px 16px;
+        }
+        body::before {
+            content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+            background:
+                radial-gradient(ellipse 70vw 50vh at 15% 10%, rgba(59,130,246,.09) 0%, transparent 55%),
+                radial-gradient(ellipse 50vw 40vh at 85% 85%, rgba(16,185,129,.07) 0%, transparent 55%);
+        }
+
+        /* ── LOADING OVERLAY ── */
+        .loading-overlay {
+            display:none; position:fixed; inset:0; z-index:999;
+            background:rgba(8,12,20,.85); backdrop-filter:blur(6px);
+            justify-content:center; align-items:center; flex-direction:column; gap:14px;
+        }
         .loading-overlay.show { display:flex; }
-        .loading-overlay p { font-weight:600; color:#333; }
+        .ov-spinner {
+            width:44px; height:44px; border:4px solid rgba(59,130,246,.2);
+            border-top-color:var(--blue); border-radius:50%;
+            animation:spin .75s linear infinite;
+        }
+        .loading-overlay p { font-weight:600; color:var(--muted); font-size:.9rem; }
+
+        /* ── CARD ── */
+        .card {
+            position:relative; z-index:1;
+            width:100%; max-width:440px;
+            background:var(--s1); border:1px solid var(--border2);
+            border-radius:20px; padding:2.2rem 2rem;
+            box-shadow:0 24px 60px rgba(0,0,0,.5);
+        }
+
+        /* ── HEADER ── */
+        .card-header { text-align:center; margin-bottom:1.8rem; }
+        .logo-wrap {
+            width:70px; height:70px; border-radius:18px; margin:0 auto 14px;
+            background:linear-gradient(135deg,#0d1e3a,#122444);
+            border:2px solid var(--blue-b);
+            display:flex; align-items:center; justify-content:center;
+            overflow:hidden;
+        }
+        .logo-wrap img { width:100%; height:100%; object-fit:cover; }
+        /* Nova tiny SVG fallback if logo.png missing */
+        .logo-wrap svg { width:44px; height:44px; }
+        .card-header h2 {
+            font-family:'Syne',sans-serif; font-size:1.45rem; font-weight:800;
+            background:linear-gradient(90deg,#818cf8,#34d399);
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+            margin-bottom:4px;
+        }
+        .card-header p { color:var(--muted); font-size:.85rem; }
+
+        /* ── ALERTS ── */
+        .alert {
+            padding:11px 14px; border-radius:10px; margin-bottom:16px;
+            font-size:.85rem; font-weight:600; display:none; line-height:1.5;
+        }
+        .alert-error   { background:rgba(239,68,68,.1); color:#f87171; border:1px solid rgba(239,68,68,.25); }
+        .alert-success { background:rgba(16,185,129,.1); color:#34d399; border:1px solid rgba(16,185,129,.25); }
+
+        /* ── GOOGLE BTN ── */
+        .btn-google {
+            width:100%; padding:.8rem; border-radius:10px; border:1px solid var(--border2);
+            background:var(--s2); color:var(--text); font-family:'DM Sans',sans-serif;
+            font-size:.93rem; font-weight:600; cursor:pointer; margin-bottom:14px;
+            display:flex; align-items:center; justify-content:center; gap:10px;
+            transition:.2s;
+        }
+        .btn-google:hover { background:var(--s1); border-color:var(--blue-b); }
+        .btn-google img { width:20px; height:20px; border-radius:3px; }
+
+        /* ── DIVIDER ── */
+        .divider {
+            display:flex; align-items:center; gap:10px;
+            margin:0 0 16px; color:var(--muted); font-size:.82rem;
+        }
+        .divider::before, .divider::after {
+            content:''; flex:1; height:1px; background:var(--border);
+        }
+
+        /* ── FORM ── */
+        .form-group { margin-bottom:14px; }
+        .form-group label {
+            display:block; margin-bottom:6px; font-weight:600;
+            color:var(--muted); font-size:.82rem;
+        }
+
+        /* ── PASSWORD WRAPPER — eye toggle ── */
+        .pw-wrap { position:relative; }
+        .pw-wrap input { padding-right:46px !important; }
+        .eye-btn {
+            position:absolute; right:12px; top:50%; transform:translateY(-50%);
+            background:none; border:none; cursor:pointer; padding:4px;
+            color:var(--muted); display:flex; align-items:center; justify-content:center;
+            transition:.2s; border-radius:5px;
+        }
+        .eye-btn:hover { color:var(--blue); }
+        .eye-btn svg { width:20px; height:20px; display:block; pointer-events:none; }
+        /* The "slash" line — hidden by default, shown when password is visible */
+        .eye-slash { display:none; }
+        .eye-btn.showing .eye-open { display:none; }
+        .eye-btn.showing .eye-slash { display:block; }
+
+        input, select {
+            width:100%; padding:12px 14px;
+            background:var(--s2); border:1.5px solid var(--border2);
+            border-radius:10px; color:var(--text); font-family:'DM Sans',sans-serif;
+            font-size:.92rem; transition:.2s; outline:none;
+        }
+        input:focus, select:focus { border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-s); }
+        input::placeholder { color:#4a6380; }
+
+        /* ── SUBMIT BTN ── */
+        .btn-primary {
+            width:100%; padding:13px; border:none; border-radius:10px;
+            background:linear-gradient(135deg,var(--blue),#2563eb);
+            color:#fff; font-family:'DM Sans',sans-serif;
+            font-size:.95rem; font-weight:700; cursor:pointer;
+            transition:.2s; display:flex; align-items:center; justify-content:center; gap:8px;
+            box-shadow:0 4px 16px rgba(59,130,246,.28); margin-top:4px;
+        }
+        .btn-primary:hover:not(:disabled) { opacity:.9; transform:translateY(-1px); }
+        .btn-primary:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+
+        /* ── LINKS ── */
+        .links { text-align:center; margin-top:14px; font-size:.87rem; color:var(--muted); }
+        .links a { color:var(--blue); text-decoration:none; font-weight:600; }
+        .links a:hover { text-decoration:underline; }
+
+        /* ── SPINNER ── */
+        .spinner {
+            width:16px; height:16px; border:2.5px solid rgba(255,255,255,.3);
+            border-top-color:#fff; border-radius:50%;
+            animation:spin .6s linear infinite; display:inline-block;
+        }
+        @keyframes spin { to { transform:rotate(360deg); } }
+
+        /* ── RESPONSIVE ── */
+        @media(min-width:600px) {
+            .card { padding:2.5rem 2.5rem; }
+        }
     </style>
 </head>
 <body>
 
-<!-- Full-page loading overlay -->
+<!-- Loading overlay -->
 <div class="loading-overlay" id="loadingOverlay">
-    <div style="width:40px;height:40px;border:4px solid #007bff;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite"></div>
-    <p id="loadingMsg">Checking session...</p>
+    <div class="ov-spinner"></div>
+    <p id="loadingMsg">Checking session…</p>
 </div>
 
-<div class="container" id="loginContainer" style="display:none">
-    <div class="header">
-        <img src="logo.png" alt="Codex" class="cbt-logo">
-        <h2>Log in to Continue</h2>
+<div class="card" id="loginCard" style="display:none">
+    <div class="card-header">
+        <div class="logo-wrap">
+            <img src="logo.png" alt="Codex" onerror="this.style.display='none'">
+        </div>
+        <h2>Welcome Back</h2>
+        <p>Log in to continue your study journey</p>
     </div>
 
     <div id="alertError" class="alert alert-error"></div>
     <div id="alertSuccess" class="alert alert-success"></div>
 
     <!-- Google -->
-    <button class="btn btn-google" id="googleBtn" onclick="signInWithGoogle()">
-        <img src="https://www.google.com/favicon.ico" width="20" height="20" alt="G">
-        Sign in with Google
+    <button class="btn-google" id="googleBtn" onclick="signInWithGoogle()">
+        <img src="https://www.google.com/favicon.ico" alt="G">
+        Continue with Google
     </button>
 
-    <div class="divider">— or —</div>
+    <div class="divider">or log in with email</div>
 
-    <!-- Email / Password -->
-    <form id="loginForm">
+    <!-- Email / Password Form -->
+    <form id="loginForm" autocomplete="on">
         <div class="form-group">
             <label for="email">Email Address</label>
             <input type="email" id="email" required placeholder="you@gmail.com" autocomplete="email">
         </div>
+
         <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" id="password" required placeholder="••••••••" autocomplete="current-password">
+            <div class="pw-wrap">
+                <input type="password" id="password" required placeholder="••••••••" autocomplete="current-password">
+                <button type="button" class="eye-btn" id="eyeLogin" onclick="toggleEye('password','eyeLogin')" aria-label="Show/hide password">
+                    <!-- EYE OPEN -->
+                    <svg class="eye-open" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    <!-- EYE SLASH (password visible) -->
+                    <svg class="eye-slash" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
+                        <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
+                        <line x1="1" y1="1" x2="23" y2="23" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
         </div>
-        <button type="submit" class="btn btn-primary" id="loginBtn">Log In</button>
+
+        <button type="submit" class="btn-primary" id="loginBtn">Log In</button>
     </form>
 
-    <div class="links" style="margin-top:.8rem">
+    <div class="links" style="margin-top:10px">
         <a href="reset-password.html">Forgot Password?</a>
     </div>
     <div class="links">
-        Don't have an account? <a href="signup.html">Sign Up</a>
+        Don't have an account? <a href="signup.html">Sign Up Free</a>
     </div>
 </div>
 
+<script>
+function toggleEye(inputId, btnId) {
+    const inp = document.getElementById(inputId);
+    const btn = document.getElementById(btnId);
+    if (inp.type === 'password') {
+        inp.type = 'text';
+        btn.classList.add('showing');
+    } else {
+        inp.type = 'password';
+        btn.classList.remove('showing');
+    }
+}
+</script>
+
 <script type="module">
-// ─── IMPORTANT: Every function that touches the DOM must be inside this module.
-// ─── Functions called from HTML onclick= must be assigned to window.X
-import { initializeApp }            from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword,
-         GoogleAuthProvider, signInWithPopup,
-         onAuthStateChanged }        from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey:            "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
-    authDomain:        "codex-study-hub-923c5.firebaseapp.com",
-    projectId:         "codex-study-hub-923c5",
-    storageBucket:     "codex-study-hub-923c5.appspot.com",
-    messagingSenderId: "750631534625",
-    appId:             "1:750631534625:web:5f59e1841bb856bdbba360"
+    apiKey:"AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+    authDomain:"codex-study-hub-923c5.firebaseapp.com",
+    projectId:"codex-study-hub-923c5",
+    storageBucket:"codex-study-hub-923c5.appspot.com",
+    messagingSenderId:"750631534625",
+    appId:"1:750631534625:web:5f59e1841bb856bdbba360"
 };
 
 const app      = initializeApp(firebaseConfig);
@@ -133,130 +259,89 @@ const auth     = getAuth(app);
 const db       = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-// ── UI helpers ─────────────────────────────────────────────────────────────
 const overlay   = document.getElementById('loadingOverlay');
 const loadMsg   = document.getElementById('loadingMsg');
-const container = document.getElementById('loginContainer');
+const card      = document.getElementById('loginCard');
 const errEl     = document.getElementById('alertError');
 const okEl      = document.getElementById('alertSuccess');
 
-function showOverlay(msg)   { loadMsg.textContent = msg; overlay.classList.add('show'); }
-function hideOverlay()      { overlay.classList.remove('show'); container.style.display = 'block'; }
-function showError(msg)     { errEl.textContent = msg; errEl.style.display = 'block'; okEl.style.display = 'none'; }
-function showSuccess(msg)   { okEl.textContent  = msg; okEl.style.display  = 'block'; errEl.style.display = 'none'; }
-function clearAlerts()      { errEl.style.display = 'none'; okEl.style.display = 'none'; }
+const showOverlay = msg => { loadMsg.textContent = msg; overlay.classList.add('show'); };
+const hideOverlay = ()  => { overlay.classList.remove('show'); card.style.display = 'block'; };
+const showError   = msg => { errEl.textContent=msg; errEl.style.display='block'; okEl.style.display='none'; };
+const showOk      = msg => { okEl.textContent=msg;  okEl.style.display='block';  errEl.style.display='none'; };
+const clearAlerts = ()  => { errEl.style.display='none'; okEl.style.display='none'; };
 
-// ── onAuthStateChanged — only acts AFTER a sign-in action, not on cold load ──
-// We use a flag so the initial page load doesn't auto-redirect on unauthenticated state
 let authResolved = false;
 
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth, async user => {
     if (!authResolved) {
-        // First call — just decide whether to show login page or redirect
         authResolved = true;
-        if (user) {
-            // User already has a session — go straight to home
-            showOverlay('Resuming session...');
-            await redirectUser(user);
-        } else {
-            hideOverlay();
-        }
-        return;
+        if (user) { showOverlay('Resuming session…'); await redirectUser(user); }
+        else { hideOverlay(); }
     }
-    // Subsequent calls (after sign-in actions) — handled inside each action
 });
 
-// ── Redirect logic — checks Firestore for complete profile ─────────────────
 async function redirectUser(user) {
     try {
-        const snap = await getDoc(doc(db, "users", user.uid));
+        const snap = await getDoc(doc(db,"users",user.uid));
         if (!snap.exists()) {
-            // Brand-new Google user — create minimal doc
-            await setDoc(doc(db, "users", user.uid), {
-                fullName: user.displayName || "Student",
-                email:    user.email,
-                faculty: "", department: "", semester: "",
-                createdAt: new Date(),
-                authProvider: "google",
-                uid: user.uid
+            await setDoc(doc(db,"users",user.uid),{
+                fullName:user.displayName||"Student", email:user.email,
+                faculty:"", department:"", semester:"",
+                createdAt:new Date(), authProvider:"google", uid:user.uid
             });
-            window.location.href = 'chooseFaculty.html';
-            return;
+            window.location.href = 'chooseFaculty.html'; return;
         }
-        const data = snap.data();
-        // Save session so subject_selection.html can read email for trial keys
+        const d = snap.data();
         localStorage.setItem('loggedInUser', JSON.stringify({
-            uid: user.uid,
-            email: user.email,
-            fullName: data.fullName || '',
-            faculty: data.faculty || '',
-            department: data.department || '',
-            semester: data.semester || ''
+            uid:user.uid, email:user.email, fullName:d.fullName||'',
+            faculty:d.faculty||'', department:d.department||'', semester:d.semester||''
         }));
-        if (!data.faculty || data.faculty === '') {
-            window.location.href = 'chooseFaculty.html';
-        } else {
-            window.location.href = 'home.html';
-        }
-    } catch (e) {
-        showError('⚠️ Could not load profile: ' + e.message);
-        hideOverlay();
-    }
+        window.location.href = (!d.faculty || d.faculty==='') ? 'chooseFaculty.html' : 'home.html';
+    } catch(e) { showError('⚠️ Could not load profile: '+e.message); hideOverlay(); }
 }
 
-// ── Google Sign In ──────────────────────────────────────────────────────────
 window.signInWithGoogle = async function() {
     clearAlerts();
     const btn = document.getElementById('googleBtn');
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Connecting to Google...';
-
+    btn.innerHTML = '<span class="spinner"></span> Connecting…';
     try {
-        const result = await signInWithPopup(auth, provider);
-        showOverlay('Signing you in...');
-        await redirectUser(result.user);
-    } catch (e) {
+        const r = await signInWithPopup(auth, provider);
+        showOverlay('Signing you in…');
+        await redirectUser(r.user);
+    } catch(e) {
         btn.disabled = false;
-        btn.innerHTML = '<img src="https://www.google.com/favicon.ico" width="20" height="20" alt="G"> Sign in with Google';
-
-        if (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
-            // User just closed the popup — no error needed
-        } else if (e.code === 'auth/popup-blocked') {
-            showError('❌ Popup blocked by browser. Please allow popups for this site and try again.');
-        } else {
-            showError('❌ Google sign-in failed: ' + e.message);
+        btn.innerHTML = '<img src="https://www.google.com/favicon.ico" alt="G"> Continue with Google';
+        if (e.code!=='auth/popup-closed-by-user'&&e.code!=='auth/cancelled-popup-request') {
+            showError(e.code==='auth/popup-blocked'
+                ? '❌ Popup blocked — please allow popups and try again.'
+                : '❌ Google sign-in failed: '+e.message);
         }
     }
 };
 
-// ── Email / Password Login ──────────────────────────────────────────────────
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    clearAlerts();
-
+document.getElementById('loginForm').addEventListener('submit', async e => {
+    e.preventDefault(); clearAlerts();
     const email    = document.getElementById('email').value.trim().toLowerCase();
     const password = document.getElementById('password').value;
     const btn      = document.getElementById('loginBtn');
-
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Logging in...';
-
+    btn.innerHTML = '<span class="spinner"></span> Logging in…';
     try {
         const cred = await signInWithEmailAndPassword(auth, email, password);
-        showOverlay('Signing you in...');
+        showOverlay('Signing you in…');
         await redirectUser(cred.user);
-    } catch (e) {
-        btn.disabled = false;
-        btn.textContent = 'Log In';
-
+    } catch(e) {
+        btn.disabled = false; btn.textContent = 'Log In';
         const msgs = {
-            'auth/user-not-found':     '❌ No account found with this email. Please sign up first.',
-            'auth/wrong-password':     '❌ Incorrect password. Please try again.',
+            'auth/user-not-found':     '❌ No account found. Please sign up first.',
+            'auth/wrong-password':     '❌ Incorrect password.',
             'auth/invalid-email':      '❌ Invalid email format.',
             'auth/invalid-credential': '❌ Wrong email or password.',
-            'auth/too-many-requests':  '❌ Too many attempts. Please wait a moment and try again.',
+            'auth/too-many-requests':  '❌ Too many attempts. Wait a moment and try again.',
         };
-        showError(msgs[e.code] || ('❌ ' + e.message));
+        showError(msgs[e.code] || '❌ '+e.message);
     }
 });
 </script>
