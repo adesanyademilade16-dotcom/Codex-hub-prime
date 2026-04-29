@@ -3,188 +3,309 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Codex Study Hub - Sign Up</title>
-      <!-- Basic Meta -->
-  <meta name="description" content="Codex Study Hub helps OOU students master CBT exams with past questions, structured notes, AI assistance, progress tracking, and leaderboards.">
-  <meta name="keywords" content="Codex Study Hub, OOU CBT, past questions, exam practice, study notes, leaderboard, OOU 100 level">
-  <meta name="author" content="Codex Study Hub">
-  <meta name="robots" content="index, follow">
-
-  <!-- Open Graph / Social -->
-  <meta property="og:title" content="Codex Study Hub - Smart CBT Practice for OOU Students">
-  <meta property="og:description" content="Practice real CBT exams, access study notes, track progress and climb the leaderboard. Built for Olabisi Onabanjo University students.">
-  <meta property="og:image" content="https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/og-image.png">
-  <meta property="og:url" content="https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Codex Study Hub">
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Codex Study Hub - Smart CBT Practice for OOU Students">
-  <meta name="twitter:description" content="Practice real CBT exams, access study notes, track progress and climb the leaderboard.">
-  <meta name="twitter:image" content="https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/og-image.png">
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
-  <link rel="apple-touch-icon" href="favicon.png">
-
+    <title>Codex Study Hub — Sign Up</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root { --primary:#007bff; --green:#28a745; --bg:#f8f9fa; --card:#fff; --border:#ced4da; }
-        *{box-sizing:border-box;margin:0;padding:0}
-        body { font-family:'Segoe UI',sans-serif; background:var(--bg); display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:24px 16px; }
-        .container { width:100%; max-width:460px; padding:2rem; background:var(--card); border-radius:14px; box-shadow:0 6px 22px rgba(0,0,0,.11); }
-        .header { text-align:center; margin-bottom:1.5rem; }
-        .cbt-logo { width:90px; display:block; margin:0 auto 10px; }
-        h2 { font-size:1.5rem; color:#343a40; margin-bottom:4px; }
-        .header p { color:#6c757d; font-size:.9rem; }
-        .form-group { margin-bottom:1rem; }
-        label { display:block; margin-bottom:.3rem; font-weight:600; color:#495057; font-size:.88rem; }
-        input, select {
-            width:100%; padding:.75rem; border:1.5px solid var(--border);
-            border-radius:8px; font-size:.93rem; transition:border-color .2s;
-            background:#fff; color:#333;
+        :root {
+            --bg:#080c14; --s1:#0f1623; --s2:#151e30;
+            --border:rgba(255,255,255,.08); --border2:rgba(255,255,255,.14);
+            --blue:#3b82f6; --blue-s:rgba(59,130,246,.12); --blue-b:rgba(59,130,246,.28);
+            --green:#10b981; --green-s:rgba(16,185,129,.1);
+            --text:#f0f4ff; --muted:#8fa3c0; --dim:#4a6380; --r:14px;
         }
-        input:focus, select:focus { border-color:var(--primary); outline:none; box-shadow:0 0 0 3px rgba(0,123,255,.15); }
-        select:disabled { background:#f5f5f5; color:#aaa; cursor:not-allowed; }
-        .btn { width:100%; padding:.8rem; border:none; border-radius:8px; font-size:1rem; font-weight:600; cursor:pointer; margin-top:.5rem; transition:all .2s; }
-        .btn-primary { background:var(--primary); color:#fff; }
-        .btn-primary:hover:not(:disabled) { background:#0056b3; }
-        .btn-primary:disabled { opacity:.6; cursor:not-allowed; }
-        .btn-google { background:#fff; color:#333; border:2px solid #ddd; display:flex; align-items:center; justify-content:center; gap:10px; font-weight:600; margin-bottom:14px; }
-        .btn-google:hover { background:#f8f9fa; border-color:#4285f4; color:#4285f4; }
-        .divider { text-align:center; margin:14px 0; color:#aaa; font-size:.88rem; position:relative; }
-        .divider::before,.divider::after { content:''; position:absolute; top:50%; width:42%; height:1px; background:#e9ecef; }
-        .divider::before { left:0; }
-        .divider::after { right:0; }
-        .links { text-align:center; margin-top:1.2rem; font-size:.9rem; color:#555; }
-        .links a { color:var(--primary); text-decoration:none; font-weight:600; }
-        .alert { padding:10px 14px; border-radius:8px; margin-bottom:14px; font-size:.88rem; font-weight:600; display:none; }
-        .alert-error { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
-        .spinner { display:inline-block; width:14px; height:14px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin .6s linear infinite; vertical-align:middle; margin-right:6px; }
+        *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+        body {
+            font-family:'DM Sans',sans-serif;
+            background:var(--bg); color:var(--text);
+            min-height:100vh; display:flex; align-items:flex-start;
+            justify-content:center; padding:24px 16px;
+        }
+        body::before {
+            content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+            background:
+                radial-gradient(ellipse 70vw 50vh at 15% 10%, rgba(59,130,246,.08) 0%, transparent 55%),
+                radial-gradient(ellipse 50vw 40vh at 85% 85%, rgba(16,185,129,.06) 0%, transparent 55%);
+        }
+
+        .card {
+            position:relative; z-index:1;
+            width:100%; max-width:480px;
+            background:var(--s1); border:1px solid var(--border2);
+            border-radius:20px; padding:2.2rem 2rem;
+            box-shadow:0 24px 60px rgba(0,0,0,.5);
+        }
+
+        /* HEADER */
+        .card-header { text-align:center; margin-bottom:1.6rem; }
+        .logo-wrap {
+            width:68px; height:68px; border-radius:17px; margin:0 auto 12px;
+            background:linear-gradient(135deg,#0d1e3a,#122444);
+            border:2px solid var(--blue-b);
+            display:flex; align-items:center; justify-content:center; overflow:hidden;
+        }
+        .logo-wrap img { width:100%; height:100%; object-fit:cover; }
+        .card-header h2 {
+            font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:800;
+            background:linear-gradient(90deg,#818cf8,#34d399);
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+            margin-bottom:3px;
+        }
+        .card-header p { color:var(--muted); font-size:.84rem; }
+
+        /* ALERT */
+        .alert {
+            padding:11px 14px; border-radius:10px; margin-bottom:14px;
+            font-size:.84rem; font-weight:600; display:none; line-height:1.5;
+        }
+        .alert-error   { background:rgba(239,68,68,.1); color:#f87171; border:1px solid rgba(239,68,68,.25); }
+        .alert-success { background:rgba(16,185,129,.1); color:#34d399; border:1px solid rgba(16,185,129,.25); }
+
+        /* GOOGLE */
+        .btn-google {
+            width:100%; padding:.8rem; border-radius:10px; border:1px solid var(--border2);
+            background:var(--s2); color:var(--text); font-family:'DM Sans',sans-serif;
+            font-size:.92rem; font-weight:600; cursor:pointer; margin-bottom:14px;
+            display:flex; align-items:center; justify-content:center; gap:10px;
+            transition:.2s;
+        }
+        .btn-google:hover { background:var(--s1); border-color:var(--blue-b); }
+        .btn-google img { width:20px; height:20px; border-radius:3px; }
+
+        /* DIVIDER */
+        .divider {
+            display:flex; align-items:center; gap:10px;
+            margin:0 0 16px; color:var(--muted); font-size:.8rem;
+        }
+        .divider::before, .divider::after { content:''; flex:1; height:1px; background:var(--border); }
+
+        /* FORM ROWS */
+        .form-grid { display:grid; gap:14px; }
+        .form-group { display:flex; flex-direction:column; gap:6px; }
+        .form-group label { font-weight:600; color:var(--muted); font-size:.81rem; }
+
+        /* INPUTS */
+        input, select {
+            width:100%; padding:12px 14px;
+            background:var(--s2); border:1.5px solid var(--border2);
+            border-radius:10px; color:var(--text); font-family:'DM Sans',sans-serif;
+            font-size:.91rem; transition:.2s; outline:none;
+        }
+        input:focus, select:focus { border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-s); }
+        input::placeholder { color:var(--dim); }
+        select option { background:var(--s2); }
+        select:disabled { opacity:.5; cursor:not-allowed; }
+
+        /* PASSWORD EYE */
+        .pw-wrap { position:relative; }
+        .pw-wrap input { padding-right:46px !important; }
+        .eye-btn {
+            position:absolute; right:11px; top:50%; transform:translateY(-50%);
+            background:none; border:none; cursor:pointer; padding:5px;
+            color:var(--muted); display:flex; align-items:center;
+            justify-content:center; transition:.2s; border-radius:6px;
+        }
+        .eye-btn:hover { color:var(--blue); }
+        .eye-btn svg { width:19px; height:19px; display:block; pointer-events:none; }
+        .eye-slash { display:none; }
+        .eye-btn.showing .eye-open  { display:none; }
+        .eye-btn.showing .eye-slash { display:block; }
+
+        /* STRENGTH BAR */
+        .pw-strength { margin-top:5px; }
+        .pw-strength-bar { height:4px; background:var(--border2); border-radius:2px; overflow:hidden; }
+        .pw-strength-fill { height:100%; border-radius:2px; transition:width .3s, background .3s; width:0%; }
+        .pw-strength-label { font-size:.71rem; color:var(--muted); margin-top:3px; }
+
+        /* SUBMIT */
+        .btn-primary {
+            width:100%; padding:13px; border:none; border-radius:10px;
+            background:linear-gradient(135deg,var(--blue),#2563eb);
+            color:#fff; font-family:'DM Sans',sans-serif;
+            font-size:.95rem; font-weight:700; cursor:pointer; margin-top:6px;
+            transition:.2s; display:flex; align-items:center; justify-content:center; gap:8px;
+            box-shadow:0 4px 18px rgba(59,130,246,.28);
+        }
+        .btn-primary:hover:not(:disabled) { opacity:.9; transform:translateY(-1px); }
+        .btn-primary:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+
+        .links { text-align:center; margin-top:14px; font-size:.86rem; color:var(--muted); }
+        .links a { color:var(--blue); text-decoration:none; font-weight:600; }
+        .links a:hover { text-decoration:underline; }
+
+        .spinner {
+            width:15px; height:15px; border:2px solid rgba(255,255,255,.3);
+            border-top-color:#fff; border-radius:50%;
+            animation:spin .6s linear infinite; display:inline-block;
+        }
         @keyframes spin { to { transform:rotate(360deg); } }
+
+        @media(min-width:600px) { .card { padding:2.5rem 2.5rem; } }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <img src="logo.png" alt="Codex" class="cbt-logo">
+<div class="card">
+    <div class="card-header">
+        <div class="logo-wrap">
+            <img src="logo.png" alt="Codex" onerror="this.style.display='none'">
+        </div>
         <h2>Create Account</h2>
-        <p>Join the Codex Study community</p>
+        <p>Join the Codex Study community at OOU</p>
     </div>
 
     <div id="alertError" class="alert alert-error"></div>
 
-    <!-- Google Sign Up -->
-    <button class="btn btn-google" id="googleBtn" onclick="signUpWithGoogle()">
-        <img src="https://www.google.com/favicon.ico" width="20" height="20" alt="G">
-        Sign up with Google
+    <!-- Google -->
+    <button class="btn-google" id="googleBtn" onclick="signUpWithGoogle()">
+        <img src="https://www.google.com/favicon.ico" alt="G">
+        Continue with Google
     </button>
 
-    <div class="divider">— or sign up with email —</div>
+    <div class="divider">or sign up with email</div>
 
-    <!-- Email / Password Form -->
-    <form id="signupForm">
-        <div class="form-group">
-            <label>Full Name</label>
-            <input type="text" id="fullName" required placeholder="e.g. Amaka Johnson">
+    <form id="signupForm" autocomplete="off">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="fullName" required placeholder="e.g. Amaka Johnson" autocomplete="name">
+            </div>
+
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="email" required placeholder="you@gmail.com" autocomplete="email">
+            </div>
+
+            <div class="form-group">
+                <label>Faculty</label>
+                <select id="faculty" required onchange="updateDepartments()">
+                    <option value="">— Select Faculty —</option>
+                    <option value="science">Science</option>
+                    <option value="social_sciences">Social Science</option>
+                    <option value="arts">Arts</option>
+                    <option value="law">Law</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Department</label>
+                <select id="department" required disabled>
+                    <option value="">— Select Faculty First —</option>
+                </select>
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="form-group">
+                <label>Password <span style="font-weight:400;color:var(--dim)">(min 6 chars)</span></label>
+                <div class="pw-wrap">
+                    <input type="password" id="password" required minlength="6"
+                        placeholder="••••••••" autocomplete="new-password"
+                        oninput="checkStrength(this.value)">
+                    <button type="button" class="eye-btn" id="eyePw1"
+                        onclick="toggleEye('password','eyePw1')" aria-label="Show/hide password">
+                        <svg class="eye-open" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                        <svg class="eye-slash" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
+                            <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
+                            <line x1="1" y1="1" x2="23" y2="23" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="pw-strength">
+                    <div class="pw-strength-bar"><div class="pw-strength-fill" id="strFill"></div></div>
+                    <div class="pw-strength-label" id="strLabel"></div>
+                </div>
+            </div>
+
+            <!-- CONFIRM PASSWORD -->
+            <div class="form-group">
+                <label>Confirm Password</label>
+                <div class="pw-wrap">
+                    <input type="password" id="confirmPassword" required
+                        placeholder="••••••••" autocomplete="new-password">
+                    <button type="button" class="eye-btn" id="eyePw2"
+                        onclick="toggleEye('confirmPassword','eyePw2')" aria-label="Show/hide confirm password">
+                        <svg class="eye-open" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                        <svg class="eye-slash" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
+                            <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
+                            <line x1="1" y1="1" x2="23" y2="23" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" id="email" required placeholder="you@gmail.com" autocomplete="email">
-        </div>
-        <div class="form-group">
-            <label>Faculty</label>
-            <!--
-                ⚠️ KEY FIX: onchange must call a function that is on window.
-                updateDepartments is defined below in a regular <script> tag
-                (NOT inside type="module") so it IS accessible from HTML attributes.
-            -->
-            <select id="faculty" required onchange="updateDepartments()">
-                <option value="">-- Select Faculty --</option>
-                <option value="science">Science</option>
-                <option value="social_sciences">Social Science</option>
-                <option value="arts">Arts</option>
-                <option value="law">Law</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Department</label>
-            <select id="department" required disabled>
-                <option value="">-- Select Faculty First --</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Password <span style="color:#aaa;font-weight:400">(min 6 characters)</span></label>
-            <input type="password" id="password" required minlength="6" placeholder="••••••••" autocomplete="new-password">
-        </div>
-        <div class="form-group">
-            <label>Confirm Password</label>
-            <input type="password" id="confirmPassword" required placeholder="••••••••" autocomplete="new-password">
-        </div>
-        <button type="submit" class="btn btn-primary" id="submitBtn">Create Account</button>
+
+        <button type="submit" class="btn-primary" id="submitBtn">Create Account</button>
     </form>
 
     <div class="links">Already have an account? <a href="Login.html">Log In</a></div>
 </div>
 
-<!--
-    ⚠️ CRITICAL FIX — Department dropdown must be in a REGULAR <script>,
-    NOT in a type="module" script. Module scripts are private scope and
-    cannot be called from HTML onchange="" attributes.
--->
+<!-- Department + eye toggle in regular script (not module) -->
 <script>
 function updateDepartments() {
-    const faculty    = document.getElementById("faculty").value;
-    const deptSelect = document.getElementById("department");
-
-    const DEPT_MAP = {
+    const f  = document.getElementById('faculty').value;
+    const ds = document.getElementById('department');
+    const MAP = {
         science:        ["Computer Science","Engineering","Agriculture","Medicine","Physics","Chemistry","Mathematics","Biology","Education","Other"],
         social_sciences:["Economics","Political Science","Sociology","Mass Communication","Education","Other"],
         arts:           ["English","History","Philosophy","French","Education","Other"],
         law:            ["Law","Other"]
     };
-
-    const depts = DEPT_MAP[faculty] || [];
-    deptSelect.innerHTML = `<option value="">-- Select Department --</option>`;
-    deptSelect.disabled = depts.length === 0;
-
-    depts.forEach(dept => {
-        const opt = document.createElement("option");
-        opt.value = dept.toLowerCase().replace(/\s+/g, '_');
-        opt.textContent = dept;
-        deptSelect.appendChild(opt);
+    const list = MAP[f] || [];
+    ds.innerHTML = '<option value="">— Select Department —</option>';
+    ds.disabled = !list.length;
+    list.forEach(d => {
+        const o = document.createElement('option');
+        o.value = d.toLowerCase().replace(/\s+/g,'_');
+        o.textContent = d;
+        ds.appendChild(o);
     });
+}
+
+function toggleEye(inputId, btnId) {
+    const inp = document.getElementById(inputId);
+    const btn = document.getElementById(btnId);
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    btn.classList.toggle('showing', inp.type === 'text');
+}
+
+function checkStrength(pw) {
+    const fill  = document.getElementById('strFill');
+    const label = document.getElementById('strLabel');
+    let score = 0;
+    if (pw.length >= 6)  score++;
+    if (pw.length >= 10) score++;
+    if (/[A-Z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^A-Za-z0-9]/.test(pw)) score++;
+    const colors = ['','#ef4444','#f59e0b','#f59e0b','#10b981','#10b981'];
+    const labels = ['','Weak','Fair','Fair','Strong','Very Strong'];
+    fill.style.width   = pw.length ? (score * 20) + '%' : '0%';
+    fill.style.background = colors[score] || 'transparent';
+    label.textContent  = pw.length ? (labels[score] || '') : '';
+    label.style.color  = colors[score] || 'var(--muted)';
 }
 </script>
 
-<!-- Firebase module script — handles auth only -->
-<!-- Firebase module script — handles auth only -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { 
-    getAuth, 
-    createUserWithEmailAndPassword,
-    GoogleAuthProvider, 
-    signInWithPopup,
-    signOut,
-    sendEmailVerification
-} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-
-import { 
-    getFirestore, 
-    doc, 
-    setDoc, 
-    getDoc 
-} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey:            "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
-    authDomain:        "codex-study-hub-923c5.firebaseapp.com",
-    projectId:         "codex-study-hub-923c5",
-    storageBucket:     "codex-study-hub-923c5.appspot.com",
-    messagingSenderId: "750631534625",
-    appId:             "1:750631534625:web:5f59e1841bb856bdbba360"
+    apiKey:"AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+    authDomain:"codex-study-hub-923c5.firebaseapp.com",
+    projectId:"codex-study-hub-923c5",
+    storageBucket:"codex-study-hub-923c5.appspot.com",
+    messagingSenderId:"750631534625",
+    appId:"1:750631534625:web:5f59e1841bb856bdbba360"
 };
 
 const app      = initializeApp(firebaseConfig);
@@ -193,126 +314,91 @@ const db       = getFirestore(app);
 const provider = new GoogleAuthProvider();
 const errEl    = document.getElementById('alertError');
 
-function showError(msg) {
-    errEl.textContent = msg;
-    errEl.style.display = 'block';
-    window.scrollTo(0, 0);
+function showErr(msg) { errEl.textContent=msg; errEl.style.display='block'; window.scrollTo(0,0); }
+function showOk(msg)  {
+    errEl.style.background='rgba(16,185,129,.1)';
+    errEl.style.color='#34d399';
+    errEl.style.border='1px solid rgba(16,185,129,.25)';
+    errEl.textContent=msg;
+    errEl.style.display='block';
+    window.scrollTo(0,0);
 }
 
-// ── Google Sign Up ──────────────────────────────────────────────────────────
+// Google Sign Up
 window.signUpWithGoogle = async function() {
     const btn = document.getElementById('googleBtn');
     btn.disabled = true;
-    btn.innerHTML = '⏳ Connecting...';
+    btn.innerHTML = '<span style="width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px"></span> Connecting…';
     errEl.style.display = 'none';
-
     try {
-        const result = await signInWithPopup(auth, provider);
-        const user   = result.user;
-
-        // Check if already has a doc (returning user via Google)
-        const snap = await getDoc(doc(db, "users", user.uid));
+        const r = await signInWithPopup(auth, provider);
+        const snap = await getDoc(doc(db,"users",r.user.uid));
         if (!snap.exists()) {
-            await setDoc(doc(db, "users", user.uid), {
-                fullName:     user.displayName || "Student",
-                email:        user.email,
-                faculty:      "",
-                department:   "",
-                semester:     "",
-                createdAt:    new Date(),
-                authProvider: "google",
-                uid:          user.uid
+            await setDoc(doc(db,"users",r.user.uid),{
+                fullName:r.user.displayName||"Student", email:r.user.email,
+                faculty:"", department:"", semester:"",
+                createdAt:new Date(), authProvider:"google", uid:r.user.uid
             });
         }
-        // Always go to chooseFaculty so they can fill in/confirm their details
         window.location.href = 'chooseFaculty.html';
-
-    } catch (e) {
+    } catch(e) {
         btn.disabled = false;
-        btn.innerHTML = '<img src="https://www.google.com/favicon.ico" width="20" height="20" alt="G"> Sign up with Google';
-        if (e.code !== 'auth/popup-closed-by-user') {
-            showError('❌ Google sign-up failed: ' + e.message);
-        }
+        btn.innerHTML = '<img src="https://www.google.com/favicon.ico" alt="G" style="width:20px;height:20px;border-radius:3px"> Continue with Google';
+        if (e.code !== 'auth/popup-closed-by-user') showErr('❌ Google sign-up failed: '+e.message);
     }
 };
 
-// ── Email / Password Sign Up ────────────────────────────────────────────────
-document.getElementById('signupForm').addEventListener('submit', async (e) => {
+// Email Sign Up
+document.getElementById('signupForm').addEventListener('submit', async e => {
     e.preventDefault();
     errEl.style.display = 'none';
 
-    const fullName        = document.getElementById('fullName').value.trim();
-    const email           = document.getElementById('email').value.trim().toLowerCase();
-    const faculty         = document.getElementById('faculty').value;
-    const department      = document.getElementById('department').value;
-    const password        = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    const btn             = document.getElementById('submitBtn');
+    const fullName  = document.getElementById('fullName').value.trim();
+    const email     = document.getElementById('email').value.trim().toLowerCase();
+    const faculty   = document.getElementById('faculty').value;
+    const dept      = document.getElementById('department').value;
+    const pw        = document.getElementById('password').value;
+    const cpw       = document.getElementById('confirmPassword').value;
+    const btn       = document.getElementById('submitBtn');
 
-    // Validation
-    if (!faculty)     { showError('❌ Please select a faculty.'); return; }
-    if (!department)  { showError('❌ Please select a department.'); return; }
-    if (password !== confirmPassword) { showError('❌ Passwords do not match.'); return; }
-    if (password.length < 6) { showError('❌ Password must be at least 6 characters.'); return; }
+    if (!faculty)    { showErr('❌ Please select a faculty.'); return; }
+    if (!dept)       { showErr('❌ Please select a department.'); return; }
+    if (pw !== cpw)  { showErr('❌ Passwords do not match.'); return; }
+    if (pw.length<6) { showErr('❌ Password must be at least 6 characters.'); return; }
 
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Creating Account...';
+    btn.innerHTML = '<span style="width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:inline-block"></span> Creating Account…';
 
     try {
-        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        const cred = await createUserWithEmailAndPassword(auth, email, pw);
         const user = cred.user;
 
-        // 1. SAVE TO FIRESTORE
-        await setDoc(doc(db, "users", user.uid), {
-            fullName,
-            email,
-            faculty,
-            department,
-            semester: "1",
-            trialsUsed: 0,
-            isPro: false,
-            createdAt: new Date(),
-            authProvider: "email",
-            uid: user.uid
+        await setDoc(doc(db,"users",user.uid),{
+            fullName, email, faculty, department:dept,
+            semester:"1", trialsUsed:0, isPro:false,
+            createdAt:new Date(), authProvider:"email", uid:user.uid
         });
 
-        // 2. SEND VERIFICATION EMAIL
         await sendEmailVerification(user);
-
-        // 3. SIGN OUT IMMEDIATELY so they can't skip verification
-        // (createUserWithEmailAndPassword auto-logs them in — we reverse that)
         await signOut(auth);
-
-        // 4. Clear any localStorage session
         localStorage.removeItem('loggedInUser');
 
-        // 5. Show success popup then go to Login
         btn.disabled = false;
         btn.textContent = 'Account Created ✓';
-        const errElSuccess = document.getElementById('alertError');
-        errElSuccess.style.background = '#d4edda';
-        errElSuccess.style.color = '#155724';
-        errElSuccess.style.border = '1px solid #c3e6cb';
-        errElSuccess.textContent = '🎉 Account created! A verification email has been sent to ' + email + '. Please verify before logging in.';
-        errElSuccess.style.display = 'block';
-        window.scrollTo(0, 0);
+        showOk('🎉 Account created! A verification link was sent to ' + email + '. Please verify before logging in.');
 
-        setTimeout(() => { window.location.href = 'Login.html'; }, 4000);
-
-    } catch (e) {
+        setTimeout(() => { window.location.href = 'Login.html'; }, 4500);
+    } catch(e) {
         btn.disabled = false;
         btn.textContent = 'Create Account';
-
         const msgs = {
-            'auth/email-already-in-use': '❌ This email already has an account. Please log in instead.',
-            'auth/invalid-email':        '❌ Invalid email address.',
-            'auth/weak-password':        '❌ Password is too weak.',
-            'auth/operation-not-allowed': '❌ Email/password sign up is not enabled in Firebase Console.'
+            'auth/email-already-in-use':'❌ Email already registered. Please log in.',
+            'auth/invalid-email':       '❌ Invalid email address.',
+            'auth/weak-password':       '❌ Password is too weak.',
         };
-
-        showError(msgs[e.code] || ('❌ ' + e.message));
+        showErr(msgs[e.code] || '❌ '+e.message);
     }
 });
 </script>
 </body>
-</html>
+    </html>
