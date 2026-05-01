@@ -4,12 +4,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nova — Codex AI Assistant</title>
+  <meta name="description" content="Codex Study Hub helps OOU students master CBT exams with past questions, structured notes, AI assistance, progress tracking, and leaderboards.">
+  <meta name="keywords" content="Codex Study Hub, OOU CBT, past questions, exam practice, study notes, leaderboard, OOU 100 level">
+  <meta name="author" content="Codex Study Hub">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Codex Study Hub - Smart CBT Practice for OOU Students">
+  <meta property="og:description" content="Practice real CBT exams, access study notes, track progress and climb the leaderboard. Built for Olabisi Onabanjo University students.">
+  <meta property="og:image" content="https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/og-image.png">
+  <meta property="og:url" content="https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Codex Study Hub">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Codex Study Hub - Smart CBT Practice for OOU Students">
+  <meta name="twitter:description" content="Practice real CBT exams, access study notes, track progress and climb the leaderboard.">
+  <meta name="twitter:image" content="https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/og-image.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
-  <!-- ✅ CLEAN pdf.js load — single correct tag, worker set AFTER load -->
+  <!-- PDF.js v3 — stable version, pinned worker -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
   <style>
+    /* ═══════════════════════════════════════════════════════
+       MODULE: ui.css — all visual styles
+    ═══════════════════════════════════════════════════════ */
     :root {
       --bg:#080c14; --s1:#0f1623; --s2:#151e30; --s3:#1c283d;
       --border:rgba(255,255,255,.06); --border2:rgba(255,255,255,.1);
@@ -31,10 +50,16 @@
     @keyframes antPulse { 0%,100%{r:3;opacity:.8} 50%{r:4.8;opacity:1} }
     @keyframes bodyFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-2px)} }
     @keyframes ringGlow { 0%,100%{opacity:.4} 50%{opacity:1} }
-    @keyframes msgIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes dot { 0%,60%,100%{opacity:.2;transform:translateY(0)} 30%{opacity:1;transform:translateY(-3px)} }
+    @keyframes msgIn {
+      from { opacity:0; transform:translateY(10px) scale(.98); }
+      to   { opacity:1; transform:translateY(0)   scale(1); }
+    }
+    @keyframes dot { 0%,60%,100%{opacity:.2;transform:translateY(0)} 30%{opacity:1;transform:translateY(-4px)} }
     @keyframes spin { to{transform:rotate(360deg)} }
     @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes streamIn { from{opacity:0} to{opacity:1} }
+    @keyframes cursorBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+    @keyframes slideDown { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
 
     .nova-eye-l,.nova-eye-r { animation:blink 3.8s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
     .nova-eye-r { animation-delay:.15s; }
@@ -42,6 +67,17 @@
     .nova-body-g { animation:bodyFloat 2.6s ease-in-out infinite; }
     .nova-ear { animation:ringGlow 2.2s ease-in-out infinite; }
     .nova-ear2 { animation:ringGlow 2.2s ease-in-out infinite; animation-delay:.7s; }
+
+    /* ── TOAST ── */
+    #toast {
+      position:fixed; top:14px; left:50%; transform:translateX(-50%);
+      background:var(--s3); border:1px solid var(--border2);
+      border-radius:10px; padding:8px 16px; font-size:.8rem; font-weight:500;
+      color:var(--text); z-index:999; display:none; animation:slideDown .25s ease;
+      box-shadow:0 4px 20px rgba(0,0,0,.4); white-space:nowrap;
+    }
+    #toast.success { border-color:rgba(16,185,129,.4); color:var(--green); }
+    #toast.error   { border-color:rgba(239,68,68,.4);   color:#f87171; }
 
     /* ── HEADER ── */
     .header {
@@ -64,6 +100,7 @@
     .header-info h1 { font-family:'Syne',sans-serif; font-size:1rem; font-weight:800; color:#fff; margin-bottom:2px; }
     .header-status { display:flex; align-items:center; gap:5px; font-size:.7rem; color:rgba(255,255,255,.65); }
     .status-dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:ringGlow 2s infinite; }
+    .header-actions { display:flex; gap:6px; align-items:center; }
     .hdr-btn {
       padding:6px 12px; border-radius:8px; font-size:.73rem; font-weight:600;
       border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.05);
@@ -71,6 +108,7 @@
     }
     .hdr-btn:hover { background:rgba(255,255,255,.12); }
     .hdr-btn svg { width:13px; height:13px; }
+    .hdr-btn.history-btn { border-color:var(--purple-b); color:var(--purple); background:var(--purple-s); }
 
     /* ── CAPS BAR ── */
     .caps-bar {
@@ -94,6 +132,7 @@
     .chat-area {
       flex:1; overflow-y:auto; padding:16px 14px 8px;
       display:flex; flex-direction:column; gap:14px;
+      scroll-behavior:smooth;
     }
     .chat-area::-webkit-scrollbar { width:4px; }
     .chat-area::-webkit-scrollbar-thumb { background:var(--s3); border-radius:2px; }
@@ -103,7 +142,6 @@
     .welcome-nova { margin:0 auto 14px; }
     .welcome h2 { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:800; margin-bottom:6px; }
     .welcome p { color:var(--muted); font-size:.84rem; line-height:1.65; max-width:320px; margin:0 auto 14px; }
-
     .quick-grid { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
     .q-btn {
       background:var(--s1); border:1px solid var(--border); border-radius:10px;
@@ -114,8 +152,26 @@
     .q-icon { font-size:.82rem; margin-bottom:3px; display:block; }
     .q-text { font-size:.76rem; font-weight:500; line-height:1.4; display:block; }
 
+    /* History session pills */
+    .session-banner {
+      background:var(--s1); border:1px solid var(--border2);
+      border-radius:10px; padding:10px 13px; font-size:.8rem;
+      display:flex; align-items:center; justify-content:space-between; gap:8px;
+      animation:slideDown .3s ease;
+    }
+    .session-banner span { color:var(--muted); }
+    .session-banner strong { color:var(--text); }
+    .session-actions { display:flex; gap:6px; }
+    .sess-btn {
+      padding:4px 10px; border-radius:6px; font-size:.73rem; font-weight:600;
+      border:1px solid var(--border2); background:var(--s2); color:var(--muted);
+      cursor:pointer; transition:.2s;
+    }
+    .sess-btn:hover { color:var(--text); border-color:var(--blue-b); }
+    .sess-btn.primary { border-color:var(--purple-b); color:var(--purple); background:var(--purple-s); }
+
     /* Messages */
-    .msg { display:flex; gap:9px; animation:msgIn .25s ease; max-width:100%; }
+    .msg { display:flex; gap:9px; animation:msgIn .28s cubic-bezier(.22,.68,0,1.2); max-width:100%; }
     .msg.user { flex-direction:row-reverse; }
 
     .msg-av {
@@ -151,6 +207,15 @@
       color:var(--blue); margin:10px 0 4px; border-bottom:1px solid var(--border);
       padding-bottom:3px; display:block;
     }
+
+    /* Streaming cursor */
+    .stream-cursor {
+      display:inline-block; width:2px; height:14px;
+      background:var(--purple); margin-left:2px; vertical-align:middle;
+      animation:cursorBlink .7s ease-in-out infinite;
+      border-radius:1px;
+    }
+
     .mode-tag {
       display:inline-flex; align-items:center; gap:4px;
       padding:2px 7px; border-radius:5px; font-size:.68rem; font-weight:700;
@@ -161,14 +226,15 @@
     .mode-tag.green { background:var(--green-s); color:var(--green); border-color:rgba(16,185,129,.3); }
     .mode-tag.gold { background:rgba(245,158,11,.1); color:var(--gold); border-color:rgba(245,158,11,.3); }
     .mode-tag.red { background:rgba(239,68,68,.1); color:var(--red); border-color:rgba(239,68,68,.25); }
+    .mode-tag.blue { background:var(--blue-s); color:var(--blue); border-color:var(--blue-b); }
 
-    /* Typing */
+    /* Typing indicator */
     .typing-dots { display:flex; gap:4px; padding:3px 0; }
     .typing-dots span { width:7px; height:7px; border-radius:50%; background:var(--muted); animation:dot .9s ease-in-out infinite; }
     .typing-dots span:nth-child(2) { animation-delay:.2s; }
     .typing-dots span:nth-child(3) { animation-delay:.4s; }
 
-    /* PDF progress bar inside bubble */
+    /* PDF progress */
     .pdf-progress { margin-top:8px; }
     .pdf-progress-bar { height:5px; background:var(--s2); border-radius:3px; overflow:hidden; margin-top:4px; }
     .pdf-progress-fill { height:100%; background:linear-gradient(90deg,var(--blue),var(--purple)); border-radius:3px; transition:width .3s ease; }
@@ -236,8 +302,16 @@
     .send-btn:hover:not(:disabled) { transform:scale(1.06); box-shadow:0 6px 22px rgba(59,130,246,.42); }
     .send-btn:disabled { opacity:.4; cursor:not-allowed; transform:none; }
     .send-btn svg { width:20px; height:20px; }
-
     #pdfFileInput { display:none; }
+
+    /* Saving indicator */
+    .save-indicator {
+      display:inline-flex; align-items:center; gap:4px;
+      font-size:.68rem; color:var(--dim); margin-top:3px;
+      opacity:0; transition:opacity .3s;
+    }
+    .save-indicator.visible { opacity:1; }
+    .save-indicator svg { width:10px; height:10px; }
 
     @media(max-width:480px) {
       .quick-grid { grid-template-columns:1fr; }
@@ -247,13 +321,15 @@
 </head>
 <body>
 
+<!-- TOAST NOTIFICATION -->
+<div id="toast"></div>
+
 <!-- HEADER -->
 <div class="header">
   <a href="home.html" class="back-btn">
     <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
   </a>
 
-  <!-- NOVA header character (small, animated) -->
   <div class="header-av">
     <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
       <defs>
@@ -279,14 +355,20 @@
     <h1>Nova — Codex AI</h1>
     <div class="header-status">
       <div class="status-dot"></div>
-      Online · OOU Study Companion
+      <span id="headerStatusText">Online · OOU Study Companion</span>
     </div>
   </div>
 
-  <button class="hdr-btn" onclick="clearChat()">
-    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
-    New Chat
-  </button>
+  <div class="header-actions">
+    <button class="hdr-btn history-btn" onclick="showHistoryPanel()" title="Chat history">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      History
+    </button>
+    <button class="hdr-btn" onclick="clearChat()">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+      New Chat
+    </button>
+  </div>
 </div>
 
 <!-- CAPS BAR -->
@@ -307,12 +389,15 @@
     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     Web Research
   </div>
+  <div class="cap-pill" id="syncPill" style="display:none">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+    Cloud Sync ✓
+  </div>
 </div>
 
 <!-- CHAT AREA -->
 <div class="chat-area" id="chatArea">
   <div class="welcome" id="welcomeBlock">
-    <!-- Welcome NOVA (large animated) -->
     <div class="welcome-nova">
       <svg style="width:72px;height:72px" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -340,8 +425,6 @@
           <rect x="28" y="58" width="16" height="6" rx="3" fill="#162840"/>
           <circle class="nova-ear" cx="11" cy="32" r="5" fill="#3b82f6" opacity=".45"/>
           <circle class="nova-ear2" cx="61" cy="32" r="5" fill="#a855f7" opacity=".45"/>
-          <line x1="16" y1="35" x2="56" y2="35" stroke="rgba(59,130,246,.06)" stroke-width="1"/>
-          <line x1="16" y1="40" x2="56" y2="40" stroke="rgba(59,130,246,.04)" stroke-width="1"/>
         </g>
       </svg>
     </div>
@@ -413,7 +496,6 @@
   <div class="input-row">
     <textarea id="userInput" placeholder="Ask Nova anything about your courses…"
       rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-
     <div class="input-actions">
       <button class="icon-btn" id="pdfUploadBtn" title="Upload PDF or document"
         onclick="document.getElementById('pdfFileInput').click()">
@@ -433,64 +515,103 @@
   </div>
 </div>
 
-<input type="file" id="pdfFileInput" accept=".pdf,.txt" onchange="handlePDFUpload(event)">
+<input type="file" id="pdfFileInput" accept=".pdf,.txt,.doc,.docx" onchange="handlePDFUpload(event)">
 
-<script>
-// ✅ Set pdf.js worker AFTER the library script has loaded
-window.addEventListener('load', () => {
-  if (typeof pdfjsLib !== 'undefined') {
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-  }
-});
-</script>
-
+<!-- ═══════════════════════════════════════════════════════════════════════
+     FIREBASE MODULE
+═══════════════════════════════════════════════════════════════════════ -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { initializeApp }       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, addDoc, collection,
+  query, orderBy, limit, getDocs, serverTimestamp, updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+/* ── CONFIG ── */
 const firebaseConfig = {
-  apiKey:"AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
-  authDomain:"codex-study-hub-923c5.firebaseapp.com",
-  projectId:"codex-study-hub-923c5",
-  storageBucket:"codex-study-hub-923c5.appspot.com",
-  messagingSenderId:"750631534625",
-  appId:"1:750631534625:web:5f59e1841bb856bdbba360"
+  apiKey:            "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+  authDomain:        "codex-study-hub-923c5.firebaseapp.com",
+  projectId:         "codex-study-hub-923c5",
+  storageBucket:     "codex-study-hub-923c5.appspot.com",
+  messagingSenderId: "750631534625",
+  appId:             "1:750631534625:web:5f59e1841bb856bdbba360"
 };
 
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
-// ── GROQ CONFIG ───────────────────────────────────────────────────────────────
-const GROQ_KEY   = "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";
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+/* ── SUBJECT MAP ── */
+const SUBJECT_MAP = {
+  science:         { '1':['MTH101','PHY101','CHM101','BIO101','COS101','GST111','STA111'], '2':['MTH102','PHY102','CHM102','BIO102','GST112','COS102'] },
+  social_sciences: { '1':['GST111','ECO101','POL101','SOC101','BUS101'],                  '2':['GST112','ECO102','POL102','SOC102','BUS102'] },
+  arts:            { '1':['GST111','ENG101','HIS101','PHI101','FRE101'],                  '2':['GST112','ENG102','HIS102','PHI102','FRE102'] },
+  law:             { '1':['GST111','LAW101','LAW103'],                                    '2':['GST112','LAW102','LAW104'] }
+};
 
-// ── STATE ─────────────────────────────────────────────────────────────────────
+/* ══════════════════════════════════════════
+   STATE — single source of truth
+══════════════════════════════════════════ */
 let userData    = null;
 let userStats   = null;
 let currentMode = 'normal';
 let pdfText     = '';
 let pdfPages    = 0;
-let chatHistory = [];
+let chatHistory = [];          // last N messages for AI context
+let currentUser = null;
+let sessionId   = null;        // Firestore session document ID
+let isSending   = false;       // guard against double-send
+let workerReady = false;
 
-const SUBJECT_MAP = {
-  science:        { '1':['MTH101','PHY101','CHM101','BIO101','COS101','GST111','STA111'], '2':['MTH102','PHY102','CHM102','BIO102','GST112','COS102'] },
-  social_sciences:{ '1':['GST111','ECO101','POL101','SOC101','BUS101'],                  '2':['GST112','ECO102','POL102','SOC102','BUS102'] },
-  arts:           { '1':['GST111','ENG101','HIS101','PHI101','FRE101'],                  '2':['GST112','ENG102','HIS102','PHI102','FRE102'] },
-  law:            { '1':['GST111','LAW101','LAW103'],                                    '2':['GST112','LAW102','LAW104'] }
+/* expose state to global scope for non-module handlers */
+window._state = {
+  get userData()    { return userData; },
+  get userStats()   { return userStats; },
+  get currentMode() { return currentMode; },
+  set currentMode(v){ currentMode = v; },
+  get pdfText()     { return pdfText; },
+  set pdfText(v)    { pdfText = v; },
+  get pdfPages()    { return pdfPages; },
+  set pdfPages(v)   { pdfPages = v; },
+  get chatHistory() { return chatHistory; },
+  set chatHistory(v){ chatHistory = v; },
+  get sessionId()   { return sessionId; },
+  get currentUser() { return currentUser; },
 };
 
-// ── AUTH ──────────────────────────────────────────────────────────────────────
+/* ══════════════════════════════════════════
+   PDF.JS INIT — pinned to v3.11.174
+══════════════════════════════════════════ */
+function initPDFWorker() {
+  if (typeof pdfjsLib === 'undefined') {
+    setTimeout(initPDFWorker, 300);
+    return;
+  }
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  workerReady = true;
+  console.log('✅ PDF.js worker ready (v3.11.174)');
+}
+initPDFWorker();
+
+/* ══════════════════════════════════════════
+   AUTH — load user + stats + last session
+══════════════════════════════════════════ */
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.href = 'Login.html'; return; }
+  currentUser = user;
+
   try {
+    /* user profile */
     const snap = await getDoc(doc(db, "users", user.uid));
     if (snap.exists()) {
       userData = snap.data();
-      document.getElementById('userName').textContent = userData.fullName?.split(' ')[0] || 'Student';
+      document.getElementById('userName').textContent =
+        userData.fullName?.split(' ')[0] || 'Student';
     }
+
+    /* quiz stats */
     const statsSnap = await getDoc(doc(db, "stats", user.uid));
     if (statsSnap.exists()) {
       const hist = statsSnap.data().history || [];
@@ -507,355 +628,294 @@ onAuthStateChanged(auth, async (user) => {
       const weak = Object.entries(bySub).sort((a,b)=>a[1].acc-b[1].acc).slice(0,3).map(([s])=>s);
       userStats = { totalTests:tot, avgScore:avg, bestScore:best, weakSubjects:weak, bySub };
     }
-  } catch(e) { console.error(e); }
+
+    /* show sync pill */
+    document.getElementById('syncPill').style.display = 'flex';
+
+    /* check for previous session */
+    await loadLatestSession(user.uid);
+
+  } catch(e) { console.error('Auth load error:', e); }
 });
 
-// ── SYSTEM PROMPT ─────────────────────────────────────────────────────────────
+/* ══════════════════════════════════════════
+   FIREBASE CHAT HISTORY
+══════════════════════════════════════════ */
+
+/** Create a new Firestore session */
+async function createSession() {
+  if (!currentUser) return;
+  try {
+    const ref = await addDoc(
+      collection(db, "users", currentUser.uid, "chats"),
+      {
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        mode:      currentMode,
+        preview:   '',
+        messages:  []
+      }
+    );
+    sessionId = ref.id;
+    console.log('✅ New session:', sessionId);
+  } catch(e) { console.error('createSession error:', e); }
+}
+
+/** Save a message pair to the active Firestore session */
+async function saveMessageToFirestore(userMsg, aiMsg) {
+  if (!currentUser || !sessionId) return;
+  try {
+    const sessionRef = doc(db, "users", currentUser.uid, "chats", sessionId);
+    const snap = await getDoc(sessionRef);
+    const existing = snap.exists() ? (snap.data().messages || []) : [];
+
+    const toAdd = [];
+    if (userMsg) toAdd.push({ role:'user',      content:userMsg, ts: Date.now() });
+    if (aiMsg)   toAdd.push({ role:'assistant', content:aiMsg,   ts: Date.now() });
+
+    const updated = [...existing, ...toAdd].slice(-60); // keep last 60 messages in storage
+
+    await updateDoc(sessionRef, {
+      messages:  updated,
+      updatedAt: serverTimestamp(),
+      preview:   (userMsg || '').substring(0,80)
+    });
+  } catch(e) { console.warn('saveMessage error:', e); }
+}
+
+/** Load the most recent session and show resume banner */
+async function loadLatestSession(uid) {
+  try {
+    const q = query(
+      collection(db, "users", uid, "chats"),
+      orderBy("updatedAt", "desc"),
+      limit(1)
+    );
+    const snap = await getDocs(q);
+    if (snap.empty) return;
+
+    const sessionDoc = snap.docs[0];
+    const data = sessionDoc.data();
+    const messages = data.messages || [];
+    if (messages.length === 0) return;
+
+    /* Show resume banner */
+    const banner = document.createElement('div');
+    banner.className = 'session-banner';
+    banner.id = 'resumeBanner';
+    const preview = data.preview || 'previous conversation';
+    const dateStr = data.updatedAt?.toDate
+      ? new Intl.DateTimeFormat('en-GB',{dateStyle:'medium',timeStyle:'short'}).format(data.updatedAt.toDate())
+      : 'recently';
+
+    banner.innerHTML = `
+      <div>
+        <strong>Continue where you left off?</strong>
+        <span style="display:block;margin-top:2px">"${preview}…" · ${dateStr}</span>
+      </div>
+      <div class="session-actions">
+        <button class="sess-btn primary" onclick="resumeSession('${sessionDoc.id}')">Resume</button>
+        <button class="sess-btn" onclick="dismissBanner()">New chat</button>
+      </div>`;
+
+    document.getElementById('chatArea').insertBefore(banner,
+      document.getElementById('chatArea').firstChild);
+
+    /* store for potential resume */
+    window._pendingSession = { id: sessionDoc.id, messages };
+
+  } catch(e) { console.error('loadLatestSession error:', e); }
+}
+
+window.resumeSession = async function(id) {
+  const pending = window._pendingSession;
+  if (!pending) return;
+
+  sessionId = pending.id;
+  const messages = pending.messages;
+
+  document.getElementById('resumeBanner')?.remove();
+  document.getElementById('welcomeBlock').style.display = 'none';
+
+  /* Restore into chatHistory (last 20 for AI context) */
+  chatHistory = messages.slice(-20).map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }));
+
+  /* Render messages */
+  messages.forEach(m => {
+    addMsg(m.role === 'assistant' ? 'ai' : 'user', m.content, 'normal', false);
+  });
+
+  showToast('Chat restored ✓', 'success');
+};
+
+window.dismissBanner = function() {
+  document.getElementById('resumeBanner')?.remove();
+  window._pendingSession = null;
+};
+
+/* expose for non-module handlers */
+window._firebase = { createSession, saveMessageToFirestore, resetSession: () => { sessionId = null; } };
+
+/* ══════════════════════════════════════════
+   SYSTEM PROMPT BUILDER — optimized, lean
+══════════════════════════════════════════ */
 function buildSystemPrompt() {
-  const fac  = userData?.faculty || 'science';
-  const dept = userData?.department || 'Unknown';
-  const sem  = userData?.semester || '1';
+  const fac  = userData?.faculty     || 'science';
+  const dept = userData?.department  || 'Unknown';
+  const sem  = userData?.semester    || '1';
   const subs = (SUBJECT_MAP[fac]?.[sem] || []).join(', ');
-  const name = userData?.fullName || 'Student';
-
-  let statsCtx = '';
-  if (userStats && userStats.totalTests > 0) {
-    statsCtx = `\nSTUDENT PERFORMANCE:\n- Tests taken: ${userStats.totalTests}\n- Average accuracy: ${userStats.avgScore}%\n- Best score: ${userStats.bestScore}%\n- Subjects needing improvement: ${userStats.weakSubjects.join(', ') || 'None identified yet'}\n`;
-  }
-
-  let pdfCtx = '';
-  if (pdfText) {
-    // Pass up to 10,000 chars of the PDF to the model
-    pdfCtx = `\nUPLOADED DOCUMENT (${pdfPages} pages — use this content to answer questions):\n"""\n${pdfText.substring(0, 10000)}\n"""\n`;
-  }
+  const name = userData?.fullName    || 'Student';
 
   const modeInstructions = {
-    normal:   'Answer clearly and helpfully. Use **bold** for key terms, bullet points for lists.',
-    pdf:      'The student has uploaded a document. Base your answers on the document content provided above. If the question is not covered in the document, say so clearly.',
-    quiz:     'Generate exactly 5 multiple-choice questions (A, B, C, D). Number each question. At the end, write "ANSWERS:" followed by the correct letters.',
-    explain:  'Explain the concept simply as if teaching a Nigerian 100-level university student. Use analogies, examples, and break it into clear steps.',
-    research: 'Provide a thorough, research-style answer. Cite key facts, give context, and be comprehensive.'
+    normal:   'Answer clearly. Use **bold** for key terms, bullet points for lists.',
+    pdf:      'Base answers strictly on the uploaded document. If not covered, say so.',
+    quiz:     'Generate exactly 5 MCQs (A-D). Finish with "ANSWERS:" listing correct letters.',
+    explain:  'Explain simply for a Nigerian 100-level student. Use analogies and steps.',
+    research: 'Provide thorough research-style answer with key facts and context.'
   };
 
-  return `You are Nova, the smart AI study companion for Codex Study Hub at OOU (Olabisi Onabanjo University), Ago-Iwoye, Nigeria.
+  /* stats block — only included if data exists */
+  const statsCtx = (userStats?.totalTests > 0)
+    ? `\nPERFORMANCE: ${userStats.totalTests} tests, avg ${userStats.avgScore}%, weak: ${userStats.weakSubjects.join(', ') || 'none'}`
+    : '';
 
-STUDENT PROFILE:
-- Name: ${name}
-- Faculty: ${fac}
-- Department: ${dept}  
-- Current Semester: ${sem}
-- Subjects: ${subs}
-${statsCtx}${pdfCtx}
-CURRENT MODE: ${currentMode.toUpperCase()}
-MODE INSTRUCTION: ${modeInstructions[currentMode] || modeInstructions.normal}
+  /* pdf context — first 8000 chars to reduce token cost */
+  const pdfCtx = pdfText
+    ? `\nDOCUMENT (${pdfPages}p):\n"""\n${pdfText.substring(0,8000)}\n"""`
+    : '';
 
-PERSONALITY: You are warm, encouraging, and direct. You celebrate progress. You speak to Nigerian 100-level students — you understand their curriculum (WAEC/JAMB/JUPEB background, OOU course structure). Keep responses scannable with clear formatting.
-
-NAVIGATION GUIDANCE: You can direct students to app features:
-- Practice tests → "Go to Home → select subject → Practice Mode"
-- Check progress → "Go to Home → Stats & Progress"
-- Get resources → "Go to Home → PDF Resources"
-- Upgrade → "Go to Home → Upgrade to Pro"`;
+  return `You are Nova, AI study companion for Codex Study Hub at OOU (Olabisi Onabanjo University), Nigeria.
+STUDENT: ${name} | ${fac} | ${dept} | Sem ${sem} | Subjects: ${subs}${statsCtx}${pdfCtx}
+MODE: ${currentMode.toUpperCase()} — ${modeInstructions[currentMode] || modeInstructions.normal}
+Be warm, encouraging, scannable. Direct students: tests→Home→Practice, progress→Home→Stats.`;
 }
 
-// ── PDF READING ───────────────────────────────────────────────────────────────
-// This is the FIXED version — uses pdf.js v3 properly, returns text reliably
+/* expose for non-module sendMessage */
+window._buildSystemPrompt = buildSystemPrompt;
 
-window.handlePDFUpload = async function(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  // Reset previous PDF
-  pdfText = ''; pdfPages = 0;
-
-  document.getElementById('pdfFileName').textContent = file.name;
-  document.getElementById('pdfFileMeta').textContent = `${(file.size/1024).toFixed(1)} KB · Reading…`;
-  document.getElementById('pdfBadge').textContent = 'Reading…';
-  document.getElementById('pdfBadge').style.color = 'var(--gold)';
-  document.getElementById('pdfBadge').style.borderColor = 'rgba(245,158,11,.3)';
-  document.getElementById('pdfBadge').style.background = 'rgba(245,158,11,.1)';
-  document.getElementById('pdfPreviewBar').style.display = 'block';
-  document.getElementById('pdfUploadBtn').classList.add('has-file');
-
-  // Switch to PDF mode
-  setMode('pdf');
-
-  // Hide welcome, show progress message
-  document.getElementById('welcomeBlock').style.display = 'none';
-  const progressMsgEl = addMsg('ai', '', 'pdf');
-  const bubbleEl = progressMsgEl.querySelector('.msg-bubble');
-
-  // Handle .txt files directly
-  if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
-    try {
-      pdfText = await file.text();
-      pdfPages = 1;
-      finishPDFLoad(file, bubbleEl);
-    } catch(err) {
-      showPDFError(bubbleEl, err.message);
-    }
-    return;
-  }
-
-  // PDF reading with pdf.js
-  try {
-    if (typeof pdfjsLib === 'undefined') {
-      throw new Error('PDF reader not loaded yet. Please wait 2 seconds and try again.');
-    }
-
-    const arrayBuffer = await file.arrayBuffer();
-
-    // Show initial progress
-    bubbleEl.innerHTML = `<div class="mode-tag"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF Reading</div>
-      <div>Reading <strong>${file.name}</strong>…</div>
-      <div class="pdf-progress">
-        <div class="pdf-progress-label" id="pdfProgLabel">Loading PDF structure…</div>
-        <div class="pdf-progress-bar"><div class="pdf-progress-fill" id="pdfProgFill" style="width:10%"></div></div>
-      </div>`;
-    scrollChat();
-
-    const loadTask = pdfjsLib.getDocument({ data: arrayBuffer, useWorkerFetch: false, isEvalSupported: false });
-
-    // Progress callback
-    loadTask.onProgress = ({ loaded, total }) => {
-      if (total > 0) {
-        const pct = Math.round((loaded / total) * 40);
-        const fill = document.getElementById('pdfProgFill');
-        if (fill) fill.style.width = pct + '%';
-      }
-    };
-
-    const pdf = await loadTask.promise;
-    pdfPages = pdf.numPages;
-
-    const fill = document.getElementById('pdfProgFill');
-    const label = document.getElementById('pdfProgLabel');
-    if (fill) fill.style.width = '50%';
-    if (label) label.textContent = `Reading ${pdfPages} pages…`;
-
-    let allText = '';
-    for (let i = 1; i <= pdfPages; i++) {
-      const page    = await pdf.getPage(i);
-      const content = await page.getTextContent();
-
-      // Join text items, preserving line structure
-      let pageText = '';
-      let lastY = null;
-      content.items.forEach(item => {
-        if (lastY !== null && Math.abs(item.transform[5] - lastY) > 5) {
-          pageText += '\n';
-        }
-        pageText += item.str;
-        if (item.hasEOL) pageText += '\n';
-        lastY = item.transform[5];
-      });
-      allText += `\n--- Page ${i} ---\n${pageText.trim()}\n`;
-
-      // Update progress
-      const pct = 50 + Math.round((i / pdfPages) * 45);
-      const f2 = document.getElementById('pdfProgFill');
-      const l2 = document.getElementById('pdfProgLabel');
-      if (f2) f2.style.width = pct + '%';
-      if (l2) l2.textContent = `Page ${i} of ${pdfPages}…`;
-    }
-
-    pdfText = allText.trim();
-
-    if (!pdfText || pdfText.replace(/\s|-|Page \d+/g,'').length < 20) {
-      throw new Error('This PDF appears to be a scanned image — no readable text was found. Please use a text-based PDF.');
-    }
-
-    finishPDFLoad(file, bubbleEl);
-
-  } catch(err) {
-    showPDFError(bubbleEl, err.message);
-  }
-
-  // Reset file input so same file can be re-uploaded
-  e.target.value = '';
-};
-
-function finishPDFLoad(file, bubbleEl) {
-  const preview = Math.min(pdfText.length, 200);
-  const wordCount = pdfText.trim().split(/\s+/).length;
-
-  document.getElementById('pdfFileMeta').textContent = `${(file.size/1024).toFixed(1)} KB · ${pdfPages} page${pdfPages>1?'s':''}`;
-  document.getElementById('pdfBadge').textContent = '✓ Ready';
-  document.getElementById('pdfBadge').style.color = 'var(--green)';
-  document.getElementById('pdfBadge').style.borderColor = 'rgba(16,185,129,.3)';
-  document.getElementById('pdfBadge').style.background = 'var(--green-s)';
-
-  bubbleEl.innerHTML = `<div class="mode-tag green"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> PDF Loaded</div>
-    <div>Successfully read <strong>${file.name}</strong></div>
-    <ul style="margin-top:6px">
-      <li>Pages: <strong>${pdfPages}</strong></li>
-      <li>Words extracted: <strong>~${wordCount.toLocaleString()}</strong></li>
-      <li>Ready for analysis</li>
-    </ul>
-    <div style="margin-top:10px;padding:8px 10px;background:var(--s2);border-radius:8px;font-size:.76rem;color:var(--muted);font-style:italic">"${preview}…"</div>
-    <div style="margin-top:10px;font-size:.82rem;color:var(--muted)">Try: <em>Summarise this document</em> · <em>Generate 5 questions from it</em> · <em>What are the key definitions?</em></div>`;
-  scrollChat();
-}
-
-function showPDFError(bubbleEl, reason) {
-  pdfText = ''; pdfPages = 0;
-  document.getElementById('pdfPreviewBar').style.display = 'none';
-  document.getElementById('pdfUploadBtn').classList.remove('has-file');
-  setMode('normal');
-
-  bubbleEl.innerHTML = `<div class="mode-tag red"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> PDF Error</div>
-    <div>Couldn't read this PDF.</div>
-    <div style="margin-top:6px;padding:8px;background:rgba(239,68,68,.1);border-radius:6px;font-size:.78rem;color:#f87171"><strong>Reason:</strong> ${reason}</div>
-    <ul style="margin-top:8px;font-size:.82rem;color:var(--muted)">
-      <li>Use text-based PDFs, not scanned images</li>
-      <li>Try a smaller file (under 10 MB)</li>
-      <li>Some password-protected PDFs can't be read</li>
-      <li>Convert scanned PDFs to text using Smallpdf or ILovePDF first</li>
-    </ul>`;
-  scrollChat();
-}
-
-window.removePDF = function() {
-  pdfText = ''; pdfPages = 0;
-  document.getElementById('pdfPreviewBar').style.display = 'none';
-  document.getElementById('pdfFileInput').value = '';
-  document.getElementById('pdfUploadBtn').classList.remove('has-file');
-  setMode('normal');
-};
-
-// ── SEND MESSAGE ──────────────────────────────────────────────────────────────
+/* ══════════════════════════════════════════
+   SEND MESSAGE — with simulated streaming
+══════════════════════════════════════════ */
 window.sendMessage = async function() {
+  if (isSending) return;
+
   const input = document.getElementById('userInput');
   const text  = input.value.trim();
   if (!text) return;
 
+  isSending = true;
   const btn = document.getElementById('sendBtn');
   btn.disabled = true;
-  input.value = '';
+  input.value  = '';
   autoResize(input);
 
   const wb = document.getElementById('welcomeBlock');
   if (wb) wb.style.display = 'none';
+  document.getElementById('resumeBanner')?.remove();
 
-  addMsg('user', text);
+  /* ensure we have a Firestore session */
+  if (!sessionId) {
+    await window._firebase.createSession();
+  }
 
+  addMsg('user', text, null, true);
+
+  /* build augmented user content per mode */
   let userContent = text;
-  if (currentMode === 'quiz') {
-    userContent = `Generate 5 MCQ practice questions on this topic for a Nigerian 100-level university student: "${text}". Include options A, B, C, D for each question. End with "ANSWERS:" listing the correct options.`;
-  } else if (currentMode === 'explain') {
-    userContent = `Explain this topic clearly for a Nigerian 100-level university student: "${text}". Use simple language, real-world examples, and step-by-step breakdown.`;
-  } else if (currentMode === 'research') {
-    userContent = `Research and provide a thorough answer about: "${text}". Include key facts, background context, and practical application for a Nigerian university student.`;
-  } else if (currentMode === 'pdf' && pdfText) {
-    userContent = text || 'Please summarise this document, highlight the key points, and generate 3 practice questions from it.';
+  switch (currentMode) {
+    case 'quiz':
+      userContent = `Generate 5 MCQ practice questions on this topic for a Nigerian 100-level university student: "${text}". Include options A, B, C, D. End with "ANSWERS:" listing correct letters.`;
+      break;
+    case 'explain':
+      userContent = `Explain this topic for a Nigerian 100-level student: "${text}". Use simple language, real-world examples, step-by-step breakdown.`;
+      break;
+    case 'research':
+      userContent = `Research and give a thorough answer about: "${text}". Key facts, background context, practical application for a Nigerian university student.`;
+      break;
+    case 'pdf':
+      if (!pdfText) {
+        addMsg('ai', '**No document loaded.** Please upload a PDF first using the ↑ button, then ask your question.', 'error', false);
+        btn.disabled = false; isSending = false; return;
+      }
+      break;
   }
 
   chatHistory.push({ role:'user', content: userContent });
-  if (chatHistory.length > 30) chatHistory = chatHistory.slice(-30);
+  if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
 
   const typingId = showTyping();
 
   try {
-    const system = buildSystemPrompt();
+    const system = window._buildSystemPrompt();
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const response = await fetch("https://codex-backend-56vo.onrender.com/chat", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${GROQ_KEY}`
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: GROQ_MODEL,
-        messages: [
-          { role:'system', content: system },
-          ...chatHistory
-        ],
-        max_tokens: 1200,
-        temperature: 0.65,
-        stream: false
+        messages:    [{ role:'system', content:system }, ...chatHistory],
+        max_tokens:  1200,
+        temperature: 0.65
       })
     });
 
     if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      throw new Error(errData?.error?.message || `API error ${response.status}`);
+      let errMsg = `Server error (${response.status})`;
+      try { const e = await response.json(); errMsg = e?.error || errMsg; } catch {}
+      throw new Error(errMsg);
     }
 
-    const data    = await response.json();
-    const aiText  = data.choices?.[0]?.message?.content?.trim() || "Sorry, I couldn't generate a response. Please try again.";
+    const data   = await response.json();
+    const aiText = data.choices?.[0]?.message?.content || data.reply || "Sorry, I couldn't generate a response.";
 
     chatHistory.push({ role:'assistant', content: aiText });
+    if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
 
     removeTyping(typingId);
-    addMsg('ai', aiText, currentMode);
+
+    /* STREAMING SIMULATION — chunk-by-chunk word reveal */
+    await streamMessage(aiText, currentMode);
+
+    /* persist to Firestore */
+    await window._firebase.saveMessageToFirestore(text, aiText);
 
   } catch(err) {
     removeTyping(typingId);
-    addMsg('ai', `**Connection error:** ${err.message}\n\nPlease check your internet and try again.`, 'error');
+    addMsg('ai', `**Connection error:** ${err.message}\n\nPlease check your internet and try again.`, 'error', false);
   }
 
   btn.disabled = false;
+  isSending    = false;
   input.focus();
 };
 
-// ── QUICK ASK ─────────────────────────────────────────────────────────────────
-window.quickAsk = function(text) {
-  document.getElementById('userInput').value = text;
-  sendMessage();
-};
-
-// ── MODE SWITCHER ─────────────────────────────────────────────────────────────
-window.setMode = function(mode) {
-  currentMode = mode;
-  document.querySelectorAll('.mode-pill').forEach(p => p.classList.remove('active'));
-  const id = 'mode' + mode.charAt(0).toUpperCase() + mode.slice(1);
-  const el = document.getElementById(id);
-  if (el) el.classList.add('active');
-
-  const ph = {
-    normal:   'Ask Nova anything about your courses…',
-    pdf:      pdfText ? 'Ask me about the document…' : 'Upload a PDF first using the ↑ button, then ask questions…',
-    quiz:     'Enter a topic and I will generate 5 MCQ questions…',
-    explain:  'What concept or topic should I explain?',
-    research: 'What topic should I research for you?'
-  };
-  document.getElementById('userInput').placeholder = ph[mode] || ph.normal;
-};
-
-// ── MESSAGE HELPERS ───────────────────────────────────────────────────────────
-// Returns the message DOM element so we can update it later
-function addMsg(role, text, mode) {
+/* ══════════════════════════════════════════
+   STREAMING ENGINE
+   Reveals the full AI response word-by-word
+   with requestAnimationFrame for smoothness
+══════════════════════════════════════════ */
+async function streamMessage(fullText, mode) {
   const area = document.getElementById('chatArea');
-  const msg  = document.createElement('div');
-  msg.className = `msg ${role}`;
 
-  // Avatar
+  /* build message shell */
+  const msg = document.createElement('div');
+  msg.className = 'msg ai';
+  msg.style.opacity = '0';
+
   const av = document.createElement('div');
-  av.className = `msg-av ${role}-av`;
-  if (role === 'ai') {
-    av.innerHTML = `<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
-      <defs><linearGradient id="ma" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#a855f7"/></linearGradient></defs>
-      <rect x="7" y="9" width="30" height="28" rx="7" fill="#07111e" stroke="#253a5a" stroke-width="1"/>
-      <rect x="10" y="12" width="24" height="18" rx="4" fill="#040c17"/>
-      <rect x="13" y="16" width="7" height="6" rx="3" fill="url(#ma)"/>
-      <rect x="24" y="16" width="7" height="6" rx="3" fill="url(#ma)"/>
-      <path d="M15 26 Q22 30.5 29 26" stroke="url(#ma)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-    </svg>`;
-  } else {
-    av.textContent = userData?.fullName?.[0]?.toUpperCase() || 'U';
-  }
+  av.className = 'msg-av ai-av';
+  av.innerHTML = novaAvatarSVG('sa');
 
-  // Bubble
   const bubble = document.createElement('div');
   bubble.className = 'msg-bubble';
 
-  if (role === 'ai' && mode && mode !== 'normal') {
+  /* mode tag */
+  if (mode && mode !== 'normal') {
     const modeInfo = {
       pdf:      { label:'PDF Analysis', cls:'purple' },
-      quiz:     { label:'Quiz',         cls:'gold' },
-      explain:  { label:'Explanation',  cls:'green' },
-      research: { label:'Research',     cls:'blue' },
-      error:    { label:'Error',        cls:'red' }
+      quiz:     { label:'Quiz',         cls:'gold'   },
+      explain:  { label:'Explanation',  cls:'green'  },
+      research: { label:'Research',     cls:'blue'   },
+      error:    { label:'Error',        cls:'red'    }
     };
     const info = modeInfo[mode];
     if (info) {
@@ -867,84 +927,590 @@ function addMsg(role, text, mode) {
   }
 
   const content = document.createElement('div');
+  const cursor  = document.createElement('span');
+  cursor.className = 'stream-cursor';
+  bubble.appendChild(content);
+  bubble.appendChild(cursor);
+
+  msg.appendChild(av);
+  msg.appendChild(bubble);
+  area.appendChild(msg);
+
+  /* fade in shell */
+  requestAnimationFrame(() => {
+    msg.style.transition = 'opacity .2s ease';
+    msg.style.opacity = '1';
+  });
+
+  /* split into words for streaming */
+  const words    = fullText.split(/(\s+)/);
+  let   rendered = '';
+  let   wi       = 0;
+
+  /* Adaptive speed: longer text → slightly faster to stay snappy */
+  const baseDelay = fullText.length > 800 ? 12 : fullText.length > 400 ? 18 : 22;
+
+  await new Promise(resolve => {
+    function tick() {
+      if (wi >= words.length) {
+        cursor.remove();
+        content.innerHTML = formatText(fullText); // final clean render
+        scrollChatSmooth();
+        resolve();
+        return;
+      }
+
+      /* reveal 2-3 words per tick for speed on long responses */
+      const chunk = Math.min(fullText.length > 600 ? 3 : 2, words.length - wi);
+      for (let i = 0; i < chunk; i++) {
+        rendered += words[wi] || '';
+        wi++;
+      }
+
+      content.innerHTML = formatText(rendered);
+      scrollChatSmooth();
+
+      setTimeout(() => requestAnimationFrame(tick), baseDelay);
+    }
+    requestAnimationFrame(tick);
+  });
+
+  return msg;
+}
+
+/* ══════════════════════════════════════════
+   PDF ENGINE — improved reliability
+══════════════════════════════════════════ */
+window.handlePDFUpload = async function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  /* Reset state */
+  pdfText = ''; pdfPages = 0;
+
+  /* Validate size — 20MB hard limit */
+  if (file.size > 20 * 1024 * 1024) {
+    showToast('File too large (max 20 MB)', 'error');
+    e.target.value = '';
+    return;
+  }
+
+  document.getElementById('pdfFileName').textContent = file.name;
+  document.getElementById('pdfFileMeta').textContent = `${(file.size/1024).toFixed(1)} KB · Reading…`;
+  setPDFBadge('reading');
+  document.getElementById('pdfPreviewBar').style.display = 'block';
+  document.getElementById('pdfUploadBtn').classList.add('has-file');
+
+  setMode('pdf');
+  document.getElementById('welcomeBlock').style.display = 'none';
+
+  const progressMsgEl = addMsg('ai', '', 'pdf', false);
+  const bubbleEl = progressMsgEl.querySelector('.msg-bubble');
+
+  /* ── TXT files ── */
+  if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+    try {
+      pdfText = await file.text();
+      pdfPages = Math.ceil(pdfText.length / 3000);
+      finishPDFLoad(file, bubbleEl);
+    } catch(err) {
+      showPDFError(bubbleEl, err.message);
+    }
+    e.target.value = '';
+    return;
+  }
+
+  /* ── PDF files ── */
+  if (!file.name.toLowerCase().endsWith('.pdf') && file.type !== 'application/pdf') {
+    showPDFError(bubbleEl, 'Unsupported file type. Please upload a PDF or TXT file.');
+    e.target.value = '';
+    return;
+  }
+
+  /* wait for worker */
+  if (!workerReady || typeof pdfjsLib === 'undefined') {
+    showPDFError(bubbleEl, 'PDF reader is still loading. Please wait 2 seconds and try again.');
+    e.target.value = '';
+    return;
+  }
+
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+
+    bubbleEl.innerHTML = `<div class="mode-tag">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      PDF Reading</div>
+      <div>Reading <strong>${escapeHtml(file.name)}</strong>…</div>
+      <div class="pdf-progress">
+        <div class="pdf-progress-label" id="pdfProgLabel">Loading structure…</div>
+        <div class="pdf-progress-bar"><div class="pdf-progress-fill" id="pdfProgFill" style="width:8%"></div></div>
+      </div>`;
+    scrollChatSmooth();
+
+    const loadTask = pdfjsLib.getDocument({
+      data:               arrayBuffer,
+      useWorkerFetch:     false,
+      isEvalSupported:    false,
+      disableFontFace:    true,   // faster, no font downloads
+      cMapUrl:            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
+      cMapPacked:         true
+    });
+
+    loadTask.onProgress = ({ loaded, total }) => {
+      if (total > 0) {
+        const fill = document.getElementById('pdfProgFill');
+        if (fill) fill.style.width = Math.round((loaded/total)*40) + '%';
+      }
+    };
+
+    const pdf = await loadTask.promise;
+    pdfPages  = pdf.numPages;
+
+    setProgress(50, `Reading ${pdfPages} pages…`);
+
+    /* ── Chunk reading: read all pages, detect scans ── */
+    let allText    = '';
+    let emptyPages = 0;
+
+    for (let i = 1; i <= pdfPages; i++) {
+      const page    = await pdf.getPage(i);
+      const content = await page.getTextContent({ normalizeWhitespace: true });
+
+      /* reconstruct text with line breaks using Y-coordinate heuristic */
+      let pageText = '';
+      let lastY    = null;
+      let lastX    = null;
+
+      content.items.forEach(item => {
+        if (!item.str) return;
+
+        const x = item.transform[4];
+        const y = item.transform[5];
+
+        /* new line if Y changes significantly */
+        if (lastY !== null && Math.abs(y - lastY) > 4) {
+          pageText += '\n';
+        } else if (lastX !== null && x - lastX > 20) {
+          /* significant horizontal gap = space */
+          pageText += ' ';
+        }
+
+        pageText += item.str;
+        if (item.hasEOL) pageText += '\n';
+
+        lastY = y;
+        lastX = x + (item.width || 0);
+      });
+
+      /* clean up excess whitespace */
+      const cleanPage = pageText
+        .replace(/[ \t]{3,}/g, '  ')   // collapse excessive spaces
+        .replace(/\n{3,}/g, '\n\n')     // collapse blank lines
+        .trim();
+
+      if (cleanPage.length < 10) emptyPages++;
+      allText += `\n--- Page ${i} ---\n${cleanPage}\n`;
+
+      const pct = 50 + Math.round((i/pdfPages)*45);
+      setProgress(pct, `Page ${i} of ${pdfPages}…`);
+    }
+
+    /* scan detection: >50% empty pages = likely scanned */
+    if (emptyPages > pdfPages * 0.5) {
+      throw new Error(
+        `This PDF appears to be a scanned image (${emptyPages}/${pdfPages} pages had no text). ` +
+        `Please use a text-based PDF or run it through Smallpdf / ILovePDF OCR first.`
+      );
+    }
+
+    /* final text quality check */
+    const textQuality = allText.replace(/\s|-|Page \d+/g,'').length;
+    if (textQuality < 30) {
+      throw new Error('PDF contains insufficient text. It may be scanned or image-only.');
+    }
+
+    pdfText = allText.trim();
+    finishPDFLoad(file, bubbleEl);
+
+  } catch(err) {
+    showPDFError(bubbleEl, err.message);
+  }
+
+  e.target.value = '';
+};
+
+function setProgress(pct, label) {
+  const fill  = document.getElementById('pdfProgFill');
+  const lbl   = document.getElementById('pdfProgLabel');
+  if (fill) fill.style.width = pct + '%';
+  if (lbl)  lbl.textContent  = label;
+}
+
+function setPDFBadge(state) {
+  const badge = document.getElementById('pdfBadge');
+  if (!badge) return;
+  const states = {
+    reading: { text:'Reading…', color:'var(--gold)',  border:'rgba(245,158,11,.3)',  bg:'rgba(245,158,11,.1)' },
+    ready:   { text:'✓ Ready',  color:'var(--green)', border:'rgba(16,185,129,.3)',  bg:'var(--green-s)' },
+    error:   { text:'Error',    color:'var(--red)',   border:'rgba(239,68,68,.25)',  bg:'rgba(239,68,68,.1)' }
+  };
+  const s = states[state] || states.ready;
+  badge.textContent    = s.text;
+  badge.style.color    = s.color;
+  badge.style.borderColor = s.border;
+  badge.style.background  = s.bg;
+}
+
+function finishPDFLoad(file, bubbleEl) {
+  const wordCount = pdfText.trim().split(/\s+/).length;
+  const preview   = pdfText.substring(0,200).replace(/</g,'&lt;');
+
+  document.getElementById('pdfFileMeta').textContent =
+    `${(file.size/1024).toFixed(1)} KB · ${pdfPages} page${pdfPages>1?'s':''}`;
+  setPDFBadge('ready');
+
+  bubbleEl.innerHTML = `
+    <div class="mode-tag green">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      PDF Loaded
+    </div>
+    <div>Successfully read <strong>${escapeHtml(file.name)}</strong></div>
+    <ul style="margin-top:6px">
+      <li>Pages: <strong>${pdfPages}</strong></li>
+      <li>Words extracted: <strong>~${wordCount.toLocaleString()}</strong></li>
+      <li>Status: Ready for analysis</li>
+    </ul>
+    <div style="margin-top:10px;padding:8px 10px;background:var(--s2);border-radius:8px;font-size:.76rem;color:var(--muted);font-style:italic">"${preview}…"</div>
+    <div style="margin-top:10px;font-size:.82rem;color:var(--muted)">
+      Try: <em>Summarise this document</em> · <em>Generate 5 questions from it</em> · <em>What are the key definitions?</em>
+    </div>`;
+  scrollChatSmooth();
+}
+
+function showPDFError(bubbleEl, reason) {
+  pdfText = ''; pdfPages = 0;
+  document.getElementById('pdfPreviewBar').style.display = 'none';
+  document.getElementById('pdfUploadBtn').classList.remove('has-file');
+  setPDFBadge('error');
+  setMode('normal');
+
+  bubbleEl.innerHTML = `
+    <div class="mode-tag red">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+      PDF Error
+    </div>
+    <div>Couldn't read this PDF.</div>
+    <div style="margin-top:6px;padding:8px;background:rgba(239,68,68,.1);border-radius:6px;font-size:.78rem;color:#f87171">
+      <strong>Reason:</strong> ${escapeHtml(reason)}
+    </div>
+    <ul style="margin-top:8px;font-size:.82rem;color:var(--muted)">
+      <li>Use text-based PDFs, not scanned images</li>
+      <li>Keep files under 20 MB</li>
+      <li>Password-protected PDFs cannot be read</li>
+      <li>Convert scanned PDFs using Smallpdf or ILovePDF OCR first</li>
+    </ul>`;
+  scrollChatSmooth();
+}
+
+window.removePDF = function() {
+  pdfText = ''; pdfPages = 0;
+  document.getElementById('pdfPreviewBar').style.display = 'none';
+  document.getElementById('pdfFileInput').value = '';
+  document.getElementById('pdfUploadBtn').classList.remove('has-file');
+  setMode('normal');
+};
+
+/* ══════════════════════════════════════════
+   HISTORY PANEL — simple modal list
+══════════════════════════════════════════ */
+window.showHistoryPanel = async function() {
+  if (!currentUser) { showToast('Please log in first', 'error'); return; }
+  try {
+    const q = query(
+      collection(db, "users", currentUser.uid, "chats"),
+      orderBy("updatedAt","desc"),
+      limit(10)
+    );
+    const snap = await getDocs(q);
+    if (snap.empty) { showToast('No saved chats yet', 'error'); return; }
+
+    /* build overlay */
+    const overlay = document.createElement('div');
+    overlay.id = 'historyOverlay';
+    overlay.style.cssText = `
+      position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;
+      display:flex;align-items:flex-end;animation:fadeIn .2s ease;`;
+    overlay.onclick = (e) => { if(e.target===overlay) overlay.remove(); };
+
+    const panel = document.createElement('div');
+    panel.style.cssText = `
+      width:100%;max-height:70vh;overflow-y:auto;
+      background:var(--s1);border-radius:18px 18px 0 0;
+      border-top:1px solid var(--border2);padding:16px;
+      animation:slideDown .25s ease;`;
+
+    let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <span style="font-family:Syne,sans-serif;font-weight:700;font-size:.95rem">Chat History</span>
+      <button onclick="document.getElementById('historyOverlay').remove()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.2rem">✕</button>
+    </div>`;
+
+    snap.docs.forEach(d => {
+      const data = d.data();
+      const preview = data.preview || 'No preview';
+      const date = data.updatedAt?.toDate
+        ? new Intl.DateTimeFormat('en-GB',{dateStyle:'short',timeStyle:'short'}).format(data.updatedAt.toDate())
+        : '';
+      const msgCount = data.messages?.length || 0;
+      html += `<div onclick="loadHistorySession('${d.id}')" style="
+        padding:10px 12px;border-radius:10px;border:1px solid var(--border);
+        margin-bottom:8px;cursor:pointer;transition:.2s;background:var(--s2);"
+        onmouseover="this.style.borderColor='var(--purple-b)'"
+        onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:.83rem;font-weight:500;margin-bottom:3px">"${escapeHtml(preview)}…"</div>
+        <div style="font-size:.72rem;color:var(--muted)">${msgCount} messages · ${date}</div>
+      </div>`;
+    });
+
+    panel.innerHTML = html;
+    overlay.appendChild(panel);
+    document.body.appendChild(overlay);
+  } catch(e) {
+    showToast('Could not load history', 'error');
+    console.error(e);
+  }
+};
+
+window.loadHistorySession = async function(id) {
+  document.getElementById('historyOverlay')?.remove();
+  if (!currentUser) return;
+
+  try {
+    const snap = await getDoc(doc(db, "users", currentUser.uid, "chats", id));
+    if (!snap.exists()) return;
+
+    const messages = snap.data().messages || [];
+    sessionId = id;
+
+    /* clear current chat */
+    const area = document.getElementById('chatArea');
+    area.innerHTML = '';
+    chatHistory = [];
+
+    messages.forEach(m => {
+      addMsg(m.role === 'assistant' ? 'ai' : 'user', m.content, 'normal', false);
+    });
+
+    chatHistory = messages.slice(-20).map(m => ({ role: m.role, content: m.content }));
+    showToast('Chat session loaded ✓', 'success');
+  } catch(e) {
+    showToast('Failed to load session', 'error');
+    console.error(e);
+  }
+};
+
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     UI MODULE — DOM helpers, formatting, mode, clear
+═══════════════════════════════════════════════════════════════════════ -->
+<script>
+/* ── AVATAR SVG helper ── */
+function novaAvatarSVG(idPrefix) {
+  return `<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="${idPrefix}a" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#3b82f6"/>
+        <stop offset="100%" stop-color="#a855f7"/>
+      </linearGradient>
+    </defs>
+    <rect x="7" y="9" width="30" height="28" rx="7" fill="#07111e" stroke="#253a5a" stroke-width="1"/>
+    <rect x="10" y="12" width="24" height="18" rx="4" fill="#040c17"/>
+    <rect x="13" y="16" width="7" height="6" rx="3" fill="url(#${idPrefix}a)"/>
+    <rect x="24" y="16" width="7" height="6" rx="3" fill="url(#${idPrefix}a)"/>
+    <path d="M15 26 Q22 30.5 29 26" stroke="url(#${idPrefix}a)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  </svg>`;
+}
+
+/* ── Add message to DOM ── */
+function addMsg(role, text, mode, animate = true) {
+  const area = document.getElementById('chatArea');
+  const msg  = document.createElement('div');
+  msg.className = `msg ${role}`;
+  if (!animate) msg.style.animation = 'none';
+
+  const av = document.createElement('div');
+  av.className = `msg-av ${role}-av`;
+
+  if (role === 'ai') {
+    av.innerHTML = novaAvatarSVG('m' + Date.now());
+  } else {
+    /* user avatar — use initial from Firebase userData if available */
+    const initial = (window._state?.userData?.fullName?.[0] || 'U').toUpperCase();
+    av.textContent = initial;
+  }
+
+  const bubble  = document.createElement('div');
+  bubble.className = 'msg-bubble';
+
+  if (role === 'ai' && mode && mode !== 'normal') {
+    const modeInfo = {
+      pdf:      { label:'PDF Analysis', cls:'purple' },
+      quiz:     { label:'Quiz',         cls:'gold'   },
+      explain:  { label:'Explanation',  cls:'green'  },
+      research: { label:'Research',     cls:'blue'   },
+      error:    { label:'Error',        cls:'red'    }
+    };
+    const info = modeInfo[mode];
+    if (info) {
+      const tag = document.createElement('div');
+      tag.className = `mode-tag ${info.cls}`;
+      tag.innerHTML = `<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg> ${info.label}`;
+      bubble.appendChild(tag);
+    }
+  }
+
+  const content = document.createElement('div');
   content.innerHTML = text ? formatText(text) : '';
   bubble.appendChild(content);
 
   msg.appendChild(av);
   msg.appendChild(bubble);
-  area.appendChild(msg);
-  scrollChat();
 
-  return msg; // ✅ returns element so callers can update it
+  /* use DocumentFragment for performance */
+  const frag = document.createDocumentFragment();
+  frag.appendChild(msg);
+  area.appendChild(frag);
+
+  scrollChatSmooth();
+  return msg;
 }
-
-// Make addMsg globally accessible
 window.addMsg = addMsg;
 
+/* ── Text formatter — markdown → safe HTML ── */
 function formatText(t) {
+  if (!t) return '';
   return t
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/`(.*?)`/g, '<code>$1</code>')
-    .replace(/^#{1,3} (.+)$/gm, '<span class="sh">$1</span>')
-    .replace(/^[-•*] (.+)$/gm, '<li>$1</li>')
-    .replace(/^(\d+)\. (.+)$/gm, '<li><strong>$1.</strong> $2</li>')
-    .replace(/(<li>[\s\S]*?<\/li>)+/g, m => `<ul>${m}</ul>`)
-    .replace(/\n\n/g, '<br><br>')
-    .replace(/\n/g, '<br>');
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g,'<em>$1</em>')
+    .replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/^#{1,3} (.+)$/gm,'<span class="sh">$1</span>')
+    .replace(/^[-•*] (.+)$/gm,'<li>$1</li>')
+    .replace(/^(\d+)\. (.+)$/gm,'<li><strong>$1.</strong> $2</li>')
+    .replace(/(<li>[\s\S]*?<\/li>)+/g,m=>`<ul>${m}</ul>`)
+    .replace(/\n\n/g,'<br><br>')
+    .replace(/\n/g,'<br>');
 }
 
+/* ── Typing indicator ── */
 function showTyping() {
-  const id = 'ty_' + Date.now();
+  const id   = 'ty_' + Date.now();
   const area = document.getElementById('chatArea');
   const div  = document.createElement('div');
   div.id = id; div.className = 'msg ai';
-  div.innerHTML = `<div class="msg-av ai-av">
-    <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
-      <defs><linearGradient id="ta" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#a855f7"/></linearGradient></defs>
-      <rect x="7" y="9" width="30" height="28" rx="7" fill="#07111e" stroke="#253a5a" stroke-width="1"/>
-      <rect x="10" y="12" width="24" height="18" rx="4" fill="#040c17"/>
-      <rect x="13" y="16" width="7" height="6" rx="3" fill="url(#ta)"/>
-      <rect x="24" y="16" width="7" height="6" rx="3" fill="url(#ta)"/>
-      <path d="M15 26 Q22 30.5 29 26" stroke="url(#ta)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-    </svg>
-  </div>
-  <div class="msg-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+  div.innerHTML = `
+    <div class="msg-av ai-av">${novaAvatarSVG('ty')}</div>
+    <div class="msg-bubble">
+      <div class="typing-dots"><span></span><span></span><span></span></div>
+    </div>`;
   area.appendChild(div);
-  scrollChat();
+  scrollChatSmooth();
   return id;
 }
 
 function removeTyping(id) {
-  const el = document.getElementById(id);
-  if (el) el.remove();
+  document.getElementById(id)?.remove();
 }
 
-function scrollChat() {
-  const area = document.getElementById('chatArea');
-  area.scrollTop = area.scrollHeight;
+/* ── Scroll — requestAnimationFrame based ── */
+let _scrollScheduled = false;
+function scrollChatSmooth() {
+  if (_scrollScheduled) return;
+  _scrollScheduled = true;
+  requestAnimationFrame(() => {
+    const area = document.getElementById('chatArea');
+    area.scrollTop = area.scrollHeight;
+    _scrollScheduled = false;
+  });
 }
+/* legacy alias */
+window.scrollChat = scrollChatSmooth;
 
+/* ── Toast ── */
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = type;
+  t.style.display = 'block';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.display='none'; }, 3000);
+}
+window.showToast = showToast;
+
+/* ── Escape HTML ── */
+function escapeHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+window.escapeHtml = escapeHtml;
+
+/* ── Mode switcher ── */
+window.setMode = function(mode) {
+  window._state.currentMode = mode;
+  document.querySelectorAll('.mode-pill').forEach(p => p.classList.remove('active'));
+  const id = 'mode' + mode.charAt(0).toUpperCase() + mode.slice(1);
+  document.getElementById(id)?.classList.add('active');
+
+  const placeholders = {
+    normal:   'Ask Nova anything about your courses…',
+    pdf:      window._state.pdfText ? 'Ask me about the document…' : 'Upload a PDF first, then ask questions…',
+    quiz:     'Enter a topic — I\'ll generate 5 MCQ questions…',
+    explain:  'What concept or topic should I explain?',
+    research: 'What topic should I research for you?'
+  };
+  document.getElementById('userInput').placeholder = placeholders[mode] || placeholders.normal;
+};
+
+/* ── Quick ask ── */
+window.quickAsk = function(text) {
+  document.getElementById('userInput').value = text;
+  sendMessage();
+};
+
+/* ── Clear chat ── */
 window.clearChat = function() {
-  chatHistory = []; pdfText = ''; pdfPages = 0;
+  window._state.chatHistory = [];
+  window._state.pdfText     = '';
+  window._state.pdfPages    = 0;
+
   document.getElementById('pdfPreviewBar').style.display = 'none';
   document.getElementById('pdfFileInput').value = '';
   document.getElementById('pdfUploadBtn').classList.remove('has-file');
-  const area = document.getElementById('chatArea');
-  area.innerHTML = `<div class="welcome" id="welcomeBlock">
-    <p style="color:var(--muted);font-size:.9rem;padding:30px 0">Chat cleared. I'm ready when you are!</p>
-  </div>`;
+
+  document.getElementById('chatArea').innerHTML = `
+    <div class="welcome" id="welcomeBlock">
+      <p style="color:var(--muted);font-size:.9rem;padding:30px 0">
+        Chat cleared. I'm ready when you are!
+      </p>
+    </div>`;
+
   setMode('normal');
+
+  /* signal module to create a fresh session on next send */
+  if (window._firebase?.resetSession) window._firebase.resetSession();
 };
 
+/* ── Key handling ── */
 window.handleKey = function(e) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 };
 
+/* ── Textarea auto-resize ── */
 window.autoResize = function(el) {
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 110) + 'px';
 };
 </script>
+
 </body>
 </html>
