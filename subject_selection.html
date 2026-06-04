@@ -156,24 +156,24 @@ const SUBJECT_DATA = [
     { code: "BIO107", name: "General Biology Practical I", semester: 1, faculty: "science", dept: ["biology","education","agriculture","medicine"], icon: "🔬" },
     { code: "BOT101", name: "Diversity of Plants", semester: 1, faculty: "science", dept: ["biology","agriculture","education"], icon: "🌿" },
     { code: "CHM107", name: "General Chemistry Practical I", semester: 1, faculty: "science", dept: ["chemistry","education","biology"], icon: "🔬" },
-    { code: "PHY107", name: "General Physics Practical I", semester: 1, faculty: "science", dept: ["physics","engineering","education"], icon: "🔬" },
+    { code: "PHY107", name: "General Physics Practical I", semester: 1, faculty: "science", dept: " all", icon: "🔬" },
     { code: "OOU-GES105", name: "Modern Agriculture and Rural Development", semester: 1, faculty: "science", dept: ["agriculture"], icon: "🌱" },
     { code: "CRD103", name: "Rural Development I", semester: 1, faculty: "social_sciences", dept: ["other"], icon: "🏘️" },
 
     // ====================== 2ND SEMESTER ======================
     { code: "GST112", name: "Nigerian Peoples and Culture", semester: 2, faculty: "general", dept: "all", icon: "🏛️" },
-    { code: "BIO102", name: "General Biology II", semester: 2, faculty: "science", dept: ["biology","education","agriculture","medicine","chemistry"], icon: "🧬" },
+    { code: "BIO102", name: "General Biology II", semester: 2, faculty: "science", dept: ["biology","computer_science_education","education","agriculture","medicine","chemistry"], icon: "🧬" },
     { code: "BIO108", name: "General Biology Practical II", semester: 2, faculty: "science", dept: ["biology","education","agriculture","medicine","chemistry"], icon: "🔬" },
     { code: "BOT102", name: "Introductory Botany", semester: 2, faculty: "science", dept: ["biology","agriculture","education"], icon: "🌿" },
     { code: "CHM102", name: "General Chemistry II", semester: 2, faculty: "science", dept: "all", icon: "🧪" },
-    { code: "CHM108", name: "General Chemistry Practical II", semester: 2, faculty: "science", dept: ["chemistry","medicine","agriculture","engineering","other","education"], icon: "🔬" },
+    { code: "CHM108", name: "General Chemistry Practical II", semester: 2, faculty: "science", dept: ["chemistry","medicine","agriculture","engineering","other","computer_science_education","education"], icon: "🔬" },
     { code: "MTH102", name: "Elementary Mathematics II", semester: 2, faculty: "science", dept: "all", icon: "🔢" },
     { code: "PHY102", name: "General Physics II", semester: 2, faculty: "science", dept: "all", icon: "⚙️" },
-    { code: "CSC102", name: "Computer Science", semester: 2, faculty: "science", dept: "computer_science", icon: "💻" },
+    { code: "CSC102", name: "Computer Science", semester: 2, faculty: "science", dept:["computer_science_education","computer_science"], icon: "💻" },
     { code: "PHY104", name: "General Physics IV", semester: 2, faculty: "science", dept: ["physics","engineering","education"], icon: "⚙️" },
-    { code: "PHY108", name: "General Physics Practical II", semester: 2, faculty: "science", dept: ["physics","engineering","education"], icon: "🔬" },
-    { code: "STA102", name: "Statistical Computing I", semester: 2, faculty: "science", dept: ["mathematics","computer_science","statistics"], icon: "💾" },
-    { code: "STA112", name: "Probability I", semester: 2, faculty: "science", dept: ["mathematics","computer_science","engineering","statistics"], icon: "📊" },
+    { code: "PHY108", name: "General Physics Practical II", semester: 2, faculty: "science",dept: "all", icon: "🔬" },
+    { code: "STA102", name: "Statistical Computing I", semester: 2, faculty: "science", dept: ["mathematics","computer_science_education","computer_science","statistics"], icon: "💾" },
+    { code: "STA112", name: "Probability I", semester: 2, faculty: "science", dept: ["mathematics","computer_science_education","computer_science","engineering","statistics"], icon: "📊" },
     { code: "GET102", name: "Engineering Graphics and Solid Modelling I", semester: 2, faculty: "science", dept: ["engineering"], icon: "📐" },
     { code: "AGG102", name: "Introduction to Agriculture I", semester: 2, faculty: "science", dept: ["agriculture","education"], icon: "🌾" },
     { code: "AGG112", name: "Introduction to Agriculture II", semester: 2, faculty: "science", dept: ["agriculture","education"], icon: "🌾" },
@@ -199,8 +199,101 @@ const SUBJECT_DATA = [
     { code: "OOU-FRE156", name: "Conversation in French II", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","other","education"], icon: "🗣️" },
     { code: "OOU-FRE158", name: "Gender", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","other","education"], icon: "⚧️" },
     { code: "OOU-FRE160", name: "Socio-educative activities in French II", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","other","education"], icon: "👥" },
-    { code: "OOU-THA112", name: "Drama as literature", semester: 2, faculty: "arts", dept: ["french","education"], icon: "🎭" }
+    
+    { code: "OOU-THA112", name: "Drama as literature", semester: 2, faculty: "arts", dept: ["french","education"], icon: "🎭" }, 
+    { code: "GCE102", name: "Foundations of Guidance and Counselling", semester: 2, faculty: "education", dept: ["education"], icon: "📘" },
+
+{ code: "GCE114", name: "Introduction to Counselling", semester: 2, faculty: "education", dept: ["education"], icon: "🧠" },
+
+{ code: "GCE116", name: "Educational Psychology", semester: 2, faculty: "education", dept: ["education"], icon: "🎓" },
+
+{ code: "GCE118", name: "Human Development", semester: 2, faculty: "education", dept: ["education"], icon: "👥" },
+
+{ code: "GCE120", name: "Counselling Theories", semester: 2, faculty: "education", dept: ["education"], icon: "📚" },
+{ code: "STE154", name: "Introduction to Science Education", semester: 2, faculty: "science", dept: ["computer_science_education","education"], icon: "🧪" },
+
+{ code: "EDU152", name: "Philosophy of Education", semester: 2, faculty: "science", dept: ["computer_science_education","education"], icon: "📘" },
+
+{ code: "GCE122", name: "Communication Skills in Counselling", semester: 2, faculty: "education", dept: ["education"], icon: "🗣️" },
+
+{ code: "EDU102", name: "Introduction to Education", semester: 2, faculty: "education", dept: ["education"], icon: "🏫" },
+
+
+
+{ code: "ESS100", name: "Environmental Studies", semester: 2, faculty: "education", dept: ["education"], icon: "🌍" },
+
+{ code: "ESS122", name: "Basic Environmental Systems", semester: 2, faculty: "education", dept: ["education"], icon: "🌱" }, 
+{ code: "PSY102", name: "Introduction to Psychology", semester: 2, faculty: "social_sciences", dept: ["psychology"], icon: "🧠" },
+
+{ code: "PSY104", name: "Psychology of Learning", semester: 2, faculty: "social_sciences", dept: ["psychology"], icon: "📘" },
+
+{ code: "PSY152", name: "Social Psychology", semester: 2, faculty: "social_sciences", dept: ["psychology"], icon: "👥" },
+
+{ code: "PSY154", name: "Experimental Psychology", semester: 2, faculty: "social_sciences", dept: ["psychology"], icon: "🧪" },
+
+{ code: "PSY156", name: "Developmental Psychology", semester: 2, faculty: "social_sciences", dept: ["psychology"], icon: "🧒" },
+
+{ code: "PSY158", name: "Research Methods in Psychology", semester: 2, faculty: "social_sciences", dept: ["psychology"], icon: "📊" }, 
+{ code: "MCB102", name: "Introductory Microbiology", semester: 2, faculty: "science", dept: ["biology"], icon: "🦠" }, 
+// ====================== ADULT & CONTINUING EDUCATION ======================
+
+    { code: "ADE108", name: "Adult Education", semester: 2, faculty: "education", dept: ["adult_education","adult_and_continuing_education","education"], icon: "🧑‍🏫" },
+
+    { code: "EAE102", name: "Introduction to Adult Education", semester: 2, faculty: "education", dept: ["adult_education","adult_and_continuing_education","education"], icon: "📘" },
+
+    { code: "POL102", name: "Introduction to Political Science", semester: 2, faculty: ["education","social_sciences"], dept: ["adult_education","adult_and_continuing_education","political_science","education"], icon: "🏛️" },
+
+    { code: "POL104", name: "Nigerian Government and Politics", semester: 2, faculty: ["education","social_sciences"], dept: ["adult_education","adult_and_continuing_education","political_science","education"], icon: "🗳️" },
+
+    { code: "EAE162", name: "Communication in Adult Education", semester: 2, faculty: "education", dept: ["adult_education","adult_and_continuing_education","education"], icon: "🗣️" },
+
+    { code: "ADE106", name: "Sociology of Education", semester: 2, faculty: "education", dept: ["adult_education","adult_and_continuing_education","education"], icon: "👥" },
+
+    { code: "ESI102", name: "Entrepreneurship Studies", semester: 2, faculty: ["education","social_sciences"], dept: ["adult_education","adult_and_continuing_education","education"], icon: "💼" },
+    
+{ code: "GET112", name: "Technical Drawing", semester: 2, faculty: "science", dept: ["engineering"], icon: "📐" }, 
+{ code: "FIN156", name: "Introduction to Banking", semester: 2, faculty: "social_sciences", dept: ["economics"], icon: "💰" },
+
+{ code: "FIN158", name: "Money and Banking", semester: 2, faculty: "social_sciences", dept: ["economics"], icon: "🏦" },
+
+{ code: "ECO102", name: "Principles of Economics II", semester: 2, faculty: "social_sciences", dept: ["economics"], icon: "📈" },
+
+{ code: "BUA102", name: "Business Administration", semester: 2, faculty: "social_sciences", dept: ["economics"], icon: "💼" }
 ];
+const DEPARTMENT_ALIASES = {
+    computereducation: "computer_science_education",
+    computer_education: "computer_science_education",
+    computer_science_education: "computer_science_education",
+
+    sted: "computer_science_education",
+
+    efc: "education",
+    gce: "education",
+    guidance_and_counseling: "education",
+adult_and_continuing_education: "adult_education",
+    adult_continuing_education: "adult_education",
+    adulteducation: "adult_education",
+    ace: "adult_education",
+    chemical_science: "chemistry",
+    chemical_sciences: "chemistry",
+
+    microbiology: "biology",
+
+    banking_and_finance: "economics",
+
+    civil_engineering: "engineering"
+};
+
+function normalizeDept(dept) {
+    if (!dept) return "other";
+
+    const cleaned = dept
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, "_");
+
+    return DEPARTMENT_ALIASES[cleaned] || cleaned;
+}
 
 let currentMode = null;
 // Map of subjectCode -> true/false, populated from Firestore
@@ -214,11 +307,13 @@ function getUserPrefix(email) {
     return (email || 'guest').replace(/[^a-z0-9]/gi, '_');
 }
 
-function renderSubjects(currentUserEmail, firestoreData) {
+function
+
+ renderSubjects(currentUserEmail, firestoreData) {
     const mode = currentMode;
     const session = JSON.parse(localStorage.getItem('loggedInUser') || '{}');
     const userPrefix = getUserPrefix(currentUserEmail || session.email);
-    const userDept = (session.department || "all").toLowerCase().trim();
+  const userDept = normalizeDept(session.department || "all");
     const userFaculty = (session.faculty || "general").toLowerCase().trim();
     const selectedSemester = localStorage.getItem('selectedSemester') || "1";
 
@@ -248,9 +343,11 @@ function renderSubjects(currentUserEmail, firestoreData) {
         if (s.dept === "all") {
             matchDept = true;
         } else if (Array.isArray(s.dept)) {
-            matchDept = s.dept.map(d => d.toLowerCase().trim()).includes(targetDept);
+           matchDept = s.dept
+    .map(d => normalizeDept(d))
+    .includes(targetDept);
         } else {
-            matchDept = s.dept.toLowerCase().trim() === targetDept;
+           matchDept = normalizeDept(s.dept) === targetDept;
         }
 
         return matchSem && matchFac && matchDept;
