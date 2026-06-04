@@ -204,10 +204,60 @@ function updateDepts() {
   const f = document.getElementById('inputFaculty').value;
   const ds = document.getElementById('inputDept');
   const DEPTS = {
-    science:["Computer Science","Engineering","Agriculture","Medicine","Physics","Chemistry","Mathematics","Biology","Education","Other"],
-    social_sciences:["Economics","Political Science","Sociology","Mass Communication","Education","Other"],
-    arts:["English","History","Philosophy","French","Education","Other"],
-    law:["Law","Other"]
+      science: [
+        "Computer Science",
+        "Engineering",
+        "Agriculture",
+        "Medicine",
+        "Physics",
+        "Chemistry",
+        "Chemical Science",
+        "Mathematics",
+        "Biology",
+        "Microbiology",
+        "Forensic Science",
+        "Computer Education",
+        " Mathematical Education", 
+        "Other"
+    ],
+
+    social_sciences: [
+        "Economics",
+        "Political Science",
+        "Sociology",
+        "Mass Communication",
+        "Psychology",
+        "Banking and Finance",
+        "Cooperative and Rural Development",
+        "Tourism",
+        "Other"
+    ],
+
+    education: [
+        "Science Education STED",
+        "Guidance and Counselling",
+        "Computer Science Education",
+        "Physics Education",
+        "Chemistry Education",
+        "Biology Education",
+        " Mathematical Education", 
+        "Education",
+        "Other"
+    ],
+
+    arts: [
+        "English",
+        "History",
+        "Philosophy",
+        "French",
+        "Theatre Arts",
+        "Other"
+    ],
+
+    law: [
+        "Law",
+        "Other"
+    ]
   };
   const list = DEPTS[f] || [];
   ds.innerHTML = '<option value="">-- Select Department --</option>';
