@@ -153,6 +153,26 @@
       </div>
     </div>
 
+    <!-- Activity Windows -->
+    <div class="sec-row" style="margin-top:14px"><div class="sec-label">Activity Windows</div><div class="sec-line"></div></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+      <div class="stat-card blue" style="padding:16px">
+        <div class="icon">⏱️ Last 24 Hours</div>
+        <div class="val" id="statActive24h">—</div>
+        <div class="lbl">Users Active</div>
+      </div>
+      <div class="stat-card green" style="padding:16px">
+        <div class="icon">📅 Last 3 Days</div>
+        <div class="val" id="statActive3d">—</div>
+        <div class="lbl">Users Active</div>
+      </div>
+      <div class="stat-card gold" style="padding:16px">
+        <div class="icon">📆 Last 7 Days</div>
+        <div class="val" id="statActive7d">—</div>
+        <div class="lbl">Users Active</div>
+      </div>
+    </div>
+
     <div class="sec-row"><div class="sec-label">Manage</div><div class="sec-line"></div></div>
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('users',this)">
@@ -304,11 +324,20 @@ async function loadUsers() {
     allUsers = [];
     snap.forEach(d => allUsers.push({ id:d.id, ...d.data() }));
     const now = Date.now(), five = now - 5*60*1000;
-    const online = allUsers.filter(u => u.lastSeen?.toMillis && u.lastSeen.toMillis() > five).length;
+    const h24  = now - 24*60*60*1000;
+    const d3   = now -  3*24*60*60*1000;
+    const d7   = now -  7*24*60*60*1000;
+    const online   = allUsers.filter(u => u.lastSeen?.toMillis && u.lastSeen.toMillis() > five).length;
+    const active24 = allUsers.filter(u => u.lastSeen?.toMillis && u.lastSeen.toMillis() > h24).length;
+    const active3d = allUsers.filter(u => u.lastSeen?.toMillis && u.lastSeen.toMillis() > d3).length;
+    const active7d = allUsers.filter(u => u.lastSeen?.toMillis && u.lastSeen.toMillis() > d7).length;
     const pro    = allUsers.filter(u => u.isPro).length;
     document.getElementById('statTotalUsers').textContent = allUsers.length;
     document.getElementById('statOnline').textContent     = online || 0;
     document.getElementById('statPro').textContent        = pro;
+    document.getElementById('statActive24h').textContent  = active24 || 0;
+    document.getElementById('statActive3d').textContent   = active3d || 0;
+    document.getElementById('statActive7d').textContent   = active7d || 0;
     filteredUsers = [...allUsers];
     renderUsers();
     loadSubjects();
@@ -498,4 +527,4 @@ function switchTab(name, btn) {
 }
 </script>
 </body>
-</html>
+                                                                     </html>
