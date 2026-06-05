@@ -453,6 +453,17 @@ window.saveProfile = async function() {
     }
 
     await updateDoc(doc(db, "users", currentUser.uid), updates);
+
+    // Sync the new values into localStorage so subject_selection immediately
+    // reflects the change without requiring a sign-out / sign-in
+    try {
+      const session = JSON.parse(localStorage.getItem('loggedInUser') || '{}');
+      session.fullName   = updates.fullName;
+      session.faculty    = updates.faculty;
+      session.department = updates.department;
+      localStorage.setItem('loggedInUser', JSON.stringify(session));
+    } catch(_) {}
+
     document.getElementById('profileName').textContent = updates.fullName;
     showToast('✅ Profile saved!');
   } catch(e) { showToast('❌ Error: ' + e.message); }
