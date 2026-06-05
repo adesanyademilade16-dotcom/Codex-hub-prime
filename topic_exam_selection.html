@@ -161,7 +161,7 @@
     <div class="trial-text">
       <strong>Your Trial Status</strong>
       <div id="trialStatus" class="trial-status good">Checking...</div>
-      <p>After 3 trials, unlock this subject from the Home screen.</p>
+      <p id="trialLimitText">After 3 trials, unlock this subject from the Home screen.</p>
     </div>
   </div>
 
@@ -770,7 +770,7 @@ function isSubjectUnlocked(subject) {
 function updateTrialStatus() {
     const trials = parseInt(localStorage.getItem(trialKey(selectedSubject)) || '0');
     const unlocked = isSubjectUnlocked(selectedSubject);
-    const remaining = Math.max(0, 3 - trials);
+    const remaining = Math.max(0, getMaxTrials() - trials);
     const trialStatus = document.getElementById('trialStatus');
 
     if (unlocked) {
@@ -816,10 +816,14 @@ function setupTimeButtons() {
     });
 }
 
+function getMaxTrials() {
+    return selectedSubject === 'GST312' ? 2 : 3;
+}
+
 function checkTrialLimit() {
     const unlocked = isSubjectUnlocked(selectedSubject);
     const trials = parseInt(localStorage.getItem(trialKey(selectedSubject)) || '0');
-    if (!unlocked && trials >= 3) {
+    if (!unlocked && trials >= getMaxTrials()) {
         alert('No trials left. Please unlock this subject from the Home screen.');
         return false;
     }
@@ -887,6 +891,8 @@ function initializeSetup() {
     }
 
     document.getElementById('subjectName').textContent = 'Subject: ' + selectedSubject;
+    const maxT = getMaxTrials();
+    document.getElementById('trialLimitText').textContent = `After ${maxT} trial${maxT === 1 ? '' : 's'}, unlock this subject from the Home screen.`;
     updateTrialStatus();
     populateTopics();
     setupTimeButtons();
