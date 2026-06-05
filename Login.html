@@ -295,7 +295,8 @@ async function redirectUser(user) {
         const d = snap.data();
         localStorage.setItem('loggedInUser', JSON.stringify({
             uid:user.uid, email:user.email, fullName:d.fullName||'',
-            faculty:d.faculty||'', department:d.department||'', semester:d.semester||''
+            faculty:d.faculty||'', department:d.department||'', semester:d.semester||'',
+            level:d.level||''
         }));
         window.location.href = (!d.faculty || d.faculty==='') ? 'chooseFaculty.html' : 'home.html';
     } catch(e) { showError('⚠️ Could not load profile: '+e.message); hideOverlay(); }
