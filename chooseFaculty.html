@@ -454,7 +454,7 @@ await setDoc(doc(db, "users", currentUser.uid), { faculty, department, semester,
       localStorage.setItem('loggedInUser', JSON.stringify({
         uid: currentUser.uid, email: currentUser.email,
         fullName: snap.data().fullName || '',
-        faculty, department, semester
+        faculty, department, semester, level
       }));
     }
     localStorage.setItem('selectedSemester', semester);
