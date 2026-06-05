@@ -258,7 +258,21 @@ const SUBJECT_DATA = [
 
 { code: "ECO102", name: "Principles of Economics II", semester: 2, faculty: "social_sciences", dept: ["economics"], icon: "📈" },
 
-{ code: "BUA102", name: "Business Administration", semester: 2, faculty: "social_sciences", dept: ["economics"], icon: "💼" }
+
+{ code: "BUA102", name: "Business Administration", semester: 2, faculty: "social_sciences", dept: ["economics"], icon: "💼" }, 
+
+// ====================== 300 LEVEL COURSES ======================
+
+{
+    code: "GST312",
+    name: "Peace and Conflict Resolution",
+    semester: 2,
+    faculty: "general",
+    dept: "all",
+    icon: "🕊️",
+    level: "300"
+}
+
 ];
 const DEPARTMENT_ALIASES = {
     computereducation: "computer_science_education",
@@ -314,6 +328,7 @@ function
     const session = JSON.parse(localStorage.getItem('loggedInUser') || '{}');
     const userPrefix = getUserPrefix(currentUserEmail || session.email);
   const userDept = normalizeDept(session.department || "all");
+  
     const userFaculty = (session.faculty || "general").toLowerCase().trim();
     const selectedSemester = localStorage.getItem('selectedSemester') || "1";
 
@@ -323,35 +338,49 @@ function
     const grid = document.getElementById('subjectGrid');
     grid.innerHTML = "";
 
-    const filteredSubjects = SUBJECT_DATA.filter(s => {
-        const matchSem = String(s.semester) === String(selectedSemester);
+const userLevel = String(session.level || "100").trim();
 
-        const targetFac = userFaculty.toLowerCase().trim();
-        const targetDept = userDept.toLowerCase().trim();
+const filteredSubjects = SUBJECT_DATA.filter(s => {
 
-        let matchFac = false;
-        if (Array.isArray(s.faculty)) {
-            matchFac = s.faculty.map(f => f.toLowerCase().trim()).includes(targetFac);
-        } else {
-            matchFac = (
-                s.faculty.toLowerCase().trim() === targetFac ||
-                s.faculty.toLowerCase().trim() === "general"
-            );
-        }
+    // Default courses without a level are treated as 100 level
+    const courseLevel = String(s.level || "100").trim();
 
-        let matchDept = false;
-        if (s.dept === "all") {
-            matchDept = true;
-        } else if (Array.isArray(s.dept)) {
-           matchDept = s.dept
-    .map(d => normalizeDept(d))
-    .includes(targetDept);
-        } else {
-           matchDept = normalizeDept(s.dept) === targetDept;
-        }
+    // Only show courses for the student's level
+    if (courseLevel !== userLevel) {
+        return false;
+    }
 
-        return matchSem && matchFac && matchDept;
-    });
+    const matchSem = String(s.semester) === String(selectedSemester);
+
+    const targetFac = userFaculty.toLowerCase().trim();
+    const targetDept = userDept.toLowerCase().trim();
+
+    let matchFac = false;
+
+    if (Array.isArray(s.faculty)) {
+        matchFac = s.faculty
+            .map(f => f.toLowerCase().trim())
+            .includes(targetFac);
+    } else {
+        matchFac =
+            s.faculty.toLowerCase().trim() === targetFac ||
+            s.faculty.toLowerCase().trim() === "general";
+    }
+
+    let matchDept = false;
+
+    if (s.dept === "all") {
+        matchDept = true;
+    } else if (Array.isArray(s.dept)) {
+        matchDept = s.dept
+            .map(d => normalizeDept(d))
+            .includes(targetDept);
+    } else {
+        matchDept = normalizeDept(s.dept) === targetDept;
+    }
+
+    return matchSem && matchFac && matchDept;
+});
 
     if (filteredSubjects.length === 0) {
         grid.innerHTML = "<p style='text-align:center; grid-column: 1/-1; color: #666;'>No subjects found for your profile this semester.</p>";

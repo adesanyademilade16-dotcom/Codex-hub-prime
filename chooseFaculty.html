@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Codex Study Hub — Complete Profile</title>
-  <!-- Basic Meta -->
+    <!-- Basic Meta -->
   <meta name="description" content="Codex Study Hub helps OOU students master CBT exams with past questions, structured notes, AI assistance, progress tracking, and leaderboards.">
   <meta name="keywords" content="Codex Study Hub, OOU CBT, past questions, exam practice, study notes, leaderboard, OOU 100 level">
   <meta name="author" content="Codex Study Hub">
@@ -28,6 +28,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
   <link rel="apple-touch-icon" href="favicon.png">
 
+  
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -177,7 +178,15 @@
   <div id="alertSuccess" class="alert alert-success"></div>
 
   <form id="profileForm">
-
+<div class="form-group">
+  <label>Academic Level</label>
+  <select id="level" required>
+    <option value="">— Choose Level —</option>
+    <option value="100">100 Level</option>
+    <option value="200">200 Level</option>
+    <option value="300">300 Level</option>
+  </select>
+</div>
     <!-- FACULTY -->
     <div class="form-group">
       <label>Faculty</label>
@@ -390,15 +399,21 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
   clearAlerts();
   if (!currentUser) { showErr('Session expired. Please log in again.'); return; }
 
-  const faculty    = document.getElementById('faculty').value;
-  const department = document.getElementById('department').value;
-  const semester   = document.getElementById('semester').value;
+  // Under document.getElementById('profileForm').addEventListener('submit'...
+const faculty    = document.getElementById('faculty').value;
+const department = document.getElementById('department').value;
+const semester   = document.getElementById('semester').value;
+const level      = document.getElementById('level').value; // <-- ADD THIS
+
+
   const btn        = document.getElementById('saveBtn');
   const wantsPw    = document.getElementById('setPwCheck').checked;
 
-  if (!faculty || !department || !semester) {
-    showErr('❌ Please fill in all fields.'); return;
-  }
+  if (!faculty || !department || !semester || !level) { // <-- Add !level check
+  showErr('❌ Please fill in all fields.'); return;
+}
+
+
 
   // Validate password if they want to set one
   if (wantsPw) {
@@ -413,7 +428,8 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
 
   try {
     // 1. Save faculty/department/semester to Firestore
-    await setDoc(doc(db, "users", currentUser.uid), { faculty, department, semester }, { merge: true });
+    // Update the save logic:
+await setDoc(doc(db, "users", currentUser.uid), { faculty, department, semester, level }, { merge: true });
 
     // 2. Link email/password to Google account if requested
     if (wantsPw) {

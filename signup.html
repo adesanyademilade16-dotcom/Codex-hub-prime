@@ -174,7 +174,16 @@
                 <label>Email Address</label>
                 <input type="email" id="email" required placeholder="you@gmail.com" autocomplete="email">
             </div>
-
+<!-- Academic Level Selection -->
+<div class="input-group">
+    <label for="userLevel">Academic Level</label>
+    <select id="userLevel" required>
+        <option value="" disabled selected>Select your current level</option>
+        <option value="100">100 Level</option>
+        <option value="200">200 Level</option>
+        <option value="300">300 Level</option>
+    </select>
+</div>
             <div class="form-group">
                 <label>Faculty</label>
                 <select id="faculty" required onchange="updateDepartments()">
@@ -405,16 +414,21 @@ document.getElementById('signupForm').addEventListener('submit', async e => {
     e.preventDefault();
     errEl.style.display = 'none';
 
-    const fullName  = document.getElementById('fullName').value.trim();
-    const email     = document.getElementById('email').value.trim().toLowerCase();
-    const faculty   = document.getElementById('faculty').value;
-    const dept      = document.getElementById('department').value;
-    const pw        = document.getElementById('password').value;
-    const cpw       = document.getElementById('confirmPassword').value;
-    const btn       = document.getElementById('submitBtn');
+    // 1. Capture the level input
+const fullName  = document.getElementById('fullName').value.trim();
+const email     = document.getElementById('email').value.trim().toLowerCase();
+const faculty   = document.getElementById('faculty').value;
+const dept      = document.getElementById('department').value;
+const level     = document.getElementById('userLevel').value; // <-- ADD THIS LINE
+const pw        = document.getElementById('password').value;
+const cpw       = document.getElementById('confirmPassword').value;
+const btn       = document.getElementById('submitBtn');
 
-    if (!faculty)    { showErr('❌ Please select a faculty.'); return; }
-    if (!dept)       { showErr('❌ Please select a department.'); return; }
+if (!faculty)    { showErr('❌ Please select a faculty.'); return; }
+if (!dept)       { showErr('❌ Please select a department.'); return; }
+if (!level)      { showErr('❌ Please select your level.'); return; } // <-- ADD THIS LINE
+// ...
+
     if (pw !== cpw)  { showErr('❌ Passwords do not match.'); return; }
     if (pw.length<6) { showErr('❌ Password must be at least 6 characters.'); return; }
 
@@ -425,11 +439,13 @@ document.getElementById('signupForm').addEventListener('submit', async e => {
         const cred = await createUserWithEmailAndPassword(auth, email, pw);
         const user = cred.user;
 
-        await setDoc(doc(db,"users",user.uid),{
-            fullName, email, faculty, department:dept,
-            semester:"1", trialsUsed:0, isPro:false,
-            createdAt:new Date(), authProvider:"email", uid:user.uid
-        });
+        // 2. Add 'level' to the setDoc payload!
+await setDoc(doc(db,"users",user.uid),{
+    fullName, email, faculty, department:dept,
+    level: level, // <-- ADD THIS LINE SO IT SAVES!
+    semester:"1", trialsUsed:0, isPro:false,
+    createdAt:new Date(), authProvider:"email", uid:user.uid
+});
 
         await sendEmailVerification(user);
         await signOut(auth);
