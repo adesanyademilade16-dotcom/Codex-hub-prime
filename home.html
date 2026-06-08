@@ -171,7 +171,27 @@
       .category-grid{grid-template-columns:1fr}
       .streak-badge{display:none}
     }
-  </style>
+  
+        /* ── ADDED RESPONSIVE FIXES ── */
+        @media(max-width:1024px){
+            .shell{ padding:14px 14px 80px; }
+            .category-grid{ gap:9px; }
+        }
+        @media(max-width:768px){
+            .shell{ padding:14px 12px 80px; }
+            .hero-greeting{ padding:18px; }
+            .hero-greeting h2{ font-size:1.05rem; }
+            .pro-banner{ padding:14px 16px; }
+            .quick-stats{ gap:8px; }
+            .sem-btn{ font-size:.82rem; padding:9px 4px; }
+        }
+        /* max-width:480px already exists — extra safety below */
+        @media(max-width:360px){
+            .category-grid{ grid-template-columns:1fr; }
+            .brand-name{ font-size:.95rem; }
+        }
+
+    </style>
 </head>
 <body>
 
@@ -502,4 +522,4 @@ function closeDrawer(){document.getElementById('drawer').classList.remove('open'
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
 </script>
 </body>
-  </html>
+</html>

@@ -117,7 +117,26 @@
     .spinner { display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,.3);
       border-top-color:#fff; border-radius:50%; animation:spin .6s linear infinite; vertical-align:middle; margin-right:6px; }
     @keyframes spin { to { transform:rotate(360deg); } }
-  </style>
+  
+        /* ── ADDED RESPONSIVE FIXES ── */
+        @media(max-width:1024px){
+            .shell{ padding:14px 14px 70px; }
+        }
+        @media(max-width:768px){
+            .shell{ padding:14px 12px 70px; }
+            .profile-hero{ padding:24px 16px; }
+        }
+        @media(max-width:480px){
+            .shell{ padding:12px 10px 60px; }
+            .stats-row{ grid-template-columns:repeat(3,1fr); gap:8px; }
+            .stat-mini .val{ font-size:1.1rem; }
+            .avatar-grid{ grid-template-columns:repeat(4,1fr); gap:8px; }
+            .profile-name{ font-size:1.1rem; }
+            .rank-card{ flex-wrap:wrap; gap:10px; }
+            .form-card{ padding:16px; }
+        }
+
+    </style>
 </head>
 <body>
 <div class="shell">

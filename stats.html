@@ -110,7 +110,28 @@
     .spinner { display:inline-block; width:28px; height:28px; border:3px solid var(--border2);
       border-top-color:var(--blue); border-radius:50%; animation:spin .7s linear infinite; }
     @keyframes spin { to{transform:rotate(360deg)} }
-  </style>
+  
+        /* ── ADDED RESPONSIVE FIXES ── */
+        @media(max-width:1024px){
+            .shell{ padding:14px 14px 70px; }
+        }
+        @media(max-width:768px){
+            .shell{ padding:14px 12px 70px; }
+            .rank-banner{ flex-wrap:wrap; gap:12px; }
+            .rank-bar-track{ max-width:100%; }
+            .subject-card{ padding:18px; }
+        }
+        /* max-width:500px already exists — add extra below */
+        @media(max-width:480px){
+            .shell{ padding:12px 10px 60px; }
+            .overview-strip{ grid-template-columns:repeat(2,1fr); }
+            .stat-items{ grid-template-columns:repeat(2,1fr); }
+            .rank-banner{ padding:14px 16px; }
+            .rank-icon{ font-size:2rem; }
+            .rank-info h3{ font-size:.95rem; }
+        }
+
+    </style>
 </head>
 <body>
 <div class="shell">

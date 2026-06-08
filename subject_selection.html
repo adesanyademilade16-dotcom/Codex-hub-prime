@@ -102,7 +102,30 @@
     to { opacity: 1; transform: scale(1); }
   }
   .loading-msg{text-align:center;padding:40px;color:#64748b;font-size:.95rem;grid-column:1/-1}
-</style>
+
+        /* ── ADDED RESPONSIVE FIXES ── */
+        @media(max-width:1024px){
+            .page-wrap{ padding:20px 14px 50px; }
+            .subject-grid{ grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); }
+        }
+        @media(max-width:768px){
+            .page-wrap{ padding:18px 12px 50px; }
+            .subject-grid{ grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:11px; }
+            .page-header h1{ font-size:1.4rem; }
+        }
+        @media(max-width:480px){
+            .page-wrap{ padding:14px 10px 40px; }
+            .subject-grid{ grid-template-columns:repeat(2,1fr); gap:9px; }
+            .subject-card{ padding:14px 14px; }
+            .code{ font-size:1rem; }
+            .page-header h1{ font-size:1.2rem; }
+            .top-bar{ padding:12px 14px; }
+        }
+        @media(max-width:360px){
+            .subject-grid{ grid-template-columns:1fr; }
+        }
+
+    </style>
 </head>
 <body>
 

@@ -125,6 +125,26 @@
         .modal-note { margin-top: 14px; background: var(--blue-s); border: 1px solid var(--blue-b); border-radius: 8px; padding: 10px 13px; font-size: .8rem; color: var(--muted); line-height: 1.5; }
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes fadeUp { from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);} }
+    
+        /* ── ADDED RESPONSIVE FIXES ── */
+        @media(max-width:1024px){
+            .shell{ padding:20px 14px 60px; }
+        }
+        @media(max-width:768px){
+            .hero h1{ font-size:1.35rem; }
+            .hero{ padding:26px 18px 22px; }
+            .pay-grid{ grid-template-columns:1fr; gap:8px; }
+        }
+        @media(max-width:480px){
+            .shell{ padding:14px 10px 60px; }
+            .hero h1{ font-size:1.2rem; }
+            .hero p{ font-size:.82rem; }
+            .card-body{ padding:14px; }
+            .key-input-wrap{ flex-direction:column; }
+            .verify-btn{ width:100%; }
+            .modal-box{ padding:22px 16px; }
+        }
+
     </style>
 </head>
 <body>
@@ -165,7 +185,7 @@
                 </optgroup>
                 <optgroup label="─── 2nd Semester ───">
                     <option value="GST112">🏛️ GST112 — Nigerian Peoples & Culture</option>
-                    <option value="GST312">GST312 — peace and conflict resolution</option>
+                     <option value="GST312">GST312 — peace and conflict resolution</option>
                     <option value="MTH102">🔢 MTH102 — Mathematics II</option>
                     <option value="PHY102">⚙️ PHY102 — Physics II</option>
                     <option value="PHY104">🌊 PHY104 — Vibration, Waves & Optics</option>

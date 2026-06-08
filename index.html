@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Codex Study Hub — Ace Your Exams</title>
-    <!-- Basic Meta -->
+  <title>Codex Study Hub - CBT Practice, Notes & Exam Prep for OOU Students</title>
+
+  <!-- Basic Meta -->
   <meta name="description" content="Codex Study Hub helps OOU students master CBT exams with past questions, structured notes, AI assistance, progress tracking, and leaderboards.">
   <meta name="keywords" content="Codex Study Hub, OOU CBT, past questions, exam practice, study notes, leaderboard, OOU 100 level">
   <meta name="author" content="Codex Study Hub">
@@ -25,14 +26,17 @@
   <meta name="twitter:description" content="Practice real CBT exams, access study notes, track progress, and climb the leaderboard.">
   <meta name="twitter:image" content="https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/og-image.png">
   
+  
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
   <link rel="apple-touch-icon" href="favicon.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9642494442871029" crossorigin="anonymous"></script>
   <style>
+      
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -333,7 +337,32 @@
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       margin-bottom: 10px; display: block;
     }
-  </style>
+  
+        /* ── ADDED RESPONSIVE FIXES ── */
+        @media(max-width:1024px){
+            .features-section{ padding:0 16px; }
+            .cta-inner{ padding:40px 28px; }
+        }
+        @media(max-width:480px){
+            .hero{ padding:60px 16px 36px; }
+            .hero h1{ font-size:2rem; }
+            .hero p{ font-size:.95rem; }
+            .stats-bar{ flex-direction:column; border-radius:12px; max-width:100%; }
+            .stat-item{ border-right:none; border-bottom:1px solid var(--border); }
+            .stat-item:last-child{ border-bottom:none; }
+            .nav-logo-text{ font-size:.85rem; }
+            .btn-nav-ghost, .btn-nav-solid{ padding:7px 12px; font-size:.82rem; }
+            .cta-inner{ padding:28px 16px; }
+            .cta-inner h2{ font-size:1.3rem; }
+            .cta-inner p{ font-size:.88rem; }
+        }
+        @media(max-width:360px){
+            .hero h1{ font-size:1.7rem; }
+            .hero-btns{ flex-direction:column; align-items:stretch; }
+            .btn-hero-primary, .btn-hero-ghost{ justify-content:center; }
+        }
+
+    </style>
 </head>
 <body>
 
@@ -405,10 +434,10 @@
 <div class="preview-section">
   <div class="preview-frame">
     <div class="slider" id="slider">
-      <img src="graduation.jpg" class="active" onerror="this.style.display='none'">
-      <img src="phone.jpg" onerror="this.style.display='none'">
-      <img src="students.jpg" onerror="this.style.display='none'">
-      <img src="cbt.jpg" onerror="this.style.display='none'">
+      <img src="images/graduation.jpg" class="active" onerror="this.style.display='none'">
+      <img src="images/phone.jpg" onerror="this.style.display='none'">
+      <img src="images/students.jpg" onerror="this.style.display='none'">
+      <img src="images/cbt.jpg" onerror="this.style.display='none'">
     </div>
     <div class="slider-dots" id="sliderDots"></div>
   </div>

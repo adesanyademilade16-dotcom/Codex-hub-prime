@@ -40,7 +40,25 @@
     strong { color:var(--text); }
     .update-date { text-align:center; font-size:.78rem; color:var(--dim); margin-top:24px; padding-top:16px; border-top:1px solid var(--border); }
     a { color:var(--blue); }
-  </style>
+  
+        /* ── ADDED RESPONSIVE FIXES ── */
+        @media(max-width:1024px){
+            .shell{ padding:14px 14px 60px; }
+        }
+        @media(max-width:768px){
+            .shell{ padding:14px 12px 60px; }
+            .doc-body{ padding:22px 18px; }
+            .hero-band{ padding:22px 16px; }
+        }
+        @media(max-width:480px){
+            .shell{ padding:12px 10px 50px; }
+            .doc-body{ padding:18px 14px; }
+            .hero-band h1{ font-size:1.2rem; }
+            h2{ font-size:.92rem; }
+            p, ul li{ font-size:.85rem; }
+        }
+
+    </style>
 </head>
 <body>
 <div class="shell">

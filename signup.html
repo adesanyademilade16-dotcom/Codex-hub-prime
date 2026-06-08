@@ -140,6 +140,18 @@
         @keyframes spin { to { transform:rotate(360deg); } }
 
         @media(min-width:600px) { .card { padding:2.5rem 2.5rem; } }
+    
+        /* ── ADDED RESPONSIVE FIXES ── */
+        @media(max-width:768px){
+            .card{ padding:2rem 1.8rem; }
+        }
+        @media(max-width:480px){
+            body{ padding:16px 12px; }
+            .card{ padding:1.8rem 1.4rem; border-radius:16px; max-width:100%; }
+            .card-header h2{ font-size:1.2rem; }
+            .btn-primary{ font-size:.9rem; padding:12px; }
+        }
+
     </style>
 </head>
 <body>

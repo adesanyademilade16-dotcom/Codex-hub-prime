@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Codex CBT Engine</title>
-    <!-- Basic Meta -->
+  <!-- Basic Meta -->
   <meta name="description" content="Codex Study Hub helps OOU students master CBT exams with past questions, structured notes, AI assistance, progress tracking, and leaderboards.">
   <meta name="keywords" content="Codex Study Hub, OOU CBT, past questions, exam practice, study notes, leaderboard, OOU 100 level">
   <meta name="author" content="Codex Study Hub">
@@ -304,7 +304,25 @@
     #timerBox { display:none !important; }
     #mobileTimerBox { display:flex !important; }
   }
-</style>
+
+        /* ── ADDED RESPONSIVE FIXES ── */
+        @media(max-width:1024px){
+            /* Reduce the max-width so it fits small laptop screens */
+            .main-content{ max-width:100%!important; padding:10px!important; }
+        }
+        @media(max-width:768px){
+            .question-card, .card{ max-width:100%!important; margin:0!important; }
+            .options-grid, .option-list{ grid-template-columns:1fr!important; }
+        }
+        @media(max-width:480px){
+            .topbar, .top-bar{ padding:10px 12px!important; }
+            .timer, .timer-wrap{ font-size:.85rem!important; }
+            .question-text, .q-text{ font-size:.9rem!important; line-height:1.6!important; }
+            .nav-numbers{ gap:6px!important; }
+            .num-btn{ width:34px!important; height:34px!important; font-size:.75rem!important; }
+        }
+
+    </style>
 </head>
 <body>
 

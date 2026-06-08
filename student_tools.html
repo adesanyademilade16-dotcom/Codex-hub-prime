@@ -4,6 +4,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Tools — Codex Study Hub</title>
+    <!-- Basic Meta -->
+  <meta name="description" content="Codex Study Hub helps OOU students master CBT exams with past questions, structured notes, AI assistance, progress tracking, and leaderboards.">
+  <meta name="keywords" content="Codex Study Hub, OOU CBT, past questions, exam practice, study notes, leaderboard, OOU 100 level">
+  <meta name="author" content="Codex Study Hub">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph / Social -->
+  <meta property="og:title" content="Codex Study Hub - Smart CBT Practice for OOU Students">
+  <meta property="og:description" content="Practice real CBT exams, access study notes, track progress and climb the leaderboard. Built for Olabisi Onabanjo University students.">
+  <meta property="og:image" content="https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/og-image.png">
+  <meta property="og:url" content="https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Codex Study Hub">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Codex Study Hub - Smart CBT Practice for OOU Students">
+  <meta name="twitter:description" content="Practice real CBT exams, access study notes, track progress and climb the leaderboard.">
+  <meta name="twitter:image" content="https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/og-image.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+
+  
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -30,7 +55,7 @@
     .tool-card:hover{transform:translateY(-3px);border-color:var(--blue)}
     .tool-img{width:100%;height:120px;object-fit:cover;border-radius:10px;margin-bottom:12px;background:var(--s2)}
     .tool-name{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:5px}
-    .delete-btn{position:absolute;top:8px;right:8px;width:28px;height:28px;background:var(--red);border:none;border-radius:6px;color:#fff;cursor:pointer;display:none;font-size:.9rem}
+    .delete-btn{position:absolute;top:8px;right:8px;width:28px;height:28px;background:var(--red);border:none;border-radius:6px;color:#fff;cursor:pointer;display:none;font-size:.9rem;align-items:center;justify-content:center}
     .delete-btn:hover{opacity:.8}
 
     .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999;display:none;align-items:center;justify-content:center;padding:20px}
@@ -41,18 +66,48 @@
     .form-group label{display:block;margin-bottom:6px;font-size:.88rem;font-weight:600;color:var(--muted)}
     .form-group input{width:100%;padding:12px;background:var(--s2);border:1.5px solid var(--border2);border-radius:8px;color:var(--text);font-size:.9rem}
     .form-group input:focus{border-color:var(--blue);outline:none}
+    .form-group input[type="file"]{padding:8px}
+    
+    .image-upload-zone{border:2px dashed var(--border2);border-radius:12px;padding:30px;text-align:center;cursor:pointer;transition:.2s;background:var(--s2)}
+    .image-upload-zone:hover{border-color:var(--blue);background:var(--blue-s)}
+    .image-upload-zone.has-image{border-style:solid;border-color:var(--green)}
+    .upload-icon{font-size:2.5rem;margin-bottom:10px}
+    .upload-text{font-size:.85rem;color:var(--muted)}
+    .image-preview{width:100%;max-height:200px;object-fit:contain;border-radius:8px;margin-top:12px;display:none}
+    .image-preview.show{display:block}
+    
     .btn{width:100%;padding:12px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.95rem;margin-top:8px}
     .btn-primary{background:var(--blue);color:#fff}
-    .btn-primary:hover{opacity:.9}
+    .btn-primary:hover:not(:disabled){opacity:.9}
+    .btn-primary:disabled{opacity:.5;cursor:not-allowed}
     .btn-secondary{background:var(--s2);color:var(--muted);border:1px solid var(--border2)}
     .btn-secondary:hover{background:var(--s3)}
 
     .empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
     .empty-state .icon{font-size:4rem;margin-bottom:16px}
 
-    .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+    .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;margin-right:6px}
     @keyframes spin{to{transform:rotate(360deg)}}
-  </style>
+  
+        /* ── ADDED RESPONSIVE FIXES ── */
+        @media(max-width:1024px){
+            .shell{ padding:14px 14px 70px; }
+            .tools-grid{ grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); }
+        }
+        @media(max-width:768px){
+            .shell{ padding:14px 12px 70px; }
+            .tools-grid{ grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px; }
+        }
+        @media(max-width:480px){
+            .shell{ padding:12px 10px 60px; }
+            .tools-grid{ grid-template-columns:repeat(2,1fr); gap:10px; }
+            .tool-img{ height:90px; }
+            .tool-name{ font-size:.88rem; }
+            .modal-content{ padding:20px 16px; }
+            .page-title{ font-size:.95rem; }
+        }
+
+    </style>
 </head>
 <body>
 <div class="shell">
@@ -83,10 +138,16 @@
       <input type="url" id="toolUrl" placeholder="https://example.com">
     </div>
     <div class="form-group">
-      <label>Image URL</label>
-      <input type="url" id="toolImage" placeholder="https://example.com/image.jpg">
+      <label>Tool Icon/Image</label>
+      <input type="file" id="toolImageFile" accept="image/*" style="display:none" onchange="handleImageSelect(event)">
+      <div class="image-upload-zone" id="uploadZone" onclick="document.getElementById('toolImageFile').click()">
+        <div class="upload-icon">📸</div>
+        <div class="upload-text">Tap to select image</div>
+        <div class="upload-text" style="font-size:.75rem;margin-top:5px;color:var(--dim)">JPG, PNG, GIF (Max 5MB)</div>
+      </div>
+      <img id="imagePreview" class="image-preview" alt="Preview">
     </div>
-    <button class="btn btn-primary" onclick="saveTool()">Save Tool</button>
+    <button class="btn btn-primary" id="saveBtn" onclick="saveTool()">Save Tool</button>
     <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
   </div>
 </div>
@@ -109,9 +170,14 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// Cloudinary configuration (same as used in profile.html)
+const CLOUD_NAME = "dngom9ylf";
+const UPLOAD_PRESET = "codex_pdf";
+
 const ADMIN_EMAIL = "codexhub16@gmail.com";
 let isAdmin = false;
 let currentUser = null;
+let selectedImageFile = null;
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -182,6 +248,38 @@ async function loadTools() {
   }
 }
 
+window.handleImageSelect = function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  // Check file size (max 5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    alert('❌ Image too large. Please select an image under 5MB.');
+    return;
+  }
+  
+  // Check file type
+  if (!file.type.startsWith('image/')) {
+    alert('❌ Please select an image file.');
+    return;
+  }
+  
+  selectedImageFile = file;
+  
+  // Show preview
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const preview = document.getElementById('imagePreview');
+    preview.src = e.target.result;
+    preview.classList.add('show');
+    
+    const uploadZone = document.getElementById('uploadZone');
+    uploadZone.classList.add('has-image');
+    uploadZone.querySelector('.upload-text').textContent = '✓ Image selected';
+  };
+  reader.readAsDataURL(file);
+};
+
 window.openAddModal = function() {
   document.getElementById('addModal').classList.add('show');
 };
@@ -190,25 +288,56 @@ window.closeModal = function() {
   document.getElementById('addModal').classList.remove('show');
   document.getElementById('toolName').value = '';
   document.getElementById('toolUrl').value = '';
-  document.getElementById('toolImage').value = '';
+  document.getElementById('toolImageFile').value = '';
+  document.getElementById('imagePreview').classList.remove('show');
+  document.getElementById('uploadZone').classList.remove('has-image');
+  document.getElementById('uploadZone').querySelector('.upload-text').textContent = 'Tap to select image';
+  selectedImageFile = null;
 };
 
 window.saveTool = async function() {
   const name = document.getElementById('toolName').value.trim();
   const url = document.getElementById('toolUrl').value.trim();
-  const image = document.getElementById('toolImage').value.trim();
+  const saveBtn = document.getElementById('saveBtn');
   
-  if (!name || !url || !image) {
-    alert('Please fill in all fields');
+  if (!name || !url) {
+    alert('❌ Please enter tool name and URL');
     return;
   }
   
+  if (!selectedImageFile) {
+    alert('❌ Please select an image');
+    return;
+  }
+  
+  // Disable button and show loading
+  saveBtn.disabled = true;
+  saveBtn.innerHTML = '<span class="spinner"></span> Uploading...';
+  
   try {
+    // Upload image to Cloudinary
+    const formData = new FormData();
+    formData.append('file', selectedImageFile);
+    formData.append('upload_preset', UPLOAD_PRESET);
+    
+    const uploadResponse = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`, {
+      method: 'POST',
+      body: formData
+    });
+    
+    if (!uploadResponse.ok) {
+      throw new Error('Image upload failed');
+    }
+    
+    const uploadData = await uploadResponse.json();
+    const imageUrl = uploadData.secure_url;
+    
+    // Save tool to Firestore
     const toolsRef = collection(db, "student_tools");
     await addDoc(toolsRef, {
       name: name,
       url: url,
-      image: image,
+      image: imageUrl,
       createdAt: new Date(),
       createdBy: currentUser.email
     });
@@ -220,6 +349,9 @@ window.saveTool = async function() {
   } catch (error) {
     console.error("Error adding tool:", error);
     alert('❌ Error adding tool: ' + error.message);
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save Tool';
   }
 };
 

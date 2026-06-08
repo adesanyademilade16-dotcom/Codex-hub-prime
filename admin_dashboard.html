@@ -110,7 +110,38 @@
 
     .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--s2);border:1px solid var(--border2);color:var(--text);padding:11px 18px;border-radius:12px;font-size:.84rem;font-weight:500;box-shadow:0 8px 28px rgba(0,0,0,.4);z-index:9999;animation:toastIn .25s ease}
     @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-  </style>
+  
+        /* ── ADDED RESPONSIVE FIXES ── */
+        @media(max-width:1024px){
+            .shell{ padding:14px 14px 60px; }
+        }
+        @media(max-width:768px){
+            .shell{ padding:14px 12px 60px; }
+            .page-title{ font-size:.95rem; }
+            .admin-chip{ font-size:.7rem; padding:4px 9px; }
+            /* Activity windows: 3-col → 2-col */
+            .stats-4 + div + div > div[style],
+            .sec-row + div[style*="repeat(3"]{
+                grid-template-columns:1fr 1fr !important;
+            }
+        }
+        @media(max-width:599px){
+            /* stats-4 on <600px (before min-width:600px kicks in) */
+            .stats-4{ grid-template-columns:1fr 1fr; }
+            /* Activity windows: 3-col → 1-col on small mobile */
+            .sec-row + div[style*="repeat(3"]{
+                grid-template-columns:1fr !important;
+            }
+            .gen-row{ flex-direction:column; }
+            .gen-select, .gen-btn{ width:100%; }
+            .lb-form{ grid-template-columns:1fr 1fr; }
+            .topbar{ flex-wrap:wrap; gap:8px; }
+        }
+        @media(max-width:400px){
+            .lb-form{ grid-template-columns:1fr; }
+        }
+
+    </style>
 </head>
 <body>
 <div class="shell">
@@ -527,4 +558,4 @@ function switchTab(name, btn) {
 }
 </script>
 </body>
-                                                                     </html>
+</html>

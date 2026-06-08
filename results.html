@@ -598,6 +598,22 @@
             .stat-circle-text { font-size: 0.82rem; }
             .pie-chart-container { gap: 14px; }
         }
+    
+        /* ── ADDED RESPONSIVE FIXES ── */
+        @media(max-width:1024px){
+            .main-content{ padding:18px 12px 40px; }
+        }
+        @media(max-width:768px){
+            .main-content{ padding:16px 10px 40px; }
+            .result-card{ padding:22px 16px 20px; border-radius:18px; }
+            .result-title{ font-size:1.3rem; }
+        }
+        /* max-width:480px and max-width:360px already exist — extra safety */
+        @media(max-width:380px){
+            .header .brand-text h1{ font-size:.95rem; }
+            .main-content{ padding:14px 8px 36px; }
+        }
+
     </style>
 </head>
 <body>

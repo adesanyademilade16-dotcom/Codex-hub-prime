@@ -28,6 +28,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
   <link rel="apple-touch-icon" href="favicon.png">
 
+    
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
@@ -280,6 +281,27 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+    
+        /* ── ADDED RESPONSIVE FIXES ── */
+        @media(max-width:768px){
+            body{ padding:12px; }
+            .header{ padding:28px 16px; }
+            .header h1{ font-size:1.6rem; }
+            .winner-card{ padding:16px; gap:10px; }
+        }
+        @media(max-width:480px){
+            body{ padding:8px; }
+            .leaderboard-container{ border-radius:16px; }
+            .header{ padding:22px 14px; }
+            .header h1{ font-size:1.4rem; }
+            .filter-grid{ grid-template-columns:1fr; }
+            .winner-card{ flex-wrap:wrap; }
+            .stats-mini{ gap:8px; }
+            .score-badge{ font-size:.82rem; padding:6px 12px; }
+            .subject-section{ padding:18px; }
+            .rank-badge{ width:40px; height:40px; font-size:1.5rem; }
+        }
+
     </style>
 </head>
 <body>
