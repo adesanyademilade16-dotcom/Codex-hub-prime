@@ -140,27 +140,7 @@
     from { opacity: 0; transform: scale(0.9); }
     to { opacity: 1; transform: scale(1); }
   }
-
-        /* ── ADDED RESPONSIVE FIXES ── */
-        @media(max-width:1024px){
-            .page-wrap{ padding:20px 14px 50px; }
-        }
-        @media(max-width:768px){
-            .page-wrap{ padding:18px 12px 50px; }
-            .page-header h1{ font-size:1.35rem; }
-        }
-        /* max-width:500px already exists — add extra below */
-        @media(max-width:480px){
-            .page-wrap{ padding:14px 10px 40px; }
-            .page-header h1{ font-size:1.15rem; }
-            .trial-card{ padding:12px 14px; flex-direction:column; text-align:center; }
-            .setup-body{ padding:16px; }
-            .time-options{ gap:6px; }
-            .time-btn{ min-width:60px; font-size:.8rem; padding:9px 6px; }
-            .top-bar{ padding:12px 14px; }
-        }
-
-    </style>
+</style>
 </head>
 <body>
 
@@ -837,7 +817,7 @@ function setupTimeButtons() {
 }
 
 function getMaxTrials() {
-    return selectedSubject === 'GST312' ? 2 : 3;
+    return selectedSubject === 'GST312' ? 2 : 50;
 }
 
 function checkTrialLimit() {
@@ -947,7 +927,7 @@ function initializeSetup() {
 document.addEventListener('DOMContentLoaded', initializeSetup);
 
 // MAKE FUNCTIONS GLOBAL (Fix for onclick errors)
-window.showTopicSetup = showTopicSetup;
+  window.showTopicSetup = showTopicSetup;
 window.launchExamMode = launchExamMode;
 </script>
 </body>
