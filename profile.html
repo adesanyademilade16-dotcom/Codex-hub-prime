@@ -117,26 +117,7 @@
     .spinner { display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,.3);
       border-top-color:#fff; border-radius:50%; animation:spin .6s linear infinite; vertical-align:middle; margin-right:6px; }
     @keyframes spin { to { transform:rotate(360deg); } }
-  
-        /* ── ADDED RESPONSIVE FIXES ── */
-        @media(max-width:1024px){
-            .shell{ padding:14px 14px 70px; }
-        }
-        @media(max-width:768px){
-            .shell{ padding:14px 12px 70px; }
-            .profile-hero{ padding:24px 16px; }
-        }
-        @media(max-width:480px){
-            .shell{ padding:12px 10px 60px; }
-            .stats-row{ grid-template-columns:repeat(3,1fr); gap:8px; }
-            .stat-mini .val{ font-size:1.1rem; }
-            .avatar-grid{ grid-template-columns:repeat(4,1fr); gap:8px; }
-            .profile-name{ font-size:1.1rem; }
-            .rank-card{ flex-wrap:wrap; gap:10px; }
-            .form-card{ padding:16px; }
-        }
-
-    </style>
+  </style>
 </head>
 <body>
 <div class="shell">
@@ -195,7 +176,7 @@
     <div style="font-size:1.5rem">📷</div>
     <p>Tap to upload your own photo (JPG/PNG)</p>
   </div>
-
+    
   <!-- EDIT FORM -->
   <div class="sec-row"><div class="sec-label">Edit Details</div><div class="sec-line"></div></div>
   <div class="form-card">
@@ -207,13 +188,31 @@
         <option value="science">Science</option>
         <option value="social_sciences">Social Science</option>
         <option value="arts">Arts</option>
+        <option value="education">Arts</option>
         <option value="law">Law</option>
       </select>
     </div>
     <div class="form-group"><label>Department</label><select id="inputDept"><option value="">-- Select Faculty First --</option></select></div>
   </div>
-
+  <div>
+<a href="change_password.html" style="display:flex;align-items:center;gap:8px;
+    background:#0d1220;border:1px solid rgba(255,255,255,.10);border-radius:11px;
+    padding:12px 16px;text-decoration:none;color:#eef2ff;font-size:.86rem;font-weight:600;
+    transition:.18s;margin-top:10px">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round"
+        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1
+           v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+    </svg>
+    Change Password
+  </a>
+  </div>
   <button class="btn btn-primary" id="saveBtn" onclick="saveProfile()">Save Changes</button>
+  <a href="change_password.html" style="display:flex;align-items:center;gap:8px;
+    background:#0d1220;border:1px solid rgba(255,255,255,.10);border-radius:11px;
+    padding:12px 16px;text-decoration:none;color:#eef2ff;font-size:.86rem;font-weight:600;
+    transition:.18s;margin-top:10px">
+
   <button class="btn btn-danger" onclick="if(confirm('Sign out?')){signOutUser()}">Sign Out</button>
 
 </div>
