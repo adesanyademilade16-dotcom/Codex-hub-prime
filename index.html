@@ -33,7 +33,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-
+<script>  (function() {    try {      var p       = new URLSearchParams(window.location.search);      var mode    = p.get('mode');      var oobCode = p.get('oobCode');      if (mode === 'resetPassword' && oobCode) {        // Password reset — send to our custom reset page, keep all URL params        window.location.replace(          'reset_confirm.html' + window.location.search        );        return;      }      if (mode === 'verifyEmail' && oobCode) {        // Email verification        window.location.replace('Login.html?emailVerified=true');        return;      }      if (mode === 'recoverEmail' && oobCode) {        // Email change recovery        window.location.replace('Login.html?emailRecovered=true');        return;      }      // No special mode — load index.html normally, nothing happens    } catch(e) {      // Safety catch — never break the homepage    }  })();</script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9642494442871029" crossorigin="anonymous"></script>
   <style>
       
