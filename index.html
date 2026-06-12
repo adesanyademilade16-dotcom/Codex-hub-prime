@@ -11,7 +11,7 @@
   <meta name="author" content="Codex Study Hub">
   <meta name="robots" content="index, follow">
 
-<!-- Open Graph -->
+  <!-- Open Graph -->
   <meta property="og:title" content="Codex Study Hub - CBT Practice & Exam Prep for OOU Students">
   <meta property="og:description" content="Practice real CBT exams, access study notes, track progress, and climb the leaderboard. Built for Olabisi Onabanjo University students.">
   <meta property="og:image" content="https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/og-image.png">
@@ -25,18 +25,17 @@
   <meta name="twitter:title" content="Codex Study Hub - CBT Practice & Exam Prep for OOU Students">
   <meta name="twitter:description" content="Practice real CBT exams, access study notes, track progress, and climb the leaderboard.">
   <meta name="twitter:image" content="https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/og-image.png">
-  
-  
+
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
   <link rel="apple-touch-icon" href="favicon.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script>  (function() {    try {      var p       = new URLSearchParams(window.location.search);      var mode    = p.get('mode');      var oobCode = p.get('oobCode');      if (mode === 'resetPassword' && oobCode) {        // Password reset — send to our custom reset page, keep all URL params        window.location.replace(          'reset_confirm.html' + window.location.search        );        return;      }      if (mode === 'verifyEmail' && oobCode) {        // Email verification        window.location.replace('Login.html?emailVerified=true');        return;      }      if (mode === 'recoverEmail' && oobCode) {        // Email change recovery        window.location.replace('Login.html?emailRecovered=true');        return;      }      // No special mode — load index.html normally, nothing happens    } catch(e) {      // Safety catch — never break the homepage    }  })();</script>
+
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9642494442871029" crossorigin="anonymous"></script>
   <style>
-      
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -337,32 +336,7 @@
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       margin-bottom: 10px; display: block;
     }
-  
-        /* ── ADDED RESPONSIVE FIXES ── */
-        @media(max-width:1024px){
-            .features-section{ padding:0 16px; }
-            .cta-inner{ padding:40px 28px; }
-        }
-        @media(max-width:480px){
-            .hero{ padding:60px 16px 36px; }
-            .hero h1{ font-size:2rem; }
-            .hero p{ font-size:.95rem; }
-            .stats-bar{ flex-direction:column; border-radius:12px; max-width:100%; }
-            .stat-item{ border-right:none; border-bottom:1px solid var(--border); }
-            .stat-item:last-child{ border-bottom:none; }
-            .nav-logo-text{ font-size:.85rem; }
-            .btn-nav-ghost, .btn-nav-solid{ padding:7px 12px; font-size:.82rem; }
-            .cta-inner{ padding:28px 16px; }
-            .cta-inner h2{ font-size:1.3rem; }
-            .cta-inner p{ font-size:.88rem; }
-        }
-        @media(max-width:360px){
-            .hero h1{ font-size:1.7rem; }
-            .hero-btns{ flex-direction:column; align-items:stretch; }
-            .btn-hero-primary, .btn-hero-ghost{ justify-content:center; }
-        }
-
-    </style>
+  </style>
 </head>
 <body>
 
@@ -579,25 +553,52 @@
   }
 </script>
 
-<!-- Firebase: redirect logged-in users to splash -->
+<!-- ─────────────────────────────────────────────────────────────────────────
+  Firebase: handles two jobs:
+  1. INTERCEPT password-reset / email-verify links from Firebase emails.
+     Firebase always lands on your root domain (index.html) and appends
+     ?mode=resetPassword&oobCode=xxx to the URL.
+     We detect this FIRST and bounce to reset_confirm.html before anything else.
+  2. Redirect already-logged-in users straight to splash.html.
+──────────────────────────────────────────────────────────────────────────── -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
-const app  = initializeApp({
-  apiKey: "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
-  authDomain: "codex-study-hub-923c5.firebaseapp.com",
-  projectId: "codex-study-hub-923c5",
-  storageBucket: "codex-study-hub-923c5.appspot.com",
-  messagingSenderId: "750631534625",
-  appId: "1:750631534625:web:5f59e1841bb856bdbba360"
-});
-const auth = getAuth(app);
+// ── STEP 1: Intercept Firebase auth action URLs ───────────────────────────
+// Firebase emails always land here first with ?mode=xxx&oobCode=xxx in the URL.
+// We catch them and forward to the correct handler page immediately.
+const urlParams = new URLSearchParams(window.location.search);
+const mode      = urlParams.get('mode');
+const oobCode   = urlParams.get('oobCode');
+const apiKey    = urlParams.get('apiKey') || '';
 
-// If user already logged in, go to splash → home (not index)
-onAuthStateChanged(auth, (user) => {
-  if (user) window.location.href = "splash.html";
-});
+if (mode === 'resetPassword' && oobCode) {
+  // Redirect to the password reset page, preserving all necessary params
+  window.location.replace(
+    `reset_confirm.html?mode=${mode}&oobCode=${encodeURIComponent(oobCode)}&apiKey=${encodeURIComponent(apiKey)}`
+  );
+} else if (mode === 'verifyEmail' && oobCode) {
+  // Future-proof: handle email verification links the same way
+  window.location.replace(
+    `verify_email.html?mode=${mode}&oobCode=${encodeURIComponent(oobCode)}&apiKey=${encodeURIComponent(apiKey)}`
+  );
+} else {
+  // ── STEP 2: Normal page — redirect logged-in users to splash ─────────────
+  const app  = initializeApp({
+    apiKey: "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+    authDomain: "codex-study-hub-923c5.firebaseapp.com",
+    projectId: "codex-study-hub-923c5",
+    storageBucket: "codex-study-hub-923c5.appspot.com",
+    messagingSenderId: "750631534625",
+    appId: "1:750631534625:web:5f59e1841bb856bdbba360"
+  });
+  const auth = getAuth(app);
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) window.location.href = "splash.html";
+  });
+}
 </script>
 </body>
 </html>
