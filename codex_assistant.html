@@ -20,7 +20,8 @@
   <meta name="twitter:image" content="https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/og-image.png">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
   <link rel="apple-touch-icon" href="favicon.png">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
   <!-- PDF.js v3 — stable version, pinned worker -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -317,18 +318,7 @@
       .quick-grid { grid-template-columns:1fr; }
       .msg-bubble { max-width:88%; }
     }
-  
-        /* ── ADDED RESPONSIVE FIXES ── */
-        @media(max-width:1024px){
-            /* max-width:480px already exists; add tablet range */
-            .main-content, .shell, .container{ padding-left:14px!important; padding-right:14px!important; }
-        }
-        @media(max-width:768px){
-            .shell, .container, .main-content{ padding-left:12px!important; padding-right:12px!important; }
-        }
-        /* Note: codex_assistant already has @media(max-width:480px) */
-
-    </style>
+  </style>
 </head>
 <body>
 
@@ -532,12 +522,12 @@
      FIREBASE MODULE
 ═══════════════════════════════════════════════════════════════════════ -->
 <script type="module">
-import { initializeApp }       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { initializeApp }       from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 import {
   getFirestore, doc, getDoc, setDoc, addDoc, collection,
   query, orderBy, limit, getDocs, serverTimestamp, updateDoc
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 /* ── CONFIG ── */
 const firebaseConfig = {
@@ -791,8 +781,10 @@ function buildSystemPrompt() {
     : '';
 
   /* pdf context — first 8000 chars to reduce token cost */
+  // Shrink PDF context as chat history grows to prevent token overflow
+  const maxPdfChars = Math.max(2000, 8000 - (chatHistory.length * 200));
   const pdfCtx = pdfText
-    ? `\nDOCUMENT (${pdfPages}p):\n"""\n${pdfText.substring(0,8000)}\n"""`
+    ? `\nDOCUMENT (${pdfPages}p):\n"""\n${pdfText.substring(0,maxPdfChars)}\n"""`
     : '';
 
   return `You are Nova, AI study companion for Codex Study Hub at OOU (Olabisi Onabanjo University), Nigeria.
@@ -830,6 +822,16 @@ window.sendMessage = async function() {
   }
 
   addMsg('user', text, null, true);
+
+  // Trim DOM to last 30 messages to prevent memory bloat on long sessions
+  (function() {
+    const area = document.getElementById('chatArea');
+    if (!area) return;
+    const msgs = area.querySelectorAll('.msg');
+    if (msgs.length > 30) {
+      for (let i = 0; i < msgs.length - 30; i++) msgs[i].remove();
+    }
+  })();
 
   /* build augmented user content per mode */
   let userContent = text;
@@ -1525,3 +1527,4 @@ window.autoResize = function(el) {
 
 </body>
 </html>
+
