@@ -166,32 +166,16 @@
 
     .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--s2);border:1px solid var(--border2);color:var(--text);padding:11px 18px;border-radius:12px;font-size:.84rem;font-weight:500;box-shadow:0 8px 28px rgba(0,0,0,.4);z-index:9999;animation:toastIn .25s ease}
     @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+/* Add these breakpoints wherever missing */
 
+@media (max-width: 1024px) { /* laptop */ }
+@media (max-width: 768px)  { /* tablet */ }
+@media (max-width: 480px)  { /* mobile */ }
     @media(max-width:480px){
       .category-grid{grid-template-columns:1fr}
       .streak-badge{display:none}
     }
-  
-        /* ── ADDED RESPONSIVE FIXES ── */
-        @media(max-width:1024px){
-            .shell{ padding:14px 14px 80px; }
-            .category-grid{ gap:9px; }
-        }
-        @media(max-width:768px){
-            .shell{ padding:14px 12px 80px; }
-            .hero-greeting{ padding:18px; }
-            .hero-greeting h2{ font-size:1.05rem; }
-            .pro-banner{ padding:14px 16px; }
-            .quick-stats{ gap:8px; }
-            .sem-btn{ font-size:.82rem; padding:9px 4px; }
-        }
-        /* max-width:480px already exists — extra safety below */
-        @media(max-width:360px){
-            .category-grid{ grid-template-columns:1fr; }
-            .brand-name{ font-size:.95rem; }
-        }
-
-    </style>
+  </style>
 </head>
 <body>
 
@@ -449,8 +433,13 @@ const auth = getAuth(app);
 const db   = getFirestore(app);
 const ADMIN = 'codexhub16@gmail.com';
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href='Login.html'; return; }
+onAuthStateChanged(auth,async user=>{
+  if(!user){ window.location.href='Login.html'; return; }
+
+  // ✅ Update lastSeen so admin dashboard shows activity
+  try {
+    await updateDoc(doc(db, "users", user.uid), { lastSeen: serverTimestamp() });
+  } catch(e) {}
   try {
     const snap = await getDoc(doc(db,"users",user.uid));
     if (snap.exists()) {
@@ -523,3 +512,4 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
 </script>
 </body>
 </html>
+
