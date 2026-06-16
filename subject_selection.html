@@ -180,9 +180,9 @@ const SUBJECT_DATA = [
     { code: "ZOO102", name: "Animal Diversity", semester: 2, faculty: "science", dept: ["biology","medicine","agriculture","education","other"], icon: "🦒" },
     { code: "FRS102", name: "Forensic science", semester: 2, faculty: "science", dept: ["biology","medicine","agriculture","education","other"], icon: "🐾" },
     { code: "COS102", name: "PROBLEM SOLVING", semester: 2, faculty: "science", dept: "all", icon: "👩‍💻" },
-    { code: "ACC102", name: "Introduction to Financial Accounting II", semester: 2, faculty: "social_sciences", dept: ["other"], icon: "📒" },
-    { code: "AMS102", name: "Basic Mathematics", semester: 2, faculty: "social_sciences", dept: ["other"], icon: "🔢" },
-    { code: "AMS104", name: "Principles of Project Management", semester: 2, faculty: "social_sciences", dept: ["other"], icon: "📋" },
+    { code: "ACC102", name: "Introduction to Financial Accounting II", semester: 2, faculty: ["social_sciences","administration_and_management"], dept: ["Business_administration","other"], icon: "📒" },
+    { code: "AMS102", name: "Basic Mathematics", semester: 2, faculty: ["social_sciences","administration_and_management"], dept: ["Business_administration","other"], icon: "🔢" },
+    { code: "AMS104", name: "Principles of Project Management", semester: 2, faculty: ["social_sciences","administration_and_management"], dept: ["Business_administration","other"], icon: "📋" },
     { code: "CRD102", name: "Organization and Management of Cooperatives", semester: 2, faculty: "social_sciences", dept: ["other"], icon: "🤝" },
     { code: "CRD104", name: "Rural Development II", semester: 2, faculty: "social_sciences", dept: ["other"], icon: "🏘️" },
     { code: "CRD106", name: "Cooperative Education", semester: 2, faculty: "social_sciences", dept: ["other"], icon: "📚" },
@@ -201,29 +201,29 @@ const SUBJECT_DATA = [
     { code: "OOU-FRE160", name: "Socio-educative activities in French II", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","other","education"], icon: "👥" },
     
     { code: "OOU-THA112", name: "Drama as literature", semester: 2, faculty: "arts", dept: ["french","education"], icon: "🎭" }, 
-    { code: "GCE102", name: "Foundations of Guidance and Counselling", semester: 2, faculty: "education", dept: ["education"," Guidance_and_Counselling"], icon: "📘" },
+    { code: "GCE102", name: "Foundations of Guidance and Counselling", semester: 2, faculty: "education", dept: ["education"], icon: "📘" },
 
-{ code: "GCE114", name: "Introduction to Counselling", semester: 2, faculty: "education", dept: ["education"," Guidance_and_Counselling"], icon: "🧠" },
+{ code: "GCE114", name: "Introduction to Counselling", semester: 2, faculty: "education", dept: ["education"], icon: "🧠" },
 
-{ code: "GCE116", name: "Educational Psychology", semester: 2, faculty: "education", dept: ["education"," Guidance_and_Counselling"], icon: "🎓" },
+{ code: "GCE116", name: "Educational Psychology", semester: 2, faculty: "education", dept: ["education"], icon: "🎓" },
 
-{ code: "GCE118", name: "Human Development", semester: 2, faculty: "education", dept: ["education"," Guidance_and_Counselling"], icon: "👥" },
+{ code: "GCE118", name: "Human Development", semester: 2, faculty: "education", dept: ["education"], icon: "👥" },
 
-{ code: "GCE120", name: "Counselling Theories", semester: 2, faculty: "education", dept: ["education",," Guidance_and_Counselling"], icon: "📚" },
+{ code: "GCE120", name: "Counselling Theories", semester: 2, faculty: "education", dept: ["education"], icon: "📚" },
 { code: "STE154", name: "Introduction to Science Education", semester: 2, faculty: "science", dept: ["computer_science_education","education"], icon: "🧪" },
 
-{ code: "EDU152", name: "Philosophy of Education", semester: 2, faculty: "education", dept: ["computer_science_education","education","adult_education"," Guidance_and_Counselling"], icon: "📘" },
+{ code: "EDU152", name: "Philosophy of Education", semester: 2, faculty: "science", dept: ["computer_science_education","education"], icon: "📘" },
 
-{ code: "GCE122", name: "Communication Skills in Counselling", semester: 2, faculty: "education", dept: ["education"," Guidance_and_Counselling"], icon: "🗣️" },
+{ code: "GCE122", name: "Communication Skills in Counselling", semester: 2, faculty: "education", dept: ["education"], icon: "🗣️" },
 
-{ code: "EDU102", name: "Introduction to Education", semester: 2, faculty: "education", dept: ["education"," Guidance_and_Counselling"], icon: "🏫" },
+{ code: "EDU102", name: "Introduction to Education", semester: 2, faculty: "education", dept: ["education"], icon: "🏫" },
 
 
 
-{ code: "ESS100", name: "Environmental Studies", semester: 2, faculty: "education", dept: ["education"," Guidance_and_Counselling"], icon: "🌍" },
+{ code: "ESS100", name: "Environmental Studies", semester: 2, faculty: "education", dept: ["education"], icon: "🌍" },
 
-{ code: "ESS122", name: "Basic Environmental Systems", semester: 2, faculty: "education", dept: ["education"," Guidance_and_Counselling"], icon: "🌱" }, 
-  {code: "PSY102", name: "Introduction to Psychology", semester: 2, faculty: "social_sciences", dept: ["psychology"], icon: "🧠" },
+{ code: "ESS122", name: "Basic Environmental Systems", semester: 2, faculty: "education", dept: ["education"], icon: "🌱" }, 
+{ code: "PSY102", name: "Introduction to Psychology", semester: 2, faculty: "social_sciences", dept: ["psychology"], icon: "🧠" },
 
 { code: "PSY104", name: "Psychology of Learning", semester: 2, faculty: "social_sciences", dept: ["psychology"], icon: "📘" },
 
@@ -259,7 +259,7 @@ const SUBJECT_DATA = [
 { code: "ECO102", name: "Principles of Economics II", semester: 2, faculty: "social_sciences", dept: ["economics"], icon: "📈" },
 
 
-{ code: "BUA102", name: "Business Administration", semester: 2, faculty: "social_sciences", dept: ["economics"], icon: "💼" }, 
+{ code: "BUA102", name: "Business Administration", semester: 2, faculty: ["social_sciences","administration_and_management"], dept: ["Business_administration"," economics","other"], icon: "💼" }, 
 
 // ====================== 300 LEVEL COURSES ======================
 
@@ -404,12 +404,12 @@ const filteredSubjects = SUBJECT_DATA.filter(s => {
             try { localStorage.setItem(`unlocked_${userPrefix}_${subject.code}`, 'true'); } catch(e) {}
         }
 
-        const isLocked = !isUnlocked && trials >= 50;
+        const isLocked = !isUnlocked && trials >= 3;
 
         let badge = '';
         if (isUnlocked) badge = '<div class="unlocked-badge">✓ UNLOCKED</div>';
         else if (isLocked) badge = '<div class="lock-badge">🔒 LOCKED</div>';
-        else if (trials > 0) badge = `<div class="trial-badge">${50 - trials} Trials Left</div>`;
+        else if (trials > 0) badge = `<div class="trial-badge">${3 - trials} Trials Left</div>`;
 
         card.innerHTML = `
             ${badge}
