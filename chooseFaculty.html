@@ -154,19 +154,7 @@
       border-radius:50%; animation:spin .6s linear infinite;
     }
     @keyframes spin { to{transform:rotate(360deg)} }
-  
-        /* ── ADDED RESPONSIVE FIXES ── */
-        @media(max-width:768px){
-            .container{ padding:1.8rem 1.6rem; }
-        }
-        @media(max-width:480px){
-            body{ align-items:flex-start; padding:20px 12px; }
-            .container{ padding:1.5rem 1.2rem; border-radius:16px; }
-            .logo-wrap h2{ font-size:1.15rem; }
-            .btn{ font-size:.9rem; padding:12px; }
-        }
-
-    </style>
+  </style>
 </head>
 <body>
 
@@ -206,6 +194,7 @@
         <option value="">— Choose Faculty —</option>
         <option value="science">Science</option>
         <option value="social_sciences">Social Science</option>
+        <option value="administration_and_management"> Administration_and_Management   </option>
         <option value="arts">Arts</option>
         <option value="law">Law</option>
       </select>
@@ -287,6 +276,10 @@ function updateDepartments() {
   const DEPTS = {
     science:["Computer Science","Engineering","Agriculture","Medicine","Physics","Chemistry","Mathematics","Biology","Education","Other"],
     social_sciences:["Economics","Political Science","Sociology","Mass Communication","Education","Other"],
+    
+    administration_and_management:[
+      'Business_administration'
+   ], 
     arts:["English","History","Philosophy","French","Education","Other"],
     law:["Law","Other"]
   };
