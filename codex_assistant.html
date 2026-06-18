@@ -861,7 +861,7 @@ window.sendMessage = async function() {
   try {
     const system = window._buildSystemPrompt();
 
-    const response = await fetch("https://codex-backend-56vo.onrender.com/chat", {
+    const response = await fetch("https://codex-backend-new.onrender.com/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -1527,4 +1527,3 @@ window.autoResize = function(el) {
 
 </body>
 </html>
-
