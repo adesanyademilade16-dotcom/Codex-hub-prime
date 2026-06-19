@@ -404,7 +404,7 @@ const filteredSubjects = SUBJECT_DATA.filter(s => {
             try { localStorage.setItem(`unlocked_${userPrefix}_${subject.code}`, 'true'); } catch(e) {}
         }
 
-        const isLocked = !isUnlocked && trials >= 3;
+        const isLocked = !isUnlocked && trials >= 50;
 
         let badge = '';
         if (isUnlocked) badge = '<div class="unlocked-badge">✓ UNLOCKED</div>';
@@ -471,4 +471,3 @@ document.addEventListener('DOMContentLoaded', initializeSubjectSelection);
 </script>
 </body>
 </html>
-
