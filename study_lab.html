@@ -1,0 +1,880 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Lab — Codex</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07090f;--panel:#0d1220;--panel2:#111827;--panel3:#17202e;
+  --border:rgba(255,255,255,.06);--border2:rgba(255,255,255,.11);
+  --blue:#3b82f6;--blue-s:rgba(59,130,246,.13);--blue-b:rgba(59,130,246,.28);
+  --green:#10b981;--green-s:rgba(16,185,129,.12);--green-b:rgba(16,185,129,.28);
+  --gold:#f59e0b;--gold-s:rgba(245,158,11,.1);--gold-b:rgba(245,158,11,.25);
+  --purple:#a855f7;--purple-s:rgba(168,85,247,.13);--purple-b:rgba(168,85,247,.28);
+  --teal:#06b6d4;--teal-s:rgba(6,182,212,.12);--teal-b:rgba(6,182,212,.28);
+  --red:#ef4444;--text:#eef2ff;--muted:#8fa3c0;--dim:#4a6380;--r:14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 60vw 45vh at 0% 0%,rgba(168,85,247,.07) 0%,transparent 55%),
+             radial-gradient(ellipse 50vw 35vh at 100% 100%,rgba(59,130,246,.05) 0%,transparent 55%);}
+.nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:10px;
+  background:rgba(13,18,32,.96);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border2);padding:0 18px;height:56px;}
+.nav-back{width:34px;height:34px;border-radius:9px;background:transparent;
+  border:1px solid var(--border2);cursor:pointer;display:flex;align-items:center;
+  justify-content:center;text-decoration:none;color:var(--muted);transition:.18s;flex-shrink:0;}
+.nav-back:hover{background:var(--panel3);color:var(--text);}
+.nav-logo{display:flex;align-items:center;gap:9px;padding:0 12px;border-right:1px solid var(--border);}
+.nav-logo-icon{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--purple),#6d28d9);display:flex;align-items:center;justify-content:center;}
+.nav-logo-name{font-family:'Syne',sans-serif;font-weight:800;font-size:.95rem;background:linear-gradient(90deg,var(--purple),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.nav-mid{flex:1;padding:0 14px;font-size:.82rem;color:var(--dim);}
+.coins-pill{display:flex;align-items:center;gap:5px;background:var(--gold-s);border:1px solid var(--gold-b);border-radius:20px;padding:5px 12px;font-size:.78rem;font-weight:700;color:var(--gold);white-space:nowrap;}
+.main{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:22px 16px 70px;}
+@media(min-width:700px){.main{max-width:960px;}.sessions-grid{grid-template-columns:1fr 1fr !important;}}
+.status-bar{display:none;align-items:center;gap:10px;background:rgba(245,158,11,.07);border:1px solid var(--gold-b);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:.78rem;color:var(--gold);}
+.status-bar.show{display:flex;}
+.status-bar.green{background:rgba(16,185,129,.07);border-color:var(--green-b);color:var(--green);}
+.status-bar.red{background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.3);color:var(--red);}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin .8s linear infinite;display:inline-block;}
+.upload-hero{background:var(--panel);border:2px dashed var(--purple-b);border-radius:20px;padding:30px 20px;text-align:center;cursor:pointer;transition:all .22s;margin-bottom:20px;position:relative;overflow:hidden;}
+.upload-hero::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 70% 60% at 50% 0%,rgba(168,85,247,.05),transparent);}
+.upload-hero:hover,.upload-hero.drag{border-color:var(--purple);background:rgba(168,85,247,.04);}
+.upload-hero-icon{width:52px;height:52px;border-radius:14px;background:var(--purple-s);border:1px solid var(--purple-b);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
+.upload-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;margin-bottom:6px;}
+.upload-sub{font-size:.78rem;color:var(--muted);line-height:1.65;max-width:360px;margin:0 auto 16px;}
+.limit-pill{display:inline-flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--border2);border-radius:20px;padding:5px 14px;font-size:.76rem;font-weight:700;color:var(--muted);margin-bottom:12px;}
+.limit-pill.low{border-color:var(--gold-b);color:var(--gold);background:var(--gold-s);}
+.limit-pill.zero{border-color:rgba(239,68,68,.3);color:var(--red);background:rgba(239,68,68,.07);}
+.upload-cta{background:linear-gradient(135deg,var(--purple),#7c3aed);color:#fff;border:none;border-radius:10px;padding:10px 28px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.18s;}
+.upload-cta:hover{opacity:.85;transform:translateY(-1px);}
+.upload-cta:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+#fileInput{display:none;}
+.proc-card{background:var(--panel);border:1px solid var(--purple-b);border-radius:var(--r);padding:18px 20px;margin-bottom:20px;display:none;position:relative;overflow:hidden;}
+.proc-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--purple),var(--teal),var(--blue),var(--purple));background-size:300%;animation:slide 2.5s linear infinite;}
+@keyframes slide{0%{background-position:0%}100%{background-position:300%}}
+.proc-card.show{display:block;}
+.proc-top{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.proc-file-icon{width:32px;height:32px;border-radius:8px;background:var(--purple-s);border:1px solid var(--purple-b);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.proc-name{font-weight:700;font-size:.84rem;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.proc-cancel{background:none;border:1px solid var(--border2);color:var(--dim);cursor:pointer;font-size:.72rem;padding:4px 10px;border-radius:6px;transition:.15s;flex-shrink:0;}
+.proc-cancel:hover{color:var(--red);border-color:rgba(239,68,68,.3);}
+.proc-steps{display:flex;flex-direction:column;gap:7px;}
+.ps{display:flex;align-items:center;gap:9px;font-size:.78rem;color:var(--dim);transition:color .3s;}
+.ps.active{color:var(--purple);}.ps.done{color:var(--green);}.ps.error{color:var(--red);}
+.ps-dot{width:22px;height:22px;border-radius:50%;flex-shrink:0;border:1.5px solid var(--border2);background:var(--panel2);display:flex;align-items:center;justify-content:center;font-size:.64rem;font-weight:700;transition:all .3s;}
+.ps.active .ps-dot{border-color:var(--purple);background:var(--purple-s);color:var(--purple);}
+.ps.done .ps-dot{border-color:var(--green);background:var(--green-s);color:var(--green);}
+.ps.error .ps-dot{border-color:var(--red);background:rgba(239,68,68,.1);color:var(--red);}
+.proc-eta{font-size:.69rem;color:var(--dim);margin-top:10px;display:flex;justify-content:space-between;align-items:center;}
+.proc-timer{font-weight:700;color:var(--muted);}
+.panel-link{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--border2);border-radius:12px;padding:12px 16px;margin-bottom:20px;text-decoration:none;color:var(--text);transition:.18s;}
+.panel-link:hover{background:var(--panel2);border-color:var(--purple-b);transform:translateY(-1px);}
+.pl-icon{width:38px;height:38px;border-radius:10px;flex-shrink:0;background:var(--purple-s);border:1px solid var(--purple-b);display:flex;align-items:center;justify-content:center;}
+.pl-text{flex:1;}.pl-title{font-weight:700;font-size:.84rem;margin-bottom:2px;}.pl-sub{font-size:.71rem;color:var(--muted);}.pl-arrow{color:var(--dim);}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.sec-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;display:flex;align-items:center;gap:7px;}
+.sec-badge{font-size:.7rem;color:var(--dim);background:var(--panel2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;}
+.sessions-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:32px;}
+.sess-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:all .2s;position:relative;}
+.sess-card:hover{border-color:var(--border2);transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,0,0,.35);}
+.sess-card.active-sess{border-color:var(--purple-b);}
+.sess-top{padding:14px 14px 10px;display:flex;align-items:flex-start;gap:11px;}
+.sess-icon{width:40px;height:40px;border-radius:11px;flex-shrink:0;background:var(--purple-s);border:1px solid var(--purple-b);display:flex;align-items:center;justify-content:center;}
+.sess-info{flex:1;min-width:0;}.sess-name{font-weight:700;font-size:.83rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px;padding-right:50px;}
+.sess-meta{font-size:.69rem;color:var(--muted);}
+.sess-badge{position:absolute;top:10px;right:36px;background:var(--purple-s);border:1px solid var(--purple-b);border-radius:6px;padding:1px 7px;font-size:.6rem;font-weight:700;color:var(--purple);}
+.sess-del{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--dim);cursor:pointer;padding:3px 5px;border-radius:5px;transition:.15s;line-height:1;}
+.sess-del:hover{color:var(--red);background:rgba(239,68,68,.1);}
+.sess-tags{display:flex;flex-wrap:wrap;gap:4px;padding:0 14px 10px;}
+.tag{font-size:.64rem;padding:2px 8px;border-radius:7px;font-weight:700;}
+.tag.n{background:var(--blue-s);color:var(--blue);border:1px solid var(--blue-b);}
+.tag.q{background:var(--purple-s);color:var(--purple);border:1px solid var(--purple-b);}
+.tag.c{background:var(--green-s);color:var(--green);border:1px solid var(--green-b);}
+.tag.s{background:var(--gold-s);color:var(--gold);border:1px solid var(--gold-b);}
+.sess-btns{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;border-top:1px solid var(--border);background:var(--border);}
+.sb{background:var(--panel2);border:none;color:var(--muted);padding:11px 4px;font-size:.68rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.15s;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.sb:hover{background:var(--panel3);}
+.sb.n:hover{color:var(--blue);}.sb.c:hover{color:var(--green);}.sb.q:hover{color:var(--purple);}.sb.s:hover{color:var(--gold);}.sb.ch:hover{color:var(--teal);}
+.empty{text-align:center;padding:40px 20px;color:var(--dim);grid-column:1/-1;}
+.empty-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;color:var(--muted);margin-bottom:8px;margin-top:12px;}
+.empty-sub{font-size:.78rem;line-height:1.7;}
+.modal-overlay{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.show{display:flex;}
+.modal-card{background:var(--panel);border:1px solid var(--border2);border-radius:18px;padding:24px 22px;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.modal-icon{width:46px;height:46px;border-radius:13px;background:var(--purple-s);border:1px solid var(--purple-b);display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.modal-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;margin-bottom:5px;}
+.modal-sub{font-size:.78rem;color:var(--muted);line-height:1.55;margin-bottom:20px;}
+.count-row{margin-bottom:16px;}
+.count-label{display:flex;align-items:center;justify-content:space-between;font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:9px;}
+.count-label span.val{color:var(--purple);font-family:'Syne',sans-serif;font-weight:800;}
+.count-slider-row{display:flex;align-items:center;gap:10px;}
+.count-slider{flex:1;-webkit-appearance:none;appearance:none;height:6px;border-radius:6px;background:var(--panel2);outline:none;cursor:pointer;}
+.count-slider::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--purple);border:3px solid var(--text);cursor:pointer;box-shadow:0 2px 8px rgba(168,85,247,.5);}
+.count-hint{font-size:.68rem;color:var(--dim);margin-top:5px;}
+.modal-btns{display:flex;gap:9px;margin-top:18px;}
+.modal-btn{flex:1;padding:12px;border-radius:11px;border:none;font-size:.83rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.18s;}
+.modal-btn.cancel{background:var(--panel2);border:1px solid var(--border2);color:var(--muted);}
+.modal-btn.cancel:hover{background:var(--panel3);color:var(--text);}
+.modal-btn.start{background:linear-gradient(135deg,var(--purple),#7c3aed);color:#fff;}
+.modal-btn.start:hover{opacity:.88;}
+.chat-overlay{position:fixed;inset:0;z-index:300;background:var(--bg);display:flex;flex-direction:column;transform:translateY(100%);transition:transform .38s cubic-bezier(.4,0,.2,1);will-change:transform;}
+.chat-overlay.open{transform:translateY(0);}
+body::after{content:'';position:fixed;inset:0;z-index:299;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .38s;}
+body.chat-open::after{opacity:1;pointer-events:none;}
+.chat-nav{display:flex;align-items:center;gap:10px;background:rgba(13,18,32,.98);backdrop-filter:blur(16px);border-bottom:1px solid var(--border2);padding:0 16px;height:56px;flex-shrink:0;}
+.chat-close{width:34px;height:34px;border-radius:9px;background:transparent;border:1px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:.18s;flex-shrink:0;}
+.chat-close:hover{background:var(--panel3);color:var(--text);}
+.chat-doc-name{flex:1;font-size:.8rem;font-weight:600;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 10px;}
+.chat-doc-name em{color:var(--text);font-style:normal;}
+.chat-source-badge{display:flex;align-items:center;gap:5px;background:var(--teal-s);border:1px solid var(--teal-b);border-radius:20px;padding:4px 10px;font-size:.7rem;font-weight:700;color:var(--teal);white-space:nowrap;flex-shrink:0;}
+.chat-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px;}
+.chat-body::-webkit-scrollbar{width:3px;}
+.chat-body::-webkit-scrollbar-thumb{background:var(--panel3);border-radius:3px;}
+.chat-empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:10px;color:var(--dim);}
+.chat-empty-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;color:var(--muted);}
+.chat-empty-sub{font-size:.77rem;line-height:1.65;}
+.chat-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 10px;flex-shrink:0;}
+.chat-chip{background:var(--panel2);border:1px solid var(--border2);border-radius:20px;padding:6px 13px;font-size:.72rem;font-weight:600;color:var(--muted);cursor:pointer;transition:.15s;white-space:nowrap;}
+.chat-chip:hover{background:var(--panel3);color:var(--teal);border-color:var(--teal-b);}
+.cmsg{display:flex;flex-direction:column;gap:3px;max-width:88%;}
+.cmsg.user{align-self:flex-end;align-items:flex-end;}.cmsg.ai{align-self:flex-start;align-items:flex-start;}
+.cmsg-bubble{padding:10px 13px;border-radius:14px;font-size:.81rem;line-height:1.65;word-break:break-word;}
+.cmsg.user .cmsg-bubble{background:linear-gradient(135deg,var(--teal),#0891b2);color:#fff;border-radius:14px 14px 4px 14px;}
+.cmsg.ai .cmsg-bubble{background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:14px 14px 14px 4px;}
+.cmsg-time{font-size:.63rem;color:var(--dim);padding:0 3px;}
+.cmsg-ref{display:inline-flex;align-items:center;gap:4px;margin-top:5px;background:var(--teal-s);border:1px solid var(--teal-b);border-radius:6px;padding:2px 8px;font-size:.64rem;font-weight:600;color:var(--teal);}
+.typing-dots{display:flex;gap:4px;align-items:center;padding:3px 0;}
+.typing-dots span{width:7px;height:7px;border-radius:50%;background:var(--muted);}
+@keyframes db{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+.typing-dots span:nth-child(1){animation:db 1.2s infinite 0s}
+.typing-dots span:nth-child(2){animation:db 1.2s infinite .18s}
+.typing-dots span:nth-child(3){animation:db 1.2s infinite .36s}
+.chat-inputbar{flex-shrink:0;padding:10px 14px 16px;border-top:1px solid var(--border);background:var(--panel);}
+.chat-input-row{display:flex;align-items:flex-end;gap:8px;}
+.chat-textarea{flex:1;background:var(--panel2);border:1.5px solid var(--border2);border-radius:12px;padding:10px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.82rem;resize:none;outline:none;transition:.18s;min-height:42px;max-height:120px;line-height:1.5;}
+.chat-textarea:focus{border-color:var(--teal-b);background:var(--panel3);}
+.chat-textarea::placeholder{color:var(--dim);}
+.chat-send{width:40px;height:40px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,var(--teal),#0891b2);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.18s;box-shadow:0 3px 10px rgba(6,182,212,.3);}
+.chat-send:hover{opacity:.85;transform:scale(.97);}
+.chat-send:disabled{opacity:.3;cursor:not-allowed;transform:none;}
+.skel{background:var(--panel2);border-radius:10px;animation:sk 1.4s ease-in-out infinite;}
+@keyframes sk{0%,100%{opacity:.35}50%{opacity:.75}}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--border2);color:var(--text);padding:10px 18px;border-radius:12px;font-size:.82rem;font-weight:500;box-shadow:0 8px 28px rgba(0,0,0,.45);z-index:9999;white-space:nowrap;animation:tIn .22s ease;}
+.toast.success{border-color:var(--green-b);background:rgba(16,185,129,.1);}
+.toast.error{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.07);}
+.toast.coins{border-color:var(--gold-b);background:rgba(245,158,11,.1);}
+@keyframes tIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+</style>
+<base target="_blank">
+</head>
+<body>
+<nav class="nav">
+  <a href="home.html" class="nav-back">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+  </a>
+  <div class="nav-logo" style="margin-left:8px">
+    <div class="nav-logo-icon">
+      <svg width="16" height="16" fill="none" stroke="var(--purple)" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2v-4M9 21H5a2 2 0 01-2-2v-4m0 0h18"/></svg>
+    </div>
+    <span class="nav-logo-name">Study Lab</span>
+  </div>
+  <div class="nav-mid">AI Study Assistant</div>
+  <div class="coins-pill">
+    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 6v6l4 2"/></svg>
+    <span id="coinsVal">—</span>
+  </div>
+</nav>
+<main class="main">
+  <div class="status-bar" id="statusBar">
+    <span id="statusIcon" class="spin">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+    </span>
+    <span id="statusText">Waking AI server…</span>
+  </div>
+  <div class="upload-hero" id="dropzone" onclick="document.getElementById('fileInput').click()">
+    <div class="upload-hero-icon">
+      <svg width="24" height="24" fill="none" stroke="var(--purple)" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+    </div>
+    <div class="upload-title">Upload a PDF to Study</div>
+    <div class="upload-sub">Study Lab reads your document and automatically generates notes, flashcards, a quiz, and a full summary.</div>
+    <div id="limitPill" class="limit-pill" style="display:none">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 8v4l3 3"/></svg>
+      <span id="limitText">Loading…</span>
+    </div>
+    <br>
+    <button class="upload-cta" id="uploadCta" onclick="event.stopPropagation();document.getElementById('fileInput').click()">+ Upload New PDF</button>
+    <input type="file" id="fileInput" accept=".pdf" onchange="handleFile(event)">
+  </div>
+  <div class="proc-card" id="procCard">
+    <div class="proc-top">
+      <div class="proc-file-icon">
+        <svg width="16" height="16" fill="none" stroke="var(--purple)" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      </div>
+      <span class="proc-name" id="procName">Processing…</span>
+      <button class="proc-cancel" onclick="cancelProc()">Cancel</button>
+    </div>
+    <div class="proc-steps">
+      <div class="ps wait" id="ps1"><div class="ps-dot">1</div><span id="ps1t">Extracting PDF text</span></div>
+      <div class="ps wait" id="ps2"><div class="ps-dot">2</div><span id="ps2t">Connecting to AI</span></div>
+      <div class="ps wait" id="ps3"><div class="ps-dot">3</div><span id="ps3t">Generating notes &amp; summary</span></div>
+      <div class="ps wait" id="ps4"><div class="ps-dot">4</div><span id="ps4t">Creating flashcards</span></div>
+      <div class="ps wait" id="ps5"><div class="ps-dot">5</div><span id="ps5t">Building quiz</span></div>
+      <div class="ps wait" id="ps6"><div class="ps-dot">6</div><span id="ps6t">Saving session</span></div>
+    </div>
+    <div class="proc-eta"><span id="procEta">Starting…</span><span class="proc-timer" id="procTimer">0s</span></div>
+  </div>
+  <a href="study_lab.html" class="panel-link">
+    <div class="pl-icon"><svg width="18" height="18" fill="none" stroke="var(--purple)" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg></div>
+    <div class="pl-text"><div class="pl-title">Open Chat Mode</div><div class="pl-sub">Sources · Studio · Chat — upload &amp; ask questions about any PDF live</div></div>
+    <svg class="pl-arrow" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+  </a>
+  <div class="sec-hd">
+    <div class="sec-title">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+      Study Sessions
+    </div>
+    <span class="sec-badge" id="sessCount">…</span>
+  </div>
+  <div class="sessions-grid" id="sessGrid">
+    <div class="skel" style="height:160px"></div>
+    <div class="skel" style="height:160px"></div>
+  </div>
+</main>
+
+<div class="modal-overlay" id="countModal">
+  <div class="modal-card">
+    <div class="modal-icon"><svg width="22" height="22" fill="none" stroke="var(--purple)" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17V7m6 10V7M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg></div>
+    <div class="modal-title">Customize Your Session</div>
+    <div class="modal-sub">Choose how many flashcards and quiz questions to generate from your PDF.</div>
+    <div class="count-row">
+      <div class="count-label">Flashcards <span class="val" id="fcCountVal">25</span></div>
+      <div class="count-slider-row"><input type="range" min="10" max="30" value="25" step="1" class="count-slider" id="fcSlider" oninput="document.getElementById('fcCountVal').textContent=this.value"></div>
+      <div class="count-hint">Between 10 and 30 cards</div>
+    </div>
+    <div class="count-row">
+      <div class="count-label">Quiz Questions <span class="val" id="qzCountVal">25</span></div>
+      <div class="count-slider-row"><input type="range" min="10" max="30" value="25" step="1" class="count-slider" id="qzSlider" oninput="document.getElementById('qzCountVal').textContent=this.value"></div>
+      <div class="count-hint">Between 10 and 30 questions</div>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" onclick="closeCountModal()">Cancel</button>
+      <button class="modal-btn start" onclick="confirmCountsAndProcess()">Start Generating</button>
+    </div>
+  </div>
+</div>
+
+<div class="chat-overlay" id="chatOverlay">
+  <div class="chat-nav">
+    <button class="chat-close" onclick="closeChat()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    <div class="chat-doc-name"><em id="chatDocLabel">Chat with PDF</em></div>
+    <div class="chat-source-badge"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>PDF grounded</div>
+  </div>
+  <div class="chat-body" id="chatBody">
+    <div class="chat-empty-state" id="chatEmptyState">
+      <svg width="46" height="46" fill="none" stroke="var(--dim)" stroke-width="1.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+      <div class="chat-empty-title">Ask anything about this PDF</div>
+      <div class="chat-empty-sub">Every answer is grounded in the document.<br>If a topic isn't covered, I'll let you know.</div>
+    </div>
+  </div>
+  <div class="chat-chips" id="chatChips">
+    <div class="chat-chip" onclick="useChip(this)">What are the main points?</div>
+    <div class="chat-chip" onclick="useChip(this)">Explain the key concepts</div>
+    <div class="chat-chip" onclick="useChip(this)">What are the important definitions?</div>
+    <div class="chat-chip" onclick="useChip(this)">What should I study for the exam?</div>
+    <div class="chat-chip" onclick="useChip(this)">Give me a quick summary</div>
+  </div>
+  <div class="chat-inputbar">
+    <div class="chat-input-row">
+      <textarea id="chatInput" class="chat-textarea" placeholder="Ask a question about this document…" rows="1" onkeydown="chatKey(event)" oninput="chatResize(this)"></textarea>
+      <button class="chat-send" id="chatSend" onclick="sendChat()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import {
+  getFirestore, doc, collection, getDoc, setDoc, addDoc, getDocs,
+  deleteDoc, query, where, serverTimestamp, updateDoc, increment, arrayUnion, limit
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const FB={apiKey:"AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",authDomain:"codex-study-hub-923c5.firebaseapp.com",
+  projectId:"codex-study-hub-923c5",storageBucket:"codex-study-hub-923c5.appspot.com",
+  messagingSenderId:"750631534625",appId:"1:750631534625:web:5f59e1841bb856bdbba360"};
+const app=initializeApp(FB);const auth=getAuth(app);const db=getFirestore(app);
+const BACKEND="https://codex-backend-new.onrender.com/chat";
+const PDFJS="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174";
+
+// ═══════════════════════════════════════════════════════════════
+// SMART CONTEXT BUILDER — v3
+//
+// THE ROOT CAUSE OF BAD QUESTIONS:
+//   Academic PDFs (especially Nigerian university course packs)
+//   have 10-30 pages of admin content at the front:
+//   course guide, TMA instructions, TOC, recommended texts, etc.
+//   The old code took the first N chars → pure admin → AI asks
+//   "what is the aim of this course" instead of real content.
+//
+// THE FIX — 3-zone sampling:
+//   1. SKIP the front (admin detector strips header noise)
+//   2. EARLY BODY  — first real academic content (40% of budget)
+//   3. MID BODY    — middle of doc where rich content lives (35%)
+//   4. LATE BODY   — later sessions/chapters (25%)
+//
+// Admin detector: skips text until it finds a "Study Session",
+// "Chapter", "Unit", or "Section" heading that marks the start
+// of actual academic content. Falls back gracefully if not found.
+// ═══════════════════════════════════════════════════════════════
+function buildSmartContext(text, maxChars) {
+  if (!text || text.length === 0) return '';
+  if (text.length <= maxChars) return text;
+
+  // ── Step 1: Find where real academic content starts ──────────
+  // Look for patterns that signal the start of actual study content
+  const contentMarkers = [
+    /study\s+session\s+\d+\s*:/i,
+    /chapter\s+\d+\s*[:\-]/i,
+    /unit\s+\d+\s*[:\-]/i,
+    /section\s+\d+\s*[:\-]/i,
+    /\d+\.\d+\s+[A-Z][a-z]/,       // numbered section like "1.1 Definition of"
+    /introduction\s*\n[A-Z]/,        // "Introduction" followed by content
+  ];
+
+  let contentStart = 0;
+  const searchText = text.slice(0, Math.min(text.length, 80000)); // search first 80k chars
+
+  for (const marker of contentMarkers) {
+    const match = searchText.match(marker);
+    if (match && match.index > 200) { // must be past the very beginning
+      // Take the SECOND match (skip TOC entry, get real content)
+      const secondMatch = searchText.slice(match.index + 50).match(marker);
+      if (secondMatch) {
+        contentStart = match.index + 50 + secondMatch.index;
+      } else {
+        contentStart = match.index;
+      }
+      break;
+    }
+  }
+
+  // If we couldn't find content markers, skip first 15% as admin
+  if (contentStart === 0) {
+    contentStart = Math.floor(text.length * 0.15);
+  }
+
+  console.log(`Content starts at char ${contentStart} (skipped ${contentStart} chars of admin/TOC)`);
+
+  const body = text.slice(contentStart);
+
+  // ── Step 2: 3-zone sampling of the content body ──────────────
+  const zone1Size = Math.floor(maxChars * 0.40); // early content
+  const zone2Size = Math.floor(maxChars * 0.35); // mid content
+  const zone3Size = Math.floor(maxChars * 0.25); // late content
+
+  const zone1 = body.slice(0, zone1Size);
+
+  const mid = Math.floor(body.length * 0.45);
+  const zone2 = body.slice(mid, mid + zone2Size);
+
+  const late = Math.floor(body.length * 0.75);
+  const zone3 = body.slice(late, late + zone3Size);
+
+  const parts = [zone1];
+  if (zone2 && zone2.length > 100) parts.push('\n\n[... continuing ...]\n\n' + zone2);
+  if (zone3 && zone3.length > 100) parts.push('\n\n[... later content ...]\n\n' + zone3);
+
+  return parts.join('');
+}
+
+let currentUser=null,cancelled=false,procTimerInterval=null;
+let pendingFile=null,flashcardCount=25,quizCount=25;
+const DAILY_UPLOAD_LIMIT=3;
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function todayKey(){return new Date().toISOString().slice(0,10);}
+function fmtSize(b){if(!b)return'—';return b>1048576?(b/1048576).toFixed(1)+'MB':(b/1024).toFixed(0)+'KB';}
+function fmtDate(ts){if(!ts)return'—';try{const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleDateString('en-NG',{day:'numeric',month:'short',year:'numeric'});}catch(_){return'—';}}
+function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+function toast(msg,type=''){document.querySelectorAll('.toast').forEach(t=>t.remove());const t=document.createElement('div');t.className='toast'+(type?' '+type:'');t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3500);}
+function setStatus(msg,type='gold',spinning=true){
+  const bar=document.getElementById('statusBar'),icon=document.getElementById('statusIcon'),text=document.getElementById('statusText');
+  bar.className='status-bar show '+(type==='green'?'green':type==='red'?'red':'');
+  icon.innerHTML=spinning?`<span class="spin"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></span>`:(type==='green'?'✓':'✕');
+  text.textContent=msg;}
+function hideStatus(){document.getElementById('statusBar').classList.remove('show');}
+
+function dailyLimitRef(){return doc(db,'daily_limits',`${currentUser.uid}_${todayKey()}`);}
+async function refreshDailyLimitUI(){
+  if(!currentUser)return;
+  const pill=document.getElementById('limitPill'),pillText=document.getElementById('limitText'),cta=document.getElementById('uploadCta');
+  try{
+    const snap=await getDoc(dailyLimitRef());
+    const count=snap.exists()?(snap.data().uploads||0):0;
+    const remaining=Math.max(DAILY_UPLOAD_LIMIT-count,0);
+    pill.style.display='inline-flex';
+    if(remaining<=0){pillText.textContent='Daily limit reached — resets tomorrow';pill.className='limit-pill zero';cta.disabled=true;cta.textContent='Daily limit reached';}
+    else{const dots='●'.repeat(remaining)+'○'.repeat(DAILY_UPLOAD_LIMIT-remaining);pillText.textContent=`${dots}  ${remaining} of ${DAILY_UPLOAD_LIMIT} uploads left today`;pill.className='limit-pill'+(remaining===1?' low':'');cta.disabled=false;cta.textContent='+ Upload New PDF';}
+  }catch(e){console.warn('refreshDailyLimitUI:',e.message);pill.style.display='none';}}
+
+async function checkDailyLimit(){
+  if(!currentUser)return false;
+  try{const snap=await getDoc(dailyLimitRef());const count=snap.exists()?(snap.data().uploads||0):0;
+    if(count>=DAILY_UPLOAD_LIMIT){toast(`Daily limit reached (${DAILY_UPLOAD_LIMIT}/day). Come back tomorrow!`,'error');await refreshDailyLimitUI();return false;}return true;}
+  catch(e){console.error('checkDailyLimit:',e.message);return true;}}
+
+async function incrementDailyCount(){
+  if(!currentUser)return;
+  try{await setDoc(dailyLimitRef(),{uploads:increment(1),date:todayKey(),uid:currentUser.uid},{merge:true});}
+  catch(e){console.warn('incrementDailyCount:',e.message);}
+  await refreshDailyLimitUI();}
+
+function setStep(id,state,label){
+  const el=document.getElementById(id);if(!el)return;
+  el.className='ps '+state;
+  const dot=el.querySelector('.ps-dot'),txt=document.getElementById(id+'t');
+  if(state==='done'){dot.innerHTML='<svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';}
+  else if(state==='active'){dot.innerHTML='<span class="spin" style="font-size:.55rem;display:flex"><svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></span>';}
+  else if(state==='error'){dot.textContent='✕';}else{dot.textContent=id.replace('ps','');}
+  if(label&&txt)txt.textContent=label;}
+
+function startTimer(){const t0=Date.now();procTimerInterval=setInterval(()=>{document.getElementById('procTimer').textContent=((Date.now()-t0)/1000).toFixed(0)+'s';},500);}
+function stopTimer(){clearInterval(procTimerInterval);}
+
+async function ai(system,userMsg,retries=4){
+  const groundedSystem=system+"\n\nSTRICT GROUNDING RULE: Base every answer strictly on the provided document content. Do not invent facts not in the text.";
+  for(let i=1;i<=retries;i++){
+    try{
+      const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),50000);
+      const r=await fetch(BACKEND,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({system:groundedSystem,messages:[{role:'user',content:userMsg}]}),signal:ctrl.signal});
+      clearTimeout(timer);
+      if(r.status===429){
+        const waitMs=8000*i;
+        if(i<retries){document.getElementById('procEta').textContent=`Rate limited — waiting ${Math.round(waitMs/1000)}s…`;await delay(waitMs);continue;}
+        throw new Error('RATE_LIMITED');}
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      const d=await r.json();
+      const t=d?.choices?.[0]?.message?.content||(Array.isArray(d?.content)?d.content.map(b=>b.text||'').join(''):'')||d?.reply||'';
+      if(t.trim().length>15)return t.trim();
+      if(i<retries){await delay(2000*i);continue;}
+      throw new Error('AI returned empty response');
+    }catch(e){
+      if(e.message==='RATE_LIMITED')throw new Error('RATE_LIMITED');
+      if(e.name==='AbortError'){if(i<retries){await delay(1500);continue;}throw new Error('AI request timed out');}
+      if(i===retries)throw new Error('AI unavailable: '+e.message);
+      await delay(2500*i);}}}
+
+function parseJSON(raw){
+  if(!raw||raw.length<5)throw new Error('empty raw');
+  let s=raw.replace(/Here are.*?:?\s*/i,'').replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
+  if(s.startsWith('[')||s.startsWith('{')){try{return JSON.parse(s);}catch(_){}}
+  let a=s.indexOf('['),b=s.lastIndexOf(']');
+  if(a!==-1&&b>a){try{const p=JSON.parse(s.slice(a,b+1));if(Array.isArray(p)&&p.length>0)return p;}catch(_){}}
+  const cards=[];const qr=/"question"\s*:\s*"((?:[^"\\]|\\.)*)"/g;const ar=/"answer"\s*:\s*"((?:[^"\\]|\\.)*)"/g;
+  const qs=[],as=[];let m;
+  while((m=qr.exec(raw))!==null)qs.push(m[1].replace(/\n/g,' '));
+  while((m=ar.exec(raw))!==null)as.push(m[1].replace(/\n/g,' '));
+  for(let i=0;i<Math.min(qs.length,as.length);i++)cards.push({question:qs[i],answer:as[i]});
+  if(cards.length>0)return cards;
+  throw new Error('Could not parse JSON. Raw: '+s.slice(0,120));}
+
+// ── PDF EXTRACT ──────────────────────────────────────────────
+// Extracts up to 80 pages or 80 000 chars — we want a LOT of
+// raw text so our admin-skipper has enough to work with.
+// buildSmartContext() does the trimming before AI calls.
+async function extractPdf(file){
+  if(!window.pdfjsLib){
+    await new Promise((res,rej)=>{const s=document.createElement('script');s.src=`${PDFJS}/pdf.min.js`;s.onload=res;s.onerror=rej;document.head.appendChild(s);});
+    pdfjsLib.GlobalWorkerOptions.workerSrc=`${PDFJS}/pdf.worker.min.js`;}
+  const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer(),verbosity:0}).promise;
+  const maxPages=Math.min(pdf.numPages,80);
+  const CHAR_CAP=80000;
+  let pages=[],totalChars=0;
+  for(let i=1;i<=maxPages;i++){
+    if(totalChars>=CHAR_CAP){console.log(`PDF extraction stopped at page ${i} (${totalChars} chars)`);break;}
+    const page=await pdf.getPage(i);
+    const c=await page.getTextContent({normalizeWhitespace:true});
+    let lastY=null,pt='';
+    for(const item of c.items){
+      if(!item.str.trim())continue;
+      if(lastY!==null&&Math.abs(item.transform[5]-lastY)>9)pt+='\n';
+      pt+=item.str+' ';lastY=item.transform[5];}
+    const pageText=pt.trim();pages.push(pageText);totalChars+=pageText.length;}
+  return pages.join('\n\n').trim();}
+
+async function saveToFirestore(data,retries=3){
+  for(let i=1;i<=retries;i++){
+    try{const ref=await addDoc(collection(db,'study_lab_documents'),data);return ref.id;}
+    catch(e){console.warn(`Firestore save attempt ${i} failed:`,e.message);if(i<retries)await delay(3000*i);else throw e;}}}
+
+window.handleFile=async function(e){
+  const file=e.target.files[0];if(!file||!currentUser)return;
+  if(file.size>15*1024*1024){toast('Max file size is 15MB','error');document.getElementById('fileInput').value='';return;}
+  const canUpload=await checkDailyLimit();
+  if(!canUpload){document.getElementById('fileInput').value='';return;}
+  pendingFile=file;
+  document.getElementById('fcSlider').value=25;document.getElementById('qzSlider').value=25;
+  document.getElementById('fcCountVal').textContent='25';document.getElementById('qzCountVal').textContent='25';
+  document.getElementById('countModal').classList.add('show');};
+
+window.closeCountModal=function(){document.getElementById('countModal').classList.remove('show');document.getElementById('fileInput').value='';pendingFile=null;};
+window.confirmCountsAndProcess=async function(){
+  flashcardCount=parseInt(document.getElementById('fcSlider').value,10)||25;
+  quizCount=parseInt(document.getElementById('qzSlider').value,10)||25;
+  document.getElementById('countModal').classList.remove('show');
+  const file=pendingFile;pendingFile=null;document.getElementById('fileInput').value='';
+  if(file){await incrementDailyCount();processFile(file);}};
+
+// ═══════════════════════════════════════════════════════════════
+// PROCESS FILE
+//
+// Context budget per AI call:
+//   ctx   = 10 000 chars — main calls (notes, flashcards, quiz)
+//   short = 6 000 chars  — summary, key points
+//
+// Both use buildSmartContext v3 which skips admin content.
+// Prompts explicitly forbid admin/meta questions.
+// Client-side filter also removes any that slip through.
+// ═══════════════════════════════════════════════════════════════
+async function processFile(file){
+  cancelled=false;
+  const pc=document.getElementById('procCard');
+  pc.classList.add('show');
+  document.getElementById('procName').textContent=file.name;
+  ['ps1','ps2','ps3','ps4','ps5','ps6'].forEach(s=>setStep(s,'wait'));
+  setStep('ps4','wait',`Creating flashcards (${flashcardCount} cards)`);
+  setStep('ps5','wait',`Building quiz (${quizCount} questions)`);
+  document.getElementById('procEta').textContent='Starting…';
+  document.getElementById('procTimer').textContent='0s';
+  startTimer();
+
+  try{
+    setStep('ps1','active');
+    document.getElementById('procEta').textContent='Reading PDF pages…';
+    const pdfText=await extractPdf(file);
+    if(cancelled)return;
+    if(!pdfText||pdfText.trim().length<30){
+      setStep('ps1','error','Could not extract text');
+      toast('Could not read PDF text — try a text-based PDF','error');
+      pc.classList.remove('show');stopTimer();return;}
+    setStep('ps1','done');
+    console.log(`PDF extracted: ${pdfText.length} chars from "${file.name}"`);
+
+    // Build smart contexts — admin sections are automatically skipped
+    const ctx   = buildSmartContext(pdfText, 8000);
+    const short = buildSmartContext(pdfText, 5000);
+    console.log(`Context: ${ctx.length} chars (smart split v3, admin-skipping)`);
+
+    setStep('ps2','active','Connecting to AI (may take 20s)…');
+    setStatus('Waking AI server — this takes up to 20 seconds on first use…','gold',true);
+    document.getElementById('procEta').textContent='Waking AI server…';
+    try{await Promise.race([fetch(BACKEND,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:'You are helpful.',messages:[{role:'user',content:'hello'}]})}),delay(25000)]);}catch(_){}
+    if(cancelled)return;
+    setStep('ps2','done','AI connected');hideStatus();
+
+    setStep('ps3','active');
+    document.getElementById('procEta').textContent='Generating notes… (~30s)';
+    let notes,summary,keyPoints;
+    try{
+      notes=await ai(
+        'You are an expert academic note-taker. Generate thorough, well-structured study notes from the SUBJECT CONTENT of the document. Use ## for main headings, ### for sub-headings, - for bullets. Sections: Key Concepts, Definitions, Important Facts, Examples. Focus entirely on the academic subject matter — culture, history, religion, science, or whatever topic this document covers. IGNORE any course guide sections, TMA instructions, assessment descriptions, page numbers, or administrative text. Never return JSON.',
+        `Generate comprehensive study notes from this document content:\n\n${ctx}`);
+      if(cancelled) return;
+await delay(1500); // ← ADD HERE
+document.getElementById('procEta').textContent = 'Generating summary…';
+
+      summary=await ai(
+        'Write a clear academic summary of the SUBJECT MATTER in this document. Focus on the actual topics taught — concepts, theories, facts — not the course structure. Use ## headings. Never return JSON.',
+        `Summarise the academic content of this document:\n\n${short}`);
+      if(cancelled)return;
+     await delay(1500);  document.getElementById('procEta').textContent='Extracting key points…';
+     
+      keyPoints=await ai(
+        'Extract the most important academic concepts and definitions from the SUBJECT MATTER. Format:\n\nKEY POINTS:\n- point\n\nKEY DEFINITIONS:\nTerm: definition\n\nFocus on the actual subject content only. Never return JSON.',
+        `Extract key academic points:\n\n${short}`);
+      if(cancelled)return;
+      await delay(1500); 
+    }catch(e){
+      if(e.message==='RATE_LIMITED'){setStep('ps3','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('AI rate-limited. Wait a minute and try again.','error');return;}
+      throw e;}
+    setStep('ps3','done');
+
+    // ── FLASHCARDS ──────────────────────────────────────────────
+    setStep('ps4','active',`Creating flashcards… (~25s)`);
+    document.getElementById('procEta').textContent=`Creating ${flashcardCount} flashcards…`;
+
+    const FC_SYSTEM=`You are a university exam flashcard generator. Return ONLY a raw JSON array. No preamble, no markdown, no explanation. Start with [ end with ].
+Each element: {"question":"...","answer":"..."}
+
+WHAT MAKES A GOOD FLASHCARD (follow these strictly):
+✓ Ask about specific concepts, theories, definitions, causes, effects, examples, processes
+✓ Questions like: "What is culture?", "What are the features of African religion?", "Define ethnocentrism", "What is the role of language in Nigerian society?", "Explain the concept of socialization"
+✓ The question must be answerable from the document's academic content
+✓ The answer must be substantive (not just "yes" or a name)
+
+WHAT TO NEVER ASK (these make the quiz useless):
+✗ "What is the aim/objective/purpose of this course?"
+✗ "How many units/hours/weeks is this course?"
+✗ "What is the title of this document?"
+✗ "Who is the lecturer/author?"
+✗ "What percentage does TMA count for?"
+✗ "What is the course code?"
+✗ Anything about course structure, assessment, or administration
+
+Generate exactly ${flashcardCount} academic flashcards about the actual subject matter.`;
+
+    let fcRaw='';
+    try{fcRaw=await ai(FC_SYSTEM,`Document content (actual subject matter begins below):\n\n${ctx}\n\nReturn ONLY the JSON array of ${flashcardCount} academic flashcards:`);}
+    catch(e){if(e.message==='RATE_LIMITED'){setStep('ps4','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('AI rate-limited. Try again in a minute.','error');return;}throw e;}
+    if(cancelled)return;
+
+    // Admin question filter — catches anything that slips through
+    const ADMIN_PATTERN=/\b(aim|objective|purpose|goal)\s+of\s+(this\s+)?(course|unit|module)|how\s+many\s+(unit|hour|week|credit|page)|title\s+of\s+(this\s+)?(course|document|book)|course\s+code|tma|tutor.?marked|percentage|assessment|examination\s+format|study\s+session\s+\d+\s*is\s+about|what\s+is\s+gn[sz]\s*\d|what\s+does\s+gn[sz]\s*\d|overall\s+objective\s+of\s+(gn[sz]|this\s+course)/i;
+
+    let flashcards=[];
+    try{
+      const p=parseJSON(fcRaw);
+      flashcards=(Array.isArray(p)?p:[])
+        .filter(c=>c&&typeof c.question==='string'&&typeof c.answer==='string')
+        .filter(c=>c.question.trim().length>5&&c.answer.trim().length>5)
+        .filter(c=>!ADMIN_PATTERN.test(c.question))
+        .map(c=>({question:c.question.trim(),answer:c.answer.trim()}));
+      console.log('Flashcards parsed:',flashcards.length,'(after admin filter)');
+    }catch(ex){console.error('FC parse failed:',ex.message);flashcards=[];}
+
+    if(flashcards.length===0){
+      document.getElementById('procEta').textContent='Retrying flashcards…';
+      try{
+        const retry=await ai(`Return JSON array only. [{"question":"Q","answer":"A"}]. Make ${flashcardCount} academic flashcards about the actual subject content — concepts, definitions, facts. No course admin questions.`,
+          `Content: ${short.slice(0,4000)}\n\nReturn JSON array of ${flashcardCount} flashcards:`);
+        const p2=parseJSON(retry);
+        flashcards=(Array.isArray(p2)?p2:[]).filter(c=>c?.question&&c?.answer&&!ADMIN_PATTERN.test(c.question)).map(c=>({question:c.question.trim(),answer:c.answer.trim()}));
+      }catch(e){if(e.message==='RATE_LIMITED'){setStep('ps4','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('Rate limited.','error');return;}flashcards=[];}}
+
+    if(flashcards.length===0){
+      const lines=notes.split('\n').filter(l=>l.trim().startsWith('-')&&l.length>20);
+      flashcards=lines.slice(0,flashcardCount).map((l,i)=>({
+        question:`Explain: ${l.replace(/^[-#\s]+/,'').slice(0,80)}`,
+        answer:'Refer to the study notes for a full explanation of this concept.'}));}
+    setStep('ps4','done',`Flashcards ready (${flashcards.length} cards)`);
+
+    // ── QUIZ ────────────────────────────────────────────────────
+    setStep('ps5','active',`Building quiz… (~25s)`);
+    document.getElementById('procEta').textContent=`Building ${quizCount} quiz questions…`;
+
+    const QZ_SYSTEM=`You are a university MCQ exam generator. Return ONLY a raw JSON array. No preamble, no markdown. Start with [ end with ].
+Each element: {"question":"...","options":["opt1","opt2","opt3","opt4"],"answer":"exact text of correct option","difficulty":"easy|medium|hard","explanation":"why this is correct"}
+
+GOOD MCQ QUESTIONS test understanding of the subject:
+✓ "What is the primary function of culture in society?"
+✓ "Which of the following best describes ethnocentrism?"
+✓ "What are the characteristics of African traditional religion?"
+✓ "Which factor best explains economic underdevelopment in Nigeria?"
+✓ Questions about definitions, causes, effects, examples, comparisons, processes
+
+NEVER ASK (these ruin the quiz):
+✗ "What is the overall objective of GNS 201?"
+✗ "What societal transformation concept is an overall objective in GNS 201?"
+✗ "What aspect of moral values is discussed as an objective in this course?"
+✗ "How many study sessions does this course have?"
+✗ "What percentage of marks does TMA account for?"
+✗ Anything framed around course structure, assessment format, or learning outcomes
+✗ Questions where the correct answer is literally a course objective/aim
+
+All four options must be plausible subject-matter answers. Spread difficulty: ~35% easy, 45% medium, 20% hard.
+Generate exactly ${quizCount} MCQ questions about the actual academic subject matter.`;
+
+    let qzRaw='';
+    try{qzRaw=await ai(QZ_SYSTEM,`Document content (actual subject matter):\n\n${ctx}\n\nReturn ONLY the JSON array of ${quizCount} academic MCQ questions:`);}
+    catch(e){if(e.message==='RATE_LIMITED'){setStep('ps5','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('Rate limited. Wait a minute.','error');return;}throw e;}
+    if(cancelled)return;
+
+    let quiz=[];
+    try{
+      const p=parseJSON(qzRaw);
+      quiz=(Array.isArray(p)?p:[])
+        .filter(q=>q&&q.question&&Array.isArray(q.options)&&q.options.length>=2&&q.answer)
+        .filter(q=>!ADMIN_PATTERN.test(q.question))
+        .map(q=>({
+          question:q.question.trim(),
+          options:q.options.map(o=>String(o).trim().replace(/^[A-D][\.\)]\s*/i,'')).filter(o=>o.length>0),
+          answer:q.answer.trim().replace(/^[A-D][\.\)]\s*/i,''),
+          difficulty:q.difficulty||'medium',explanation:q.explanation||''}));
+      console.log('Quiz parsed:',quiz.length,'questions (after admin filter)');
+    }catch(ex){console.error('Quiz parse failed:',ex.message);quiz=[];}
+
+    if(quiz.length===0){
+      document.getElementById('procEta').textContent='Retrying quiz…';
+      try{
+        const retry=await ai(`Return JSON array only. [{"question":"Q","options":["A","B","C","D"],"answer":"A","difficulty":"medium","explanation":"reason"}]. Make ${quizCount} academic MCQ questions about key concepts and theories — NOT about course structure or objectives.`,
+          `Content: ${short.slice(0,4000)}\n\nReturn JSON array of ${quizCount} MCQ questions:`);
+        const p2=parseJSON(retry);
+        quiz=(Array.isArray(p2)?p2:[]).filter(q=>q?.question&&Array.isArray(q.options)&&q.options.length>=2&&q.answer&&!ADMIN_PATTERN.test(q.question))
+          .map(q=>({...q,question:q.question.trim(),options:q.options.map(o=>String(o).trim().replace(/^[A-D][\.\)]\s*/i,'')),answer:q.answer.trim().replace(/^[A-D][\.\)]\s*/i,''),difficulty:q.difficulty||'medium',explanation:q.explanation||''}));
+      }catch(e){if(e.message==='RATE_LIMITED'){setStep('ps5','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();return;}quiz=[];}}
+    setStep('ps5','done',`Quiz ready (${quiz.length} questions)`);
+
+    setStep('ps6','active');
+    document.getElementById('procEta').textContent='Saving to your library…';
+
+    const sessionData={uid:currentUser.uid,fileName:file.name,fileSize:file.size,
+      createdAt:serverTimestamp(),lastOpenedAt:serverTimestamp(),pdfTextPreview:pdfText.slice(0,500),
+      outputs:{notes,summary,keyPoints,flashcards:JSON.stringify(flashcards),quiz:JSON.stringify(quiz),
+        notesAt:new Date().toISOString(),summaryAt:new Date().toISOString(),flashcardsAt:new Date().toISOString(),quizAt:new Date().toISOString()}};
+
+    sessionStorage.setItem('slCache_new',JSON.stringify({fileName:file.name,fileSize:file.size,
+      outputs:{notes,summary,keyPoints,flashcards:JSON.stringify(flashcards),quiz:JSON.stringify(quiz)}}));
+
+    let savedId=null;
+    try{savedId=await saveToFirestore(sessionData);sessionStorage.setItem('slDocId',savedId);setStep('ps6','done','Session saved');}
+    catch(fsErr){console.error('Firestore save failed:',fsErr.message);setStep('ps6','error','Saved locally (sync failed)');sessionStorage.setItem('slDocId','__cache__');toast('⚠️ Cached locally — Firestore sync failed.','error');}
+
+    stopTimer();
+    const elapsed=document.getElementById('procTimer').textContent;
+    document.getElementById('procEta').textContent=`Done in ${elapsed} ✓`;
+    if(savedId)await awardCoins();
+    toast(`"${file.name}" ready — ${flashcards.length} cards, ${quiz.length} Qs 🎉`,'success');
+    await loadSessions();
+    setTimeout(()=>pc.classList.remove('show'),2500);
+  }catch(err){
+    if(cancelled)return;
+    stopTimer();pc.classList.remove('show');hideStatus();
+    toast(err.message||'Processing failed','error');
+    console.error('Processing error:',err);}}
+
+window.cancelProc=function(){cancelled=true;stopTimer();document.getElementById('procCard').classList.remove('show');hideStatus();toast('Cancelled','');};
+
+const dz=document.getElementById('dropzone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');const f=e.dataTransfer.files[0];
+  if(f?.type==='application/pdf'){const inp=document.getElementById('fileInput');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;handleFile({target:inp});}
+  else toast('Drop a PDF file','error');});
+
+async function loadSessions(){
+  const grid=document.getElementById('sessGrid');
+  if(!currentUser){grid.innerHTML='<div class="empty"><div class="empty-title">Not logged in</div></div>';return;}
+  try{
+    const snap=await getDocs(query(collection(db,'study_lab_documents'),where('uid','==',currentUser.uid),limit(40)));
+    const activeId=sessionStorage.getItem('slDocId')||'';
+    document.getElementById('sessCount').textContent=`${snap.size} session${snap.size!==1?'s':''}`;
+    if(snap.empty){grid.innerHTML=`<div class="empty"><svg width="40" height="40" fill="none" stroke="var(--dim)" stroke-width="1.5" viewBox="0 0 24 24" style="margin:0 auto 12px;display:block"><path stroke-linecap="round" stroke-linejoin="round" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><div class="empty-title">No study sessions yet</div><div class="empty-sub">Upload a PDF above to create your first session.</div></div>`;return;}
+    const docs=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0));
+    grid.innerHTML=docs.map(data=>{
+      const out=data.outputs||{};const isActive=data.id===activeId;
+      let fcCount=0,qCount=0;try{fcCount=JSON.parse(out.flashcards||'[]').length;}catch(_){}try{qCount=JSON.parse(out.quiz||'[]').length;}catch(_){}
+      const tags=[out.notes?'<span class="tag n">Notes</span>':'',out.quiz?'<span class="tag q">Quiz</span>':'',out.flashcards?'<span class="tag c">Cards</span>':'',out.summary?'<span class="tag s">Summary</span>':''].filter(Boolean).join('');
+      return`<div class="sess-card${isActive?' active-sess':''}" id="sc_${data.id}">
+        ${isActive?'<div class="sess-badge">Recent</div>':''}
+        <button class="sess-del" onclick="delSess('${data.id}',event)" title="Delete"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+        <div class="sess-top">
+          <div class="sess-icon"><svg width="18" height="18" fill="none" stroke="var(--purple)" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+          <div class="sess-info">
+            <div class="sess-name" title="${esc(data.fileName||'')}">${esc(data.fileName||'document.pdf')}</div>
+            <div class="sess-meta">${fmtDate(data.createdAt)} · ${fmtSize(data.fileSize)} · ${fcCount} cards · ${qCount} Qs</div>
+          </div>
+        </div>
+        ${tags?`<div class="sess-tags">${tags}</div>`:''}
+        <div class="sess-btns">
+          <button class="sb n" onclick="go('notes','${data.id}')"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Notes</button>
+          <button class="sb c" onclick="go('flashcards','${data.id}')"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path stroke-linecap="round" d="M8 21h8M12 17v4"/></svg>Cards</button>
+          <button class="sb q" onclick="go('quiz','${data.id}')"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>Quiz</button>
+          <button class="sb s" onclick="go('summary','${data.id}')"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13"/></svg>Summary</button>
+          <button class="sb ch" onclick="openChat('${data.id}','${esc(data.fileName||'Document')}',event)"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>Chat</button>
+        </div>
+      </div>`;}).join('');
+  }catch(err){console.error('loadSessions:',err);grid.innerHTML=`<div class="empty"><div class="empty-title" style="color:var(--red)">Could not load sessions</div><div class="empty-sub">${esc(err.message||'Check your internet.')}</div></div>`;}}
+
+window.go=function(page,docId){sessionStorage.setItem('slDocId',docId);try{updateDoc(doc(db,'study_lab_documents',docId),{lastOpenedAt:serverTimestamp()});}catch(_){}location.href=`${page}.html`;};
+window.delSess=async function(id,e){
+  e.stopPropagation();if(!confirm('Delete this study session? This cannot be undone.'))return;
+  try{await deleteDoc(doc(db,'study_lab_documents',id));document.getElementById('sc_'+id)?.remove();
+    if(sessionStorage.getItem('slDocId')===id)sessionStorage.removeItem('slDocId');
+    const rem=document.querySelectorAll('.sess-card').length;document.getElementById('sessCount').textContent=`${rem} session${rem!==1?'s':''}`;
+    if(!rem)await loadSessions();toast('Session deleted','success');}
+  catch(err){toast('Delete failed: '+err.message,'error');}};
+
+async function awardCoins(){
+  if(!currentUser)return;const today=todayKey();const logRef=doc(db,'task_logs',`${currentUser.uid}_${today}`);
+  try{const snap=await getDoc(logRef);const done=snap.exists()?(snap.data().completedTasks||[]):[];
+    if(done.includes('study_lab'))return;
+    const taskIds=['study_lab'];let totalCoins=10;const txns=[{type:'task_reward',taskId:'study_lab',coins:10,date:today,note:'Created Study Lab session'}];
+    if(!done.includes('upload_pdf')){taskIds.push('upload_pdf');totalCoins+=10;txns.push({type:'task_reward',taskId:'upload_pdf',coins:10,date:today,note:'Uploaded a PDF'});}
+    await Promise.all([setDoc(logRef,{uid:currentUser.uid,date:today,completedTasks:arrayUnion(...taskIds),updatedAt:serverTimestamp()},{merge:true}),
+      setDoc(doc(db,'wallets',currentUser.uid),{coins:increment(totalCoins),transactions:arrayUnion(...txns)},{merge:true})]);
+    toast(`🪙 +${totalCoins} coins!`,'coins');
+    try{const w=await getDoc(doc(db,'wallets',currentUser.uid));document.getElementById('coinsVal').textContent=w.data().coins||0;}catch(_){}}
+  catch(ex){console.warn('coins:',ex.message);}}
+
+onAuthStateChanged(auth,async user=>{
+  if(!user){location.href='Login.html';return;}currentUser=user;
+  try{const w=await getDoc(doc(db,'wallets',user.uid));if(w.exists())document.getElementById('coinsVal').textContent=w.data().coins||0;}catch(_){}
+  await refreshDailyLimitUI();await loadSessions();});
+
+// ═══ CHAT OVERLAY ═══
+let chatDocId=null,chatHistory=[],chatNotes='',chatSummary='',chatBusy=false,typingCount=0;
+window.openChat=async function(docId,fileName,e){
+  if(e)e.stopPropagation();chatDocId=docId;chatHistory=[];chatNotes='';chatSummary='';chatBusy=false;
+  document.getElementById('chatDocLabel').textContent=fileName||'Chat with PDF';
+  const body=document.getElementById('chatBody');
+  body.innerHTML=`<div class="chat-empty-state"><svg width="46" height="46" fill="none" stroke="var(--dim)" stroke-width="1.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg><div class="chat-empty-title">Loading document…</div><div class="chat-empty-sub">Fetching PDF content for grounded answers.</div></div>`;
+  document.getElementById('chatOverlay').classList.add('open');document.body.classList.add('chat-open');
+  document.getElementById('chatInput').value='';chatResize(document.getElementById('chatInput'));
+  try{
+    const cacheRaw=sessionStorage.getItem('slCache_new'),cachedDocId=sessionStorage.getItem('slDocId');
+    if(cacheRaw&&cachedDocId===docId){const cache=JSON.parse(cacheRaw);const out=cache.outputs||{};chatNotes=out.notes||'';chatSummary=out.summary||'';}
+    if(!chatNotes||!chatSummary){const snap=await getDoc(doc(db,'study_lab_documents',docId));if(snap.exists()){const data=snap.data();const out=data.outputs||{};chatNotes=out.notes||'';chatSummary=out.summary||'';}}
+    const hasContent=chatNotes.length>50||chatSummary.length>50;
+    body.innerHTML=`<div class="chat-empty-state" id="chatEmptyState"><svg width="46" height="46" fill="none" stroke="var(--dim)" stroke-width="1.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg><div class="chat-empty-title">Ask anything about this PDF</div><div class="chat-empty-sub">${hasContent?'Answers are grounded in your uploaded document.':'Document content not found — answering from general knowledge.'}</div></div>`;
+    document.getElementById('chatSend').disabled=false;
+  }catch(err){body.innerHTML=`<div class="chat-empty-state"><div class="chat-empty-title" style="color:var(--muted)">Ready (offline mode)</div><div class="chat-empty-sub">Could not load PDF content — answering from general knowledge.</div></div>`;document.getElementById('chatSend').disabled=false;}};
+
+window.closeChat=function(){document.getElementById('chatOverlay').classList.remove('open');document.body.classList.remove('chat-open');};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeChat();});
+
+window.sendChat=async function(){
+  const inp=document.getElementById('chatInput');const msg=inp.value.trim();if(!msg||chatBusy)return;
+  document.getElementById('chatEmptyState')?.remove();appendCMsg('user',msg);
+  const context=buildChatContext();
+  const contentWithContext=(chatHistory.length===0&&context)?`Here is the document content:\n\n${context}\n\n---\n\nMy question: ${msg}`:msg;
+  chatHistory.push({role:'user',content:contentWithContext});inp.value='';chatResize(inp);
+  chatBusy=true;document.getElementById('chatSend').disabled=true;const typId=appendTyping();
+  try{
+    const context2=buildChatContext();
+    const systemPrompt=context2?`You are an AI study assistant on Codex Study Hub. Document content:\n\n---\n${context2}\n---\n\nRULES: Answer from document only. If not in doc, say so then give general knowledge clearly labelled. Be concise and mobile-friendly.`:`You are a helpful AI study assistant. Answer from general academic knowledge.`;
+    const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),45000);
+    const r=await fetch(BACKEND,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:systemPrompt,messages:chatHistory}),signal:ctrl.signal});
+    clearTimeout(timer);if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();const reply=d?.choices?.[0]?.message?.content||(Array.isArray(d?.content)?d.content.map(b=>b.text||'').join(''):'')||d?.reply||'';
+    if(!reply.trim())throw new Error('Empty response');
+    removeTyping(typId);appendCMsg('ai',reply,true);chatHistory.push({role:'assistant',content:reply});
+    if(chatHistory.length>20)chatHistory=chatHistory.slice(-20);
+  }catch(err){removeTyping(typId);appendCMsg('ai','Connection issue — please check your internet and try again.');console.warn('Chat error:',err.message);}
+  finally{chatBusy=false;document.getElementById('chatSend').disabled=false;}};
+
+function buildChatContext(){const parts=[];if(chatSummary&&chatSummary.length>50)parts.push('## SUMMARY\n'+chatSummary.slice(0,3000));if(chatNotes&&chatNotes.length>50)parts.push('## NOTES\n'+chatNotes.slice(0,5000));return parts.join('\n\n');}
+function appendCMsg(role,text,fromDoc=false){
+  const body=document.getElementById('chatBody');const time=new Date().toLocaleTimeString('en-NG',{hour:'2-digit',minute:'2-digit'});
+  const el=document.createElement('div');el.className=`cmsg ${role}`;
+  const safeText=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  const refBadge=(role==='ai'&&fromDoc&&(chatNotes||chatSummary))?`<div class="cmsg-ref"><svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>From your document</div>`:'';
+  el.innerHTML=`<div class="cmsg-bubble">${safeText}</div><div class="cmsg-time">${time}</div>${refBadge}`;
+  body.appendChild(el);body.scrollTop=body.scrollHeight;return el;}
+function appendTyping(){const id='ty_'+(++typingCount);const body=document.getElementById('chatBody');const el=document.createElement('div');el.className='cmsg ai';el.id=id;el.innerHTML=`<div class="cmsg-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;body.appendChild(el);body.scrollTop=body.scrollHeight;return id;}
+function removeTyping(id){document.getElementById(id)?.remove();}
+window.useChip=function(el){const inp=document.getElementById('chatInput');inp.value=el.textContent.trim();chatResize(inp);inp.focus();};
+window.chatKey=function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}};
+window.chatResize=function(ta){ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,120)+'px';};
+</script>
+</body>
+</html>

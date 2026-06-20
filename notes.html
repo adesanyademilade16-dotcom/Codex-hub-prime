@@ -1,0 +1,397 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Notes — Codex</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07090f;--panel:#0d1220;--panel2:#111827;--panel3:#17202e;
+  --border:rgba(255,255,255,.06);--border2:rgba(255,255,255,.11);
+  --blue:#3b82f6;--blue-s:rgba(59,130,246,.13);--blue-b:rgba(59,130,246,.28);
+  --green:#10b981;--green-s:rgba(16,185,129,.12);--green-b:rgba(16,185,129,.28);
+  --gold:#f59e0b;--gold-s:rgba(245,158,11,.1);--gold-b:rgba(245,158,11,.25);
+  --purple:#a855f7;--purple-s:rgba(168,85,247,.13);--purple-b:rgba(168,85,247,.28);
+  --teal:#06b6d4;--text:#eef2ff;--muted:#8fa3c0;--dim:#4a6380;--r:14px;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 60vw 45vh at 0% 0%,rgba(59,130,246,.05) 0%,transparent 55%),
+             radial-gradient(ellipse 50vw 35vh at 100% 100%,rgba(16,185,129,.04) 0%,transparent 55%);}
+
+.nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:10px;
+  background:rgba(13,18,32,.96);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border2);padding:0 18px;height:56px;}
+.nav-back{width:34px;height:34px;border-radius:9px;background:transparent;
+  border:1px solid var(--border2);cursor:pointer;display:flex;align-items:center;
+  justify-content:center;text-decoration:none;color:var(--muted);transition:.18s;flex-shrink:0;}
+.nav-back:hover{background:var(--panel3);color:var(--text);}
+.nav-logo{display:flex;align-items:center;gap:8px;padding:0 12px;border-right:1px solid var(--border);}
+.nav-logo-icon{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--blue),#1d4ed8);
+  display:flex;align-items:center;justify-content:center;}
+.nav-logo-name{font-family:'Syne',sans-serif;font-weight:800;font-size:.92rem;color:var(--blue);}
+.nav-doc{flex:1;padding:0 12px;font-size:.8rem;font-weight:600;color:var(--muted);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.nav-doc em{color:var(--text);font-style:normal;}
+.nav-actions{display:flex;gap:7px;flex-shrink:0;}
+.nav-btn{display:flex;align-items:center;gap:5px;background:var(--panel2);
+  border:1px solid var(--border2);border-radius:9px;padding:6px 12px;
+  font-size:.73rem;font-weight:600;color:var(--muted);cursor:pointer;
+  font-family:'DM Sans',sans-serif;transition:.15s;white-space:nowrap;}
+.nav-btn:hover{background:var(--panel3);color:var(--text);}
+.nav-btn.blue{background:var(--blue-s);border-color:var(--blue-b);color:var(--blue);}
+.nav-btn.blue:hover{background:var(--blue-b);}
+
+.main{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:22px 16px 60px;}
+
+/* TABS */
+.tabs{display:flex;gap:4px;background:var(--panel);border:1px solid var(--border);
+  border-radius:12px;padding:4px;margin-bottom:18px;}
+.tab{flex:1;padding:9px 10px;border:none;border-radius:9px;background:transparent;
+  color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.76rem;font-weight:600;
+  cursor:pointer;transition:.18s;text-align:center;display:flex;align-items:center;
+  justify-content:center;gap:5px;}
+.tab.active{background:var(--panel3);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.3);}
+
+/* SEARCH */
+.search-wrap{margin-bottom:16px;position:relative;}
+.search-input{width:100%;background:var(--panel2);border:1px solid var(--border2);
+  border-radius:10px;padding:9px 14px 9px 38px;color:var(--text);
+  font-family:'DM Sans',sans-serif;font-size:.82rem;outline:none;transition:.18s;}
+.search-input:focus{border-color:var(--blue-b);background:var(--panel3);}
+.search-input::placeholder{color:var(--dim);}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  color:var(--dim);pointer-events:none;}
+
+/* NOTES CARD */
+.notes-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.notes-card-head{display:flex;align-items:center;justify-content:space-between;
+  padding:13px 18px;border-bottom:1px solid var(--border);background:var(--panel2);}
+.notes-card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.84rem;
+  display:flex;align-items:center;gap:7px;color:var(--text);}
+.notes-card-meta{font-size:.69rem;color:var(--dim);}
+.notes-body{padding:20px 22px;font-size:.83rem;line-height:1.85;
+  max-height:calc(100vh - 230px);overflow-y:auto;}
+.notes-body::-webkit-scrollbar{width:4px;}
+.notes-body::-webkit-scrollbar-thumb{background:var(--panel3);border-radius:3px;}
+
+/* NOTE FORMATTING */
+.n-h1{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:var(--text);
+  margin:20px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.n-h1:first-child{margin-top:0;}
+.n-h2{font-family:'Syne',sans-serif;font-weight:700;font-size:.88rem;color:var(--blue);
+  margin:14px 0 6px;display:flex;align-items:center;gap:6px;}
+.n-h3{font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;color:var(--teal);margin:10px 0 5px;}
+.n-p{color:var(--muted);margin-bottom:9px;line-height:1.8;}
+.n-li{display:flex;gap:8px;margin-bottom:6px;color:var(--muted);}
+.n-li-dot{width:5px;height:5px;border-radius:50%;background:var(--blue);flex-shrink:0;margin-top:8px;}
+.n-def{background:var(--panel2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;
+  padding:9px 14px;margin:8px 0;font-size:.81rem;}
+.n-def strong{color:var(--blue);}
+.n-callout{background:rgba(245,158,11,.07);border:1px solid var(--gold-b);
+  border-radius:8px;padding:10px 14px;margin:10px 0;font-size:.81rem;color:var(--text);}
+
+/* KEY POINTS GRID */
+.kp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:600px){.kp-grid{grid-template-columns:1fr;}}
+.kp-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;}
+.kp-card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.77rem;
+  text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;
+  display:flex;align-items:center;gap:6px;}
+
+/* EMPTY / LOADING */
+.state-box{text-align:center;padding:40px 20px;color:var(--dim);}
+.state-box svg{margin:0 auto 12px;display:block;}
+.state-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;
+  color:var(--muted);margin-bottom:6px;}
+.skel{background:var(--panel2);border-radius:8px;animation:sk 1.4s ease-in-out infinite;}
+@keyframes sk{0%,100%{opacity:.4}50%{opacity:.85}}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:var(--panel2);border:1px solid var(--border2);color:var(--text);
+  padding:10px 18px;border-radius:12px;font-size:.82rem;font-weight:500;
+  box-shadow:0 8px 28px rgba(0,0,0,.45);z-index:9999;white-space:nowrap;animation:tIn .22s ease;}
+.toast.success{border-color:var(--green-b);background:rgba(16,185,129,.1);}
+.toast.error{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.07);}
+@keyframes tIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+@media(max-width:600px){.main{padding:14px 12px 50px;}.notes-body{padding:14px 14px;}.nav-btn span{display:none;}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="study_lab.html" class="nav-back">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+    </svg>
+  </a>
+  <div class="nav-logo" style="margin-left:8px">
+    <div class="nav-logo-icon">
+      <svg width="15" height="15" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+    </div>
+    <span class="nav-logo-name">Notes</span>
+  </div>
+  <div class="nav-doc"><em id="docName">Loading…</em></div>
+  <div class="nav-actions">
+    <button class="nav-btn" onclick="copyNotes()">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+      </svg>
+      <span>Copy</span>
+    </button>
+    <button class="nav-btn blue" onclick="downloadNotes()">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+      </svg>
+      <span>Download</span>
+    </button>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('notes',this)">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      Study Notes
+    </button>
+    <button class="tab" onclick="switchTab('keypoints',this)">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Key Points
+    </button>
+    <button class="tab" onclick="switchTab('definitions',this)">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13"/></svg>
+      Definitions
+    </button>
+  </div>
+
+  <div class="search-wrap">
+    <svg class="search-icon" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35"/>
+    </svg>
+    <input class="search-input" id="searchInput" placeholder="Search notes…" oninput="searchNotes(this.value)">
+  </div>
+
+  <div id="tab-notes">
+    <div class="notes-card">
+      <div class="notes-card-head">
+        <div class="notes-card-title">
+          <svg width="15" height="15" fill="none" stroke="var(--blue)" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          AI Study Notes
+        </div>
+        <span class="notes-card-meta" id="wordCount"></span>
+      </div>
+      <div class="notes-body" id="notesContent">
+        <div class="skel" style="height:18px;margin-bottom:10px;width:65%"></div>
+        <div class="skel" style="height:13px;margin-bottom:8px"></div>
+        <div class="skel" style="height:13px;margin-bottom:8px;width:85%"></div>
+        <div class="skel" style="height:13px;margin-bottom:20px;width:70%"></div>
+        <div class="skel" style="height:18px;margin-bottom:10px;width:50%"></div>
+        <div class="skel" style="height:13px;margin-bottom:8px"></div>
+        <div class="skel" style="height:13px;margin-bottom:8px;width:80%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-keypoints" style="display:none">
+    <div class="kp-grid" id="keypointsContent">
+      <div class="skel" style="height:180px"></div>
+      <div class="skel" style="height:180px"></div>
+    </div>
+  </div>
+
+  <div id="tab-definitions" style="display:none">
+    <div class="notes-card">
+      <div class="notes-card-head">
+        <div class="notes-card-title">
+          <svg width="15" height="15" fill="none" stroke="var(--teal)" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13"/>
+          </svg>
+          Key Definitions
+        </div>
+      </div>
+      <div class="notes-body" id="definitionsContent">
+        <div class="skel" style="height:55px;margin-bottom:10px"></div>
+        <div class="skel" style="height:55px;margin-bottom:10px"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const FB={apiKey:"AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",authDomain:"codex-study-hub-923c5.firebaseapp.com",
+  projectId:"codex-study-hub-923c5",storageBucket:"codex-study-hub-923c5.appspot.com",
+  messagingSenderId:"750631534625",appId:"1:750631534625:web:5f59e1841bb856bdbba360"};
+const app=initializeApp(FB);const auth=getAuth(app);const db=getFirestore(app);
+
+let rawNotes='',rawKeyPoints='',currentTab='notes';
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function boldify(s){return esc(s).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');}
+function toast(msg,type=''){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t=document.createElement('div');t.className='toast'+(type?' '+type:'');
+  t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2800);}
+
+/* ── RENDER ───────────────────────────── */
+function renderNotes(text,container){
+  if(!text||!text.trim()){
+    container.innerHTML=`<div class="state-box">
+      <svg width="36" height="36" fill="none" stroke="var(--dim)" stroke-width="1.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+      <div class="state-title">No notes available</div>
+    </div>`;return;}
+  const lines=text.split('\n');
+  let html='';
+  for(const raw of lines){
+    const line=raw.trim();if(!line)continue;
+    if(/^##\s/.test(line)){
+      html+=`<div class="n-h2"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>${esc(line.replace(/^##\s/,''))}</div>`;
+    }else if(/^###\s/.test(line)){
+      html+=`<div class="n-h3">${esc(line.replace(/^###\s/,''))}</div>`;
+    }else if(/^#\s/.test(line)||/^[A-Z][A-Z\s]{4,}:?\s*$/.test(line)){
+      html+=`<div class="n-h1">${esc(line.replace(/^#\s/,''))}</div>`;
+    }else if(/^[-*•]\s/.test(line)){
+      html+=`<div class="n-li"><div class="n-li-dot"></div><span>${boldify(line.replace(/^[-*•]\s/,''))}</span></div>`;
+    }else if(/^\d+\.\s/.test(line)){
+      html+=`<div class="n-li"><div class="n-li-dot"></div><span>${boldify(line)}</span></div>`;
+    }else if(/^[A-Z][a-zA-Z\s]+:\s\w/.test(line)&&line.length<160){
+      const ci=line.indexOf(':');
+      const term=line.slice(0,ci);const def=line.slice(ci+1).trim();
+      html+=`<div class="n-def"><strong>${esc(term)}:</strong> ${boldify(def)}</div>`;
+    }else if(/^(NOTE|IMPORTANT|KEY|REMEMBER):/i.test(line)){
+      html+=`<div class="n-callout">${boldify(line)}</div>`;
+    }else{
+      html+=`<div class="n-p">${boldify(line)}</div>`;}}
+  container.innerHTML=html||`<div class="n-p">${esc(text)}</div>`;}
+
+function renderKeyPoints(text){
+  const el=document.getElementById('keypointsContent');
+  if(!text){el.innerHTML=`<div class="state-box" style="grid-column:1/-1"><div class="state-title">No key points available</div></div>`;return;}
+  const kpMatch=text.match(/KEY POINTS?:([\s\S]*?)(?:KEY DEFINITIONS?:|$)/i);
+  const defMatch=text.match(/KEY DEFINITIONS?:([\s\S]*?)$/i);
+  const points=(kpMatch?.[1]||text).split('\n')
+    .filter(l=>l.trim().match(/^[-•*]\s/))
+    .map(l=>l.replace(/^[-•*]\s/,'').trim()).filter(Boolean);
+  const defs=(defMatch?.[1]||'').split('\n').map(l=>l.trim()).filter(Boolean);
+
+  el.innerHTML=`
+    <div class="kp-card">
+      <div class="kp-card-title" style="color:var(--blue)">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Key Points
+      </div>
+      ${points.length?points.slice(0,12).map(p=>`<div class="n-li"><div class="n-li-dot"></div><span style="font-size:.79rem">${boldify(p)}</span></div>`).join('')
+        :'<div class="n-p" style="color:var(--dim)">No key points found.</div>'}
+    </div>
+    <div class="kp-card">
+      <div class="kp-card-title" style="color:var(--teal)">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13"/></svg>
+        Core Concepts
+      </div>
+      ${defs.length?defs.slice(0,8).map(d=>{
+        const ci=d.indexOf(':');
+        if(ci>0&&ci<50){const t=d.slice(0,ci).trim();const v=d.slice(ci+1).trim();
+          return`<div class="n-def" style="margin:4px 0"><strong>${esc(t)}:</strong> ${boldify(v)}</div>`;}
+        return`<div class="n-li"><div class="n-li-dot"></div><span style="font-size:.79rem">${boldify(d)}</span></div>`;}).join('')
+        :'<div class="n-p" style="color:var(--dim)">No definitions extracted.</div>'}
+    </div>`;}
+
+function renderDefinitions(text){
+  const el=document.getElementById('definitionsContent');
+  if(!text){el.innerHTML='<div class="state-box"><div class="state-title">No definitions found</div></div>';return;}
+  const lines=text.split('\n');
+  const defs=lines.filter(l=>{const t=l.trim();return t.length>5&&/^[A-Za-z][A-Za-z\s]+:\s+\w/.test(t)&&t.length<250;});
+  if(!defs.length){
+    el.innerHTML='<div class="n-p" style="color:var(--dim);text-align:center;padding:20px">No formal definitions detected in this document.</div>';return;}
+  el.innerHTML=defs.map(d=>{
+    const ci=d.indexOf(':');const term=d.slice(0,ci).trim();const def=d.slice(ci+1).trim();
+    return`<div class="n-def" style="margin-bottom:10px">
+      <strong style="color:var(--blue)">${esc(term)}</strong><br>
+      <span style="color:var(--muted);font-size:.79rem">${boldify(def)}</span>
+    </div>`;}).join('');}
+
+window.searchNotes=function(q){
+  if(currentTab!=='notes')return;
+  if(!q.trim()){renderNotes(rawNotes,document.getElementById('notesContent'));return;}
+  const filtered=rawNotes.split('\n')
+    .filter(l=>l.toLowerCase().includes(q.toLowerCase())).join('\n');
+  renderNotes(filtered||`No results for "${esc(q)}"`,document.getElementById('notesContent'));};
+
+window.switchTab=function(tab,btn){
+  currentTab=tab;
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  ['notes','keypoints','definitions'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display=t===tab?'block':'none';});
+  document.getElementById('searchInput').placeholder=
+    tab==='notes'?'Search notes…':tab==='keypoints'?'Search key points…':'Search definitions…';};
+
+window.copyNotes=function(){
+  const text=rawNotes||document.getElementById('notesContent').innerText||'';
+  navigator.clipboard.writeText(text).then(()=>toast('Notes copied','success')).catch(()=>{});};
+
+window.downloadNotes=function(){
+  const text=rawNotes||document.getElementById('notesContent').innerText||'';
+  const name=(document.getElementById('docName').textContent||'notes').replace('.pdf','');
+  const blob=new Blob([text],{type:'text/plain'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`${name}-notes.txt`;a.click();URL.revokeObjectURL(a.href);
+  toast('Downloaded','success');};
+
+/* ── LOAD — tries sessionStorage cache first, then Firestore ── */
+async function load(user){
+  const docId=sessionStorage.getItem('slDocId');
+  if(!docId){location.href='study_lab.html';return;}
+
+  // 1. Try sessionStorage cache immediately (fast, works offline)
+  const cacheRaw=sessionStorage.getItem('slCache_new');
+  if(cacheRaw){
+    try{
+      const cache=JSON.parse(cacheRaw);
+      const out=cache.outputs||{};
+      if(out.notes&&out.notes.length>20){
+        document.getElementById('docName').textContent=cache.fileName||'Document';
+        rawNotes=out.notes;rawKeyPoints=out.keyPoints||'';
+        const words=(rawNotes.match(/\b\w+\b/g)||[]).length;
+        document.getElementById('wordCount').textContent=words.toLocaleString()+' words';
+        renderNotes(rawNotes,document.getElementById('notesContent'));
+        renderKeyPoints(rawKeyPoints);
+        renderDefinitions(rawNotes+'\n'+rawKeyPoints);
+        return;}}catch(_){}}
+
+  // 2. Load from Firestore
+  try{
+    const snap=await getDoc(doc(db,'study_lab_documents',docId));
+    if(!snap.exists()||snap.data().uid!==user.uid){
+      location.href='study_lab.html';return;}
+    const data=snap.data();const out=data.outputs||{};
+    document.getElementById('docName').textContent=data.fileName||'Document';
+    rawNotes=out.notes||'';rawKeyPoints=out.keyPoints||'';
+    const words=(rawNotes.match(/\b\w+\b/g)||[]).length;
+    document.getElementById('wordCount').textContent=words.toLocaleString()+' words';
+    renderNotes(rawNotes,document.getElementById('notesContent'));
+    renderKeyPoints(rawKeyPoints);
+    renderDefinitions(rawNotes+'\n'+rawKeyPoints);
+  }catch(e){
+    toast('Could not load notes: '+e.message,'error');
+    document.getElementById('notesContent').innerHTML=`<div class="state-box">
+      <div class="state-title" style="color:var(--red)">Failed to load</div>
+      <div style="font-size:.77rem;color:var(--dim);margin-top:6px">${e.message}</div>
+    </div>`;}}
+
+onAuthStateChanged(auth,user=>{if(!user){location.href='Login.html';return;}load(user);});
+</script>
+</body>
+</html>

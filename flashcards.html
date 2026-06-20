@@ -1,0 +1,413 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flashcards — Codex</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07090f;--panel:#0d1220;--panel2:#111827;--panel3:#17202e;
+  --border:rgba(255,255,255,.06);--border2:rgba(255,255,255,.11);
+  --green:#10b981;--green-s:rgba(16,185,129,.12);--green-b:rgba(16,185,129,.28);
+  --purple:#a855f7;--purple-s:rgba(168,85,247,.13);--purple-b:rgba(168,85,247,.28);
+  --teal:#06b6d4;--blue:#3b82f6;
+  --text:#eef2ff;--muted:#8fa3c0;--dim:#4a6380;--r:14px;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--bg);color:var(--text);
+  font-family:'DM Sans',sans-serif;overflow:hidden;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 70vw 50vh at 50% 20%,rgba(16,185,129,.05) 0%,transparent 60%),
+             radial-gradient(ellipse 50vw 40vh at 100% 100%,rgba(168,85,247,.04) 0%,transparent 55%);}
+
+.nav{position:relative;z-index:10;display:flex;align-items:center;gap:10px;
+  background:rgba(13,18,32,.96);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border2);padding:0 18px;height:56px;flex-shrink:0;}
+.nav-back{width:34px;height:34px;border-radius:9px;background:transparent;
+  border:1px solid var(--border2);cursor:pointer;display:flex;align-items:center;
+  justify-content:center;text-decoration:none;color:var(--muted);transition:.18s;flex-shrink:0;}
+.nav-back:hover{background:var(--panel3);color:var(--text);}
+.nav-logo{display:flex;align-items:center;gap:8px;padding:0 12px;border-right:1px solid var(--border);}
+.nav-logo-icon{width:28px;height:28px;border-radius:8px;
+  background:linear-gradient(135deg,var(--green),#059669);
+  display:flex;align-items:center;justify-content:center;}
+.nav-logo-name{font-family:'Syne',sans-serif;font-weight:800;font-size:.92rem;color:var(--green);}
+.nav-doc{flex:1;padding:0 12px;font-size:.8rem;font-weight:600;color:var(--muted);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.nav-pill{display:flex;align-items:center;gap:5px;background:var(--green-s);
+  border:1px solid var(--green-b);border-radius:20px;padding:5px 12px;
+  font-size:.75rem;font-weight:700;color:var(--green);white-space:nowrap;flex-shrink:0;}
+
+.page{position:relative;z-index:1;display:flex;flex-direction:column;
+  height:calc(100vh - 56px);overflow:hidden;}
+
+/* TOP BAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px 0;flex-shrink:0;gap:12px;}
+.progress-wrap{flex:1;max-width:420px;}
+.prog-label{display:flex;justify-content:space-between;
+  font-size:.71rem;color:var(--muted);margin-bottom:6px;font-weight:600;}
+.prog-track{height:5px;background:var(--panel2);border-radius:5px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--teal));
+  border-radius:5px;transition:width .4s cubic-bezier(.4,0,.2,1);}
+.topbar-btns{display:flex;gap:7px;flex-shrink:0;}
+.tb-btn{background:var(--panel);border:1px solid var(--border2);color:var(--muted);
+  border-radius:9px;padding:7px 13px;font-size:.74rem;font-weight:600;cursor:pointer;
+  font-family:'DM Sans',sans-serif;transition:.15s;display:flex;align-items:center;gap:5px;}
+.tb-btn:hover{background:var(--panel2);color:var(--text);}
+.tb-btn.active{background:var(--green-s);border-color:var(--green-b);color:var(--green);}
+
+/* CARD STAGE */
+.stage{flex:1;display:flex;align-items:center;justify-content:center;
+  padding:18px;position:relative;overflow:hidden;}
+.swipe-hint{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+  font-size:.67rem;color:var(--dim);display:flex;align-items:center;gap:5px;
+  pointer-events:none;transition:opacity .4s;}
+.swipe-hint.hidden{opacity:0;}
+
+.card-wrap{width:100%;max-width:540px;perspective:1100px;
+  cursor:pointer;user-select:none;-webkit-user-select:none;}
+.card-inner{position:relative;width:100%;aspect-ratio:16/9;min-height:200px;
+  transition:transform .6s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d;}
+@media(max-width:480px){.card-inner{aspect-ratio:4/3;}}
+.card-wrap.flipped .card-inner{transform:rotateY(180deg);}
+.card-face{position:absolute;inset:0;border-radius:20px;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px 28px;text-align:center;}
+.card-front{background:linear-gradient(145deg,var(--panel2),var(--panel3));
+  border:1.5px solid var(--green-b);
+  box-shadow:0 16px 48px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04);}
+.card-back{background:linear-gradient(145deg,rgba(16,185,129,.1),rgba(6,182,212,.06));
+  border:1.5px solid var(--green);transform:rotateY(180deg);
+  box-shadow:0 16px 48px rgba(0,0,0,.5),0 0 40px rgba(16,185,129,.07);}
+.card-num{font-size:.63rem;font-weight:700;color:var(--green);
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;opacity:.8;}
+.card-q{font-family:'Syne',sans-serif;font-weight:700;font-size:.96rem;
+  color:var(--text);line-height:1.5;}
+.card-hint{margin-top:14px;font-size:.64rem;color:var(--dim);
+  display:flex;align-items:center;gap:5px;}
+.card-ans-lbl{font-size:.63rem;font-weight:700;color:var(--green);
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;}
+.card-ans{font-size:.87rem;color:var(--text);line-height:1.65;}
+
+/* SWIPE ANIMATIONS */
+@keyframes swL{to{transform:translateX(-130%) rotate(-12deg);opacity:0;}}
+@keyframes swR{to{transform:translateX(130%) rotate(12deg);opacity:0;}}
+@keyframes enL{from{transform:translateX(-80%);opacity:0;}to{transform:none;opacity:1;}}
+@keyframes enR{from{transform:translateX(80%);opacity:0;}to{transform:none;opacity:1;}}
+.card-wrap.sw-left{animation:swL .32s ease forwards;}
+.card-wrap.sw-right{animation:swR .32s ease forwards;}
+.card-wrap.en-left{animation:enL .32s ease forwards;}
+.card-wrap.en-right{animation:enR .32s ease forwards;}
+
+/* CONTROLS */
+.controls{flex-shrink:0;padding:12px 18px 18px;
+  display:flex;align-items:center;justify-content:center;gap:12px;}
+.ctrl{width:50px;height:50px;border-radius:50%;border:1.5px solid var(--border2);
+  background:var(--panel);color:var(--muted);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .18s;}
+.ctrl:hover:not(:disabled){background:var(--panel2);border-color:var(--border2);transform:scale(1.06);}
+.ctrl:disabled{opacity:.25;cursor:not-allowed;transform:none;}
+.ctrl.prev:hover:not(:disabled){border-color:var(--blue);color:var(--blue);}
+.ctrl.next:hover:not(:disabled){border-color:var(--green-b);color:var(--green);}
+.ctrl.flip{width:62px;height:62px;font-size:1.2rem;
+  background:linear-gradient(135deg,var(--green),#059669);
+  border:none;box-shadow:0 6px 18px rgba(16,185,129,.35);color:#fff;}
+.ctrl.flip:hover{opacity:.88;transform:scale(1.06);}
+
+/* COMPLETE OVERLAY */
+.complete{position:absolute;inset:0;z-index:20;
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(7,9,15,.92);backdrop-filter:blur(10px);text-align:center;padding:28px;}
+.complete.show{display:flex;}
+.complete-icon{width:64px;height:64px;border-radius:50%;
+  background:var(--green-s);border:2px solid var(--green-b);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.complete-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;margin-bottom:8px;}
+.complete-sub{font-size:.82rem;color:var(--muted);line-height:1.6;margin-bottom:22px;}
+.complete-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.cbtn{border:none;border-radius:11px;padding:11px 20px;font-size:.8rem;font-weight:700;
+  cursor:pointer;font-family:'DM Sans',sans-serif;transition:.18s;
+  display:flex;align-items:center;gap:6px;}
+.cbtn.primary{background:linear-gradient(135deg,var(--green),#059669);color:#fff;}
+.cbtn.secondary{background:var(--panel2);border:1px solid var(--border2);color:var(--text);}
+.cbtn:hover{opacity:.88;transform:translateY(-1px);}
+
+/* ERROR STATE */
+.error-state{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100%;text-align:center;padding:30px;gap:12px;}
+.error-state-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:var(--panel2);border:1px solid var(--border2);color:var(--text);
+  padding:10px 18px;border-radius:12px;font-size:.82rem;font-weight:500;
+  box-shadow:0 8px 28px rgba(0,0,0,.45);z-index:9999;white-space:nowrap;animation:tIn .22s ease;}
+.toast.success{border-color:var(--green-b);background:rgba(16,185,129,.1);}
+@keyframes tIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+@media(max-width:480px){
+  .card-face{padding:18px 16px;}
+  .card-q{font-size:.86rem;}
+  .card-ans{font-size:.8rem;}
+  .topbar{padding:10px 12px 0;}
+  .controls{padding:8px 12px 14px;gap:10px;}
+  .ctrl{width:44px;height:44px;}
+  .ctrl.flip{width:56px;height:56px;}
+  .tb-btn span{display:none;}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="study_lab.html" class="nav-back">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+    </svg>
+  </a>
+  <div class="nav-logo" style="margin-left:8px">
+    <div class="nav-logo-icon">
+      <svg width="15" height="15" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+        <rect x="2" y="3" width="20" height="14" rx="2"/><path stroke-linecap="round" d="M8 21h8M12 17v4"/>
+      </svg>
+    </div>
+    <span class="nav-logo-name">Flashcards</span>
+  </div>
+  <div class="nav-doc" id="docName">Loading…</div>
+  <div class="nav-pill" id="cardPill">— cards</div>
+</nav>
+
+<div class="page">
+  <div class="topbar">
+    <div class="progress-wrap">
+      <div class="prog-label">
+        <span id="progLabel">Card 1</span>
+        <span id="progPct">0%</span>
+      </div>
+      <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    </div>
+    <div class="topbar-btns">
+      <button class="tb-btn" onclick="shuffleCards()">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
+          <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
+        </svg>
+        <span>Shuffle</span>
+      </button>
+      <button class="tb-btn" id="studyBtn" onclick="toggleStudy()">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span>Auto</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="card-wrap" id="cardWrap" onclick="flipCard()">
+      <div class="card-inner" id="cardInner">
+        <div class="card-face card-front">
+          <div class="card-num" id="cardNum">Card — of —</div>
+          <div class="card-q" id="cardQ">Loading flashcards…</div>
+          <div class="card-hint">
+            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/>
+            </svg>
+            Tap card to reveal answer
+          </div>
+        </div>
+        <div class="card-face card-back">
+          <div class="card-ans-lbl">Answer</div>
+          <div class="card-ans" id="cardA">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="swipe-hint" id="swipeHint">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      swipe or use arrows
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+    </div>
+
+    <div class="complete" id="complete">
+      <div class="complete-icon">
+        <svg width="28" height="28" fill="none" stroke="var(--green)" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <div class="complete-title">All Cards Reviewed!</div>
+      <div class="complete-sub" id="completeSub">Great work — you've gone through all the flashcards.</div>
+      <div class="complete-btns">
+        <button class="cbtn primary" onclick="restart()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          Start Over
+        </button>
+        <button class="cbtn secondary" onclick="shuffleAndRestart()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+          Shuffle &amp; Restart
+        </button>
+        <a href="quiz.html" class="cbtn secondary" style="text-decoration:none">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>
+          Take Quiz
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="ctrl prev" id="prevBtn" onclick="navigate(-1)" disabled>
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </button>
+    <button class="ctrl flip" onclick="flipCard()">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+      </svg>
+    </button>
+    <button class="ctrl next" id="nextBtn" onclick="navigate(1)">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const FB={apiKey:"AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",authDomain:"codex-study-hub-923c5.firebaseapp.com",
+  projectId:"codex-study-hub-923c5",storageBucket:"codex-study-hub-923c5.appspot.com",
+  messagingSenderId:"750631534625",appId:"1:750631534625:web:5f59e1841bb856bdbba360"};
+const app=initializeApp(FB);const auth=getAuth(app);const db=getFirestore(app);
+
+let cards=[],idx=0,flipped=false,studyMode=false,autoTimer=null;
+let touchX=0,touchY=0;
+
+function toast(msg,type=''){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t=document.createElement('div');t.className='toast'+(type?' '+type:'');
+  t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2500);}
+
+function render(anim=''){
+  if(!cards.length)return;
+  const card=cards[idx];
+  const wrap=document.getElementById('cardWrap');
+  flipped=false;wrap.classList.remove('flipped');
+  document.getElementById('cardNum').textContent=`Card ${idx+1} of ${cards.length}`;
+  document.getElementById('cardQ').textContent=card.question;
+  document.getElementById('cardA').textContent=card.answer;
+  const pct=Math.round((idx+1)/cards.length*100);
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('progLabel').textContent=`Card ${idx+1}`;
+  document.getElementById('progPct').textContent=pct+'%';
+  document.getElementById('prevBtn').disabled=idx===0;
+  document.getElementById('nextBtn').disabled=false;
+  if(idx>=2)document.getElementById('swipeHint').classList.add('hidden');
+  if(anim){wrap.classList.add(anim);setTimeout(()=>wrap.classList.remove(anim),320);}
+}
+
+window.flipCard=function(){
+  const w=document.getElementById('cardWrap');
+  flipped=!flipped;w.classList.toggle('flipped',flipped);};
+
+window.navigate=function(dir){
+  const ni=idx+dir;
+  if(ni<0||ni>=cards.length){
+    if(ni>=cards.length) document.getElementById('complete').classList.add('show');
+    return;}
+  const wrap=document.getElementById('cardWrap');
+  wrap.classList.add(dir>0?'sw-left':'sw-right');
+  setTimeout(()=>{
+    wrap.classList.remove('sw-left','sw-right');
+    idx=ni;render(dir>0?'en-right':'en-left');},280);};
+
+window.shuffleCards=function(){
+  for(let i=cards.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[cards[i],cards[j]]=[cards[j],cards[i]];}
+  idx=0;document.getElementById('complete').classList.remove('show');render('en-right');
+  toast('Cards shuffled','success');};
+
+window.shuffleAndRestart=function(){shuffleCards();document.getElementById('complete').classList.remove('show');}
+window.restart=function(){idx=0;document.getElementById('complete').classList.remove('show');render('en-right');}
+
+window.toggleStudy=function(){
+  studyMode=!studyMode;
+  document.getElementById('studyBtn').classList.toggle('active',studyMode);
+  if(studyMode){toast('Auto mode — cards flip every 4s','');autoLoop();}
+  else{clearTimeout(autoTimer);toast('Auto mode off','');}};
+
+function autoLoop(){
+  if(!studyMode)return;
+  clearTimeout(autoTimer);
+  autoTimer=setTimeout(()=>{
+    if(!flipped){flipCard();
+      autoTimer=setTimeout(()=>{if(studyMode){navigate(1);autoLoop();}},3000);}},4000);}
+
+// Touch swipe
+const stage=document.getElementById('stage');
+stage.addEventListener('touchstart',e=>{touchX=e.touches[0].clientX;touchY=e.touches[0].clientY;},{passive:true});
+stage.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-touchX;
+  const dy=e.changedTouches[0].clientY-touchY;
+  if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>50) navigate(dx<0?1:-1);},{passive:true});
+
+// Keyboard
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown') navigate(1);
+  else if(e.key==='ArrowLeft'||e.key==='ArrowUp') navigate(-1);
+  else if(e.key===' '||e.key==='Enter'){e.preventDefault();flipCard();}});
+
+function showError(msg){
+  document.getElementById('stage').innerHTML=`<div class="error-state">
+    <svg width="40" height="40" fill="none" stroke="var(--dim)" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:10px">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+    </svg>
+    <div class="error-state-title" style="color:var(--muted)">${msg}</div>
+    <a href="study_lab.html" style="margin-top:12px;color:var(--green);font-size:.8rem;text-decoration:none">← Back to Library</a>
+  </div>`;}
+
+async function load(user){
+  const docId=sessionStorage.getItem('slDocId');
+  if(!docId){location.href='study_lab.html';return;}
+
+  let fcData=null;let docName='Document';
+
+  // 1. Try sessionStorage cache first
+  const cacheRaw=sessionStorage.getItem('slCache_new');
+  if(cacheRaw){
+    try{
+      const cache=JSON.parse(cacheRaw);
+      const out=cache.outputs||{};
+      if(out.flashcards){
+        fcData=JSON.parse(out.flashcards);
+        docName=cache.fileName||'Document';}
+    }catch(_){}}
+
+  // 2. Fallback to Firestore
+  if(!fcData){
+    try{
+      const snap=await getDoc(doc(db,'study_lab_documents',docId));
+      if(!snap.exists()||snap.data().uid!==user.uid){location.href='study_lab.html';return;}
+      const data=snap.data();const out=data.outputs||{};
+      docName=data.fileName||'Document';
+      if(out.flashcards) fcData=JSON.parse(out.flashcards);
+    }catch(e){showError('Could not load flashcards: '+e.message);return;}}
+
+  document.getElementById('docName').textContent=docName;
+
+  if(!fcData||!Array.isArray(fcData)||fcData.length===0){
+    showError('No flashcards found for this session.');return;}
+
+  cards=fcData.filter(c=>c.question&&c.answer&&c.question.length>2);
+  if(!cards.length){showError('Flashcard data appears empty. Please re-generate.');return;}
+
+  document.getElementById('cardPill').textContent=`${cards.length} cards`;
+  render();}
+
+onAuthStateChanged(auth,user=>{if(!user){location.href='Login.html';return;}load(user);});
+</script>
+</body>
+</html>
