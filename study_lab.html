@@ -654,20 +654,36 @@ document.getElementById('procEta').textContent = 'Generating summary…';
       throw e;}
     setStep('ps3','done');
 
+// ═══════════════════════════════════════════════════════════════
+// REPLACE EVERYTHING FROM "// ── FLASHCARDS ──" DOWN TO
+// "setStep('ps6','active');" WITH THIS ENTIRE BLOCK
+// ═══════════════════════════════════════════════════════════════
+
     // ── FLASHCARDS ──────────────────────────────────────────────
     setStep('ps4','active',`Creating flashcards… (~25s)`);
     document.getElementById('procEta').textContent=`Creating ${flashcardCount} flashcards…`;
 
+    const ADMIN_PATTERN=/\b(aim|objective|purpose|goal)\s+of\s+(this\s+)?(course|unit|module)|how\s+many\s+(unit|hour|week|credit|page)|title\s+of\s+(this\s+)?(course|document|book)|course\s+code|tma|tutor.?marked|percentage|assessment|examination\s+format|study\s+session\s+\d+\s*is\s+about|what\s+is\s+gn[sz]\s*\d|what\s+does\s+gn[sz]\s*\d|overall\s+objective\s+of\s+(gn[sz]|this\s+course)/i;
+
     const FC_SYSTEM=`You are a university exam flashcard generator. Return ONLY a raw JSON array. No preamble, no markdown, no explanation. Start with [ end with ].
 Each element: {"question":"...","answer":"..."}
 
-WHAT MAKES A GOOD FLASHCARD (follow these strictly):
-✓ Ask about specific concepts, theories, definitions, causes, effects, examples, processes
-✓ Questions like: "What is culture?", "What are the features of African religion?", "Define ethnocentrism", "What is the role of language in Nigerian society?", "Explain the concept of socialization"
-✓ The question must be answerable from the document's academic content
-✓ The answer must be substantive (not just "yes" or a name)
+CRITICAL RULES — READ CAREFULLY:
+① NEVER repeat a concept you have already used. Every card must test a DIFFERENT fact, term, definition, or idea.
+② Cover the FULL document — spread cards across early, middle, and late content. Don't cluster around one section.
+③ Vary question types across all cards:
+   - Definition: "What is X?" / "Define X"
+   - Feature: "What are the characteristics/features of X?"
+   - Cause/Effect: "What causes X?" / "What is the result of X?"
+   - Example: "Give an example of X" / "Which is an example of X?"
+   - Comparison: "What is the difference between X and Y?"
+   - Process: "What are the steps/stages of X?"
+   - Significance: "Why is X important?"
+   - Person/Origin: "Who proposed X?" / "Where did X originate?"
+④ Answers must be substantive — at least 1 full sentence, not just a word or "yes/no"
+⑤ Each question must be self-contained and answerable without seeing other cards
 
-WHAT TO NEVER ASK (these make the quiz useless):
+WHAT TO NEVER ASK:
 ✗ "What is the aim/objective/purpose of this course?"
 ✗ "How many units/hours/weeks is this course?"
 ✗ "What is the title of this document?"
@@ -675,41 +691,65 @@ WHAT TO NEVER ASK (these make the quiz useless):
 ✗ "What percentage does TMA count for?"
 ✗ "What is the course code?"
 ✗ Anything about course structure, assessment, or administration
+✗ TWO cards about the same concept (even with different wording)
 
-Generate exactly ${flashcardCount} academic flashcards about the actual subject matter.`;
+Generate exactly ${flashcardCount} flashcards. Each card must cover something NEW and DIFFERENT from all others.`;
 
     let fcRaw='';
-    try{fcRaw=await ai(FC_SYSTEM,`Document content (actual subject matter begins below):\n\n${ctx}\n\nReturn ONLY the JSON array of ${flashcardCount} academic flashcards:`);}
-    catch(e){if(e.message==='RATE_LIMITED'){setStep('ps4','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('AI rate-limited. Try again in a minute.','error');return;}throw e;} // not counted
-    if(cancelled)return; // not counted — failed before save
-
-    // Admin question filter — catches anything that slips through
-    const ADMIN_PATTERN=/\b(aim|objective|purpose|goal)\s+of\s+(this\s+)?(course|unit|module)|how\s+many\s+(unit|hour|week|credit|page)|title\s+of\s+(this\s+)?(course|document|book)|course\s+code|tma|tutor.?marked|percentage|assessment|examination\s+format|study\s+session\s+\d+\s*is\s+about|what\s+is\s+gn[sz]\s*\d|what\s+does\s+gn[sz]\s*\d|overall\s+objective\s+of\s+(gn[sz]|this\s+course)/i;
+    try{
+      await delay(1500);
+      fcRaw=await ai(FC_SYSTEM,`Document content (actual subject matter begins below):\n\n${ctx}\n\nIMPORTANT: Generate exactly ${flashcardCount} flashcards, each testing a COMPLETELY DIFFERENT concept. No repeats.\n\nReturn ONLY the JSON array:`);}
+    catch(e){if(e.message==='RATE_LIMITED'){setStep('ps4','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('AI rate-limited. Try again in a minute.','error');return;}throw e;}
+    if(cancelled)return;
 
     let flashcards=[];
     try{
       const p=parseJSON(fcRaw);
+      const seenFC=new Set();
       flashcards=(Array.isArray(p)?p:[])
         .filter(c=>c&&typeof c.question==='string'&&typeof c.answer==='string')
         .filter(c=>c.question.trim().length>5&&c.answer.trim().length>5)
         .filter(c=>!ADMIN_PATTERN.test(c.question))
+        .filter(c=>{
+          // Deduplicate: fingerprint first 60 chars to catch near-repeats
+          const key=c.question.toLowerCase()
+            .replace(/[^a-z0-9\s]/g,'')
+            .replace(/\s+/g,' ')
+            .trim()
+            .slice(0,60);
+          if(seenFC.has(key))return false;
+          seenFC.add(key);
+          return true;
+        })
         .map(c=>({question:c.question.trim(),answer:c.answer.trim()}));
-      console.log('Flashcards parsed:',flashcards.length,'(after admin filter)');
+      console.log('Flashcards parsed:',flashcards.length,'(after dedup + admin filter)');
     }catch(ex){console.error('FC parse failed:',ex.message);flashcards=[];}
 
     if(flashcards.length===0){
       document.getElementById('procEta').textContent='Retrying flashcards…';
       try{
-        const retry=await ai(`Return JSON array only. [{"question":"Q","answer":"A"}]. Make ${flashcardCount} academic flashcards about the actual subject content — concepts, definitions, facts. No course admin questions.`,
-          `Content: ${short.slice(0,4000)}\n\nReturn JSON array of ${flashcardCount} flashcards:`);
+        await delay(1500);
+        const retry=await ai(
+          `Return JSON array only. [{"question":"Q","answer":"A"}]. Make ${flashcardCount} flashcards about DIFFERENT concepts — definitions, causes, effects, examples, comparisons. No repeats. No admin questions.`,
+          `Content: ${short.slice(0,4000)}\n\nReturn JSON array of ${flashcardCount} unique flashcards:`);
         const p2=parseJSON(retry);
-        flashcards=(Array.isArray(p2)?p2:[]).filter(c=>c?.question&&c?.answer&&!ADMIN_PATTERN.test(c.question)).map(c=>({question:c.question.trim(),answer:c.answer.trim()}));
-      }catch(e){if(e.message==='RATE_LIMITED'){setStep('ps4','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('Rate limited.','error');return;}flashcards=[];} // not counted
+        const seenFC2=new Set();
+        flashcards=(Array.isArray(p2)?p2:[])
+          .filter(c=>c?.question&&c?.answer&&!ADMIN_PATTERN.test(c.question))
+          .filter(c=>{
+            const key=c.question.toLowerCase().replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,' ').trim().slice(0,60);
+            if(seenFC2.has(key))return false;seenFC2.add(key);return true;
+          })
+          .map(c=>({question:c.question.trim(),answer:c.answer.trim()}));
+      }catch(e){
+        if(e.message==='RATE_LIMITED'){setStep('ps4','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('Rate limited.','error');return;}
+        flashcards=[];
+      }
     }
 
     if(flashcards.length===0){
       const lines=notes.split('\n').filter(l=>l.trim().startsWith('-')&&l.length>20);
-      flashcards=lines.slice(0,flashcardCount).map((l,i)=>({
+      flashcards=lines.slice(0,flashcardCount).map((l)=>({
         question:`Explain: ${l.replace(/^[-#\s]+/,'').slice(0,80)}`,
         answer:'Refer to the study notes for a full explanation of this concept.'}));}
     setStep('ps4','done',`Flashcards ready (${flashcards.length} cards)`);
@@ -721,55 +761,95 @@ Generate exactly ${flashcardCount} academic flashcards about the actual subject 
     const QZ_SYSTEM=`You are a university MCQ exam generator. Return ONLY a raw JSON array. No preamble, no markdown. Start with [ end with ].
 Each element: {"question":"...","options":["opt1","opt2","opt3","opt4"],"answer":"exact text of correct option","difficulty":"easy|medium|hard","explanation":"why this is correct"}
 
-GOOD MCQ QUESTIONS test understanding of the subject:
-✓ "What is the primary function of culture in society?"
-✓ "Which of the following best describes ethnocentrism?"
-✓ "What are the characteristics of African traditional religion?"
-✓ "Which factor best explains economic underdevelopment in Nigeria?"
-✓ Questions about definitions, causes, effects, examples, comparisons, processes
+CRITICAL RULES — READ CAREFULLY:
+① NEVER repeat a question or concept you have already used. Every question must test a DIFFERENT fact, term, concept, or idea.
+② Cover the FULL document — don't cluster questions around one section. Spread across early, middle, and late content.
+③ Vary question types: some ask for definitions, some for causes, some for effects, some for examples, some for comparisons, some for processes.
+④ All four options must be plausible — wrong options should look tempting, not obviously silly.
+⑤ Spread difficulty: ~35% easy, 45% medium, 20% hard.
+
+GOOD QUESTION VARIETY (use all these types):
+✓ Definition: "What is the meaning of X?"
+✓ Cause: "What causes X?"
+✓ Effect: "What is the result of X?"
+✓ Example: "Which of the following is an example of X?"
+✓ Comparison: "What is the difference between X and Y?"
+✓ Process: "What is the correct order/steps of X?"
+✓ Identification: "Which of the following best describes X?"
+✓ Application: "In which situation would X apply?"
 
 NEVER ASK (these ruin the quiz):
-✗ "What is the overall objective of GNS 201?"
-✗ "What societal transformation concept is an overall objective in GNS 201?"
-✗ "What aspect of moral values is discussed as an objective in this course?"
+✗ "What is the overall objective of this course?"
 ✗ "How many study sessions does this course have?"
 ✗ "What percentage of marks does TMA account for?"
-✗ Anything framed around course structure, assessment format, or learning outcomes
-✗ Questions where the correct answer is literally a course objective/aim
+✗ Anything about course structure, assessment format, or learning outcomes
+✗ TWO questions about the same concept (even with different wording)
 
-All four options must be plausible subject-matter answers. Spread difficulty: ~35% easy, 45% medium, 20% hard.
-Generate exactly ${quizCount} MCQ questions about the actual academic subject matter.`;
+Generate exactly ${quizCount} MCQ questions. Each question must test something NEW and DIFFERENT from all others.`;
 
     let qzRaw='';
-    try{qzRaw=await ai(QZ_SYSTEM,`Document content (actual subject matter):\n\n${ctx}\n\nReturn ONLY the JSON array of ${quizCount} academic MCQ questions:`);}
-    catch(e){if(e.message==='RATE_LIMITED'){setStep('ps5','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('Rate limited. Wait a minute.','error');return;}throw e;} // not counted
-    if(cancelled)return; // not counted — failed before save
+    try{
+      await delay(1500);
+      qzRaw=await ai(QZ_SYSTEM,`Document content (actual subject matter):\n\n${ctx}\n\nIMPORTANT: Generate exactly ${quizCount} questions, each testing a COMPLETELY DIFFERENT concept. No repeats.\n\nReturn ONLY the JSON array:`);}
+    catch(e){if(e.message==='RATE_LIMITED'){setStep('ps5','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('Rate limited. Wait a minute.','error');return;}throw e;}
+    if(cancelled)return;
 
     let quiz=[];
     try{
       const p=parseJSON(qzRaw);
+      const seenQZ=new Set();
       quiz=(Array.isArray(p)?p:[])
         .filter(q=>q&&q.question&&Array.isArray(q.options)&&q.options.length>=2&&q.answer)
         .filter(q=>!ADMIN_PATTERN.test(q.question))
+        .filter(q=>{
+          // Deduplicate: fingerprint first 60 chars to catch near-repeats
+          const key=q.question.toLowerCase()
+            .replace(/[^a-z0-9\s]/g,'')
+            .replace(/\s+/g,' ')
+            .trim()
+            .slice(0,60);
+          if(seenQZ.has(key))return false;
+          seenQZ.add(key);
+          return true;
+        })
         .map(q=>({
           question:q.question.trim(),
           options:q.options.map(o=>String(o).trim().replace(/^[A-D][\.\)]\s*/i,'')).filter(o=>o.length>0),
           answer:q.answer.trim().replace(/^[A-D][\.\)]\s*/i,''),
-          difficulty:q.difficulty||'medium',explanation:q.explanation||''}));
-      console.log('Quiz parsed:',quiz.length,'questions (after admin filter)');
+          difficulty:q.difficulty||'medium',
+          explanation:q.explanation||''}));
+      console.log('Quiz parsed:',quiz.length,'questions (after dedup + admin filter)');
     }catch(ex){console.error('Quiz parse failed:',ex.message);quiz=[];}
 
     if(quiz.length===0){
       document.getElementById('procEta').textContent='Retrying quiz…';
       try{
-        const retry=await ai(`Return JSON array only. [{"question":"Q","options":["A","B","C","D"],"answer":"A","difficulty":"medium","explanation":"reason"}]. Make ${quizCount} academic MCQ questions about key concepts and theories — NOT about course structure or objectives.`,
-          `Content: ${short.slice(0,4000)}\n\nReturn JSON array of ${quizCount} MCQ questions:`);
+        await delay(1500);
+        const retry=await ai(
+          `Return JSON array only. Make ${quizCount} MCQ questions about DIFFERENT concepts from the document — definitions, causes, effects, examples. No repeats. No course admin questions.`,
+          `Content: ${short.slice(0,4000)}\n\nReturn JSON array of ${quizCount} unique MCQ questions:`);
         const p2=parseJSON(retry);
-        quiz=(Array.isArray(p2)?p2:[]).filter(q=>q?.question&&Array.isArray(q.options)&&q.options.length>=2&&q.answer&&!ADMIN_PATTERN.test(q.question))
-          .map(q=>({...q,question:q.question.trim(),options:q.options.map(o=>String(o).trim().replace(/^[A-D][\.\)]\s*/i,'')),answer:q.answer.trim().replace(/^[A-D][\.\)]\s*/i,''),difficulty:q.difficulty||'medium',explanation:q.explanation||''}));
-      }catch(e){if(e.message==='RATE_LIMITED'){setStep('ps5','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();return;}quiz=[];} // not counted
+        const seenQZ2=new Set();
+        quiz=(Array.isArray(p2)?p2:[])
+          .filter(q=>q?.question&&Array.isArray(q.options)&&q.options.length>=2&&q.answer&&!ADMIN_PATTERN.test(q.question))
+          .filter(q=>{
+            const key=q.question.toLowerCase().replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,' ').trim().slice(0,60);
+            if(seenQZ2.has(key))return false;seenQZ2.add(key);return true;
+          })
+          .map(q=>({...q,
+            question:q.question.trim(),
+            options:q.options.map(o=>String(o).trim().replace(/^[A-D][\.\)]\s*/i,'')),
+            answer:q.answer.trim().replace(/^[A-D][\.\)]\s*/i,''),
+            difficulty:q.difficulty||'medium',
+            explanation:q.explanation||''}));
+      }catch(e){if(e.message==='RATE_LIMITED'){setStep('ps5','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();return;}quiz=[];}
     }
     setStep('ps5','done',`Quiz ready (${quiz.length} questions)`);
+
+// ═══════════════════════════════════════════════════════════════
+// END OF REPLACEMENT BLOCK
+// Next line after this should be: setStep('ps6','active');
+// ═══════════════════════════════════════════════════════════════
 
     setStep('ps6','active');
     document.getElementById('procEta').textContent='Saving to your library…';
