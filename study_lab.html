@@ -305,7 +305,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/fireba
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 import {
   getFirestore, doc, collection, getDoc, setDoc, addDoc, getDocs,
-  deleteDoc, query, where, serverTimestamp, updateDoc, increment, arrayUnion, limit
+  deleteDoc, query, where, serverTimestamp, updateDoc, increment, arrayUnion, limit,
+  runTransaction
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const FB={apiKey:"AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",authDomain:"codex-study-hub-923c5.firebaseapp.com",
@@ -432,11 +433,41 @@ async function checkDailyLimit(){
     if(count>=DAILY_UPLOAD_LIMIT){toast(`Daily limit reached (${DAILY_UPLOAD_LIMIT}/day). Come back tomorrow!`,'error');await refreshDailyLimitUI();return false;}return true;}
   catch(e){console.error('checkDailyLimit:',e.message);return true;}}
 
+// FIX (race condition): increment now happens inside a Firestore
+// transaction. The transaction re-reads the current count at the
+// moment of writing and refuses to increment past DAILY_UPLOAD_LIMIT,
+// even if two uploads from the same user (e.g. two tabs, or a
+// double-tap) reach this point at nearly the same time. Without this,
+// the earlier setDoc(...,{uploads:increment(1)}) could let both
+// requests through, since increment() doesn't look at the existing
+// value before deciding whether to allow the write.
+//
+// Returns true if the count was successfully incremented within the
+// limit, false if the limit was already reached at write time (i.e.
+// a race was caught) or the transaction failed for another reason.
 async function incrementDailyCount(){
-  if(!currentUser)return;
-  try{await setDoc(dailyLimitRef(),{uploads:increment(1),date:todayKey(),uid:currentUser.uid},{merge:true});}
-  catch(e){console.warn('incrementDailyCount:',e.message);}
-  await refreshDailyLimitUI();}
+  if(!currentUser)return false;
+  const ref=dailyLimitRef();
+  try{
+    const result=await runTransaction(db,async(tx)=>{
+      const snap=await tx.get(ref);
+      const count=snap.exists()?(snap.data().uploads||0):0;
+      if(count>=DAILY_UPLOAD_LIMIT)return false; // limit already hit — don't increment
+      if(snap.exists()){
+        tx.update(ref,{uploads:count+1,date:todayKey(),uid:currentUser.uid});
+      }else{
+        tx.set(ref,{uploads:1,date:todayKey(),uid:currentUser.uid});
+      }
+      return true;
+    });
+    await refreshDailyLimitUI();
+    return result;
+  }catch(e){
+    console.warn('incrementDailyCount:',e.message);
+    await refreshDailyLimitUI();
+    return false;
+  }
+}
 
 function setStep(id,state,label){
   const el=document.getElementById(id);if(!el)return;
@@ -528,12 +559,18 @@ window.handleFile=async function(e){
   document.getElementById('countModal').classList.add('show');};
 
 window.closeCountModal=function(){document.getElementById('countModal').classList.remove('show');document.getElementById('fileInput').value='';pendingFile=null;};
+
+// FIX: previously called incrementDailyCount() here, BEFORE processing
+// even started. That charged the user's daily quota even if extraction,
+// the AI call, or the Firestore save later failed. The count is now
+// only incremented inside processFile(), after a session is actually
+// saved successfully — see the "ps6" / saveToFirestore step below.
 window.confirmCountsAndProcess=async function(){
   flashcardCount=parseInt(document.getElementById('fcSlider').value,10)||25;
   quizCount=parseInt(document.getElementById('qzSlider').value,10)||25;
   document.getElementById('countModal').classList.remove('show');
   const file=pendingFile;pendingFile=null;document.getElementById('fileInput').value='';
-  if(file){await incrementDailyCount();processFile(file);}};
+  if(file){processFile(file);}};
 
 // ═══════════════════════════════════════════════════════════════
 // PROCESS FILE
@@ -545,6 +582,14 @@ window.confirmCountsAndProcess=async function(){
 // Both use buildSmartContext v3 which skips admin content.
 // Prompts explicitly forbid admin/meta questions.
 // Client-side filter also removes any that slip through.
+//
+// DAILY LIMIT FIX: the upload only counts against the user's
+// daily quota once a session has been generated AND saved to
+// Firestore (see the incrementDailyCount() call near "ps6"
+// below). Any failure before that point — bad PDF, AI timeout,
+// rate limiting — exits early via `return` and never touches
+// the daily counter, so the user isn't charged for a session
+// they never actually got.
 // ═══════════════════════════════════════════════════════════════
 async function processFile(file){
   cancelled=false;
@@ -566,7 +611,7 @@ async function processFile(file){
     if(!pdfText||pdfText.trim().length<30){
       setStep('ps1','error','Could not extract text');
       toast('Could not read PDF text — try a text-based PDF','error');
-      pc.classList.remove('show');stopTimer();return;}
+      pc.classList.remove('show');stopTimer();return;} // not counted — failed before any content was generated
     setStep('ps1','done');
     console.log(`PDF extracted: ${pdfText.length} chars from "${file.name}"`);
 
@@ -589,23 +634,23 @@ async function processFile(file){
       notes=await ai(
         'You are an expert academic note-taker. Generate thorough, well-structured study notes from the SUBJECT CONTENT of the document. Use ## for main headings, ### for sub-headings, - for bullets. Sections: Key Concepts, Definitions, Important Facts, Examples. Focus entirely on the academic subject matter — culture, history, religion, science, or whatever topic this document covers. IGNORE any course guide sections, TMA instructions, assessment descriptions, page numbers, or administrative text. Never return JSON.',
         `Generate comprehensive study notes from this document content:\n\n${ctx}`);
-      if(cancelled) return;
-await delay(1500); // ← ADD HERE
+      if(cancelled) return; // not counted — failed before save
+await delay(1500);
 document.getElementById('procEta').textContent = 'Generating summary…';
 
       summary=await ai(
         'Write a clear academic summary of the SUBJECT MATTER in this document. Focus on the actual topics taught — concepts, theories, facts — not the course structure. Use ## headings. Never return JSON.',
         `Summarise the academic content of this document:\n\n${short}`);
-      if(cancelled)return;
+      if(cancelled)return; // not counted — failed before save
      await delay(1500);  document.getElementById('procEta').textContent='Extracting key points…';
      
       keyPoints=await ai(
         'Extract the most important academic concepts and definitions from the SUBJECT MATTER. Format:\n\nKEY POINTS:\n- point\n\nKEY DEFINITIONS:\nTerm: definition\n\nFocus on the actual subject content only. Never return JSON.',
         `Extract key academic points:\n\n${short}`);
-      if(cancelled)return;
+      if(cancelled)return; // not counted — failed before save
       await delay(1500); 
     }catch(e){
-      if(e.message==='RATE_LIMITED'){setStep('ps3','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('AI rate-limited. Wait a minute and try again.','error');return;}
+      if(e.message==='RATE_LIMITED'){setStep('ps3','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('AI rate-limited. Wait a minute and try again.','error');return;} // not counted
       throw e;}
     setStep('ps3','done');
 
@@ -635,8 +680,8 @@ Generate exactly ${flashcardCount} academic flashcards about the actual subject 
 
     let fcRaw='';
     try{fcRaw=await ai(FC_SYSTEM,`Document content (actual subject matter begins below):\n\n${ctx}\n\nReturn ONLY the JSON array of ${flashcardCount} academic flashcards:`);}
-    catch(e){if(e.message==='RATE_LIMITED'){setStep('ps4','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('AI rate-limited. Try again in a minute.','error');return;}throw e;}
-    if(cancelled)return;
+    catch(e){if(e.message==='RATE_LIMITED'){setStep('ps4','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('AI rate-limited. Try again in a minute.','error');return;}throw e;} // not counted
+    if(cancelled)return; // not counted — failed before save
 
     // Admin question filter — catches anything that slips through
     const ADMIN_PATTERN=/\b(aim|objective|purpose|goal)\s+of\s+(this\s+)?(course|unit|module)|how\s+many\s+(unit|hour|week|credit|page)|title\s+of\s+(this\s+)?(course|document|book)|course\s+code|tma|tutor.?marked|percentage|assessment|examination\s+format|study\s+session\s+\d+\s*is\s+about|what\s+is\s+gn[sz]\s*\d|what\s+does\s+gn[sz]\s*\d|overall\s+objective\s+of\s+(gn[sz]|this\s+course)/i;
@@ -659,7 +704,8 @@ Generate exactly ${flashcardCount} academic flashcards about the actual subject 
           `Content: ${short.slice(0,4000)}\n\nReturn JSON array of ${flashcardCount} flashcards:`);
         const p2=parseJSON(retry);
         flashcards=(Array.isArray(p2)?p2:[]).filter(c=>c?.question&&c?.answer&&!ADMIN_PATTERN.test(c.question)).map(c=>({question:c.question.trim(),answer:c.answer.trim()}));
-      }catch(e){if(e.message==='RATE_LIMITED'){setStep('ps4','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('Rate limited.','error');return;}flashcards=[];}}
+      }catch(e){if(e.message==='RATE_LIMITED'){setStep('ps4','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('Rate limited.','error');return;}flashcards=[];} // not counted
+    }
 
     if(flashcards.length===0){
       const lines=notes.split('\n').filter(l=>l.trim().startsWith('-')&&l.length>20);
@@ -696,8 +742,8 @@ Generate exactly ${quizCount} MCQ questions about the actual academic subject ma
 
     let qzRaw='';
     try{qzRaw=await ai(QZ_SYSTEM,`Document content (actual subject matter):\n\n${ctx}\n\nReturn ONLY the JSON array of ${quizCount} academic MCQ questions:`);}
-    catch(e){if(e.message==='RATE_LIMITED'){setStep('ps5','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('Rate limited. Wait a minute.','error');return;}throw e;}
-    if(cancelled)return;
+    catch(e){if(e.message==='RATE_LIMITED'){setStep('ps5','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('Rate limited. Wait a minute.','error');return;}throw e;} // not counted
+    if(cancelled)return; // not counted — failed before save
 
     let quiz=[];
     try{
@@ -721,7 +767,8 @@ Generate exactly ${quizCount} MCQ questions about the actual academic subject ma
         const p2=parseJSON(retry);
         quiz=(Array.isArray(p2)?p2:[]).filter(q=>q?.question&&Array.isArray(q.options)&&q.options.length>=2&&q.answer&&!ADMIN_PATTERN.test(q.question))
           .map(q=>({...q,question:q.question.trim(),options:q.options.map(o=>String(o).trim().replace(/^[A-D][\.\)]\s*/i,'')),answer:q.answer.trim().replace(/^[A-D][\.\)]\s*/i,''),difficulty:q.difficulty||'medium',explanation:q.explanation||''}));
-      }catch(e){if(e.message==='RATE_LIMITED'){setStep('ps5','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();return;}quiz=[];}}
+      }catch(e){if(e.message==='RATE_LIMITED'){setStep('ps5','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();return;}quiz=[];} // not counted
+    }
     setStep('ps5','done',`Quiz ready (${quiz.length} questions)`);
 
     setStep('ps6','active');
@@ -735,9 +782,33 @@ Generate exactly ${quizCount} MCQ questions about the actual academic subject ma
     sessionStorage.setItem('slCache_new',JSON.stringify({fileName:file.name,fileSize:file.size,
       outputs:{notes,summary,keyPoints,flashcards:JSON.stringify(flashcards),quiz:JSON.stringify(quiz)}}));
 
+    // DAILY LIMIT FIX: the upload is only charged against the user's
+    // daily quota once it is confirmed saved to Firestore. If the save
+    // fails, the session is cached locally but NOT counted, since the
+    // user doesn't reliably have a persisted session yet.
+    //
+    // RACE FIX: incrementDailyCount() now runs as a transaction, so if
+    // two uploads from the same user land here at nearly the same time,
+    // only as many as fit under DAILY_UPLOAD_LIMIT actually get counted.
+    // If this one lost that race, we still keep the generated session
+    // (it's already saved) but let the user know it didn't count toward
+    // today's free quota, rather than pretending it was free.
     let savedId=null;
-    try{savedId=await saveToFirestore(sessionData);sessionStorage.setItem('slDocId',savedId);setStep('ps6','done','Session saved');}
-    catch(fsErr){console.error('Firestore save failed:',fsErr.message);setStep('ps6','error','Saved locally (sync failed)');sessionStorage.setItem('slDocId','__cache__');toast('⚠️ Cached locally — Firestore sync failed.','error');}
+    try{
+      savedId=await saveToFirestore(sessionData);
+      sessionStorage.setItem('slDocId',savedId);
+      setStep('ps6','done','Session saved');
+      const counted=await incrementDailyCount();
+      if(!counted){
+        toast('Note: today\'s free upload limit was already reached — this session was still saved.','');
+      }
+    }
+    catch(fsErr){
+      console.error('Firestore save failed:',fsErr.message);
+      setStep('ps6','error','Saved locally (sync failed)');
+      sessionStorage.setItem('slDocId','__cache__');
+      toast('⚠️ Cached locally — Firestore sync failed.','error');
+    }
 
     stopTimer();
     const elapsed=document.getElementById('procTimer').textContent;
@@ -750,7 +821,7 @@ Generate exactly ${quizCount} MCQ questions about the actual academic subject ma
     if(cancelled)return;
     stopTimer();pc.classList.remove('show');hideStatus();
     toast(err.message||'Processing failed','error');
-    console.error('Processing error:',err);}}
+    console.error('Processing error:',err);}} // not counted — unhandled failure before save
 
 window.cancelProc=function(){cancelled=true;stopTimer();document.getElementById('procCard').classList.remove('show');hideStatus();toast('Cancelled','');};
 
