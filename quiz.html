@@ -530,10 +530,10 @@ window.openShareModal = async function(){
     }
 
     // Build the shareable URL pointing to shared_quiz.html
-    const shareUrl = `${location.origin}/shared_quiz.html?id=${sharedQuizId}`;
-    const waMsg = encodeURIComponent(
-      `📚 I just made a quiz on "${docTitle}" using Codex Study Hub!\n\nCan you beat my score? Try the quiz here:\n${shareUrl}\n\nJoin Codex Study Hub: ${location.origin}/home.html`
-    );
+const shareUrl = `${location.origin}/Codex-hub-prime/shared_quiz.html?id=${sharedQuizId}`;
+const waMsg = encodeURIComponent(
+  `📚 I just made a quiz on "${docTitle}" using Codex Study Hub!\n\nCan you beat my score? Try the quiz here:\n${shareUrl}\n\nJoin Codex Study Hub: ${location.origin}/Codex-hub-prime/home.html`
+);
 
     document.getElementById('shareContent').innerHTML=`
       <div style="font-size:.78rem;color:var(--muted);margin-bottom:10px">Share this link with anyone — no login needed to attempt the quiz:</div>
