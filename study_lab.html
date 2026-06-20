@@ -202,15 +202,15 @@ body.chat-open::after{opacity:1;pointer-events:none;}
     <div class="upload-hero-icon">
       <svg width="24" height="24" fill="none" stroke="var(--purple)" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
     </div>
-    <div class="upload-title">Upload a PDF to Study</div>
-    <div class="upload-sub">Study Lab reads your document and automatically generates notes, flashcards, a quiz, and a full summary.</div>
+    <div class="upload-title">Upload a PDF or Word Doc to Study</div>
+    <div class="upload-sub">Study Lab reads your PDF or Word document and automatically generates notes, flashcards, a quiz, and a full summary.</div>
     <div id="limitPill" class="limit-pill" style="display:none">
       <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 8v4l3 3"/></svg>
       <span id="limitText">Loading…</span>
     </div>
     <br>
     <button class="upload-cta" id="uploadCta" onclick="event.stopPropagation();document.getElementById('fileInput').click()">+ Upload New PDF</button>
-    <input type="file" id="fileInput" accept=".pdf" onchange="handleFile(event)">
+    <input type="file" id="fileInput" accept=".pdf,.docx" onchange="handleFile(event)">
   </div>
   <div class="proc-card" id="procCard">
     <div class="proc-top">
@@ -315,6 +315,7 @@ const FB={apiKey:"AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",authDomain:"codex-stu
 const app=initializeApp(FB);const auth=getAuth(app);const db=getFirestore(app);
 const BACKEND="https://codex-backend-new.onrender.com/chat";
 const PDFJS="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174";
+const MAMMOTH_CDN="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js";
 
 // ═══════════════════════════════════════════════════════════════
 // SMART CONTEXT BUILDER — v3
@@ -523,6 +524,28 @@ function parseJSON(raw){
 // Extracts up to 80 pages or 80 000 chars — we want a LOT of
 // raw text so our admin-skipper has enough to work with.
 // buildSmartContext() does the trimming before AI calls.
+// ── DOCX EXTRACT ─────────────────────────────────────────────
+// Uses mammoth.js to convert .docx to plain text in the browser.
+// No server needed — runs entirely client-side.
+async function extractDocx(file){
+  if(!window.mammoth){
+    await new Promise((res,rej)=>{
+      const s=document.createElement('script');
+      s.src=MAMMOTH_CDN;
+      s.onload=res;
+      s.onerror=()=>rej(new Error('Failed to load mammoth.js'));
+      document.head.appendChild(s);
+    });
+  }
+  const arrayBuffer=await file.arrayBuffer();
+  const result=await mammoth.extractRawText({arrayBuffer});
+  if(!result.value||result.value.trim().length<30){
+    throw new Error('Could not extract text from Word document');
+  }
+  console.log(`DOCX extracted: ${result.value.length} chars from "${file.name}"`);
+  return result.value.trim();
+}
+
 async function extractPdf(file){
   if(!window.pdfjsLib){
     await new Promise((res,rej)=>{const s=document.createElement('script');s.src=`${PDFJS}/pdf.min.js`;s.onload=res;s.onerror=rej;document.head.appendChild(s);});
@@ -550,6 +573,9 @@ async function saveToFirestore(data,retries=3){
 
 window.handleFile=async function(e){
   const file=e.target.files[0];if(!file||!currentUser)return;
+  const isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
+  const isDocx=file.name.toLowerCase().endsWith('.docx')||file.type==='application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  if(!isPdf&&!isDocx){toast('Please upload a PDF or Word (.docx) file','error');document.getElementById('fileInput').value='';return;}
   if(file.size>15*1024*1024){toast('Max file size is 15MB','error');document.getElementById('fileInput').value='';return;}
   const canUpload=await checkDailyLimit();
   if(!canUpload){document.getElementById('fileInput').value='';return;}
@@ -605,15 +631,23 @@ async function processFile(file){
 
   try{
     setStep('ps1','active');
-    document.getElementById('procEta').textContent='Reading PDF pages…';
-    const pdfText=await extractPdf(file);
+    const isDocxFile=file.name.toLowerCase().endsWith('.docx');
+    document.getElementById('procEta').textContent=isDocxFile?'Reading Word document…':'Reading PDF pages…';
+    let pdfText='';
+    try{
+      pdfText=isDocxFile?await extractDocx(file):await extractPdf(file);
+    }catch(extractErr){
+      setStep('ps1','error','Could not extract text');
+      toast(extractErr.message||'Could not read document — try a different file','error');
+      pc.classList.remove('show');stopTimer();return;
+    }
     if(cancelled)return;
     if(!pdfText||pdfText.trim().length<30){
       setStep('ps1','error','Could not extract text');
-      toast('Could not read PDF text — try a text-based PDF','error');
-      pc.classList.remove('show');stopTimer();return;} // not counted — failed before any content was generated
+      toast(isDocxFile?'Could not read Word doc — try saving as PDF first':'Could not read PDF — try a text-based PDF','error');
+      pc.classList.remove('show');stopTimer();return;}
     setStep('ps1','done');
-    console.log(`PDF extracted: ${pdfText.length} chars from "${file.name}"`);
+    console.log(`${isDocxFile?'DOCX':'PDF'} extracted: ${pdfText.length} chars from "${file.name}"`);
 
     // Build smart contexts — admin sections are automatically skipped
     const ctx   = buildSmartContext(pdfText, 8000);
@@ -909,8 +943,9 @@ const dz=document.getElementById('dropzone');
 dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
 dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
 dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');const f=e.dataTransfer.files[0];
-  if(f?.type==='application/pdf'){const inp=document.getElementById('fileInput');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;handleFile({target:inp});}
-  else toast('Drop a PDF file','error');});
+  const okType=f&&(f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf')||f.name.toLowerCase().endsWith('.docx')||f.type==='application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+  if(okType){const inp=document.getElementById('fileInput');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;handleFile({target:inp});}
+  else toast('Drop a PDF or Word (.docx) file','error');});
 
 async function loadSessions(){
   const grid=document.getElementById('sessGrid');
