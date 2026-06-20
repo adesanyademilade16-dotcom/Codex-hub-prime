@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Challenge — Codex Study Hub</title>
+  <meta property="og:title" content="Quiz Challenge — Codex Study Hub">
+  <meta property="og:description" content="Someone challenged you to a quiz! Test your knowledge on Codex Study Hub.">
+  <meta name="theme-color" content="#080c14">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#080c14;--s1:#0f1623;--s2:#151e30;--s3:#1c283d;
+      --border:rgba(255,255,255,.06);--border2:rgba(255,255,255,.11);
+      --blue:#3b82f6;--blue-s:rgba(59,130,246,.13);--blue-b:rgba(59,130,246,.28);
+      --green:#10b981;--green-s:rgba(16,185,129,.12);--green-b:rgba(16,185,129,.28);
+      --gold:#f59e0b;--gold-s:rgba(245,158,11,.1);--gold-b:rgba(245,158,11,.25);
+      --purple:#a855f7;--purple-s:rgba(168,85,247,.13);--purple-b:rgba(168,85,247,.28);
+      --red:#ef4444;--red-s:rgba(239,68,68,.1);--red-b:rgba(239,68,68,.25);
+      --text:#eef2ff;--muted:#8fa3c0;--dim:#4a6380;--r:14px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+      background:radial-gradient(ellipse 70vw 45vh at 10% 0%,rgba(59,130,246,.08) 0%,transparent 60%),
+                 radial-gradient(ellipse 50vw 35vh at 90% 100%,rgba(168,85,247,.07) 0%,transparent 60%)}
+
+    .shell{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:20px 16px 80px}
+
+    /* ── BRAND BAR ─────────────────────────────────────────────── */
+    .brand-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+    .brand-name{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;
+      background:linear-gradient(90deg,var(--blue),var(--purple));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .brand-cta{background:linear-gradient(135deg,var(--blue),#2563eb);color:#fff;
+      border:none;border-radius:9px;padding:7px 15px;font-size:.78rem;font-weight:700;
+      cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none}
+
+    /* ── CHALLENGE CARD ────────────────────────────────────────── */
+    .challenge-card{
+      background:linear-gradient(135deg,#0d1a33,#131f38);
+      border:1px solid var(--blue-b);border-radius:var(--r);
+      padding:24px 22px;margin-bottom:20px;text-align:center;
+      position:relative;overflow:hidden;
+    }
+    .challenge-card::before{content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse 60% 60% at 50% 0%,rgba(59,130,246,.1),transparent)}
+    .challenge-icon{font-size:2.8rem;margin-bottom:12px;position:relative}
+    .challenge-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;margin-bottom:6px;position:relative}
+    .challenge-sub{font-size:.82rem;color:var(--muted);position:relative;line-height:1.5}
+    .challenge-meta{
+      display:flex;gap:10px;justify-content:center;flex-wrap:wrap;
+      margin-top:14px;position:relative;
+    }
+    .meta-chip{
+      background:var(--s2);border:1px solid var(--border2);
+      border-radius:20px;padding:5px 13px;font-size:.75rem;font-weight:600;color:var(--muted);
+    }
+    .meta-chip em{color:var(--text);font-style:normal}
+
+    /* ── PROGRESS ──────────────────────────────────────────────── */
+    .quiz-progress{
+      background:var(--s1);border:1px solid var(--border);border-radius:12px;
+      padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;
+    }
+    .qp-bar-wrap{flex:1;height:6px;background:var(--s3);border-radius:4px;overflow:hidden}
+    .qp-bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));
+      border-radius:4px;transition:width .4s ease}
+    .qp-label{font-size:.78rem;color:var(--muted);white-space:nowrap;font-weight:600}
+
+    /* ── QUESTION CARD ─────────────────────────────────────────── */
+    .question-card{
+      background:var(--s1);border:1px solid var(--border);
+      border-radius:var(--r);padding:22px 20px;margin-bottom:14px;
+    }
+    .q-number{font-size:.72rem;font-weight:700;color:var(--blue);letter-spacing:.06em;
+      text-transform:uppercase;margin-bottom:10px}
+    .q-text{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;line-height:1.5;margin-bottom:18px}
+
+    .option-btn{
+      width:100%;display:flex;align-items:center;gap:12px;
+      background:var(--s2);border:1.5px solid var(--border);
+      border-radius:11px;padding:13px 16px;margin-bottom:9px;
+      cursor:pointer;transition:all .18s;font-family:'DM Sans',sans-serif;
+      color:var(--text);text-align:left;
+    }
+    .option-btn:hover:not(.selected){background:var(--s3);border-color:var(--border2)}
+    .option-btn.selected{border-color:var(--blue-b);background:var(--blue-s)}
+    .option-btn.correct{border-color:var(--green-b);background:var(--green-s);color:var(--green)}
+    .option-btn.wrong{border-color:var(--red-b);background:var(--red-s);color:var(--red)}
+    .option-btn:disabled{cursor:default}
+
+    .opt-label{
+      width:30px;height:30px;border-radius:8px;background:var(--s3);
+      display:flex;align-items:center;justify-content:center;
+      font-size:.75rem;font-weight:700;flex-shrink:0;transition:.18s;
+    }
+    .option-btn.selected .opt-label{background:var(--blue);color:#fff}
+    .option-btn.correct .opt-label{background:var(--green);color:#fff}
+    .option-btn.wrong .opt-label{background:var(--red);color:#fff}
+    .opt-text{font-size:.85rem;font-weight:500;flex:1}
+
+    .answer-reveal{
+      background:var(--s2);border:1px solid var(--border);
+      border-radius:10px;padding:11px 14px;margin-bottom:14px;
+      font-size:.82rem;color:var(--muted);line-height:1.5;display:none;
+    }
+    .answer-reveal.show{display:block}
+    .answer-reveal strong{color:var(--green)}
+
+    /* ── NAV BUTTONS ───────────────────────────────────────────── */
+    .nav-row{display:flex;gap:10px;margin-bottom:16px}
+    .nav-btn{
+      flex:1;padding:13px;border:none;border-radius:11px;
+      font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;
+      cursor:pointer;transition:all .2s;
+    }
+    .nav-btn.prev{background:var(--s2);border:1px solid var(--border2);color:var(--muted)}
+    .nav-btn.prev:hover{background:var(--s3);color:var(--text)}
+    .nav-btn.next{background:linear-gradient(135deg,var(--blue),#2563eb);color:#fff}
+    .nav-btn.next:hover{opacity:.9}
+    .nav-btn.submit{background:linear-gradient(135deg,var(--green),#059669);color:#fff}
+    .nav-btn.submit:hover{opacity:.9}
+
+    /* ── RESULTS CARD ──────────────────────────────────────────── */
+    .results-card{display:none;background:var(--s1);border:1px solid var(--border);
+      border-radius:var(--r);padding:28px 22px;text-align:center;margin-bottom:20px}
+    .results-card.show{display:block}
+    .results-score-ring{
+      width:100px;height:100px;border-radius:50%;
+      background:conic-gradient(var(--green) 0deg, var(--s3) 0deg);
+      display:flex;align-items:center;justify-content:center;
+      margin:0 auto 16px;position:relative;
+    }
+    .results-score-inner{
+      width:80px;height:80px;border-radius:50%;background:var(--s1);
+      display:flex;align-items:center;justify-content:center;
+    }
+    .results-score-pct{font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem}
+    .results-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;margin-bottom:6px}
+    .results-sub{font-size:.82rem;color:var(--muted);margin-bottom:20px}
+    .results-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px}
+    .results-stat{background:var(--s2);border:1px solid var(--border);border-radius:11px;padding:14px 10px;text-align:center}
+    .rs-val{font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem}
+    .rs-lbl{font-size:.72rem;color:var(--muted);margin-top:3px}
+    .results-actions{display:flex;flex-direction:column;gap:9px}
+    .res-btn{
+      padding:13px;border:none;border-radius:11px;
+      font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;
+      cursor:pointer;transition:.2s;
+    }
+    .res-btn.primary{background:linear-gradient(135deg,var(--blue),#2563eb);color:#fff}
+    .res-btn.secondary{background:var(--s2);border:1px solid var(--border2);color:var(--text)}
+    .res-btn.wa{background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px}
+    .res-btn:hover{opacity:.9}
+
+    /* ── LOADING / ERROR ───────────────────────────────────────── */
+    .state-card{text-align:center;padding:60px 20px;color:var(--muted)}
+    .state-icon{font-size:2.8rem;margin-bottom:14px}
+    .state-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--text);margin-bottom:6px}
+    .state-sub{font-size:.82rem;line-height:1.5}
+
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .mini-spinner{width:32px;height:32px;border:3px solid var(--border2);
+      border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+
+    /* Confetti burst */
+    @keyframes confettiFall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+    .confetti-piece{position:fixed;width:8px;height:8px;border-radius:2px;pointer-events:none;animation:confettiFall 2s ease forwards;z-index:999}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <!-- Brand bar -->
+  <div class="brand-bar">
+    <div class="brand-name">Codex Study Hub</div>
+    <a href="home.html" class="brand-cta">Join Free →</a>
+  </div>
+
+  <!-- Dynamic content -->
+  <div id="mainContent">
+    <div class="state-card">
+      <div class="mini-spinner"></div>
+      <div class="state-title">Loading quiz…</div>
+      <div class="state-sub">Getting your challenge ready</div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import {
+  getFirestore, doc, getDoc, updateDoc, addDoc, collection, increment, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey:"AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+  authDomain:"codex-study-hub-923c5.firebaseapp.com",
+  projectId:"codex-study-hub-923c5",
+  storageBucket:"codex-study-hub-923c5.appspot.com",
+  messagingSenderId:"750631534625",
+  appId:"1:750631534625:web:5f59e1841bb856bdbba360"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+// ── State ──────────────────────────────────────────────────────────────────
+const params    = new URLSearchParams(location.search);
+const quizId    = params.get('id');
+let quizData    = null;
+let current     = 0;
+let answers     = {};
+let answered    = {};
+let score       = 0;
+
+// ── Load quiz ──────────────────────────────────────────────────────────────
+async function loadQuiz() {
+  const main = document.getElementById('mainContent');
+  if (!quizId) {
+    main.innerHTML = errorState('No quiz ID found','Check the link and try again.');
+    return;
+  }
+  try {
+    const snap = await getDoc(doc(db,'shared_quizzes',quizId));
+    if (!snap.exists()) {
+      main.innerHTML = errorState('Quiz not found','This quiz may have been deleted.');
+      return;
+    }
+    quizData = snap.data();
+    // Increment view count
+    updateDoc(doc(db,'shared_quizzes',quizId),{views:increment(1)}).catch(()=>{});
+    renderQuiz();
+  } catch(e) {
+    main.innerHTML = errorState('Could not load quiz',e.message);
+  }
+}
+
+// ── Render quiz ────────────────────────────────────────────────────────────
+function renderQuiz() {
+  const main   = document.getElementById('mainContent');
+  const total  = quizData.questions?.length || 0;
+  const q      = quizData.questions[current];
+  const pct    = Math.round((current/total)*100);
+  const isLast = current === total-1;
+
+  // Build the question UI
+  main.innerHTML = `
+    <!-- Challenge banner (shows only on first question) -->
+    ${current===0 ? `
+    <div class="challenge-card">
+      <div class="challenge-icon">🎯</div>
+      <div class="challenge-title">${escHtml(quizData.title||'Quiz Challenge')}</div>
+      <div class="challenge-sub">Someone from Codex Study Hub challenged you!<br>Answer all questions and see your score.</div>
+      <div class="challenge-meta">
+        <div class="meta-chip"><em>${total}</em> questions</div>
+        <div class="meta-chip">MCQ format</div>
+        <div class="meta-chip">Instant results</div>
+      </div>
+    </div>` : ''}
+
+    <!-- Progress -->
+    <div class="quiz-progress">
+      <div class="qp-bar-wrap"><div class="qp-bar-fill" style="width:${pct}%"></div></div>
+      <div class="qp-label">${current+1}/${total}</div>
+    </div>
+
+    <!-- Question -->
+    <div class="question-card">
+      <div class="q-number">Question ${current+1} of ${total}</div>
+      <div class="q-text">${escHtml(q.question)}</div>
+      ${(q.options||[]).map((opt,i)=>`
+        <button
+          class="option-btn ${answers[current]===opt?'selected':''} ${answered[current]?(opt===q.answer?'correct':(answers[current]===opt?'wrong':'')):''}"
+          onclick="selectOption(${i},'${escAttr(opt)}')"
+          ${answered[current]?'disabled':''}
+        >
+          <div class="opt-label">${String.fromCharCode(65+i)}</div>
+          <span class="opt-text">${escHtml(opt)}</span>
+        </button>`).join('')}
+    </div>
+
+    <!-- Answer reveal -->
+    <div class="answer-reveal ${answered[current]?'show':''}" id="answerReveal">
+      ${answered[current]
+        ? `<strong>${answers[current]===q.answer?'✅ Correct!':'❌ Wrong.'}</strong> The correct answer is: <strong>${escHtml(q.answer)}</strong>`
+        : ''}
+    </div>
+
+    <!-- Nav -->
+    <div class="nav-row">
+      ${current>0?`<button class="nav-btn prev" onclick="goTo(${current-1})">← Prev</button>`:''}
+      ${isLast
+        ? `<button class="nav-btn submit" onclick="submitQuiz()">See Results 🎉</button>`
+        : `<button class="nav-btn next" onclick="goNext()">Next →</button>`
+      }
+    </div>
+
+    <!-- Results (hidden initially) -->
+    <div class="results-card" id="resultsCard"></div>
+  `;
+}
+
+window.selectOption = function(idx, opt) {
+  if (answered[current]) return;
+  answers[current] = opt;
+  answered[current] = true;
+  if (opt === quizData.questions[current].answer) score++;
+  renderQuiz();
+};
+
+window.goNext = function() {
+  if (current < quizData.questions.length-1) { current++; renderQuiz(); }
+};
+window.goTo = function(n) { current=n; renderQuiz(); };
+
+window.submitQuiz = function() {
+  const total = quizData.questions.length;
+  const pct   = Math.round(score/total*100);
+  const deg   = Math.round(pct/100*360);
+
+  // Save attempt
+  addDoc(collection(db,'quiz_attempts'),{
+    quizId, score, total, pct,
+    attemptedAt: serverTimestamp()
+  }).catch(()=>{});
+
+  // Confetti if good score
+  if (pct >= 60) launchConfetti();
+
+  const emoji = pct>=80?'🏆':pct>=60?'🎉':pct>=40?'💪':'📚';
+  const msg   = pct>=80?'Excellent work!':pct>=60?'Great effort!':pct>=40?'Good try!':'Keep studying!';
+
+  const main = document.getElementById('mainContent');
+  main.innerHTML = `
+    <div class="challenge-card" style="margin-bottom:20px">
+      <div class="challenge-icon">${emoji}</div>
+      <div class="challenge-title">${msg}</div>
+      <div class="challenge-sub">You completed the quiz challenge</div>
+    </div>
+    <div class="results-card show" id="resultsCard">
+      <div class="results-score-ring" id="scoreRing" style="background:conic-gradient(${pct>=60?'var(--green)':'var(--gold)'} ${deg}deg, var(--s3) 0deg)">
+        <div class="results-score-inner">
+          <div class="results-score-pct" style="color:${pct>=60?'var(--green)':'var(--gold)'}">${pct}%</div>
+        </div>
+      </div>
+      <div class="results-title">${score} / ${total} correct</div>
+      <div class="results-sub">${escHtml(quizData.title||'Quiz Challenge')}</div>
+      <div class="results-row">
+        <div class="results-stat"><div class="rs-val" style="color:var(--green)">${score}</div><div class="rs-lbl">Correct</div></div>
+        <div class="results-stat"><div class="rs-val" style="color:var(--red)">${total-score}</div><div class="rs-lbl">Wrong</div></div>
+        <div class="results-stat"><div class="rs-val" style="color:var(--gold)">${pct}%</div><div class="rs-lbl">Score</div></div>
+      </div>
+      <div class="results-actions">
+        <button class="res-btn wa" onclick="shareResult(${pct},${score},${total})">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Share My Score on WhatsApp
+        </button>
+        <button class="res-btn primary" onclick="retryQuiz()">🔄 Try Again</button>
+        <a href="home.html" class="res-btn secondary" style="text-decoration:none;display:block;text-align:center">
+          Join Codex Study Hub Free →
+        </a>
+      </div>
+    </div>`;
+};
+
+window.shareResult = function(pct, score, total) {
+  const link = location.href;
+  const msg  = encodeURIComponent(
+    `🎯 I scored ${pct}% (${score}/${total}) on this Codex Study Hub quiz!\n\nCan you beat me? Try it here:\n${link}\n\n📚 Join Codex Study Hub: ${location.origin}/home.html`
+  );
+  window.open(`https://wa.me/?text=${msg}`,'_blank');
+};
+
+window.retryQuiz = function() {
+  current=0; answers={}; answered={}; score=0;
+  renderQuiz();
+};
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function escHtml(str='') { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escAttr(str='') { return String(str).replace(/'/g,'\\\'').replace(/"/g,'&quot;'); }
+
+function errorState(title, sub) {
+  return `<div class="state-card">
+    <div class="state-icon">❌</div>
+    <div class="state-title">${title}</div>
+    <div class="state-sub">${sub}</div>
+    <a href="home.html" style="display:inline-block;margin-top:20px;background:var(--blue-s);border:1px solid var(--blue-b);color:var(--blue);padding:10px 20px;border-radius:10px;font-weight:600;font-size:.84rem;text-decoration:none">Go to Codex →</a>
+  </div>`;
+}
+
+function launchConfetti() {
+  const colors=['#3b82f6','#10b981','#a855f7','#f59e0b','#ec4899'];
+  for (let i=0;i<40;i++) {
+    const el=document.createElement('div');
+    el.className='confetti-piece';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[i%colors.length]};animation-delay:${Math.random()*1.2}s;animation-duration:${1.5+Math.random()*1}s;transform:rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),3000);
+  }
+}
+
+// ── Boot ───────────────────────────────────────────────────────────────────
+loadQuiz();
+</script>
+</body>
+</html>
