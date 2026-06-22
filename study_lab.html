@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -209,7 +208,7 @@ body.chat-open::after{opacity:1;pointer-events:none;}
       <span id="limitText">Loading…</span>
     </div>
     <br>
-    <button class="upload-cta" id="uploadCta" onclick="event.stopPropagation();document.getElementById('fileInput').click()">+ Upload New PDF</button>
+    <button class="upload-cta" id="uploadCta" onclick="event.stopPropagation();document.getElementById('fileInput').click()">+ Upload PDF or Word Doc</button>
     <input type="file" id="fileInput" accept=".pdf,.docx" onchange="handleFile(event)">
   </div>
   <div class="proc-card" id="procCard">
@@ -221,7 +220,7 @@ body.chat-open::after{opacity:1;pointer-events:none;}
       <button class="proc-cancel" onclick="cancelProc()">Cancel</button>
     </div>
     <div class="proc-steps">
-      <div class="ps wait" id="ps1"><div class="ps-dot">1</div><span id="ps1t">Extracting PDF text</span></div>
+      <div class="ps wait" id="ps1"><div class="ps-dot">1</div><span id="ps1t">Extracting document text</span></div>
       <div class="ps wait" id="ps2"><div class="ps-dot">2</div><span id="ps2t">Connecting to AI</span></div>
       <div class="ps wait" id="ps3"><div class="ps-dot">3</div><span id="ps3t">Generating notes &amp; summary</span></div>
       <div class="ps wait" id="ps4"><div class="ps-dot">4</div><span id="ps4t">Creating flashcards</span></div>
@@ -232,7 +231,7 @@ body.chat-open::after{opacity:1;pointer-events:none;}
   </div>
   <a href="study_lab.html" class="panel-link">
     <div class="pl-icon"><svg width="18" height="18" fill="none" stroke="var(--purple)" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg></div>
-    <div class="pl-text"><div class="pl-title">Open Chat Mode</div><div class="pl-sub">Sources · Studio · Chat — upload &amp; ask questions about any PDF live</div></div>
+    <div class="pl-text"><div class="pl-title">Open Chat Mode</div><div class="pl-sub">Sources · Studio · Chat — upload &amp; ask questions about any document live</div></div>
     <svg class="pl-arrow" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
   </a>
   <div class="sec-hd">
@@ -252,7 +251,7 @@ body.chat-open::after{opacity:1;pointer-events:none;}
   <div class="modal-card">
     <div class="modal-icon"><svg width="22" height="22" fill="none" stroke="var(--purple)" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17V7m6 10V7M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg></div>
     <div class="modal-title">Customize Your Session</div>
-    <div class="modal-sub">Choose how many flashcards and quiz questions to generate from your PDF.</div>
+    <div class="modal-sub">Choose how many flashcards and quiz questions to generate from your document.</div>
     <div class="count-row">
       <div class="count-label">Flashcards <span class="val" id="fcCountVal">25</span></div>
       <div class="count-slider-row"><input type="range" min="10" max="30" value="25" step="1" class="count-slider" id="fcSlider" oninput="document.getElementById('fcCountVal').textContent=this.value"></div>
@@ -273,13 +272,13 @@ body.chat-open::after{opacity:1;pointer-events:none;}
 <div class="chat-overlay" id="chatOverlay">
   <div class="chat-nav">
     <button class="chat-close" onclick="closeChat()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
-    <div class="chat-doc-name"><em id="chatDocLabel">Chat with PDF</em></div>
-    <div class="chat-source-badge"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>PDF grounded</div>
+    <div class="chat-doc-name"><em id="chatDocLabel">Chat with Document</em></div>
+    <div class="chat-source-badge"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Doc grounded</div>
   </div>
   <div class="chat-body" id="chatBody">
     <div class="chat-empty-state" id="chatEmptyState">
       <svg width="46" height="46" fill="none" stroke="var(--dim)" stroke-width="1.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
-      <div class="chat-empty-title">Ask anything about this PDF</div>
+      <div class="chat-empty-title">Ask anything about this document</div>
       <div class="chat-empty-sub">Every answer is grounded in the document.<br>If a topic isn't covered, I'll let you know.</div>
     </div>
   </div>
@@ -318,83 +317,86 @@ const PDFJS="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174";
 const MAMMOTH_CDN="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js";
 
 // ═══════════════════════════════════════════════════════════════
-// SMART CONTEXT BUILDER — v3
-//
-// THE ROOT CAUSE OF BAD QUESTIONS:
-//   Academic PDFs (especially Nigerian university course packs)
-//   have 10-30 pages of admin content at the front:
-//   course guide, TMA instructions, TOC, recommended texts, etc.
-//   The old code took the first N chars → pure admin → AI asks
-//   "what is the aim of this course" instead of real content.
-//
-// THE FIX — 3-zone sampling:
-//   1. SKIP the front (admin detector strips header noise)
-//   2. EARLY BODY  — first real academic content (40% of budget)
-//   3. MID BODY    — middle of doc where rich content lives (35%)
-//   4. LATE BODY   — later sessions/chapters (25%)
-//
-// Admin detector: skips text until it finds a "Study Session",
-// "Chapter", "Unit", or "Section" heading that marks the start
-// of actual academic content. Falls back gracefully if not found.
+// SUBJECT DETECTOR
+// Detects the academic subject from the PDF text so we can
+// give subject-aware instructions to the AI. Works for ALL
+// university faculties: Science, Arts, Social Sciences,
+// Education, Engineering, Administration, etc.
+// ═══════════════════════════════════════════════════════════════
+function detectSubject(text) {
+  const sample = text.slice(0, 8000).toLowerCase();
+  const subjects = {
+    mathematics:  /\b(theorem|equation|proof|calculus|algebra|matrix|vector|integral|derivative|polynomial|trigonometry|logarithm|arithmetic|geometry|sequence|series)\b/,
+    statistics:   /\b(probability|hypothesis|variance|regression|correlation|distribution|sample|population|mean|median|mode|standard deviation|binomial|normal distribution|chi.?square|anova)\b/,
+    physics:      /\b(velocity|acceleration|force|momentum|energy|wave|frequency|amplitude|electric|magnetic|gravity|newton|thermodynamics|quantum|optics|circuit|resistance|voltage|current)\b/,
+    chemistry:    /\b(molecule|atom|element|compound|reaction|bond|oxidation|reduction|acid|base|mole|periodic|organic|inorganic|titration|electrode|valence|isotope)\b/,
+    biology:      /\b(cell|organism|photosynthesis|respiration|genetics|dna|rna|evolution|ecosystem|taxonomy|mitosis|meiosis|enzyme|hormone|nervous system|digestive|reproductive)\b/,
+    engineering:  /\b(circuit|stress|strain|torque|mechanical|civil|electrical|structural|hydraulic|thermodynamic|drawing|technical|blueprint|specification|material|load|design)\b/,
+    economics:    /\b(demand|supply|market|price|inflation|gdp|fiscal|monetary|trade|production|cost|revenue|profit|elasticity|equilibrium|macro|micro|economic)\b/,
+    accounting:   /\b(debit|credit|balance sheet|income statement|ledger|journal|trial balance|depreciation|asset|liability|equity|cash flow|audit|financial statement)\b/,
+    law:          /\b(statute|constitution|legislation|court|plaintiff|defendant|jurisdiction|tort|contract|criminal|civil|legal|act|section|clause|rights|judicial)\b/,
+    psychology:   /\b(behaviour|cognition|perception|memory|learning|personality|motivation|emotion|therapy|psychoanalysis|stimulus|response|conditioning|mental|cognitive)\b/,
+    sociology:    /\b(society|culture|social|institution|class|stratification|socialization|norm|deviance|group|community|family|religion|urbanization|demographic)\b/,
+    political:    /\b(government|politics|state|power|democracy|constitution|parliament|election|policy|sovereignty|federalism|political party|governance|legislature|executive|judiciary)\b/,
+    history:      /\b(century|empire|revolution|war|civilization|colonialism|independence|dynasty|era|historical|ancient|medieval|colonial|nationalist|post.?colonial)\b/,
+    geography:    /\b(climate|latitude|longitude|erosion|weathering|drainage|population|urban|rural|map|terrain|continent|ocean|atmosphere|vegetation|landform)\b/,
+    education:    /\b(curriculum|pedagogy|learning|teaching|assessment|student|teacher|school|instruction|cognitive|behavioural|educational|classroom|methodology|evaluation)\b/,
+    agriculture:  /\b(crop|soil|fertilizer|irrigation|harvest|livestock|pest|disease|farming|plant|seed|yield|cultivation|agronomy|horticulture|animal husbandry)\b/,
+    arts_lang:    /\b(literature|novel|poem|drama|prose|fiction|narrative|character|theme|metaphor|imagery|syntax|phonology|morphology|semantics|linguistics|language)\b/,
+    business:     /\b(management|marketing|strategy|leadership|organization|human resource|consumer|brand|entrepreneurship|corporate|administration|planning|logistics)\b/,
+  };
+  const scores = {};
+  for (const [subj, pattern] of Object.entries(subjects)) {
+    const matches = (sample.match(pattern) || []).length;
+    if (matches > 0) scores[subj] = matches;
+  }
+  const sorted = Object.entries(scores).sort((a,b) => b[1]-a[1]);
+  const top = sorted.slice(0, 2).map(s => s[0]);
+  const isCalculation = ['mathematics','statistics','physics','chemistry','engineering','accounting'].some(s => top.includes(s));
+  const isTheory = ['psychology','sociology','political','history','geography','education','agriculture','arts_lang','business','law'].some(s => top.includes(s));
+  return { subjects: top, isCalculation, isTheory, isMixed: isCalculation && isTheory };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SMART CONTEXT BUILDER — v4
+// Skips admin content at the front of Nigerian university PDFs.
+// Uses 3-zone sampling to cover the full document.
+// For STEM subjects, gives more context budget to capture
+// worked examples, tables, and numerical data.
 // ═══════════════════════════════════════════════════════════════
 function buildSmartContext(text, maxChars) {
   if (!text || text.length === 0) return '';
   if (text.length <= maxChars) return text;
-
-  // ── Step 1: Find where real academic content starts ──────────
-  // Look for patterns that signal the start of actual study content
   const contentMarkers = [
     /study\s+session\s+\d+\s*:/i,
     /chapter\s+\d+\s*[:\-]/i,
     /unit\s+\d+\s*[:\-]/i,
     /section\s+\d+\s*[:\-]/i,
-    /\d+\.\d+\s+[A-Z][a-z]/,       // numbered section like "1.1 Definition of"
-    /introduction\s*\n[A-Z]/,        // "Introduction" followed by content
+    /\d+\.\d+\s+[A-Z][a-z]/,
+    /introduction\s*\n[A-Z]/,
   ];
-
   let contentStart = 0;
-  const searchText = text.slice(0, Math.min(text.length, 80000)); // search first 80k chars
-
+  const searchText = text.slice(0, Math.min(text.length, 80000));
   for (const marker of contentMarkers) {
     const match = searchText.match(marker);
-    if (match && match.index > 200) { // must be past the very beginning
-      // Take the SECOND match (skip TOC entry, get real content)
+    if (match && match.index > 200) {
       const secondMatch = searchText.slice(match.index + 50).match(marker);
-      if (secondMatch) {
-        contentStart = match.index + 50 + secondMatch.index;
-      } else {
-        contentStart = match.index;
-      }
+      if (secondMatch) { contentStart = match.index + 50 + secondMatch.index; }
+      else { contentStart = match.index; }
       break;
     }
   }
-
-  // If we couldn't find content markers, skip first 15% as admin
-  if (contentStart === 0) {
-    contentStart = Math.floor(text.length * 0.15);
-  }
-
-  console.log(`Content starts at char ${contentStart} (skipped ${contentStart} chars of admin/TOC)`);
-
+  if (contentStart === 0) contentStart = Math.floor(text.length * 0.15);
+  console.log(`Content starts at char ${contentStart}`);
   const body = text.slice(contentStart);
-
-  // ── Step 2: 3-zone sampling of the content body ──────────────
-  const zone1Size = Math.floor(maxChars * 0.40); // early content
-  const zone2Size = Math.floor(maxChars * 0.35); // mid content
-  const zone3Size = Math.floor(maxChars * 0.25); // late content
-
-  const zone1 = body.slice(0, zone1Size);
-
+  const zone1 = body.slice(0, Math.floor(maxChars * 0.40));
   const mid = Math.floor(body.length * 0.45);
-  const zone2 = body.slice(mid, mid + zone2Size);
-
+  const zone2 = body.slice(mid, mid + Math.floor(maxChars * 0.35));
   const late = Math.floor(body.length * 0.75);
-  const zone3 = body.slice(late, late + zone3Size);
-
+  const zone3 = body.slice(late, late + Math.floor(maxChars * 0.25));
   const parts = [zone1];
   if (zone2 && zone2.length > 100) parts.push('\n\n[... continuing ...]\n\n' + zone2);
   if (zone3 && zone3.length > 100) parts.push('\n\n[... later content ...]\n\n' + zone3);
-
   return parts.join('');
 }
 
@@ -425,7 +427,7 @@ async function refreshDailyLimitUI(){
     const remaining=Math.max(DAILY_UPLOAD_LIMIT-count,0);
     pill.style.display='inline-flex';
     if(remaining<=0){pillText.textContent='Daily limit reached — resets tomorrow';pill.className='limit-pill zero';cta.disabled=true;cta.textContent='Daily limit reached';}
-    else{const dots='●'.repeat(remaining)+'○'.repeat(DAILY_UPLOAD_LIMIT-remaining);pillText.textContent=`${dots}  ${remaining} of ${DAILY_UPLOAD_LIMIT} uploads left today`;pill.className='limit-pill'+(remaining===1?' low':'');cta.disabled=false;cta.textContent='+ Upload New PDF';}
+    else{const dots='●'.repeat(remaining)+'○'.repeat(DAILY_UPLOAD_LIMIT-remaining);pillText.textContent=`${dots}  ${remaining} of ${DAILY_UPLOAD_LIMIT} uploads left today`;pill.className='limit-pill'+(remaining===1?' low':'');cta.disabled=false;cta.textContent='+ Upload PDF or Word Doc';}
   }catch(e){console.warn('refreshDailyLimitUI:',e.message);pill.style.display='none';}}
 
 async function checkDailyLimit(){
@@ -434,18 +436,6 @@ async function checkDailyLimit(){
     if(count>=DAILY_UPLOAD_LIMIT){toast(`Daily limit reached (${DAILY_UPLOAD_LIMIT}/day). Come back tomorrow!`,'error');await refreshDailyLimitUI();return false;}return true;}
   catch(e){console.error('checkDailyLimit:',e.message);return true;}}
 
-// FIX (race condition): increment now happens inside a Firestore
-// transaction. The transaction re-reads the current count at the
-// moment of writing and refuses to increment past DAILY_UPLOAD_LIMIT,
-// even if two uploads from the same user (e.g. two tabs, or a
-// double-tap) reach this point at nearly the same time. Without this,
-// the earlier setDoc(...,{uploads:increment(1)}) could let both
-// requests through, since increment() doesn't look at the existing
-// value before deciding whether to allow the write.
-//
-// Returns true if the count was successfully incremented within the
-// limit, false if the limit was already reached at write time (i.e.
-// a race was caught) or the transaction failed for another reason.
 async function incrementDailyCount(){
   if(!currentUser)return false;
   const ref=dailyLimitRef();
@@ -453,21 +443,14 @@ async function incrementDailyCount(){
     const result=await runTransaction(db,async(tx)=>{
       const snap=await tx.get(ref);
       const count=snap.exists()?(snap.data().uploads||0):0;
-      if(count>=DAILY_UPLOAD_LIMIT)return false; // limit already hit — don't increment
-      if(snap.exists()){
-        tx.update(ref,{uploads:count+1,date:todayKey(),uid:currentUser.uid});
-      }else{
-        tx.set(ref,{uploads:1,date:todayKey(),uid:currentUser.uid});
-      }
+      if(count>=DAILY_UPLOAD_LIMIT)return false;
+      if(snap.exists()){tx.update(ref,{uploads:count+1,date:todayKey(),uid:currentUser.uid});}
+      else{tx.set(ref,{uploads:1,date:todayKey(),uid:currentUser.uid});}
       return true;
     });
     await refreshDailyLimitUI();
     return result;
-  }catch(e){
-    console.warn('incrementDailyCount:',e.message);
-    await refreshDailyLimitUI();
-    return false;
-  }
+  }catch(e){console.warn('incrementDailyCount:',e.message);await refreshDailyLimitUI();return false;}
 }
 
 function setStep(id,state,label){
@@ -520,39 +503,28 @@ function parseJSON(raw){
   if(cards.length>0)return cards;
   throw new Error('Could not parse JSON. Raw: '+s.slice(0,120));}
 
-// ── PDF EXTRACT ──────────────────────────────────────────────
-// Extracts up to 80 pages or 80 000 chars — we want a LOT of
-// raw text so our admin-skipper has enough to work with.
-// buildSmartContext() does the trimming before AI calls.
 // ── DOCX EXTRACT ─────────────────────────────────────────────
-// Uses mammoth.js to convert .docx to plain text in the browser.
-// No server needed — runs entirely client-side.
 async function extractDocx(file){
   if(!window.mammoth){
     await new Promise((res,rej)=>{
-      const s=document.createElement('script');
-      s.src=MAMMOTH_CDN;
-      s.onload=res;
-      s.onerror=()=>rej(new Error('Failed to load mammoth.js'));
-      document.head.appendChild(s);
-    });
+      const s=document.createElement('script');s.src=MAMMOTH_CDN;
+      s.onload=res;s.onerror=()=>rej(new Error('Failed to load mammoth.js'));
+      document.head.appendChild(s);});
   }
   const arrayBuffer=await file.arrayBuffer();
   const result=await mammoth.extractRawText({arrayBuffer});
-  if(!result.value||result.value.trim().length<30){
-    throw new Error('Could not extract text from Word document');
-  }
+  if(!result.value||result.value.trim().length<30)throw new Error('Could not extract text from Word document');
   console.log(`DOCX extracted: ${result.value.length} chars from "${file.name}"`);
   return result.value.trim();
 }
 
+// ── PDF EXTRACT ──────────────────────────────────────────────
 async function extractPdf(file){
   if(!window.pdfjsLib){
     await new Promise((res,rej)=>{const s=document.createElement('script');s.src=`${PDFJS}/pdf.min.js`;s.onload=res;s.onerror=rej;document.head.appendChild(s);});
     pdfjsLib.GlobalWorkerOptions.workerSrc=`${PDFJS}/pdf.worker.min.js`;}
   const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer(),verbosity:0}).promise;
-  const maxPages=Math.min(pdf.numPages,80);
-  const CHAR_CAP=80000;
+  const maxPages=Math.min(pdf.numPages,80);const CHAR_CAP=80000;
   let pages=[],totalChars=0;
   for(let i=1;i<=maxPages;i++){
     if(totalChars>=CHAR_CAP){console.log(`PDF extraction stopped at page ${i} (${totalChars} chars)`);break;}
@@ -585,12 +557,6 @@ window.handleFile=async function(e){
   document.getElementById('countModal').classList.add('show');};
 
 window.closeCountModal=function(){document.getElementById('countModal').classList.remove('show');document.getElementById('fileInput').value='';pendingFile=null;};
-
-// FIX: previously called incrementDailyCount() here, BEFORE processing
-// even started. That charged the user's daily quota even if extraction,
-// the AI call, or the Firestore save later failed. The count is now
-// only incremented inside processFile(), after a session is actually
-// saved successfully — see the "ps6" / saveToFirestore step below.
 window.confirmCountsAndProcess=async function(){
   flashcardCount=parseInt(document.getElementById('fcSlider').value,10)||25;
   quizCount=parseInt(document.getElementById('qzSlider').value,10)||25;
@@ -598,25 +564,6 @@ window.confirmCountsAndProcess=async function(){
   const file=pendingFile;pendingFile=null;document.getElementById('fileInput').value='';
   if(file){processFile(file);}};
 
-// ═══════════════════════════════════════════════════════════════
-// PROCESS FILE
-//
-// Context budget per AI call:
-//   ctx   = 10 000 chars — main calls (notes, flashcards, quiz)
-//   short = 6 000 chars  — summary, key points
-//
-// Both use buildSmartContext v3 which skips admin content.
-// Prompts explicitly forbid admin/meta questions.
-// Client-side filter also removes any that slip through.
-//
-// DAILY LIMIT FIX: the upload only counts against the user's
-// daily quota once a session has been generated AND saved to
-// Firestore (see the incrementDailyCount() call near "ps6"
-// below). Any failure before that point — bad PDF, AI timeout,
-// rate limiting — exits early via `return` and never touches
-// the daily counter, so the user isn't charged for a session
-// they never actually got.
-// ═══════════════════════════════════════════════════════════════
 async function processFile(file){
   cancelled=false;
   const pc=document.getElementById('procCard');
@@ -649,10 +596,15 @@ async function processFile(file){
     setStep('ps1','done');
     console.log(`${isDocxFile?'DOCX':'PDF'} extracted: ${pdfText.length} chars from "${file.name}"`);
 
-    // Build smart contexts — admin sections are automatically skipped
-    const ctx   = buildSmartContext(pdfText, 8000);
-    const short = buildSmartContext(pdfText, 5000);
-    console.log(`Context: ${ctx.length} chars (smart split v3, admin-skipping)`);
+    // ── Detect subject & set context budget accordingly ──────
+    const subjectInfo = detectSubject(pdfText);
+    console.log(`Subject detected: ${subjectInfo.subjects.join(', ')} | Calculation: ${subjectInfo.isCalculation}`);
+    // STEM/calculation subjects need more context to capture tables & examples
+    const ctxSize  = subjectInfo.isCalculation ? 12000 : 9000;
+    const shortSize = subjectInfo.isCalculation ? 7000  : 5500;
+    const ctx   = buildSmartContext(pdfText, ctxSize);
+    const short = buildSmartContext(pdfText, shortSize);
+    console.log(`Context: ${ctx.length} chars (subject: ${subjectInfo.subjects[0]||'general'})`);
 
     setStep('ps2','active','Connecting to AI (may take 20s)…');
     setStatus('Waking AI server — this takes up to 20 seconds on first use…','gold',true);
@@ -665,74 +617,101 @@ async function processFile(file){
     document.getElementById('procEta').textContent='Generating notes… (~30s)';
     let notes,summary,keyPoints;
     try{
-      notes=await ai(
-        'You are an expert academic note-taker. Generate thorough, well-structured study notes from the SUBJECT CONTENT of the document. Use ## for main headings, ### for sub-headings, - for bullets. Sections: Key Concepts, Definitions, Important Facts, Examples. Focus entirely on the academic subject matter — culture, history, religion, science, or whatever topic this document covers. IGNORE any course guide sections, TMA instructions, assessment descriptions, page numbers, or administrative text. Never return JSON.',
-        `Generate comprehensive study notes from this document content:\n\n${ctx}`);
-      if(cancelled) return; // not counted — failed before save
-await delay(1500);
-document.getElementById('procEta').textContent = 'Generating summary…';
+      // Subject-aware notes prompt
+      const noteSubjectHint = subjectInfo.isCalculation
+        ? 'For MATHEMATICAL and SCIENTIFIC content: preserve all formulas (write them in plain text e.g. F=ma, P(A)=n(A)/n(S)), worked examples with their numerical steps, definitions of variables, units of measurement, and any given data tables. '
+        : subjectInfo.subjects[0]==='arts_lang' ? 'For LITERARY and LANGUAGE content: note themes, literary devices, character analysis, historical context, and linguistic concepts. '
+        : 'Focus on theories, definitions, historical context, policy frameworks, and real-world examples. ';
 
+      notes=await ai(
+        `You are an expert academic note-taker for Nigerian university students. Generate thorough, well-structured study notes from the SUBJECT CONTENT of the document. ${noteSubjectHint}Use ## for main headings, ### for sub-headings, - for bullets. Sections: Key Concepts, Definitions, Important Facts, Examples/Worked Problems. IGNORE any course guide sections, TMA instructions, assessment descriptions, page numbers, or administrative text. Never return JSON.`,
+        `Generate comprehensive study notes from this document content:\n\n${ctx}`);
+      if(cancelled)return;
+      await delay(1500);
+      document.getElementById('procEta').textContent='Generating summary…';
       summary=await ai(
         'Write a clear academic summary of the SUBJECT MATTER in this document. Focus on the actual topics taught — concepts, theories, facts — not the course structure. Use ## headings. Never return JSON.',
         `Summarise the academic content of this document:\n\n${short}`);
-      if(cancelled)return; // not counted — failed before save
-     await delay(1500);  document.getElementById('procEta').textContent='Extracting key points…';
-     
+      if(cancelled)return;
+      await delay(1500);
+      document.getElementById('procEta').textContent='Extracting key points…';
       keyPoints=await ai(
         'Extract the most important academic concepts and definitions from the SUBJECT MATTER. Format:\n\nKEY POINTS:\n- point\n\nKEY DEFINITIONS:\nTerm: definition\n\nFocus on the actual subject content only. Never return JSON.',
         `Extract key academic points:\n\n${short}`);
-      if(cancelled)return; // not counted — failed before save
-      await delay(1500); 
+      if(cancelled)return;
+      await delay(1500);
     }catch(e){
-      if(e.message==='RATE_LIMITED'){setStep('ps3','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('AI rate-limited. Wait a minute and try again.','error');return;} // not counted
+      if(e.message==='RATE_LIMITED'){setStep('ps3','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('AI rate-limited. Wait a minute and try again.','error');return;}
       throw e;}
     setStep('ps3','done');
 
-// ═══════════════════════════════════════════════════════════════
-// REPLACE EVERYTHING FROM "// ── FLASHCARDS ──" DOWN TO
-// "setStep('ps6','active');" WITH THIS ENTIRE BLOCK
-// ═══════════════════════════════════════════════════════════════
+    // ── ADMIN PATTERN — shared by flashcards and quiz ────────
+    const ADMIN_PATTERN=/\b(aim|objective|purpose|goal)\s+of\s+(this\s+)?(course|unit|module)|how\s+many\s+(unit|hour|week|credit|page)|title\s+of\s+(this\s+)?(course|document|book)|course\s+code|tma|tutor.?marked|percentage|assessment|examination\s+format|study\s+session\s+\d+\s*is\s+about|what\s+is\s+gn[sz]\s*\d|what\s+does\s+gn[sz]\s*\d|overall\s+objective\s+of\s+(gn[sz]|this\s+course)/i;
+
+    // ── CLOSED WORLD FILTER — catches context-dependent questions ──
+    // These are questions that reference data/tables/examples from the
+    // document without including that data in the question itself.
+    const CONTEXT_DEPENDENT_PATTERN=/\b(the (table|figure|diagram|chart|data|example|passage|text|given|following|above|below|information|scenario|case|experiment|sample|bag|box|container|group|class|set|distribution) (above|below|shown|given|provided|in the|of the)|refer(ring)? to (the|a) (table|figure|data|passage|text|example)|from the (table|data|figure|passage)|as (shown|given|indicated|stated) (above|below|in|on)|(in|from|using) the (given|provided|above|following) (data|table|figure|information|example))/i;
 
     // ── FLASHCARDS ──────────────────────────────────────────────
     setStep('ps4','active',`Creating flashcards… (~25s)`);
     document.getElementById('procEta').textContent=`Creating ${flashcardCount} flashcards…`;
 
-    const ADMIN_PATTERN=/\b(aim|objective|purpose|goal)\s+of\s+(this\s+)?(course|unit|module)|how\s+many\s+(unit|hour|week|credit|page)|title\s+of\s+(this\s+)?(course|document|book)|course\s+code|tma|tutor.?marked|percentage|assessment|examination\s+format|study\s+session\s+\d+\s*is\s+about|what\s+is\s+gn[sz]\s*\d|what\s+does\s+gn[sz]\s*\d|overall\s+objective\s+of\s+(gn[sz]|this\s+course)/i;
+    // Build subject-specific flashcard guidance
+    const fcCalcGuidance = subjectInfo.isCalculation ? `
+FOR CALCULATION QUESTIONS in this subject (${subjectInfo.subjects[0]||''}):
+✓ ALWAYS embed ALL necessary data directly in the question
+✓ GOOD: "A bag contains 6 red, 4 blue and 8 green balls. What is the probability of picking a red ball?" 
+✓ GOOD: "A force of 20N acts on a 4kg mass. What is the acceleration?"
+✓ GOOD: "Find the derivative of f(x) = 3x² + 5x - 2"
+✓ BAD:  "What is the probability of getting a red ball?" ← Missing data — student can't answer this!
+✓ BAD:  "Calculate the acceleration" ← Which object? What force? What mass? Useless!
+✓ For FORMULA cards: state the formula and what each variable means` : `
+FOR THEORY QUESTIONS in this subject:
+✓ Ask about definitions, causes, effects, classifications, comparisons, processes
+✓ These are naturally self-contained — no data embedding needed
+✓ Include enough context in the question that it can be answered without the PDF`;
 
-    const FC_SYSTEM=`You are a university exam flashcard generator. Return ONLY a raw JSON array. No preamble, no markdown, no explanation. Start with [ end with ].
+    const FC_SYSTEM=`You are an expert university exam flashcard creator for Nigerian university students. You create cards for ALL subjects and faculties: Sciences, Arts, Social Sciences, Education, Engineering, Administration, Law, Medicine, and more. Return ONLY a raw JSON array. No preamble, no markdown. Start with [ end with ].
 Each element: {"question":"...","answer":"..."}
 
-CRITICAL RULES — READ CAREFULLY:
-① NEVER repeat a concept you have already used. Every card must test a DIFFERENT fact, term, definition, or idea.
-② Cover the FULL document — spread cards across early, middle, and late content. Don't cluster around one section.
-③ Vary question types across all cards:
-   - Definition: "What is X?" / "Define X"
-   - Feature: "What are the characteristics/features of X?"
-   - Cause/Effect: "What causes X?" / "What is the result of X?"
-   - Example: "Give an example of X" / "Which is an example of X?"
-   - Comparison: "What is the difference between X and Y?"
-   - Process: "What are the steps/stages of X?"
-   - Significance: "Why is X important?"
-   - Person/Origin: "Who proposed X?" / "Where did X originate?"
-④ Answers must be substantive — at least 1 full sentence, not just a word or "yes/no"
-⑤ Each question must be self-contained and answerable without seeing other cards
+══════════════════════════════════════════════════
+THE GOLDEN RULE: EVERY CARD MUST BE A CLOSED WORLD
+The student must be able to answer the question
+using ONLY what is written in the card itself.
+NEVER reference "the table above", "the given data",
+"the passage", or any content outside the card.
+══════════════════════════════════════════════════
+${fcCalcGuidance}
 
-WHAT TO NEVER ASK:
-✗ "What is the aim/objective/purpose of this course?"
-✗ "How many units/hours/weeks is this course?"
-✗ "What is the title of this document?"
-✗ "Who is the lecturer/author?"
-✗ "What percentage does TMA count for?"
-✗ "What is the course code?"
-✗ Anything about course structure, assessment, or administration
-✗ TWO cards about the same concept (even with different wording)
+QUESTION VARIETY (use ALL these types):
+- Definition: "What is X?" / "Define X" / "What does X mean?"
+- Feature: "What are the characteristics/features/types of X?"
+- Cause/Effect: "What causes X?" / "What is the result/effect of X?"
+- Process: "What are the steps/stages of X?" / "How does X work?"
+- Comparison: "What is the difference between X and Y?"
+- Significance: "Why is X important?" / "What is the role of X?"
+- Application: "In which situation is X used?" / "Give an example of X"
+- Formula/Law: "State [law/theorem/formula]" → answer must include the actual formula
 
-Generate exactly ${flashcardCount} flashcards. Each card must cover something NEW and DIFFERENT from all others.`;
+CRITICAL RULES:
+① NEVER repeat a concept — each card tests something COMPLETELY DIFFERENT
+② Cover the FULL document — spread across all topics/chapters
+③ Answers must be substantive — at least 1 full sentence with real content
+④ Each question must be answerable WITHOUT seeing any other card or the original document
+
+FORBIDDEN:
+✗ Course objectives, TMA, assessment details, course codes, lecturer names
+✗ Questions referencing "the table", "the data shown", "the example above"
+✗ Calculation questions without embedded data (e.g. "what is the velocity?" with no values given)
+✗ Two cards about the same concept even with different wording
+
+Generate exactly ${flashcardCount} flashcards. Each must be 100% self-contained.`;
 
     let fcRaw='';
     try{
       await delay(1500);
-      fcRaw=await ai(FC_SYSTEM,`Document content (actual subject matter begins below):\n\n${ctx}\n\nIMPORTANT: Generate exactly ${flashcardCount} flashcards, each testing a COMPLETELY DIFFERENT concept. No repeats.\n\nReturn ONLY the JSON array:`);}
+      fcRaw=await ai(FC_SYSTEM,`Document content (${subjectInfo.subjects[0]||'academic'} subject matter):\n\n${ctx}\n\nIMPORTANT: Generate exactly ${flashcardCount} flashcards. Each must be completely self-contained — include all data needed to answer it directly in the question. No repeats.\n\nReturn ONLY the JSON array:`);}
     catch(e){if(e.message==='RATE_LIMITED'){setStep('ps4','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('AI rate-limited. Try again in a minute.','error');return;}throw e;}
     if(cancelled)return;
 
@@ -744,19 +723,13 @@ Generate exactly ${flashcardCount} flashcards. Each card must cover something NE
         .filter(c=>c&&typeof c.question==='string'&&typeof c.answer==='string')
         .filter(c=>c.question.trim().length>5&&c.answer.trim().length>5)
         .filter(c=>!ADMIN_PATTERN.test(c.question))
+        .filter(c=>!CONTEXT_DEPENDENT_PATTERN.test(c.question))
         .filter(c=>{
-          // Deduplicate: fingerprint first 60 chars to catch near-repeats
-          const key=c.question.toLowerCase()
-            .replace(/[^a-z0-9\s]/g,'')
-            .replace(/\s+/g,' ')
-            .trim()
-            .slice(0,60);
-          if(seenFC.has(key))return false;
-          seenFC.add(key);
-          return true;
+          const key=c.question.toLowerCase().replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,' ').trim().slice(0,60);
+          if(seenFC.has(key))return false;seenFC.add(key);return true;
         })
         .map(c=>({question:c.question.trim(),answer:c.answer.trim()}));
-      console.log('Flashcards parsed:',flashcards.length,'(after dedup + admin filter)');
+      console.log('Flashcards:',flashcards.length,'(after all filters)');
     }catch(ex){console.error('FC parse failed:',ex.message);flashcards=[];}
 
     if(flashcards.length===0){
@@ -764,21 +737,14 @@ Generate exactly ${flashcardCount} flashcards. Each card must cover something NE
       try{
         await delay(1500);
         const retry=await ai(
-          `Return JSON array only. [{"question":"Q","answer":"A"}]. Make ${flashcardCount} flashcards about DIFFERENT concepts — definitions, causes, effects, examples, comparisons. No repeats. No admin questions.`,
-          `Content: ${short.slice(0,4000)}\n\nReturn JSON array of ${flashcardCount} unique flashcards:`);
-        const p2=parseJSON(retry);
-        const seenFC2=new Set();
+          `Return JSON array only. [{"question":"Q","answer":"A"}]. Make ${flashcardCount} flashcards about DIFFERENT concepts. IMPORTANT: every question must include ALL information needed to answer it — embed any numbers, data, or context directly in the question. No course admin questions.`,
+          `Content: ${short.slice(0,4000)}\n\nReturn JSON array of ${flashcardCount} unique self-contained flashcards:`);
+        const p2=parseJSON(retry);const seenFC2=new Set();
         flashcards=(Array.isArray(p2)?p2:[])
-          .filter(c=>c?.question&&c?.answer&&!ADMIN_PATTERN.test(c.question))
-          .filter(c=>{
-            const key=c.question.toLowerCase().replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,' ').trim().slice(0,60);
-            if(seenFC2.has(key))return false;seenFC2.add(key);return true;
-          })
+          .filter(c=>c?.question&&c?.answer&&!ADMIN_PATTERN.test(c.question)&&!CONTEXT_DEPENDENT_PATTERN.test(c.question))
+          .filter(c=>{const key=c.question.toLowerCase().replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,' ').trim().slice(0,60);if(seenFC2.has(key))return false;seenFC2.add(key);return true;})
           .map(c=>({question:c.question.trim(),answer:c.answer.trim()}));
-      }catch(e){
-        if(e.message==='RATE_LIMITED'){setStep('ps4','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('Rate limited.','error');return;}
-        flashcards=[];
-      }
+      }catch(e){if(e.message==='RATE_LIMITED'){setStep('ps4','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('Rate limited.','error');return;}flashcards=[];}
     }
 
     if(flashcards.length===0){
@@ -792,67 +758,85 @@ Generate exactly ${flashcardCount} flashcards. Each card must cover something NE
     setStep('ps5','active',`Building quiz… (~25s)`);
     document.getElementById('procEta').textContent=`Building ${quizCount} quiz questions…`;
 
-    const QZ_SYSTEM=`You are a university MCQ exam generator. Return ONLY a raw JSON array. No preamble, no markdown. Start with [ end with ].
+    const qzCalcGuidance = subjectInfo.isCalculation ? `
+FOR CALCULATION/NUMERICAL QUESTIONS in this subject (${subjectInfo.subjects[0]||''}):
+✓ ALWAYS embed ALL required data directly in the question stem
+✓ GOOD: "A bag contains 5 red, 3 blue and 10 yellow balls. What is the probability of picking a blue ball at random?"
+✓ GOOD: "A car travels at 60km/h for 2 hours. What distance does it cover?"
+✓ GOOD: "If the mean of 5, 8, x, 12 and 9 is 9, find the value of x"
+✓ GOOD: "A force of 30N accelerates a 6kg object. What is the acceleration?" 
+✓ BAD:  "What is the probability of getting a red ball?" ← Student has no data to work with!
+✓ BAD:  "Find the value of x" ← What equation? What context?
+✓ Four options should be plausible numerical answers — include one that is a common calculation mistake` : `
+FOR THEORY QUESTIONS:
+✓ Ask about definitions, causes, effects, classifications, comparisons, applications
+✓ These are self-contained by nature
+✓ Ensure 4 plausible options that a student who hasn't fully studied might confuse`;
+
+    const QZ_SYSTEM=`You are an expert university MCQ exam setter for Nigerian university students. You set questions for ALL subjects and faculties: Sciences (Maths, Stats, Physics, Chemistry, Biology), Engineering, Arts (Literature, Languages, French), Social Sciences (Economics, Political Science, Sociology, Psychology), Education, Business Administration, Agriculture, Law, and more. Return ONLY a raw JSON array. No preamble, no markdown. Start with [ end with ].
 Each element: {"question":"...","options":["opt1","opt2","opt3","opt4"],"answer":"exact text of correct option","difficulty":"easy|medium|hard","explanation":"why this is correct"}
 
-CRITICAL RULES — READ CAREFULLY:
-① NEVER repeat a question or concept you have already used. Every question must test a DIFFERENT fact, term, concept, or idea.
-② Cover the FULL document — don't cluster questions around one section. Spread across early, middle, and late content.
-③ Vary question types: some ask for definitions, some for causes, some for effects, some for examples, some for comparisons, some for processes.
-④ All four options must be plausible — wrong options should look tempting, not obviously silly.
-⑤ Spread difficulty: ~35% easy, 45% medium, 20% hard.
+══════════════════════════════════════════════════
+THE GOLDEN RULE: EVERY QUESTION MUST BE A CLOSED WORLD
+A student must be able to answer it using ONLY
+what is written in the question itself.
+Real exam questions are completely self-contained.
+══════════════════════════════════════════════════
+${qzCalcGuidance}
 
-GOOD QUESTION VARIETY (use all these types):
-✓ Definition: "What is the meaning of X?"
-✓ Cause: "What causes X?"
-✓ Effect: "What is the result of X?"
-✓ Example: "Which of the following is an example of X?"
-✓ Comparison: "What is the difference between X and Y?"
-✓ Process: "What is the correct order/steps of X?"
-✓ Identification: "Which of the following best describes X?"
-✓ Application: "In which situation would X apply?"
+QUESTION VARIETY — use ALL these types:
+✓ Definition: "Which of the following best defines X?"
+✓ Identification: "Which of the following is an example of X?"
+✓ Cause: "What is the PRIMARY cause of X?"
+✓ Effect: "What is the MAIN effect/result of X?"
+✓ Comparison: "What is the key difference between X and Y?"
+✓ Application: "In which situation would X be most appropriate?"
+✓ Process: "Which sequence correctly describes the stages of X?"
+✓ Calculation: (with data embedded) "If X=5 and Y=3, what is Z?"
+✓ Law/Theory: "Which law states that [concept]?"
 
-NEVER ASK (these ruin the quiz):
+CRITICAL RULES:
+① NEVER write a question referencing "the table above", "the data shown", "the passage", "the given information", or ANY content outside the question itself
+② NEVER write a calculation question without embedding ALL numbers needed
+③ NEVER repeat a question or concept — every question tests something DIFFERENT
+④ Cover the FULL document — spread across all topics and chapters
+⑤ All 4 options must be plausible — wrong options should look tempting to someone who hasn't studied well
+⑥ Spread difficulty: ~35% easy, 45% medium, 20% hard
+
+FORBIDDEN:
 ✗ "What is the overall objective of this course?"
 ✗ "How many study sessions does this course have?"
 ✗ "What percentage of marks does TMA account for?"
-✗ Anything about course structure, assessment format, or learning outcomes
-✗ TWO questions about the same concept (even with different wording)
+✗ "What is the probability of getting a red ball?" (without stating how many balls of each colour exist)
+✗ "Calculate the velocity" (without stating distance and time)
+✗ Any question where the student needs the PDF to answer it
 
-Generate exactly ${quizCount} MCQ questions. Each question must test something NEW and DIFFERENT from all others.`;
+Generate exactly ${quizCount} MCQ questions. Every question must be 100% self-contained.`;
 
     let qzRaw='';
     try{
       await delay(1500);
-      qzRaw=await ai(QZ_SYSTEM,`Document content (actual subject matter):\n\n${ctx}\n\nIMPORTANT: Generate exactly ${quizCount} questions, each testing a COMPLETELY DIFFERENT concept. No repeats.\n\nReturn ONLY the JSON array:`);}
+      qzRaw=await ai(QZ_SYSTEM,`Document content (${subjectInfo.subjects[0]||'academic'} subject matter):\n\n${ctx}\n\nIMPORTANT: Generate exactly ${quizCount} questions. Every question must include ALL information needed to answer it. No question should reference "the table above" or data from outside the question. Each question tests something COMPLETELY DIFFERENT. Return ONLY the JSON array:`);}
     catch(e){if(e.message==='RATE_LIMITED'){setStep('ps5','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();toast('Rate limited. Wait a minute.','error');return;}throw e;}
     if(cancelled)return;
 
     let quiz=[];
     try{
-      const p=parseJSON(qzRaw);
-      const seenQZ=new Set();
+      const p=parseJSON(qzRaw);const seenQZ=new Set();
       quiz=(Array.isArray(p)?p:[])
         .filter(q=>q&&q.question&&Array.isArray(q.options)&&q.options.length>=2&&q.answer)
         .filter(q=>!ADMIN_PATTERN.test(q.question))
+        .filter(q=>!CONTEXT_DEPENDENT_PATTERN.test(q.question))
         .filter(q=>{
-          // Deduplicate: fingerprint first 60 chars to catch near-repeats
-          const key=q.question.toLowerCase()
-            .replace(/[^a-z0-9\s]/g,'')
-            .replace(/\s+/g,' ')
-            .trim()
-            .slice(0,60);
-          if(seenQZ.has(key))return false;
-          seenQZ.add(key);
-          return true;
+          const key=q.question.toLowerCase().replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,' ').trim().slice(0,60);
+          if(seenQZ.has(key))return false;seenQZ.add(key);return true;
         })
         .map(q=>({
           question:q.question.trim(),
           options:q.options.map(o=>String(o).trim().replace(/^[A-D][\.\)]\s*/i,'')).filter(o=>o.length>0),
           answer:q.answer.trim().replace(/^[A-D][\.\)]\s*/i,''),
-          difficulty:q.difficulty||'medium',
-          explanation:q.explanation||''}));
-      console.log('Quiz parsed:',quiz.length,'questions (after dedup + admin filter)');
+          difficulty:q.difficulty||'medium',explanation:q.explanation||''}));
+      console.log('Quiz:',quiz.length,'questions (after all filters)');
     }catch(ex){console.error('Quiz parse failed:',ex.message);quiz=[];}
 
     if(quiz.length===0){
@@ -860,64 +844,38 @@ Generate exactly ${quizCount} MCQ questions. Each question must test something N
       try{
         await delay(1500);
         const retry=await ai(
-          `Return JSON array only. Make ${quizCount} MCQ questions about DIFFERENT concepts from the document — definitions, causes, effects, examples. No repeats. No course admin questions.`,
-          `Content: ${short.slice(0,4000)}\n\nReturn JSON array of ${quizCount} unique MCQ questions:`);
-        const p2=parseJSON(retry);
-        const seenQZ2=new Set();
+          `Return JSON array only. Make ${quizCount} MCQ questions about DIFFERENT concepts. CRITICAL: every question must embed ALL data needed to answer it — no references to tables, diagrams or external information. No course admin questions.`,
+          `Content: ${short.slice(0,4000)}\n\nReturn JSON array of ${quizCount} unique self-contained MCQ questions:`);
+        const p2=parseJSON(retry);const seenQZ2=new Set();
         quiz=(Array.isArray(p2)?p2:[])
-          .filter(q=>q?.question&&Array.isArray(q.options)&&q.options.length>=2&&q.answer&&!ADMIN_PATTERN.test(q.question))
-          .filter(q=>{
-            const key=q.question.toLowerCase().replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,' ').trim().slice(0,60);
-            if(seenQZ2.has(key))return false;seenQZ2.add(key);return true;
-          })
-          .map(q=>({...q,
-            question:q.question.trim(),
-            options:q.options.map(o=>String(o).trim().replace(/^[A-D][\.\)]\s*/i,'')),
-            answer:q.answer.trim().replace(/^[A-D][\.\)]\s*/i,''),
-            difficulty:q.difficulty||'medium',
-            explanation:q.explanation||''}));
+          .filter(q=>q?.question&&Array.isArray(q.options)&&q.options.length>=2&&q.answer&&!ADMIN_PATTERN.test(q.question)&&!CONTEXT_DEPENDENT_PATTERN.test(q.question))
+          .filter(q=>{const key=q.question.toLowerCase().replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,' ').trim().slice(0,60);if(seenQZ2.has(key))return false;seenQZ2.add(key);return true;})
+          .map(q=>({...q,question:q.question.trim(),options:q.options.map(o=>String(o).trim().replace(/^[A-D][\.\)]\s*/i,'')),answer:q.answer.trim().replace(/^[A-D][\.\)]\s*/i,''),difficulty:q.difficulty||'medium',explanation:q.explanation||''}));
       }catch(e){if(e.message==='RATE_LIMITED'){setStep('ps5','error','Rate limited');stopTimer();pc.classList.remove('show');hideStatus();return;}quiz=[];}
     }
     setStep('ps5','done',`Quiz ready (${quiz.length} questions)`);
-
-// ═══════════════════════════════════════════════════════════════
-// END OF REPLACEMENT BLOCK
-// Next line after this should be: setStep('ps6','active');
-// ═══════════════════════════════════════════════════════════════
 
     setStep('ps6','active');
     document.getElementById('procEta').textContent='Saving to your library…';
 
     const sessionData={uid:currentUser.uid,fileName:file.name,fileSize:file.size,
+      detectedSubject:subjectInfo.subjects[0]||'general',
       createdAt:serverTimestamp(),lastOpenedAt:serverTimestamp(),pdfTextPreview:pdfText.slice(0,500),
       outputs:{notes,summary,keyPoints,flashcards:JSON.stringify(flashcards),quiz:JSON.stringify(quiz),
-        notesAt:new Date().toISOString(),summaryAt:new Date().toISOString(),flashcardsAt:new Date().toISOString(),quizAt:new Date().toISOString()}};
+        notesAt:new Date().toISOString(),summaryAt:new Date().toISOString(),
+        flashcardsAt:new Date().toISOString(),quizAt:new Date().toISOString()}};
 
     sessionStorage.setItem('slCache_new',JSON.stringify({fileName:file.name,fileSize:file.size,
       outputs:{notes,summary,keyPoints,flashcards:JSON.stringify(flashcards),quiz:JSON.stringify(quiz)}}));
 
-    // DAILY LIMIT FIX: the upload is only charged against the user's
-    // daily quota once it is confirmed saved to Firestore. If the save
-    // fails, the session is cached locally but NOT counted, since the
-    // user doesn't reliably have a persisted session yet.
-    //
-    // RACE FIX: incrementDailyCount() now runs as a transaction, so if
-    // two uploads from the same user land here at nearly the same time,
-    // only as many as fit under DAILY_UPLOAD_LIMIT actually get counted.
-    // If this one lost that race, we still keep the generated session
-    // (it's already saved) but let the user know it didn't count toward
-    // today's free quota, rather than pretending it was free.
     let savedId=null;
     try{
       savedId=await saveToFirestore(sessionData);
       sessionStorage.setItem('slDocId',savedId);
       setStep('ps6','done','Session saved');
       const counted=await incrementDailyCount();
-      if(!counted){
-        toast('Note: today\'s free upload limit was already reached — this session was still saved.','');
-      }
-    }
-    catch(fsErr){
+      if(!counted)toast("Note: today's free upload limit was already reached — this session was still saved.",'');
+    }catch(fsErr){
       console.error('Firestore save failed:',fsErr.message);
       setStep('ps6','error','Saved locally (sync failed)');
       sessionStorage.setItem('slDocId','__cache__');
@@ -935,7 +893,7 @@ Generate exactly ${quizCount} MCQ questions. Each question must test something N
     if(cancelled)return;
     stopTimer();pc.classList.remove('show');hideStatus();
     toast(err.message||'Processing failed','error');
-    console.error('Processing error:',err);}} // not counted — unhandled failure before save
+    console.error('Processing error:',err);}}
 
 window.cancelProc=function(){cancelled=true;stopTimer();document.getElementById('procCard').classList.remove('show');hideStatus();toast('Cancelled','');};
 
@@ -954,19 +912,21 @@ async function loadSessions(){
     const snap=await getDocs(query(collection(db,'study_lab_documents'),where('uid','==',currentUser.uid),limit(40)));
     const activeId=sessionStorage.getItem('slDocId')||'';
     document.getElementById('sessCount').textContent=`${snap.size} session${snap.size!==1?'s':''}`;
-    if(snap.empty){grid.innerHTML=`<div class="empty"><svg width="40" height="40" fill="none" stroke="var(--dim)" stroke-width="1.5" viewBox="0 0 24 24" style="margin:0 auto 12px;display:block"><path stroke-linecap="round" stroke-linejoin="round" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><div class="empty-title">No study sessions yet</div><div class="empty-sub">Upload a PDF above to create your first session.</div></div>`;return;}
+    if(snap.empty){grid.innerHTML=`<div class="empty"><svg width="40" height="40" fill="none" stroke="var(--dim)" stroke-width="1.5" viewBox="0 0 24 24" style="margin:0 auto 12px;display:block"><path stroke-linecap="round" stroke-linejoin="round" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><div class="empty-title">No study sessions yet</div><div class="empty-sub">Upload a PDF or Word doc above to create your first session.</div></div>`;return;}
     const docs=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0));
+    const subjectIcons={'mathematics':'🔢','statistics':'📊','physics':'⚙️','chemistry':'🧪','biology':'🧬','engineering':'📐','economics':'📈','accounting':'📒','psychology':'🧠','sociology':'👥','political':'🏛️','history':'📜','geography':'🌍','education':'🎓','agriculture':'🌱','arts_lang':'📖','business':'💼','law':'⚖️'};
     grid.innerHTML=docs.map(data=>{
       const out=data.outputs||{};const isActive=data.id===activeId;
       let fcCount=0,qCount=0;try{fcCount=JSON.parse(out.flashcards||'[]').length;}catch(_){}try{qCount=JSON.parse(out.quiz||'[]').length;}catch(_){}
+      const subj=data.detectedSubject||'';const subjIcon=subjectIcons[subj]||'📄';
       const tags=[out.notes?'<span class="tag n">Notes</span>':'',out.quiz?'<span class="tag q">Quiz</span>':'',out.flashcards?'<span class="tag c">Cards</span>':'',out.summary?'<span class="tag s">Summary</span>':''].filter(Boolean).join('');
       return`<div class="sess-card${isActive?' active-sess':''}" id="sc_${data.id}">
         ${isActive?'<div class="sess-badge">Recent</div>':''}
         <button class="sess-del" onclick="delSess('${data.id}',event)" title="Delete"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
         <div class="sess-top">
-          <div class="sess-icon"><svg width="18" height="18" fill="none" stroke="var(--purple)" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+          <div class="sess-icon" style="font-size:1.2rem;background:var(--panel2)">${subjIcon}</div>
           <div class="sess-info">
-            <div class="sess-name" title="${esc(data.fileName||'')}">${esc(data.fileName||'document.pdf')}</div>
+            <div class="sess-name" title="${esc(data.fileName||'')}">${esc(data.fileName||'document')}</div>
             <div class="sess-meta">${fmtDate(data.createdAt)} · ${fmtSize(data.fileSize)} · ${fcCount} cards · ${qCount} Qs</div>
           </div>
         </div>
@@ -995,7 +955,7 @@ async function awardCoins(){
   try{const snap=await getDoc(logRef);const done=snap.exists()?(snap.data().completedTasks||[]):[];
     if(done.includes('study_lab'))return;
     const taskIds=['study_lab'];let totalCoins=10;const txns=[{type:'task_reward',taskId:'study_lab',coins:10,date:today,note:'Created Study Lab session'}];
-    if(!done.includes('upload_pdf')){taskIds.push('upload_pdf');totalCoins+=10;txns.push({type:'task_reward',taskId:'upload_pdf',coins:10,date:today,note:'Uploaded a PDF'});}
+    if(!done.includes('upload_pdf')){taskIds.push('upload_pdf');totalCoins+=10;txns.push({type:'task_reward',taskId:'upload_pdf',coins:10,date:today,note:'Uploaded a document'});}
     await Promise.all([setDoc(logRef,{uid:currentUser.uid,date:today,completedTasks:arrayUnion(...taskIds),updatedAt:serverTimestamp()},{merge:true}),
       setDoc(doc(db,'wallets',currentUser.uid),{coins:increment(totalCoins),transactions:arrayUnion(...txns)},{merge:true})]);
     toast(`🪙 +${totalCoins} coins!`,'coins');
@@ -1011,9 +971,9 @@ onAuthStateChanged(auth,async user=>{
 let chatDocId=null,chatHistory=[],chatNotes='',chatSummary='',chatBusy=false,typingCount=0;
 window.openChat=async function(docId,fileName,e){
   if(e)e.stopPropagation();chatDocId=docId;chatHistory=[];chatNotes='';chatSummary='';chatBusy=false;
-  document.getElementById('chatDocLabel').textContent=fileName||'Chat with PDF';
+  document.getElementById('chatDocLabel').textContent=fileName||'Chat with Document';
   const body=document.getElementById('chatBody');
-  body.innerHTML=`<div class="chat-empty-state"><svg width="46" height="46" fill="none" stroke="var(--dim)" stroke-width="1.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg><div class="chat-empty-title">Loading document…</div><div class="chat-empty-sub">Fetching PDF content for grounded answers.</div></div>`;
+  body.innerHTML=`<div class="chat-empty-state"><svg width="46" height="46" fill="none" stroke="var(--dim)" stroke-width="1.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg><div class="chat-empty-title">Loading document…</div><div class="chat-empty-sub">Fetching content for grounded answers.</div></div>`;
   document.getElementById('chatOverlay').classList.add('open');document.body.classList.add('chat-open');
   document.getElementById('chatInput').value='';chatResize(document.getElementById('chatInput'));
   try{
@@ -1021,9 +981,9 @@ window.openChat=async function(docId,fileName,e){
     if(cacheRaw&&cachedDocId===docId){const cache=JSON.parse(cacheRaw);const out=cache.outputs||{};chatNotes=out.notes||'';chatSummary=out.summary||'';}
     if(!chatNotes||!chatSummary){const snap=await getDoc(doc(db,'study_lab_documents',docId));if(snap.exists()){const data=snap.data();const out=data.outputs||{};chatNotes=out.notes||'';chatSummary=out.summary||'';}}
     const hasContent=chatNotes.length>50||chatSummary.length>50;
-    body.innerHTML=`<div class="chat-empty-state" id="chatEmptyState"><svg width="46" height="46" fill="none" stroke="var(--dim)" stroke-width="1.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg><div class="chat-empty-title">Ask anything about this PDF</div><div class="chat-empty-sub">${hasContent?'Answers are grounded in your uploaded document.':'Document content not found — answering from general knowledge.'}</div></div>`;
+    body.innerHTML=`<div class="chat-empty-state" id="chatEmptyState"><svg width="46" height="46" fill="none" stroke="var(--dim)" stroke-width="1.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg><div class="chat-empty-title">Ask anything about this document</div><div class="chat-empty-sub">${hasContent?'Answers are grounded in your uploaded document.':'Document content not found — answering from general knowledge.'}</div></div>`;
     document.getElementById('chatSend').disabled=false;
-  }catch(err){body.innerHTML=`<div class="chat-empty-state"><div class="chat-empty-title" style="color:var(--muted)">Ready (offline mode)</div><div class="chat-empty-sub">Could not load PDF content — answering from general knowledge.</div></div>`;document.getElementById('chatSend').disabled=false;}};
+  }catch(err){body.innerHTML=`<div class="chat-empty-state"><div class="chat-empty-title" style="color:var(--muted)">Ready (offline mode)</div><div class="chat-empty-sub">Could not load document content — answering from general knowledge.</div></div>`;document.getElementById('chatSend').disabled=false;}};
 
 window.closeChat=function(){document.getElementById('chatOverlay').classList.remove('open');document.body.classList.remove('chat-open');};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeChat();});
