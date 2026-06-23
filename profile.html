@@ -176,7 +176,7 @@
     <div style="font-size:1.5rem">📷</div>
     <p>Tap to upload your own photo (JPG/PNG)</p>
   </div>
-    
+
   <!-- EDIT FORM -->
   <div class="sec-row"><div class="sec-label">Edit Details</div><div class="sec-line"></div></div>
   <div class="form-card">
@@ -189,31 +189,14 @@
         <option value="social_sciences">Social Science</option>
         <option value="arts">Arts</option>
         <option value="administration_and_management"> Administration_and_Management   </option>
-        <option value="education">Arts</option>
         <option value="law">Law</option>
-      </select>
+        <option value="education">education</option>
+              </select>
     </div>
     <div class="form-group"><label>Department</label><select id="inputDept"><option value="">-- Select Faculty First --</option></select></div>
   </div>
-  <div>
-<a href="change_password.html" style="display:flex;align-items:center;gap:8px;
-    background:#0d1220;border:1px solid rgba(255,255,255,.10);border-radius:11px;
-    padding:12px 16px;text-decoration:none;color:#eef2ff;font-size:.86rem;font-weight:600;
-    transition:.18s;margin-top:10px">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
-      <path stroke-linecap="round" stroke-linejoin="round"
-        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1
-           v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
-    </svg>
-    Change Password
-  </a>
-  </div>
-  <button class="btn btn-primary" id="saveBtn" onclick="saveProfile()">Save Changes</button>
-  <a href="change_password.html" style="display:flex;align-items:center;gap:8px;
-    background:#0d1220;border:1px solid rgba(255,255,255,.10);border-radius:11px;
-    padding:12px 16px;text-decoration:none;color:#eef2ff;font-size:.86rem;font-weight:600;
-    transition:.18s;margin-top:10px">
 
+  <button class="btn btn-primary" id="saveBtn" onclick="saveProfile()">Save Changes</button>
   <button class="btn btn-danger" onclick="if(confirm('Sign out?')){signOutUser()}">Sign Out</button>
 
 </div>
@@ -222,7 +205,7 @@
 function updateDepts() {
   const f = document.getElementById('inputFaculty').value;
   const ds = document.getElementById('inputDept');
-  const DEPTS = {
+   const DEPTS = {
       science: [
         "Computer Science",
         "Engineering",
@@ -233,6 +216,7 @@ function updateDepts() {
         "Chemical Science",
         "Mathematics",
         "Biology",
+        "Biochemistry", 
         "Microbiology",
         "Forensic Science",
         "Computer Education",
@@ -249,6 +233,7 @@ function updateDepts() {
         "Banking and Finance",
         "Cooperative and Rural Development",
         "Tourism",
+        "Social Studies", 
         "Other"
     ],
 

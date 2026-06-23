@@ -359,27 +359,8 @@ const TOPIC_MAP = {
 
 // ==================== EDUCATION COURSES ====================
 
-"EDU102": [
-    "Meaning of Education",
-    "Aims of Education",
-    "Types of Education",
-    "Philosophy of Education",
-    "History of Education in Nigeria",
-    "Teacher Education",
-    "Educational System",
-    "Contemporary Issues in Education"
-],
 
-"EDU152": [
-    "Meaning of Philosophy",
-    "Branches of Philosophy",
-    "Philosophy of Education",
-    "Idealism",
-    "Realism",
-    "Pragmatism",
-    "Existentialism",
-    "Educational Thinkers"
-],
+
 
 "STE154": [
     "Meaning of Science Education",
@@ -392,28 +373,6 @@ const TOPIC_MAP = {
     "Problems of Science Education"
 ],
 
-
-"ESS100": [
-    "Introduction to Social Studies",
-    "Philosophy and Rationale of Social Studies",
-    "General and Specific Objectives of Social Studies",
-    "Relationship Between Social Studies and Social Science",
-    "Social Studies as a Value",
-    "Current State of Social Studies",
-    "The Tradition of Social Studies: Reflective Tradition"
-], 
-
-
-"ESS122": [
-    "Environmental Systems",
-    "Energy Flow",
-    "Biogeochemical Cycles",
-    "Water Systems",
-    "Soil Systems",
-    "Atmospheric Systems",
-    "Human Impact on Environment",
-    "Environmental Sustainability"
-],
 
 // ==================== PSYCHOLOGY ====================
 
@@ -623,15 +582,83 @@ const TOPIC_MAP = {
     "International Relations"
 ],
 
+"ESS100": [
+    "Social Studies as a course in Nigerian Schools",
+    "Philosophy/Rationale for the Introduction of Social Studies",
+    "General Requirements of Social Studies",
+    "Evolution/Relationship between Social Studies and other Social Sciences",
+    "Social Studies as a Vehicle to Citizenship Education",
+    "Current State of Social Studies",
+    "The Three Traditions of Social Studies"
+],
+
+"ESS112": [
+    "Introduction to Civic Education",
+    "Concept of Civic Education",
+    "Relationship between Social Studies and Civic Education",
+    "Development of Civic Education in Nigeria",
+    "Subject Objectives and Rationale of Civic Education",
+    "Scope of Civic Education",
+    "Civic Education in Other Nations",
+    "History of Civic Education in Nigeria",
+    "Civic Education Definition and Benefits"
+],
+
+"ESS116": [
+    "Concept of Democracy and Democratic Values",
+    "The Practice of Democracy in Nigeria",
+    "Voting and Supremacy of Democracy",
+    "Voters Education: Concept and Objectives",
+    "Election and Voting Processes in Nigeria",
+    "Challenges and Way Forward",
+    "Voters Apathy: Causes, Effect and Remedy",
+    "Prospect and Challenges of Democracy in Nigeria"
+],
+
+"ESS122": [
+    "Nature, Types and Structure of the Family",
+    "Traditional Functions of the Family",
+    "Relationships of the Family",
+    "Family as a Micro Society",
+    "Some Social Institutions that are Family Based",
+    "Changes in Family Institution / Causes of Changes in Family Institution"
+],
+
 "POL104": [
-    "Nigerian Government and Politics",
-    "Colonial Administration",
-    "Constitutional Development",
-    "Federalism",
-    "Political Institutions",
-    "Electoral Systems",
-    "Public Administration",
-    "Political Challenges in Nigeria"
+    "Features of Legal System",
+    "Law Theory",
+    "Classification of Law",
+    "Sources of Nigerian Law",
+    "Sources of Nigerian Legal System",
+    "Customary Law - Definition and Features",
+    "Law Validity Test of Customary Law",
+    "How to Prove Customary Laws in Court",
+    "Judiciary Decision",
+    "Types of Precedent"
+],
+
+"EDU102": [
+    "Concept of Culture, Subculture and Cultural Identity",
+    "Characteristics of Culture",
+    "Cultural Patterns in Nigeria",
+    "Cultural Changes and Casual Factors",
+    "Media and Cultural Transformation in Nigeria",
+    "Foreign Culture and its Effect on Indigenous Culture and Values",
+    "Cross Cultural Marriage, Advantages and Disadvantages"
+],
+
+"EDU152": [
+    "Athenian vs Spartan Education",
+    "Education in Ancient Rome",
+    "Pioneers of Educational Thought",
+    "Traditional Education in Nigeria and Advent of Islamic Education",
+    "The Advent of Western Education in Nigeria, Education Ordinances, Commissions and Boards since 1882",
+    "Free Education in the Western and Eastern Regions / Post-Independence Development",
+    "The 1969 Curriculum Conference",
+    "National Policy on Education",
+    "Universal Primary Education / Universal Basic Education",
+    "History of Higher Education in Nigeria",
+    "Philosophy and Education"
 ], 
 // ==================== ADULT & CONTINUING EDUCATION ====================
 
@@ -674,18 +701,7 @@ const TOPIC_MAP = {
         "Electoral Systems"
     ],
 
-    "POL104": [
-        "Nigerian Government and Politics",
-        "Colonial Administration",
-        "Constitutional Development",
-        "Federalism in Nigeria",
-        "Separation of Powers",
-        "Legislature",
-        "Executive Arm of Government",
-        "Judiciary",
-        "Public Administration",
-        "Military Rule and Democracy"
-    ],
+   
 
     "EAE162": [
         "Adult Learning Communication",
@@ -928,7 +944,7 @@ function initializeSetup() {
 document.addEventListener('DOMContentLoaded', initializeSetup);
 
 // MAKE FUNCTIONS GLOBAL (Fix for onclick errors)
-  window.showTopicSetup = showTopicSetup;
+window.showTopicSetup = showTopicSetup;
 window.launchExamMode = launchExamMode;
 </script>
 </body>
