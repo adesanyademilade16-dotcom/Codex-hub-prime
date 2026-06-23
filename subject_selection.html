@@ -116,6 +116,9 @@
     <div class="mode-pill" id="modePill">📚 Study Mode</div>
     <h1>Select Your Subject</h1>
     <div id="modeDisplay">Loading...</div>
+    <div style="margin-top:10px">
+      <a href="#" id="findCourseLink" style="font-size:.82rem;color:var(--ink3);font-weight:600;text-decoration:none;border-bottom:1.5px dashed var(--ink3)">🔍 Can't find your course? Search all courses</a>
+    </div>
   </div>
   <div class="subject-grid" id="subjectGrid">
     <div class="loading-msg">Loading subjects...</div>
@@ -222,8 +225,7 @@ const SUBJECT_DATA = [
 
 { code: "ESS100", name: "Environmental Studies", semester: 2, faculty: ["education", "social_sciences"], dept: ["education","Guidance_and_Counselling","social_studies"], icon: "🌍" },
 
- {
-        code: "ESS112",
+ {code: "ESS112",
         name: "Introduction to Civic Education",
         semester: 2,
         faculty: ["education", "social_sciences"],
@@ -339,6 +341,14 @@ function getUserPrefix(email) {
     return (email || 'guest').replace(/[^a-z0-9]/gi, '_');
 }
 
+// Codes the student added themselves via course_search.html.
+// Stored as a simple array of subject codes, e.g. ["MTH101","GCE102"].
+function getManuallyAddedSubjects() {
+    try {
+        return JSON.parse(localStorage.getItem('manuallyAddedSubjects') || '[]');
+    } catch (e) { return []; }
+}
+
 function
 
  renderSubjects(currentUserEmail, firestoreData) {
@@ -399,6 +409,28 @@ const filteredSubjects = SUBJECT_DATA.filter(s => {
 
     return matchSem && matchFac && matchDept;
 });
+
+// Add in any courses the student manually added via the search page.
+// These bypass the faculty/dept match above (that's the whole point —
+// the course exists in the library but didn't match this student's
+// profile tags), but they still must belong to the semester currently
+// being viewed and the student's level, so the grid stays consistent.
+const manuallyAdded = getManuallyAddedSubjects();
+if (manuallyAdded.length) {
+    manuallyAdded.forEach(code => {
+        const alreadyShown = filteredSubjects.some(s => s.code === code);
+        if (alreadyShown) return;
+
+        const subj = SUBJECT_DATA.find(s => s.code === code);
+        if (!subj) return;
+
+        const courseLevel = String(subj.level || "100").trim();
+        const matchSem = String(subj.semester) === String(selectedSemester);
+        if (courseLevel === userLevel && matchSem) {
+            filteredSubjects.push(subj);
+        }
+    });
+}
 
     if (filteredSubjects.length === 0) {
         grid.innerHTML = "<p style='text-align:center; grid-column: 1/-1; color: #666;'>No subjects found for your profile this semester.</p>";
@@ -464,6 +496,13 @@ function initializeSubjectSelection() {
         return;
     }
 
+    // Wire up the "can't find your course" link to the new search page,
+    // carrying the current mode along so the user comes back to the right place
+    const findLink = document.getElementById('findCourseLink');
+    if (findLink) {
+        findLink.href = `course_search.html?mode=${encodeURIComponent(mode)}`;
+    }
+
     // Render immediately with localStorage data (fast), then re-render once Firestore loads
     renderSubjects(null, null);
 
@@ -477,6 +516,15 @@ function initializeSubjectSelection() {
             const userRef  = doc(db, "users", user.uid);
             const userSnap = await getDoc(userRef);
             const firestoreData = userSnap.exists() ? userSnap.data() : {};
+
+            // Merge in any subjects added via course_search.html on this or another device
+            const remoteAdded = Array.isArray(firestoreData.manuallyAddedSubjects) ? firestoreData.manuallyAddedSubjects : [];
+            if (remoteAdded.length) {
+                const localAdded = getManuallyAddedSubjects();
+                const merged = Array.from(new Set([...localAdded, ...remoteAdded]));
+                try { localStorage.setItem('manuallyAddedSubjects', JSON.stringify(merged)); } catch(e) {}
+            }
+
             // Re-render with accurate Firestore data
             renderSubjects(user.email, firestoreData);
         } catch(e) {
