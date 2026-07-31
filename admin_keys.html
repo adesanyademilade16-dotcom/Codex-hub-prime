@@ -1,4 +1,3 @@
-:
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -100,8 +99,7 @@
                 </optgroup>
                 <optgroup label="─── 2nd Semester ───">
                     <option value="GST112">GST112 — Nigerian Peoples & Culture</option>
-                   <option value="GST312">GST312 — Peace and conflict resolution </option>
-                   
+                    <option value="GST312">GST312 — peace and conflict resolution</option>
                     <option value="MTH102">MTH102 — Mathematics II</option>
                     <option value="PHY102">PHY102 — Physics II</option>
                     <option value="PHY104">PHY104 — Vibration, Waves & Optics</option>
@@ -132,7 +130,6 @@
                     <option value="FRE102">FRE102 — Laboratory Exercise (French)</option>
                     <option value="FRE104">FRE104 — Composition Writing in French</option>
                     <option value="FRE106">FRE106 — Literary Appreciation</option>
-                    <option value="EDU152">🎭 EDU152 — philosophy of education</option>
                     <option value="FRE108">FRE108 — Negro-African Literature in French</option>
                     <option value="FRE110">FRE110 — History of the French Language</option>
                     <option value="OOU-FRE152">OOU-FRE152 — Comprehension in French</option>
@@ -140,37 +137,33 @@
                     <option value="OOU-FRE156">OOU-FRE156 — Conversation in French II</option>
                     <option value="OOU-FRE158">OOU-FRE158 — Gender (French)</option>
                     <option value="OOU-FRE160">OOU-FRE160 — Socio-educative Activities in French II</option>
+              <option value="EDU152">🎭 EDU152 — philosophy of education</option>     
                     <option value="OOU-THA112">OOU-THA112 — Drama as Literature</option>
-                    <option value="GCE102">📘 GCE102 — General Course Education</option>
-<option value="GCE114">📘 GCE114</option>
-<option value="GCE116">📘 GCE116</option>
-<option value="GCE118">📘 GCE118</option>
-<option value="GCE120">📘 GCE120</option>
-<option value="GCE122">📘 GCE122</option>
-
-<option value="EDU102">🎓 EDU102 — Introduction to Education</option>
-<option value="EDU152">🎓 EDU152</option>
-<option value="STE154">🔬 STE154</option>
-<option value="ESS100">🌍 ESS100</option>
-<option value="ESS122">🌍 ESS122</option>
-<option value="PSY102">🧠 PSY102 — Introduction to Psychology</option>
-
-<option value="PSY104">🧠 PSY104</option>
-<option value="PSY152">🧠 PSY152</option>
-<option value="PSY154">🧠 PSY154</option>
-<option value="PSY156">🧠 PSY156</option>
-<option value="PSY158">🧠 PSY158</option>
-<option value="MCB102">🧫 MCB102 — General Microbiology</option>
-
-<option value="GET112">⚙️ GET112</option>
-<option value="FIN156">💰 FIN156</option>
-<option value="FIN158">💰 FIN158</option>
-<option value="ECO102">📈 ECO102 — Principles of Economics II</option>
-<option value="BUA102">🏢 BUA102</option>
-
-<option value="ADE108">📚 ADE108 — Adult Education</option>
-<option value="EAE102">🎯 EAE102</option>
-
+                </optgroup>
+                <optgroup label="─── ND Banking &amp; Finance / Accountancy — 1st Semester ───">
+                    <option value="GNS101">GNS101 — Use of English I</option>
+                    <option value="GNS111">GNS111 — Citizenship Education I</option>
+                    <option value="GNS112">GNS112 — Nigerian Peoples & Culture</option>
+                    <option value="GNS113">GNS113 — Use of Library</option>
+                    <option value="ICT107">ICT107 — Introduction to Computer Science</option>
+                    <option value="BFN111">BFN111 — Elements of Banking I</option>
+                    <option value="ICT103">ICT103 — Systems Analysis and Design</option>
+                    <option value="BAM211">BAM211 — Principles of Management</option>
+                    <option value="MTH131">MTH131 — Business Mathematics</option>
+                    <option value="INS111">INS111 — Principles of Insurance I</option>
+                    <option value="ACC111">ACC111 — Principles of Accounting I</option>
+                </optgroup>
+                <optgroup label="─── ND Banking &amp; Finance / Accountancy — 2nd Semester ───">
+                    <option value="ACC215">ACC215 — Cost Accounting</option>
+                    <option value="BFN121">BFN121 — Elements of Banking II</option>
+                    <option value="BAM221">BAM221 — Principles of Management II</option>
+                    <option value="GNS131">GNS131 — Citizenship Education II</option>
+                    <option value="ENT126">ENT126 — Introduction to Entrepreneurship</option>
+                    <option value="INS121">INS121 — Principles and Practice of Insurance II</option>
+                    <option value="GNS114">GNS114 — Principles of Economics</option>
+                    <option value="GNS122">GNS122 — Communication in English II</option>
+                    <option value="ICT104">ICT104 — Introduction to Computer Programming</option>
+                    <option value="ACC121">ACC121 — Principles of Accounting II</option>
                 </optgroup>
             </select>
             <p class="hint">The key will be locked to this subject code — user must select the same subject when verifying.</p>
@@ -232,6 +225,8 @@
 
         if (isAdmin) {
             document.getElementById('adminBadge').textContent = `✓ Signed in as ${user.email}`;
+            // 👇 FIX: Refresh token so Firestore rules see the admin email
+            user.getIdToken(true);
         }
     });
 
@@ -250,19 +245,13 @@
         btn.innerHTML = '<span class="spinner"></span> Generating...';
         btn.disabled  = true;
 
-        // Key format: CX-{SUBJECTCODE}-{RANDOM5}
-        // e.g. CX-MTH101-AB3KZ
-        // The subject CODE is embedded so payment.js can read it from Firestore
         const random = Math.random().toString(36).substring(2, 7).toUpperCase();
         const key    = `CX-${subject}-${random}`;
 
         try {
-            // Firestore document ID = the key string itself
-            // payment.js does: getDoc(doc(db, "valid_keys", keyRaw))
-            // and reads keyData.subject  ← must be the subject CODE
             await setDoc(doc(db, "valid_keys", key), {
                 key:         key,
-                subject:     subject,          // e.g. "MTH101"
+                subject:     subject,
                 used:        false,
                 forEmail:    email || null,
                 generatedBy: currentUser.email,

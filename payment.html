@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unlock Access — Codex Study Hub</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -125,26 +126,6 @@
         .modal-note { margin-top: 14px; background: var(--blue-s); border: 1px solid var(--blue-b); border-radius: 8px; padding: 10px 13px; font-size: .8rem; color: var(--muted); line-height: 1.5; }
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes fadeUp { from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);} }
-    
-        /* ── ADDED RESPONSIVE FIXES ── */
-        @media(max-width:1024px){
-            .shell{ padding:20px 14px 60px; }
-        }
-        @media(max-width:768px){
-            .hero h1{ font-size:1.35rem; }
-            .hero{ padding:26px 18px 22px; }
-            .pay-grid{ grid-template-columns:1fr; gap:8px; }
-        }
-        @media(max-width:480px){
-            .shell{ padding:14px 10px 60px; }
-            .hero h1{ font-size:1.2rem; }
-            .hero p{ font-size:.82rem; }
-            .card-body{ padding:14px; }
-            .key-input-wrap{ flex-direction:column; }
-            .verify-btn{ width:100%; }
-            .modal-box{ padding:22px 16px; }
-        }
-
     </style>
 </head>
 <body>
@@ -223,39 +204,58 @@
                     <option value="OOU-FRE156">🗣️ OOU-FRE156 — Conversation in French II</option>
                     <option value="OOU-FRE158">⚧️ OOU-FRE158 — Gender (French)</option>
                     <option value="OOU-FRE160">👥 OOU-FRE160 — Socio-educative Activities in French II</option>
-                    <!-- NEW SURVEY COURSES -->
-
-<option value="GCE102">📘 GCE102 — General Course Education</option>
-<option value="GCE114">📘 GCE114</option>
-<option value="GCE116">📘 GCE116</option>
-<option value="GCE118">📘 GCE118</option>
-<option value="GCE120">📘 GCE120</option>
-<option value="GCE122">📘 GCE122</option>
-
-<option value="EDU102">🎓 EDU102 — Introduction to Education</option>
-<option value="EDU152">🎓 EDU152</option>
-<option value="STE154">🔬 STE154</option>
-<option value="ESS100">🌍 ESS100</option>
-<option value="ESS122">🌍 ESS122</option>
-<option value="PSY102">🧠 PSY102 — Introduction to Psychology</option>
-
-<option value="PSY104">🧠 PSY104</option>
-<option value="PSY152">🧠 PSY152</option>
-<option value="PSY154">🧠 PSY154</option>
-<option value="PSY156">🧠 PSY156</option>
-<option value="PSY158">🧠 PSY158</option>
-<option value="MCB102">🧫 MCB102 — General Microbiology</option>
-<option value="EDU152">🎭 EDU152 — philosophy of education</option>
-                    
-<option value="GET112">⚙️ GET112</option>
-<option value="FIN156">💰 FIN156</option>
-<option value="FIN158">💰 FIN158</option>
-<option value="ECO102">📈 ECO102 — Principles of Economics II</option>
-<option value="BUA102">🏢 BUA102</option>
-
-<option value="ADE108">📚 ADE108 — Adult Education</option>
-<option value="EAE102">🎯 EAE102</option>
+                    <option value="GCE102">📘 GCE102 — General Course Education</option>
+                    <option value="GCE114">📘 GCE114</option>
+                    <option value="GCE116">📘 GCE116</option>
+                    <option value="GCE118">📘 GCE118</option>
+                    <option value="GCE120">📘 GCE120</option>
+                    <option value="GCE122">📘 GCE122</option>
+                    <option value="EDU102">🎓 EDU102 — Introduction to Education</option>
+                    <option value="EDU152">🎓 EDU152</option>
+                    <option value="STE154">🔬 STE154</option>
+                    <option value="ESS100">🌍 ESS100</option>
+                    <option value="ESS122">🌍 ESS122</option>
+                    <option value="PSY102">🧠 PSY102 — Introduction to Psychology</option>
+                    <option value="PSY104">🧠 PSY104</option>
+                    <option value="PSY152">🧠 PSY152</option>
+                    <option value="PSY154">🧠 PSY154</option>
+                    <option value="PSY156">🧠 PSY156</option>
+                    <option value="PSY158">🧠 PSY158</option>
+                    <option value="MCB102">🧫 MCB102 — General Microbiology</option>
+                    <option value="GET112">⚙️ GET112</option>
+                    <option value="FIN156">💰 FIN156</option>
+                    <option value="FIN158">💰 FIN158</option>
+                    <option value="ECO102">📈 ECO102 — Principles of Economics II</option>
+                    <option value="BUA102">🏢 BUA102</option>
+                    <option value="ADE108">📚 ADE108 — Adult Education</option>
+                    <option value="EAE102">🎯 EAE102</option>
+                    <option value="EDU152">🎭 EDU152 — philosophy of education</option>
                     <option value="OOU-THA112">🎭 OOU-THA112 — Drama as Literature</option>
+                </optgroup>
+                <optgroup label="─── ND Banking & Finance / Accountancy — 1st Semester ───">
+                    <option value="GNS101">📖 GNS101 — Use of English I</option>
+                    <option value="GNS111">🏛️ GNS111 — Citizenship Education I</option>
+                    <option value="GNS112">🏛️ GNS112 — Nigerian Peoples & Culture</option>
+                    <option value="GNS113">📚 GNS113 — Use of Library</option>
+                    <option value="ICT107">💻 ICT107 — Introduction to Computer Science</option>
+                    <option value="BFN111">🏦 BFN111 — Elements of Banking I</option>
+                    <option value="ICT103">💻 ICT103 — Systems Analysis and Design</option>
+                    <option value="BAM211">📋 BAM211 — Principles of Management</option>
+                    <option value="MTH131">🔢 MTH131 — Business Mathematics</option>
+                    <option value="INS111">🛡️ INS111 — Principles of Insurance I</option>
+                    <option value="ACC111">📒 ACC111 — Principles of Accounting I</option>
+                </optgroup>
+                <optgroup label="─── ND Banking & Finance / Accountancy — 2nd Semester ───">
+                    <option value="ACC215">📒 ACC215 — Cost Accounting</option>
+                    <option value="BFN121">🏦 BFN121 — Elements of Banking II</option>
+                    <option value="BAM221">📋 BAM221 — Principles of Management II</option>
+                    <option value="GNS131">🏛️ GNS131 — Citizenship Education II</option>
+                    <option value="ENT126">🚀 ENT126 — Introduction to Entrepreneurship</option>
+                    <option value="INS121">🛡️ INS121 — Principles and Practice of Insurance II</option>
+                    <option value="GNS114">📈 GNS114 — Principles of Economics</option>
+                    <option value="GNS122">📖 GNS122 — Communication in English II</option>
+                    <option value="ICT104">💻 ICT104 — Introduction to Computer Programming</option>
+                    <option value="ACC121">📒 ACC121 — Principles of Accounting II</option>
                 </optgroup>
             </select>
             <div id="priceDisplay">
@@ -327,22 +327,6 @@
     const db   = getFirestore(app);
 
     const WHATSAPP_NUMBER = "2347011245168";
-
-    const LEGACY_KEYS = [
-        "CX-4927-Q","CX-8103-M","CX-2759-Z","CX-6381-A","CX-9402-K",
-        "CX-1876-R","CX-5590-B","CX-7024-Y","CX-3669-P","CX-8241-W",
-        "CX-5937-H","CX-1048-X","CX-9472-N","CX-6805-C","CX-2519-T",
-        "CX-7386-J","CX-4097-F","CX-8921-D","CX-5604-L","CX-9738-E",
-        "CX-6148-V","CX-2957-S","CX-8401-G","CX-1769-U","CX-5328-M",
-        "CX-9604-Q","CX-3475-B","CX-7812-Z","CX-4590-A","CX-6087-K",
-        "CX-1946-R","CX-8359-Y","CX-2704-P","CX-9168-W","CX-5421-H",
-        "CX-7093-X","CX-3865-N","CX-8249-C","CX-1570-T","CX-6914-J",
-        "CX-4386-F","CX-9207-D","CX-5649-L","CX-1783-E","CX-7035-V",
-        "CX-8492-S","CX-2157-G","CX-9061-U","CX-4328-M","CX-6709-Q",
-        "CX-3984-B","CX-7541-Z","CX-2806-A","CX-9153-K","CX-6472-R",
-        "CX-5019-Y","CX-8634-P","CX-2948-W","CX-7106-H","CX-4827-X",
-        "CX-9360-N","CX-1584-C","CX-6942-T","CX-3075-J","CX-8219-F"
-    ];
 
     let currentUser = null;
 
@@ -425,16 +409,15 @@
                     return;
                 }
 
+                // 👇 NEW: Check the key was issued to THIS user's email
+                if (keyData.forEmail && keyData.forEmail !== currentUser.email) {
+                    showError("❌ This key was not issued to your account.");
+                    return;
+                }
+
                 keySubject    = keyData.subject || subjectCode;
                 keyIsValid    = true;
                 isFirebaseKey = true;
-
-            } else {
-                // STEP 2: Fallback legacy keys
-                if (LEGACY_KEYS.includes(keyRaw)) {
-                    keyIsValid    = true;
-                    isFirebaseKey = false;
-                }
             }
 
             if (!keyIsValid) { showError("❌ Invalid verification key. Please check and try again."); return; }
@@ -466,16 +449,10 @@
                 await updateDoc(keyDocRef, { used: true, usedBy: currentUser.email, usedAt: serverTimestamp() });
             }
 
-            // STEP 6: Write unlock to localStorage using the SAME prefixed key format
-            // that subject_selection.html and topic_exam_selection.html both read.
-            // They use: 'unlocked_' + userEmail.replace(/[^a-z0-9]/gi, '_') + '_' + subjectCode
+            // STEP 6: Write unlock to localStorage
             try {
                 const userPrefix = getUserPrefix();
-
-                // Write the standalone prefixed unlock key (what the other pages read)
                 localStorage.setItem(`unlocked_${userPrefix}_${keySubject}`, 'true');
-
-                // Also update the loggedInUser session object for any pages that check it there
                 const sess = JSON.parse(localStorage.getItem('loggedInUser') || '{}');
                 sess[`unlocked_${keySubject}`] = true;
                 localStorage.setItem('loggedInUser', JSON.stringify(sess));
