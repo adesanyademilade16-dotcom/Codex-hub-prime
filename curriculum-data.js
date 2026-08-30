@@ -313,7 +313,7 @@ const CURRICULUM_DATA = {
     faculty: ["science", "computing", "engineering_and_technology", "education"],
     dept: ["all", "computer_science", "cybersecurity", "data_science", "information_and_communication_technology", "information_systems", "information_technology", "software_engineering"],
     icon: "🔬",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "CCMAS-2024",
     topics: [
       "Thermal conductivity and specific heat capacity experiments",
@@ -432,7 +432,7 @@ const CURRICULUM_DATA = {
     faculty: ["science", "computing", "engineering_and_technology", "education", "agriculture", "medicine_and_dentistry", "pharmacy"],
     dept: ["all"],
     icon: "🔬",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "CCMAS-2024",
     topics: [
       "Organic qualitative analysis: functional group tests",
@@ -548,7 +548,7 @@ const CURRICULUM_DATA = {
     faculty: ["science", "education", "agriculture", "medicine_and_dentistry", "pharmacy", "allied_health_sciences"],
     dept: ["all"],
     icon: "🔬",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "CCMAS-2024",
     topics: [
       "Genetics experiments: monohybrid and dihybrid crosses",
@@ -107696,7 +107696,7 @@ const CURRICULUM_DATA = {
     faculty: ["science"],
     dept: ["all"],
     icon: "🌱",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Agricultural Systems",
@@ -107737,7 +107737,7 @@ const CURRICULUM_DATA = {
     faculty: ["science"],
     dept: ["computer_science", "computer_science_education", "mathematics", "statistics"],
     icon: "💾",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Statistical Computing Tools",
@@ -107757,7 +107757,7 @@ const CURRICULUM_DATA = {
     faculty: ["social_sciences"],
     dept: ["other"],
     icon: "🗺️",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Fundamentals of Tourism",
@@ -107785,7 +107785,7 @@ const CURRICULUM_DATA = {
     faculty: ["education"],
     dept: ["education", "guidance_and_counselling"],
     icon: "🧠",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Introduction to Counselling",
@@ -107809,7 +107809,7 @@ const CURRICULUM_DATA = {
     faculty: ["education"],
     dept: ["education", "guidance_and_counselling"],
     icon: "🎓",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Meaning of Educational Psychology",
@@ -107833,7 +107833,7 @@ const CURRICULUM_DATA = {
     faculty: ["education"],
     dept: ["education", "guidance_and_counselling"],
     icon: "👥",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Concept of Human Development",
@@ -107857,7 +107857,7 @@ const CURRICULUM_DATA = {
     faculty: ["education"],
     dept: ["education", "guidance_and_counselling"],
     icon: "📚",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Psychoanalytic Theory",
@@ -107881,7 +107881,7 @@ const CURRICULUM_DATA = {
     faculty: ["science"],
     dept: ["computer_science_education", "education"],
     icon: "🧪",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Meaning of Science Education",
@@ -107905,7 +107905,7 @@ const CURRICULUM_DATA = {
     faculty: ["education", "social_sciences"],
     dept: ["adult_education", "computer_science_education", "education", "guidance_and_counselling", "social_studies"],
     icon: "📘",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Athenian vs Spartan Education",
@@ -107932,7 +107932,7 @@ const CURRICULUM_DATA = {
     faculty: ["education"],
     dept: ["education", "guidance_and_counselling"],
     icon: "🗣️",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Communication Process",
@@ -107956,7 +107956,7 @@ const CURRICULUM_DATA = {
     faculty: ["education", "social_sciences"],
     dept: ["education", "guidance_and_counselling", "social_studies"],
     icon: "🌍",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Social Studies as a course in Nigerian Schools",
@@ -107979,7 +107979,7 @@ const CURRICULUM_DATA = {
     faculty: ["education", "social_sciences"],
     dept: ["civic_education", "education", "social_studies"],
     icon: "🗳️",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Introduction to Civic Education",
@@ -108004,7 +108004,7 @@ const CURRICULUM_DATA = {
     faculty: ["education", "social_sciences"],
     dept: ["civic_education", "political_science", "social_studies"],
     icon: "⚖️",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Concept of Democracy and Democratic Values",
@@ -108028,7 +108028,7 @@ const CURRICULUM_DATA = {
     faculty: ["education", "social_sciences"],
     dept: ["education", "guidance_and_counselling", "social_studies"],
     icon: "🌱",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Nature, Types and Structure of the Family",
@@ -108074,7 +108074,7 @@ const CURRICULUM_DATA = {
     faculty: ["social_sciences"],
     dept: ["psychology"],
     icon: "🧪",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Experimental Psychology",
@@ -108098,7 +108098,7 @@ const CURRICULUM_DATA = {
     faculty: ["social_sciences"],
     dept: ["psychology"],
     icon: "🧒",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Human Development",
@@ -108122,7 +108122,7 @@ const CURRICULUM_DATA = {
     faculty: ["social_sciences"],
     dept: ["psychology"],
     icon: "📊",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Research in Psychology",
@@ -108146,7 +108146,7 @@ const CURRICULUM_DATA = {
     faculty: ["science"],
     dept: ["biology"],
     icon: "🦠",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Introduction to Microbiology",
@@ -108170,7 +108170,7 @@ const CURRICULUM_DATA = {
     faculty: ["education"],
     dept: ["adult_and_continuing_education", "adult_education", "education"],
     icon: "🧑‍🏫",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Concept of Adult Education",
@@ -108196,7 +108196,7 @@ const CURRICULUM_DATA = {
     faculty: ["education"],
     dept: ["adult_and_continuing_education", "adult_education", "education"],
     icon: "📘",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Introduction to Adult Education",
@@ -108222,7 +108222,7 @@ const CURRICULUM_DATA = {
     faculty: ["education"],
     dept: ["adult_and_continuing_education", "adult_education", "education"],
     icon: "🗣️",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Adult Learning Communication",
@@ -108248,7 +108248,7 @@ const CURRICULUM_DATA = {
     faculty: ["education"],
     dept: ["adult_and_continuing_education", "adult_education", "education"],
     icon: "👥",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Sociology of Education",
@@ -108274,7 +108274,7 @@ const CURRICULUM_DATA = {
     faculty: ["education", "social_sciences"],
     dept: ["adult_and_continuing_education", "adult_education", "education"],
     icon: "💼",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Introduction to Entrepreneurship",
@@ -108300,7 +108300,7 @@ const CURRICULUM_DATA = {
     faculty: ["science"],
     dept: ["engineering"],
     icon: "📐",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Technical Drawing Basics",
@@ -108324,7 +108324,7 @@ const CURRICULUM_DATA = {
     faculty: ["social_sciences"],
     dept: ["banking_and_finance", "economics"],
     icon: "💰",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Introduction to Banking",
@@ -108348,7 +108348,7 @@ const CURRICULUM_DATA = {
     faculty: ["social_sciences"],
     dept: ["banking_and_finance", "economics"],
     icon: "🏦",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Meaning of Money",
@@ -108714,7 +108714,7 @@ const CURRICULUM_DATA = {
     faculty: ["education"],
     dept: ["all"],
     icon: "🎓",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-FROM-CBTJS",
     topics: [
       "Meaning of Education",
@@ -108739,7 +108739,7 @@ const CURRICULUM_DATA = {
     faculty: ["education", "social_sciences"],
     dept: ["adult_education", "computer_science_education", "education", "guidance_and_counselling", "social_studies"],
     icon: "🎓",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-FROM-CBTJS",
     topics: [
       "Meaning of Philosophy",
@@ -108764,7 +108764,7 @@ const CURRICULUM_DATA = {
     faculty: ["education", "social_sciences"],
     dept: ["civic_education", "education", "social_studies"],
     icon: "🏛️",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-FROM-CBTJS",
     topics: [
       "Introduction to Social Studies",
@@ -108788,7 +108788,7 @@ const CURRICULUM_DATA = {
     faculty: ["education", "social_sciences"],
     dept: ["education", "guidance_and_counselling", "social_studies"],
     icon: "🌍",
-    hasContent: false,
+    hasContent: true,
     outlineVersion: "MERGED-FROM-CBTJS",
     topics: [
       "Introduction to Environmental Studies",
