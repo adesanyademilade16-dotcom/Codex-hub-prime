@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Codex Study Hub — Sign Up</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -140,18 +141,6 @@
         @keyframes spin { to { transform:rotate(360deg); } }
 
         @media(min-width:600px) { .card { padding:2.5rem 2.5rem; } }
-    
-        /* ── ADDED RESPONSIVE FIXES ── */
-        @media(max-width:768px){
-            .card{ padding:2rem 1.8rem; }
-        }
-        @media(max-width:480px){
-            body{ padding:16px 12px; }
-            .card{ padding:1.8rem 1.4rem; border-radius:16px; max-width:100%; }
-            .card-header h2{ font-size:1.2rem; }
-            .btn-primary{ font-size:.9rem; padding:12px; }
-        }
-
     </style>
 </head>
 <body>
@@ -191,20 +180,12 @@
     <label for="userLevel">Academic Level</label>
     <select id="userLevel" required>
         <option value="" disabled selected>Select your current level</option>
-        <option value="100">100 Level</option>
-        <option value="200">200 Level</option>
-        <option value="300">300 Level</option>
     </select>
 </div>
             <div class="form-group">
                 <label>Faculty</label>
                 <select id="faculty" required onchange="updateDepartments()">
                     <option value="">— Select Faculty —</option>
-                    <option value="science">Science</option>
-                    <option value="social_sciences">Social Science</option>
-                    <option value="education">Education</option>
-                    <option value="arts">Arts</option>
-                    <option value="law">Law</option>
                 </select>
             </div>
 
@@ -219,7 +200,7 @@
             <div class="form-group">
                 <label>Password <span style="font-weight:400;color:var(--dim)">(min 6 chars)</span></label>
                 <div class="pw-wrap">
-                    <input type="password" id="password" required minlength="6"
+                    <input type="password" id="password" required minlength="8"
                         placeholder="••••••••" autocomplete="new-password"
                         oninput="checkStrength(this.value)">
                     <button type="button" class="eye-btn" id="eyePw1"
@@ -269,77 +250,13 @@
     <div class="links">Already have an account? <a href="Login.html">Log In</a></div>
 </div>
 
+<!-- Shared faculty/department/level data — single source of truth -->
+<script src="faculty-data.js"></script>
+
 <!-- Department + eye toggle in regular script (not module) -->
 <script>
 function updateDepartments() {
-    const f  = document.getElementById('faculty').value;
-    const ds = document.getElementById('department');
-    const MAP = {
-
-    science: [
-        "Computer Science",
-        "Engineering",
-        "Agriculture",
-        "Medicine",
-        "Physics",
-        "Chemistry",
-        "Chemical Science",
-        "Mathematics",
-        "Biology",
-        "Microbiology",
-        "Forensic Science",
-        "Computer Education",
-        " Mathematical Education", 
-        "Other"
-    ],
-
-    social_sciences: [
-        "Economics",
-        "Political Science",
-        "Sociology",
-        "Mass Communication",
-        "Psychology",
-        "Banking and Finance",
-        "Cooperative and Rural Development",
-        "Tourism",
-        "Other"
-    ],
-
-    education: [
-        "Science Education STED",
-        "Guidance and Counselling",
-        "Computer Science Education",
-        "Physics Education",
-        "Chemistry Education",
-        "Biology Education",
-        " Mathematical Education", 
-        "Education",
-        "Other"
-    ],
-
-    arts: [
-        "English",
-        "History",
-        "Philosophy",
-        "French",
-        "Theatre Arts",
-        "Other"
-    ],
-
-    law: [
-        "Law",
-        "Other"
-    ]
-};
-    const list = MAP[f] || [];
-    ds.innerHTML = '<option value="">— Select Department —</option>';
-    ds.disabled = !list.length;
-    list.forEach(d => {
-        const o = document.createElement('option');
-        o.value = d.toLowerCase().replace(/\s+/g,'_');
-        o.textContent = d;
-        ds.appendChild(o);
-    });
+    populateDepartments('faculty', 'department');
 }
 
 function toggleEye(inputId, btnId) {
@@ -353,7 +270,7 @@ function checkStrength(pw) {
     const fill  = document.getElementById('strFill');
     const label = document.getElementById('strLabel');
     let score = 0;
-    if (pw.length >= 6)  score++;
+    if (pw.length >= 8)  score++;
     if (pw.length >= 10) score++;
     if (/[A-Z]/.test(pw)) score++;
     if (/[0-9]/.test(pw)) score++;
@@ -365,6 +282,10 @@ function checkStrength(pw) {
     label.textContent  = pw.length ? (labels[score] || '') : '';
     label.style.color  = colors[score] || 'var(--muted)';
 }
+
+// Populate faculty + level dropdowns from the shared data file on load
+populateFaculties('faculty');
+populateLevels('userLevel');
 </script>
 
 <script type="module">
@@ -442,7 +363,8 @@ if (!level)      { showErr('❌ Please select your level.'); return; } // <-- AD
 // ...
 
     if (pw !== cpw)  { showErr('❌ Passwords do not match.'); return; }
-    if (pw.length<6) { showErr('❌ Password must be at least 6 characters.'); return; }
+    if (pw.length < 8) { showErr('❌ Password must be at least 8 characters.'); return; }
+    if (!/[0-9]/.test(pw)) { showErr('❌ Password must contain at least one number.'); return; }
 
     btn.disabled = true;
     btn.innerHTML = '<span style="width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:inline-block"></span> Creating Account…';

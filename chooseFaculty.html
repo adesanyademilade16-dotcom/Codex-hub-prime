@@ -182,9 +182,6 @@
   <label>Academic Level</label>
   <select id="level" required>
     <option value="">— Choose Level —</option>
-    <option value="100">100 Level</option>
-    <option value="200">200 Level</option>
-    <option value="300">300 Level</option>
   </select>
 </div>
     <!-- FACULTY -->
@@ -192,11 +189,6 @@
       <label>Faculty</label>
       <select id="faculty" required onchange="updateDepartments()">
         <option value="">— Choose Faculty —</option>
-        <option value="science">Science</option>
-        <option value="social_sciences">Social Science</option>
-        <option value="administration_and_management"> Administration_and_Management   </option>
-        <option value="arts">Arts</option>
-        <option value="law">Law</option>
       </select>
     </div>
 
@@ -268,31 +260,14 @@
   </form>
 </div>
 
+<!-- Shared faculty/department/level data — single source of truth -->
+<script src="faculty-data.js"></script>
+
 <!-- Department logic must be in regular (non-module) script -->
 <script>
 function updateDepartments() {
-  const f  = document.getElementById('faculty').value;
-  const ds = document.getElementById('department');
-  const DEPTS = {
-    science:["Computer Science","Engineering","Agriculture","Medicine","Physics","Chemistry","Mathematics","Biology","Education","Other"],
-    social_sciences:["Economics","Political Science","Sociology","Mass Communication","Education","Other"],
-    
-    administration_and_management:[
-      'Business_administration'
-   ], 
-    arts:["English","History","Philosophy","French","Education","Other"],
-    law:["Law","Other"]
-  };
-  const list = DEPTS[f] || [];
-  ds.innerHTML = '<option value="">— Select Department —</option>';
-  ds.disabled = !list.length;
-  list.forEach(d => {
-    const o = document.createElement('option');
-    o.value = d.toLowerCase().replace(/\s+/g,'_'); o.textContent = d; ds.appendChild(o);
-  });
-
-  // Step visual
-  if (f) { markStep(1); }
+  populateDepartments('faculty', 'department');
+  if (document.getElementById('faculty').value) { markStep(1); }
 }
 
 function togglePasswordFields() {
@@ -339,6 +314,10 @@ function markStep(n) {
     if (i < 3) document.getElementById('l' + i).className = 'step-line' + (i < n ? ' done' : '');
   }
 }
+
+// Populate faculty + level dropdowns from the shared data file on load
+populateFaculties('faculty');
+populateLevels('level');
 
 document.getElementById('faculty').addEventListener('change', () => markStep(2));
 document.getElementById('semester').addEventListener('change', () => markStep(3));
@@ -395,6 +374,7 @@ onAuthStateChanged(auth, async (user) => {
         if (d.department) document.getElementById('department').value = d.department;
       }
       if (d.semester) document.getElementById('semester').value = d.semester;
+      if (d.level) document.getElementById('level').value = d.level;
     }
   } catch(e) {}
 });

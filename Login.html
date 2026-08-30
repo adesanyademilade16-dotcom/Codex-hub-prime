@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Codex Study Hub — Log In</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -219,8 +220,7 @@
     </form>
 
     <div class="links" style="margin-top:10px">
-        <a href="forgot_password.html">Forgot password?</a>
-
+        <a href="reset-password.html">Forgot Password?</a>
     </div>
     <div class="links">
         Don't have an account? <a href="signup.html">Sign Up Free</a>
@@ -337,8 +337,8 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
     } catch(e) {
         btn.disabled = false; btn.textContent = 'Log In';
         const msgs = {
-            'auth/user-not-found':     '❌ No account found. Please sign up first.',
-            'auth/wrong-password':     '❌ Incorrect password.',
+            'auth/user-not-found':     '❌ Invalid email or password.',
+            'auth/wrong-password':     '❌ Invalid email or password.',
             'auth/invalid-email':      '❌ Invalid email format.',
             'auth/invalid-credential': '❌ Wrong email or password.',
             'auth/too-many-requests':  '❌ Too many attempts. Wait a moment and try again.',
