@@ -499,6 +499,13 @@ let _user = null;
 let _pending = null;
 let _lastSavedTimestamp = 0;
 
+// Expose to cbt.js (a classic script, loaded before this module, so it
+// can't `import` directly) — lets it fetch published questions from
+// Firestore before falling back to its own bundled CBT_DATA.
+window.__codexDb = db;
+window.__codexGetDoc = getDoc;
+window.__codexDocFn = doc;
+
 const RANKS = [
   {name:"Rookie",icon:"🌱",min:0},{name:"Scholar",icon:"📖",min:100},
   {name:"Apprentice",icon:"⚡",min:300},{name:"Challenger",icon:"🔥",min:600},
