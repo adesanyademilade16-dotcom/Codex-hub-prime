@@ -36,23 +36,22 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2024",
     topics: [
-      "Effective communication and writing in English",
-      "Language skills: speaking, listening, reading, writing",
-      "Sentence construction and comprehension strategies",
-      "Essay writing: outlines, paragraphs, logical presentation",
-      "Punctuation, grammar, and organization of materials",
-      "Language",
       "Nature and Function of Language",
-      "Sentence Errors",
-      "Listening & Speaking Skills",
-      "Speech Sounds",
-      "Comprehension",
-      "Lexis and Structure",
-      "Phonetics & Phonology",
-      "Stress",
-      "Note Taking",
-      "Summary Writing",
+      "Phonetics and Phonology of English I",
+      "Phonetics and Phonology of English II",
+      "Sentence and Some Common Errors of English Language",
+      "Outlining , Note taking , Note making",
+      "Summary writing and Report writing",
+      "Evolving Good Style of Writing",
+      "Fundamental of Library Appreciation",
       "Effective Public Speaking",
+      "Language",
+      "Lexis and Structure",
+      "Listening and speaking skills",
+      "Speech sounds",
+      "Comprehension",
+      "Stress"
+    
     ],
     outlineFile: "course-outlines/GST111.json"
   },
@@ -70,11 +69,6 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "Verified against OOU Faculty of Law AND Dept of Mass Communication 2024/2025 curricula (both confirm this title for GST112)",
     topics: [
-      "Nigerian history and pre-colonial cultures",
-      "Cultural areas of Nigeria and their characteristics",
-      "Evolution of Nigeria as a political unit",
-      "Ethical foundations: norms, values, and social justice",
-      "Environmental problems and negative attitudes (cultism, corruption)",
       "Concept of Culture",
       "Mapping Nigerian Cultures",
       "Ethics and Discipline",
@@ -84,7 +78,8 @@ const CURRICULUM_DATA = {
       "Pre-Colonial Arts",
       "Economic Self-Reliance",
       "Transitional Society",
-      "Negative Attitudes in Society",
+      "Negative Attitudes in Society"
+    
     ],
     outlineFile: "course-outlines/GST112.json"
   },
@@ -161,21 +156,17 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2024",
     topics: [
-      "Real numbers, sets, and set operations",
-      "Algebraic expressions, equations, and inequalities",
-      "Trigonometric functions and identities",
-      "Coordinate geometry: lines, circles, conics",
-      "Differential calculus: limits, continuity, and differentiation",
-      "Set Theory",
+      "Binomial Theorem",
+      "Partial Fraction & Remainder Theorem",
+      "Circular Measures",
       "Number Systems",
+      "Set Theory",
       "Mathematical Induction",
       "Sequences & Series",
       "Quadratic Equations",
       "Complex Numbers",
-      "Binomial Theorem",
-      "Partial Fractions",
-      "Circular Measures",
-      "Trigonometry",
+      "Trigonometry"
+    
     ],
     outlineFile: "course-outlines/MTH101.json"
   },
@@ -193,11 +184,6 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2024",
     topics: [
-      "Integral calculus: indefinite and definite integrals",
-      "Applications of integration: areas, volumes, centroids",
-      "Sequences and series: convergence tests",
-      "Functions of several variables: partial derivatives",
-      "Introduction to differential equations",
       "Functions of a Real Variable",
       "Limits and Continuity",
       "Mean Value Theorem",
@@ -207,7 +193,8 @@ const CURRICULUM_DATA = {
       "Application of Differentiation",
       "Integration",
       "Definite Integrals",
-      "Area and Volume Applications",
+      "Area and Volume Applications"
+    
     ],
     outlineFile: "course-outlines/MTH102.json"
   },
@@ -225,23 +212,21 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2024",
     topics: [
-      "Units and dimensions in physics",
-      "Kinematics: motion in one and two dimensions",
-      "Newton's laws of motion and applications",
-      "Work, energy, and power",
-      "Momentum, impulse, and collisions",
       "Units & Dimensions",
+      "General",
       "Vectors & Scalars",
-      "Dot Product",
-      "Newton's Laws",
-      "Projectile Motion",
+      "Newton’s Laws",
       "Kinematics",
-      "Center of Mass",
-      "Angular Velocity",
-      "Simple Harmonic Motion",
-      "Work Energy Power",
-      "Equilibrium",
+      "center of mass",
+      "Work, Energy, Power",
       "Thermodynamics",
+      "Projectile Motion",
+      "Angular Velocity",
+      "Equilibrium",
+      "Simple Harmonic Motion",
+      "Fluid Dynamics",
+      "Dot Product of Vectors"
+    
     ],
     outlineFile: "course-outlines/PHY101.json"
   },
@@ -259,24 +244,20 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2024",
     topics: [
-      "Temperature, heat, and thermal expansion",
-      "Laws of thermodynamics and heat transfer",
-      "Wave motion and types of waves",
-      "Sound: production, propagation, and properties",
-      "Geometrical optics: reflection, refraction, lenses, mirrors",
-      "Sound Waves",
-      "Electromagnetic Waves",
-      "Interference, Diffraction, Reflection & Polarization",
-      "Geometrical Optics",
-      "Electrostatics & Gauss's Law",
-      "Electric Potential",
-      "DC Circuits",
       "Magnetic Fields",
       "Electromagnetic Induction",
       "AC Voltages",
       "Maxwell's Equations",
+      "DC Circuits",
+      "Sound Waves",
+      "Electrostatics & Gauss's Law",
+      "Electric Potential",
       "Bohr's Theory",
       "Photoelectric Effect",
+      "Electromagnetic Waves",
+      "Interference, Diffraction, Reflection & Polarization",
+      "Geometrical Optics"
+    
     ],
     outlineFile: "course-outlines/PHY102.json"
   },
@@ -313,25 +294,15 @@ const CURRICULUM_DATA = {
     faculty: ["science", "computing", "engineering_and_technology", "education"],
     dept: ["all", "computer_science", "cybersecurity", "data_science", "information_and_communication_technology", "information_systems", "information_technology", "software_engineering"],
     icon: "🔬",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "CCMAS-2024",
     topics: [
-      "Thermal conductivity and specific heat capacity experiments",
-      "Resonance and speed of sound in air",
-      "Refraction through glass blocks and prism",
-      "Lens experiments: focal length and magnification",
-      "Electrical circuit basics: Ohm's law verification",
-      "Verification of Ohm's Law",
-      "Measurement of Resistivity",
-      "Internal Resistance of a Cell",
-      "Potentiometer Experiments",
-      "Refraction Through Glass Slab",
-      "Refraction in Triangular Prism",
-      "Focal Length of Convex Lens",
-      "Focal Length of Concave Lens",
-      "Electrical Circuit Analysis",
-      "Measurement Errors and Data Analysis",
-      "Graphical Analysis of Experimental Data",
+      "Measurement and Error Analysis",
+      "Mechanics Experiments",
+      "Heat and Thermodynamics Experiments",
+      "Optics Experiments",
+      "Electricity and Magnetism Experiments"
+    
     ],
     outlineFile: "course-outlines/PHY108.json"
   },
@@ -349,21 +320,19 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2024",
     topics: [
-      "Atomic structure and the periodic table",
-      "Chemical bonding: ionic, covalent, metallic, coordinate",
-      "Stoichiometry: mole concept, balancing equations",
-      "States of matter: gases, liquids, solids",
-      "Thermochemistry: enthalpy, Hess's law, calorimetry",
-      "Atomic Structure",
-      "Redox Reactions",
       "Energetics",
       "Electronic Configuration",
+      "Redox Reaction",
+      "Corrosion of Metals",
+      "Colligative Properties",
+      "Electrolysis",
+      "Chemical Equilibrium",
+      "Atomic Structure",
       "Chemical Bonding",
       "Stoichiometry",
       "Acids and Bases",
-      "Reaction Kinetics",
-      "Electrolysis",
-      "Chemical Equilibrium",
+      "Reaction Kinetics"
+    
     ],
     outlineFile: "course-outlines/CHM101.json"
   },
@@ -381,11 +350,6 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2024",
     topics: [
-      "Chemical kinetics: reaction rates and mechanisms",
-      "Chemical equilibrium: Le Chatelier's principle",
-      "Acids, bases, and salts; pH and buffer solutions",
-      "Electrochemistry: redox reactions, electrolysis, cells",
-      "Introduction to organic chemistry: hydrocarbons and functional groups",
       "Introduction to Organic Chemistry",
       "Empirical & Molecular Formula",
       "Nomenclature of Organic Compounds",
@@ -395,7 +359,8 @@ const CURRICULUM_DATA = {
       "Amines, Amino Acids & Proteins",
       "Polymers",
       "Transition Metal Chemistry",
-      "Nuclear Chemistry",
+      "Nuclear Chemistry"
+    
     ],
     outlineFile: "course-outlines/CHM102.json"
   },
@@ -432,25 +397,20 @@ const CURRICULUM_DATA = {
     faculty: ["science", "computing", "engineering_and_technology", "education", "agriculture", "medicine_and_dentistry", "pharmacy"],
     dept: ["all"],
     icon: "🔬",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "CCMAS-2024",
     topics: [
-      "Organic qualitative analysis: functional group tests",
-      "Preparation of simple organic compounds",
-      "Chromatography: paper and thin-layer techniques",
-      "Determination of melting and boiling points",
-      "Quantitative analysis: redox and complexometric titrations",
       "Volumetric Analysis Techniques",
       "Acid-Base Titrations",
       "Redox Titrations",
-      "Precipitation Titrations",
       "Gravimetric Analysis",
       "Qualitative Analysis of Cations",
       "Qualitative Analysis of Anions",
       "Organic Chemistry Qualitative Tests",
       "Melting Point and Boiling Point Determination",
       "Chromatography Techniques",
-      "Laboratory Safety and First Aid",
+      "Laboratory Safety and First Aid"
+    
     ],
     outlineFile: "course-outlines/CHM108.json"
   },
@@ -468,20 +428,17 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2024",
     topics: [
-      "Cell theory and cell structure: prokaryotes vs eukaryotes",
-      "Cell organelles and their functions",
-      "Cell division: mitosis and meiosis",
-      "Biological molecules: carbohydrates, proteins, lipids, nucleic acids",
-      "Enzymes: properties, classification, and kinetics",
-      "The Cell",
       "Cell Division",
-      "Mitosis and Meiosis",
-      "Genetics",
-      "Taxonomy",
-      "Ecology",
       "Mutation",
       "Adaptation",
+      "Vital Activities",
+      "The Cell",
+      "Genetics",
+      "Ecology",
       "Plant and Animal Physiology",
+      "Taxonomy",
+      "Mitosis and Meiosis"
+    
     ],
     outlineFile: "course-outlines/BIO101.json"
   },
@@ -499,11 +456,6 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2024",
     topics: [
-      "Genetics: Mendelian inheritance, chromosomal basis of heredity",
-      "Evolution: Darwinism, natural selection, speciation",
-      "Ecology: ecosystems, energy flow, biogeochemical cycles",
-      "Population ecology: growth models, carrying capacity",
-      "Conservation biology and biodiversity in Nigeria",
       "Hierarchy of Living Things",
       "Characteristics of Bacteria",
       "Characteristics of Viruses",
@@ -511,7 +463,8 @@ const CURRICULUM_DATA = {
       "Classification of Living Organisms",
       "Evolution",
       "Ecology of Populations",
-      "Plant and Animal Diversity",
+      "Plant and Animal Diversity"
+    
     ],
     outlineFile: "course-outlines/BIO102.json"
   },
@@ -548,14 +501,9 @@ const CURRICULUM_DATA = {
     faculty: ["science", "education", "agriculture", "medicine_and_dentistry", "pharmacy", "allied_health_sciences"],
     dept: ["all"],
     icon: "🔬",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "CCMAS-2024",
     topics: [
-      "Genetics experiments: monohybrid and dihybrid crosses",
-      "Ecological fieldwork: quadrat and transect methods",
-      "Study of adaptations in plants and animals",
-      "Physiological experiments: osmosis, diffusion, transpiration",
-      "Dissection techniques and organ identification",
       "Microscopy Techniques",
       "Cell Structure Observation",
       "Mitosis and Meiosis in Cells",
@@ -565,7 +513,8 @@ const CURRICULUM_DATA = {
       "Aseptic Techniques",
       "Staining Techniques",
       "Biological Drawing and Documentation",
-      "Laboratory Safety and Ethics",
+      "Laboratory Safety and First Aid"
+    
     ],
     outlineFile: "course-outlines/BIO108.json"
   },
@@ -2704,17 +2653,13 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2023",
     topics: [
-      "Statistical data Types, sources and methods of collection",
-      "Presentation of data",
-      "Tables chart and graph",
-      "Errors and approximations",
-      "Frequency and cumulative distributions",
-      "Measures of location, partition, dispersion, skewness and Kurtosis",
-      "Rates, ratios and index numbers",
-      "Data Collection",
-      "Measures of Central Tendency",
+      "errors and approximation",
       "Probability Theory",
-      "Errors and Approximation",
+      "Data Collection",
+      "Basics",
+      "Central Tendency",
+      "Measures of Central Tendency"
+    
     ],
     outlineFile: "course-outlines/STA111.json"
   },
@@ -2732,16 +2677,13 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2023",
     topics: [
-      "Permutation and combination",
-      "Concepts and principles of probability",
-      "Random variables Probability and distribution functions",
-      "Basic distributions: Binomial, geometric, Poisson, normal and sampling distributions",
-      "Exploratory data analysis",
       "Permutations & Combinations",
       "Probability Principles",
       "Random Variables",
       "Binomial & Poisson Distribution",
       "Normal Distribution",
+      "Hypothesis Testing"
+    
     ],
     outlineFile: "course-outlines/STA112.json"
   },
@@ -2759,11 +2701,12 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2023",
     topics: [
-      "Population and samples",
-      "Random sampling distributions",
-      "Estimation (point and interval) and tests of hypotheses concerning population mean and proportion (one and two large sample cases)",
+      "Population and sample",
+      "Sample distribution and proportion",
       "Regression and correlation",
-      "Elementary time series analysis"
+      "Probability and elementary time analysis",
+      "Hypothesis Testing"
+    
     ],
     outlineFile: "course-outlines/STA121.json"
   },
@@ -3293,19 +3236,15 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2024",
     topics: [
-      "Problem-solving strategies and algorithmic thinking",
-      "Flowcharts and pseudocode conventions",
-      "Control structures: sequence, selection, iteration",
-      "Introduction to a programming language (Python/C++)",
-      "Debugging techniques and program testing",
       "Introduction to Visual Basic",
-      "Windows Forms Designer",
       "Memory & Arithmetic Operators",
       "Relational Operators",
       "Subroutines & Functions",
+      "Windows Forms Designer",
       "Pass-by-Value vs Pass-by-Reference",
       "One-dimensional Arrays",
-      "Sorting & Searching Arrays",
+      "Sorting & Searching Arrays"
+    
     ],
     outlineFile: "course-outlines/CSC102.json"
   },
@@ -3350,19 +3289,17 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2024",
     topics: [
-      "National income accounting: GDP, GNP, NDP, disposable income",
-      "Money and banking: functions of money, central banking, commercial banks",
-      "Inflation: causes, types, and control measures",
-      "Unemployment: types, causes, and remedies",
-      "International trade: comparative advantage, balance of payments, exchange rates",
-      "Demand and Supply",
-      "Elasticity",
-      "Consumer Behaviour",
-      "Production Theory",
-      "Cost Theory",
-      "Market Structures",
       "National Income",
-      "Macroeconomic Objectives",
+      "Inflation",
+      "Unemployment",
+      "Fiscal Policy",
+      "Monetary Policy",
+      "Economic Growth",
+      "Demand and Supply",
+      "Market Structures",
+      "International Trade",
+      "Economic Systems"
+    
     ],
     outlineFile: "course-outlines/ECO102.json"
   },
@@ -3451,18 +3388,18 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2024",
     topics: [
-      "Psychological foundations: growth, development, and learning",
-      "Major educational psychologists and their contributions",
-      "Curriculum concepts: definition, types, and development",
-      "Instructional methods and media in education",
-      "Assessment of learning outcomes and feedback mechanisms",
-      "Concept of Culture, Subculture and Cultural Identity",
+      "Concept of Culture, Subculture, and Cultural Identity",
       "Characteristics of Culture",
       "Cultural Patterns in Nigeria",
       "Cultural Changes and Casual Factors",
       "Media and Cultural Transformation in Nigeria",
+      "Foreign Culture and Its Effect on Indigenous Culture",
+      "Culture and Values",
+      "Cross-Cultural Marriage - Advantages and Disadvantages",
+      "The Concept of Culture, Subculture and Cultural Identity",
       "Foreign Culture and its Effect on Indigenous Culture and Values",
-      "Cross Cultural Marriage, Advantages and Disadvantages",
+      "Cross Cultural Marriage, Advantages and Disadvantages"
+    
     ],
     outlineFile: "course-outlines/EDU102.json"
   },
@@ -3551,17 +3488,13 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2024",
     topics: [
-      "Oral expression: conversation, dialogue, presentation",
-      "Listening comprehension strategies",
-      "Written expression: letters, essays, summaries",
-      "Introduction to French literature genres",
-      "Francophone African literature and culture",
       "Laboratory Exercise in French",
       "Oral Practice and Drills",
       "Listening Comprehension Exercises",
       "Pronunciation and Phonetics Practice",
       "Laboratory Language Games",
-      "Interactive French Communication",
+      "Interactive French Communication"
+    
     ],
     outlineFile: "course-outlines/FRE102.json"
   },
@@ -3672,11 +3605,6 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2024",
     topics: [
-      "Partnership accounts: appropriation, admission, retirement",
-      "Company accounts: share capital, debentures, reserves",
-      "Manufacturing accounts and cost classification",
-      "Departmental and branch accounts",
-      "Introduction to cash flow statements",
       "Introduction to Financial Accounting II",
       "Double Entry System",
       "Trial Balance",
@@ -3687,7 +3615,8 @@ const CURRICULUM_DATA = {
       "Managerial Accounting Concepts",
       "Budgeting and Variance Analysis",
       "Job Costing for Service Sector",
-      "Cost Analysis for Decision-Making",
+      "Cost Analysis for Decision-Making"
+    
     ],
     outlineFile: "course-outlines/ACC102.json"
   },
@@ -4906,29 +4835,27 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2023",
     topics: [
-      "Simple harmonic motion (SHM)",
-      "Damped SHM. Resonance and transients",
-      "Normal modes Waves (types and properties of waves as applied to sound)",
-      "The wave equation. 2-D and 3-D wave equations",
-      "Phase and group velocities",
-      "Propagation of sound in gases, solids and liquids and their properties",
-      "Internal reflection Scattering of light",
-      "Thin lenses and optical instruments",
-      "Energy in Vibrating Systems",
+      "Simple Harmonic Motion (SHM)",
+      "Energy in the Vibrating System",
       "Damped SHM",
       "Resonance and Transients",
-      "Coupled Oscillations",
-      "Q-value and Power Response",
+      "Coupled Simple Harmonic Motion",
+      "Q-value and Power Response Curves",
       "Normal Modes",
-      "Wave Types",
-      "Wave Interference",
-      "Diffraction and Refraction",
-      "Wave Equations",
+      "Transverse and Longitudinal Waves",
+      "Interference, Superposition, Diffraction, Refraction",
+      "Waves at Interfaces",
+      "2-D and 3-D Wave Equations",
       "Wave Energy and Power",
-      "Doppler Effect",
-      "Nature of Light",
-      "Reflection and Refraction",
-      "Optical Instruments",
+      "Phase and Group Velocities",
+      "Echoes and Beats",
+      "The Doppler Effect",
+      "Propagation of Sound in Solids, Liquids, and Gases",
+      "Nature and Propagation of Light",
+      "Reflection and Refraction at Plane and Spherical Surfaces",
+      "Wave Lenses and Optical Instruments",
+      "Wave Nature of Light"
+    
     ],
     outlineFile: "course-outlines/PHY104.json"
   },
@@ -7925,14 +7852,6 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2023",
     topics: [
-      "Introduction to design thinking and engineering graphics; First and third angle orthogonal projections",
-      "Isometric projections; Sectioning, conventional practices, conic sections and development",
-      "Freehand and guided sketching – pictorial and orthographic",
-      "Visualization and Solid modelling in design, prototyping and product-making; User Interfaces in concrete terms",
-      "Design, Drawing, Animation, Rendering and Simulation Workspaces; Sketching of 3D objects",
-      "Viewports and sectioning to Shop drawings in Orthographic projections and perspectives; Automated viewports",
-      "Sheet Metal and surface modelling; Material selection and rendering",
-      "This course will use latest professional design tools such as Fusion 360, Solid Works, Solid Edge or equivalent",
       "Engineering Graphics",
       "Orthographic Projection",
       "Isometric Drawing",
@@ -7940,7 +7859,8 @@ const CURRICULUM_DATA = {
       "Dimensioning and Tolerancing",
       "Solid Modelling Basics",
       "Computer-Aided Design (CAD) Introduction",
-      "Technical Drawing Standards",
+      "Technical Drawing Standards"
+    
     ],
     outlineFile: "course-outlines/GET102.json"
   },
@@ -9681,22 +9601,20 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2023",
     topics: [
-      "Brief history of computing",
-      "Description of the basic components of a computer/computing device",
-      "Input/Output devices and peripherals",
-      "Hardware, software and human ware",
-      "Information processing and its roles in society",
-      "The Internet, its applications and its impact on the world today",
-      "The different areas/programs of the computing discipline",
-      "The job specializations for computing professionals",
-      "History of Computers",
-      "Basic Components of Computer",
-      "Algorithms & Flowcharts",
+      "Computer Basics",
+      "Hardware",
+      "Software",
+      "Flow;charts",
+      "Flowcharts",
       "FORTRAN",
-      "Data Structures",
-      "Hardware & Software",
+      "Introduction to Algorithms",
       "Programming Fundamentals",
+      "Data Structures",
       "Operating Systems",
+      "internet and its application",
+      "History of computer",
+      "Basic components of computer"
+    
     ],
     outlineFile: "course-outlines/COS101.json"
   },
@@ -10598,13 +10516,6 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2023",
     topics: [
-      "Diversity of animal forms, structures, and functions",
-      "Multicellularity and development of embryonic layers",
-      "History of animal diversity, basis of categorization of the diversity of animals (symmetry, organization of tissues, body cavity, developmental mode, fate of blastopore)",
-      "Major feature of animal phylogenetics tree",
-      "Introduction to animal systematic",
-      "Geographical distribution of animal life and issues in the conservation of biodiversity with emphasis on Nigerian species",
-      "General classification of animal kingdom. - binomial nomenclature; international rules of zoological nomenclature (brief account); new trends in systematics: numerical taxonomy (Phenetics), cladistics (phylogenetic systematics), molecular systematics. 200 Level",
       "Introduction to Animal Diversity",
       "Phylum Protozoa",
       "Phylum Coelenterata",
@@ -10614,7 +10525,8 @@ const CURRICULUM_DATA = {
       "Phylum Mollusca",
       "Phylum Annelida",
       "Phylum Echinodermata",
-      "Phylum Chordata",
+      "Phylum Chordata"
+    
     ],
     outlineFile: "course-outlines/ZOO102.json"
   },
@@ -19240,21 +19152,15 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2023",
     topics: [
-      "The nature of African society before colonialism",
-      "Establishment of colonial rule in Africa",
-      "As well as different systems of colonial administration and economic policies",
-      "The problem of neo-colonialism and dependency",
-      "Contemporary problems in Africa -Political crises, poverty, illicit financial flows, structural adjustment and debt crisis in Africa",
-      "Meaning of Political Science",
+      "Introduction to Political Science",
       "State and Nation",
       "Political Ideologies",
-      "Democracy",
-      "Citizenship",
-      "Political Participation",
       "Constitution",
-      "Rule of Law",
+      "Democracy",
+      "Political Participation",
       "Political Parties",
-      "Electoral Systems",
+      "International Relations"
+    
     ],
     outlineFile: "course-outlines/POL102.json"
   },
@@ -19295,12 +19201,7 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2023",
     topics: [
-      "Nature of legal administration and judicial processes in Nigeria",
-      "Sources of Nigerian law: English law, received law, customary law, judicial precedent",
-      "Hierarchy and powers of the courts",
-      "Administration of justice under military and civilian rule",
-      "Overview of the Nigerian legal system",
-      "Features of Legal System",
+      "Feature of Legal System",
       "Law Theory",
       "Classification of Law",
       "Sources of Nigerian Law",
@@ -19310,6 +19211,11 @@ const CURRICULUM_DATA = {
       "How to Prove Customary Laws in Court",
       "Judiciary Decision",
       "Types of Precedent",
+      "Features of Legal System",
+      "Sources of Nigeria Law",
+      "Customary Law, Definition & Features",
+      "Types of President"
+    
     ],
     outlineFile: "course-outlines/POL104.json"
   },
@@ -19327,13 +19233,15 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2023",
     topics: [
-      "Process of Nigerian Constitutional Development in a chronological and sequential order",
-      "Colonization The Clifford Constitution",
-      "The Richards constitution",
-      "The McPherson Constitution",
-      "The Lyttleton Constitution",
-      "The Independence, the Republican Constitutions",
-      "The 1979 Constitution and the 1999 Constitution. 200 Level"
+      "Nigerian Government and Politics",
+      "Colonial Administration",
+      "Constitutional Development",
+      "Federalism",
+      "Political Institutions",
+      "Electoral Systems",
+      "Public Administration",
+      "Political Challenges in Nigeria"
+    
     ],
     outlineFile: "course-outlines/POL105.json"
   },
@@ -23156,14 +23064,6 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2023",
     topics: [
-      "Number systems; Indices, Surds and logarithms; Polynomials; Remainder and factor theorems; Polynomial equations; Rational functions; Partial fractions; Fields; Ordered fields; Inequalities; Mathematical Induction",
-      "Permutations and combinations; Binomial theorem; Sequences and series; The quadratic equation and function; Relation between the roots and the coefficients; Complex numbers; Addition",
-      "Subtraction, multiplication and division; Argand diagram; De-Moivre’s theorem, n-th roots of complex numbers; Elementary set theory",
-      "Venn diagrams and applications; De-Morgan’s laws; Trigonometry; Elementary properties of basic trigonometric functions",
-      "Addition formulae and basic identities; Sine and cosine formulae; Half angle formulae; Area of a triangle; Solution of trigonometric equations; Inverse trigonometric functions; Functions; Concept and notation; Examples",
-      "Composition, exponential and logarithmic functions; Graphs and properties; Limits and continuity; Techniques for finding limits; The derivative; Calculation from first principles",
-      "Techniques of differentiation; Chain rule; Higher order derivatives; Extremum problems; Mean-value theorem; Applications; Indeterminate forms and L’ Hospital’s rule; Taylor’s and MaClauren’s series; Curve sketching",
-      "Integrations as the reverse of differentiation, as area, as limit of finite sums; Definite integrals; Properties of definite integrals; Applications",
       "Basic Mathematics for Social Sciences",
       "Algebraic Functions",
       "Linear Equations and Inequalities",
@@ -23171,7 +23071,8 @@ const CURRICULUM_DATA = {
       "Exponential and Logarithmic Functions",
       "Basic Calculus for Social Sciences",
       "Optimization Techniques",
-      "Mathematical Modeling",
+      "Mathematical Modeling"
+    
     ],
     outlineFile: "course-outlines/AMS102.json"
   },
@@ -23212,9 +23113,6 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2023",
     topics: [
-      "Concept of project management. purpose. processes of project delivery within any project management environment; Actors",
-      "The tools and techniques used in project management",
-      "Traditional and contemporary project management methods. projects bottle neck and possible solutions. project life cycle",
       "Concept of Project and Project Management",
       "Project Objectives and Constraints",
       "Project Life Cycle",
@@ -23226,7 +23124,8 @@ const CURRICULUM_DATA = {
       "Project Bottlenecks and Solutions",
       "Risk Management in Projects",
       "Stakeholder Engagement",
-      "Communication in Project Management",
+      "Communication in Project Management"
+    
     ],
     outlineFile: "course-outlines/AMS104.json"
   },
@@ -23268,14 +23167,6 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2023",
     topics: [
-      "Basic principles of management",
-      "Principles and practices of contemporary business",
-      "The functional areas of business",
-      "Marketing, production, finance and accounting functions",
-      "Sources of business finance; Government and business",
-      "The Social responsibility of business; International business",
-      "Business risks and uncertainties; Problems of Nigerian business enterprises",
-      "Ethical and social responsibilities of business. 200 Level",
       "Introduction to Business",
       "Business Environment",
       "Forms of Business Ownership",
@@ -23283,7 +23174,8 @@ const CURRICULUM_DATA = {
       "Marketing",
       "Business Finance",
       "Entrepreneurship",
-      "Business Communication",
+      "Business Communication"
+    
     ],
     outlineFile: "course-outlines/BUA102.json"
   },
@@ -30130,24 +30022,8 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "Verified real course code + content from NUC CCMAS 2023 (Administration and Management)",
     topics: [
-      "The history of the British consumer cooperative movement",
-      "The structure and problems of the consumer market in Nigeria",
-      "The concept of competitive and monopolistic market structure",
-      "The social criticisms of the capitalist market: - high prices, wasteful advertising, hoarding goods etc",
-      "The diseconomies of the prevailing distributive system",
-      "The introduction of consumer co-operative in Nigeria with the NCSA in 1940",
-      "Reasons for failure of early societies",
-      "The choice between a “top-downwards” and “bottom-upwards” organization structure",
-      "Organization and Management of Cooperatives",
-      "Cooperative Principles and Values",
-      "Cooperative Governance Structure",
-      "Membership and Capital Formation",
-      "Cooperative Business Management",
-      "Financial Management in Cooperatives",
-      "Marketing and Supply Cooperatives",
-      "Consumer Cooperatives",
-      "Credit and Thrift Cooperatives",
-      "Cooperative Education and Training",
+      "Organization & Management of Cooperatives"
+    
     ],
     outlineFile: "course-outlines/CRD102.json"
   },
@@ -30188,11 +30064,6 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "Verified real course code + content from NUC CCMAS 2023 (Administration and Management)",
     topics: [
-      "Information Technology softwares for rural mapping (types of geographic information softwares and uses)",
-      "Methods of motivating society for social actions through the community development organizers",
-      "The 164 different approaches to community modernization",
-      "Constrains and obstacles to rural development in Nigeria, conflicts and resolution techniques",
-      "Various State Government blueprints on rural development",
       "Concept of Rural and Rural Development",
       "Meaning and Dimensions of Development",
       "Goals and Objectives of Rural Development",
@@ -30202,7 +30073,8 @@ const CURRICULUM_DATA = {
       "Appraisal of Rural Development Projects",
       "Problems of Rural Development in Nigeria",
       "Community Development and Social Actions",
-      "Rural Financing and Cooperatives",
+      "Rural Financing and Cooperatives"
+    
     ],
     outlineFile: "course-outlines/CRD104.json"
   },
@@ -30242,14 +30114,6 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "Verified real course code + content from NUC CCMAS 2023 (Administration and Management)",
     topics: [
-      "165 Meaning of “Education” and “Cooperative Education”. Reasons for cooperative education",
-      "Development of cooperative education in Nigeria",
-      "Target groups and scope of cooperative education",
-      "Cooperative education as adult education – aims, basic principles",
-      "The adult learner and the learning environment etc",
-      "Teaching tools and audio-visual aids – radio, TV, video, films, OHP, etc",
-      "Their uses and limitations in cooperative education",
-      "Financing cooperative education: Follow-up, evaluation, and feedback devices",
       "Cooperative Education and Training",
       "Job Readiness and Workplace Skills",
       "Health and Safety in Cooperatives",
@@ -30258,7 +30122,8 @@ const CURRICULUM_DATA = {
       "Professional Development in Cooperatives",
       "Integration of Theory and Practice",
       "Work Experience and Log Sheets",
-      "Career Research and Planning",
+      "Career Research and Planning"
+    
     ],
     outlineFile: "course-outlines/CRD106.json"
   },
@@ -35527,11 +35392,6 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "Verified real course code + content from NUC CCMAS 2023 (Education)",
     topics: [
-      "Basic principles, techniques and skills of counselling",
-      "Stages of a typical counselling situation: referral, diagnosis, therapy, termination, follow-up",
-      "Techniques from Freudian, Neo-Freudian and Rational-Emotive theories",
-      "Techniques from Client-centred therapy, Logotherapy and Pastoral counselling",
-      "Use of interviews and interactions with learners, parents and school administrators",
       "Meaning of Guidance and Counselling",
       "Nature of Counselling",
       "Goals of Guidance",
@@ -35539,7 +35399,8 @@ const CURRICULUM_DATA = {
       "Functions of Guidance Services",
       "Counselling Ethics",
       "Educational Guidance",
-      "Vocational Guidance",
+      "Vocational Guidance"
+    
     ],
     outlineFile: "course-outlines/GCE102.json"
   },
@@ -36380,19 +36241,14 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "Verified real course code + content from NUC CCMAS 2023 (Education)",
     topics: [
-      "Core concepts of computing, problems and problem-solving; routine vs non-routine problems",
-      "Methods of solving computing problems: introduction to algorithms and heuristics",
-      "Solution techniques: abstraction, analogy, brainstorming, trial and error, hypothesis testing, divide and conquer",
-      "Solvable and unsolvable problems; general problem-solving process",
-      "Solution formulation and design using flowchart, pseudocode, decision table and decision tree",
-      "Implementation, evaluation and refinement of solutions",
       "Core Concepts of Computing",
       "Routine vs Non-routine Problems",
       "Algorithms & Heuristics",
       "Abstraction & Analogy",
       "Brainstorming & Trial/Error",
       "Flowcharts & Pseudocode",
-      "Decision Tables & Trees",
+      "Decision Tables & Trees"
+    
     ],
     outlineFile: "course-outlines/COS102.json"
   },
@@ -42794,21 +42650,14 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2023",
     topics: [
-      "Meaning and Scope of Agriculture.Importance of Agriculture to an expanded economy.Agricultural Ecology.Genetics, Agronomy.Rocks and Soil formation.Soil and Water Conservation.Soil Fertility",
-      "Land Preparation methods (soil tillage systems); Soil-water-plant relationship",
-      "Plant Forms and functions, Growth, Development and Reproduction",
-      "Plant Propagation Methods.Cropping Systems, Planting Patterns and Plant Densities.Crop Husbandry, Pasture and Forage Crops",
-      "Floriculture; Weeds; Crop Diseases; Crop Pests; Forest management (Silviculture); Crop Improvement; Animal Production",
-      "Forms and classification of major farm animals in WestAfrica",
-      "General terminology in animal production; Anatomy and physiology of farm animals; Reproduction in farm animals; Animal Nutrition",
-      "Livestock Management; Animal Health; Fisheriesand Wildlife; Bee-keeping (Apiculture); Animal Improvement",
       "Introduction to Agriculture",
       "Agricultural Systems and Practices",
       "Soil Science Basics",
       "Crop Production Principles",
       "Agricultural Economics Introduction",
       "Farm Management Principles",
-      "Agricultural Extension Services",
+      "Agricultural Extension Services"
+    
     ],
     outlineFile: "course-outlines/AGG102.json"
   },
@@ -42826,21 +42675,14 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2023",
     topics: [
-      "History of Agricultural Development in West Africa; Roles of Government and NGOs in Agricultural Development",
-      "Factors of agricultural production; Basic Economic Principles",
-      "Characteristic Features of Agricultural Production; Labour Management; Farm Management",
-      "Marketing of Agricultural Produce; Agricultural Extension; Agricultural Technology",
-      "Farm surveying and farmstead planning; Simple Farm Tools; Farm machinery and implements",
-      "Mechanization and sources of farm power; Processing and storage",
-      "Introduction to biotechnology; Application of ICT in agriculture",
-      "Introduction to agricultural research and statistics",
       "Introduction to Agriculture II",
       "Livestock Management",
       "Farm Machinery",
       "Animal Nutrition",
       "Breeding and Genetics",
       "Disease Control and Prevention",
-      "Pasture and Range Management",
+      "Pasture and Range Management"
+    
     ],
     outlineFile: "course-outlines/AGG112.json"
   },
@@ -49203,14 +49045,6 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2023",
     topics: [
-      "What is composition writing in French? Importance of a composition in French",
-      "What is logical thinking and coherence in the organisation of ideas? Main parts of a composition in French",
-      "Content of an introduction; Content of the body of a composition",
-      "Content of the conclusion of a composition",
-      "Types of composition in French- argumentative, narrative and descriptive compositions",
-      "Grammatical elements and their proper use in a composition",
-      "Importance of proof-reading",
-      "Simple essays on the student’s live, family, community and academic environment",
       "Introduction to Composition Writing in French",
       "Sentence Structure and Syntax",
       "Paragraph Development",
@@ -49218,7 +49052,8 @@ const CURRICULUM_DATA = {
       "Formal and Informal Writing",
       "Creative Writing in French",
       "Letter Writing",
-      "Descriptive and Narrative Writing",
+      "Descriptive and Narrative Writing"
+    
     ],
     outlineFile: "course-outlines/FRE104.json"
   },
@@ -49236,21 +49071,17 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2023",
     topics: [
-      "Meaning of Translation; Importance of translation as a subject",
-      "Translation of simple words from French to English; Translation of simple words from English to French",
-      "Translation of simple sentences in the present tense from French to English",
-      "Translation of simple sentences in the present tense from English to French",
-      "Translation of simple sentences in the passé composé; Translation of simple sentences in the ‘futur’",
-      "Translation of simple sentences from French Metropolitan prose or proses from other Francophone literary sources",
-      "Translation of simple terms in the social sciences disciplines",
-      "Translation of simple terms in the sciences disciplines",
       "Definitions of Translation",
       "Importance of Translation",
-      "Translation of Simple Words & Sentences",
-      "Present Tense Translation",
-      "Status and Importance of French in West Africa",
-      "Status and Importance of French in Contemporary World",
-      "Varieties of French",
+      "Translation of simple words from French to English",
+      "Translation of simple words from English to French",
+      "Translation of simple sentences in the present tense from French to English",
+      "Translation of simple sentences in the present tense from English to French",
+      "Translation of simple sentences in the present tense",
+      "Status and importance of French in West Africa",
+      "Status and importance of French in contemporary world",
+      "Varieties of French in the world today"
+    
     ],
     outlineFile: "course-outlines/FRE105.json"
   },
@@ -49268,14 +49099,6 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2023",
     topics: [
-      "Meaning of literature; Importance of literature; What are the three main literary genres? Introduction to the novel",
-      "What is a play? Meaning of poetry and its characteristics",
-      "Introduction to French Metropolitan literature; Introduction to French Caribbean literature",
-      "Introduction to Francophone African literature",
-      "Principles, concepts and theories associated with literary appreciation; Objectivity in literary appreciation",
-      "Analysis of extract of representative texts from French Metropolitan literature",
-      "Analysis of extract of representative texts from French Caribbean literature",
-      "Analysis of extract of representative texts from Francophone African literature",
       "Introduction to Literary Appreciation",
       "Elements of Literature",
       "Genres of Literature",
@@ -49283,7 +49106,8 @@ const CURRICULUM_DATA = {
       "Text Analysis and Interpretation",
       "Explication de Texte",
       "Resume de Texte",
-      "Analyse Litteraire",
+      "Analyse Litteraire"
+    
     ],
     outlineFile: "course-outlines/FRE106.json"
   },
@@ -49326,14 +49150,6 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2023",
     topics: [
-      "Origins of negro-African literature in French",
-      "The common historical origins of Francophone Caribbean and Francophone continental African writers",
-      "Slavery and its effects on the development of Africa",
-      "Colonialism and its effects on the development of Africa",
-      "The review Légitime Defence as prelude to the Negritude movement",
-      "What did the journal Présence Africaine stand for? What is negritude? Who are the negritude writers- Aimé Césaire, Léon Damas and Léopold Sédar Senghor",
-      "Contributions of the trio to the negritude movement and negro-African literature generally",
-      "Other writers on Negritude- Guy Tirolien, Bernard Dadié; Aesthetic value of works of negro-African writers",
       "Introduction to Negro-African Literature in French",
       "Historical Development of Francophone African Literature",
       "Negritude Movement",
@@ -49342,7 +49158,8 @@ const CURRICULUM_DATA = {
       "Myths and Legends in Francophone Africa",
       "Post-colonial African Literature",
       "Major Themes in African Literature",
-      "Literary Analysis of African Texts",
+      "Literary Analysis of African Texts"
+    
     ],
     outlineFile: "course-outlines/FRE108.json"
   },
@@ -49360,23 +49177,21 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2023",
     topics: [
-      "Location of Nigeria among neighbouring Francophone countries",
-      "Historical and cultural relationship between Nigeria and her Francophone neighbours",
-      "Informal trade between Nigeria and her Francophone neighbours; Formal trade between Nigeria and her Francophone neighbours",
-      "Educational cooperation between Nigeria and her Francophone neighbours; Nigeria and her Francophone neighbours in politics of ECOWAS",
-      "Nigeria and her Francophone neighbours in politics of the African Union (A.U.)",
-      "Nigeria and her Francophone neighbours in international politics",
-      "Benefits derivable by individual Nigerians and individual citizens of Nigeria’s Francophone neighbours from cooperation between their countries",
-      "Benefits in terms of national interests; Survey of possible areas of future cooperation between Nigeria and her Francophone neighbours",
-      "Effect of Colonial Demarcation",
-      "Geopolitical Context",
-      "Concentric Circle and Core Interest",
-      "Challenges of Arbitrary Borders",
+      "Effect of colonial demarcation/Immigration",
+      "Geopolitical and Boundary",
+      "The Geopolitical Context",
+      "Concentric circle and core Interest",
+      "Challenges of Arbitrary Porosity Border",
       "Structural Porosity",
-      "British vs French Colonial Administration",
-      "French Assimilation and Association",
-      "Colonial Legacy",
+      "Comparative Analysis",
+      "British versus French Colonial Analysis",
+      "Comparative colonial Administration in West and colonial Africa",
+      "French assimilation and association",
+      "Colonial legacy and Post-independence governance",
       "Implication for Nigeria-Francophone Relations",
+      "British and French system compared",
+      "Colonial Administration: Comparing British indirect rule and French Assimilation/Association"
+    
     ],
     outlineFile: "course-outlines/FRE109.json"
   },
@@ -49394,14 +49209,6 @@ const CURRICULUM_DATA = {
     hasContent: true,
     outlineVersion: "CCMAS-2023",
     topics: [
-      "Evolution of the French language from its origin in Vulgar Latin; First known document on the origin of the French language",
-      "Major influences on the French language over the centuries-political, cultural, scientific influences",
-      "Various manifestations of regional dialects and local circumstances on French",
-      "Contribution of Latin to French vocabulary and grammar",
-      "Contribution of Ancient Greek, Italian, Occitan to the development of the French language",
-      "Contribution of Arabic, English etc to the lexical development of French; Status of French in West Africa",
-      "Importance of French in Africa.Status and importance of French in contemporary world",
-      "Varieties of French in the world today e.g. Standard French, Canadian French, Ivorian French, Beninese French etc. 200 Level Arts",
       "History of the French Language",
       "Origins and Evolution of French",
       "Latin Roots of French",
@@ -49410,7 +49217,8 @@ const CURRICULUM_DATA = {
       "Classical French",
       "Modern French",
       "Regional Varieties of French",
-      "Language Planning and Policy in France",
+      "Language Planning and Policy in France"
+    
     ],
     outlineFile: "course-outlines/FRE110.json"
   },
@@ -107696,18 +107504,27 @@ const CURRICULUM_DATA = {
     faculty: ["science"],
     dept: ["all"],
     icon: "🌱",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
-      "Agricultural Systems",
       "Principles of Agricultural Extension",
-      "Soil Science",
-      "Crop Production",
+      "Extension Systems in Nigeria",
+      "History of Agricultural Extension",
+      "Cultural Practices",
       "Aquaculture",
       "Livestock Management",
-      "Farm Machinery",
+      "Historical Development",
+      "Importance and Challenges",
+      "Economic Opportunities",
+      "Forestry and Environment",
       "Rural Development",
-      "Importance and Challenges of Agriculture",], // NEEDS REVIEW — no topics yet
+      "Farm Machinery",
+      "Agricultural Systems",
+      "Plant Production",
+      "Soil Science",
+      "Crop Production",
+      "Animal Husbandry"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/GES151.json"
   },
 
@@ -107737,13 +107554,14 @@ const CURRICULUM_DATA = {
     faculty: ["science"],
     dept: ["computer_science", "computer_science_education", "mathematics", "statistics"],
     icon: "💾",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Statistical Computing Tools",
       "Data Visualization",
       "Descriptive Statistics with Software",
-      "Probability Computations",], // NEEDS REVIEW — no topics yet
+      "Probability Computations"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/STA102.json"
   },
 
@@ -107757,7 +107575,7 @@ const CURRICULUM_DATA = {
     faculty: ["social_sciences"],
     dept: ["other"],
     icon: "🗺️",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Fundamentals of Tourism",
@@ -107771,7 +107589,8 @@ const CURRICULUM_DATA = {
       "Economic Impacts of Tourism",
       "Socio-cultural Impacts of Tourism",
       "Environmental Impacts of Tourism",
-      "Tourism Planning and Development",], // NEEDS REVIEW — no topics yet
+      "Tourism Planning and Development"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/TPM102.json"
   },
 
@@ -107785,7 +107604,7 @@ const CURRICULUM_DATA = {
     faculty: ["education"],
     dept: ["education", "guidance_and_counselling"],
     icon: "🧠",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Introduction to Counselling",
@@ -107795,7 +107614,8 @@ const CURRICULUM_DATA = {
       "Stages of Counselling",
       "Counselling Interview",
       "Communication in Counselling",
-      "Problems of Counselling",], // NEEDS REVIEW — no topics yet
+      "Problems of Counselling"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/GCE114.json"
   },
 
@@ -107809,7 +107629,7 @@ const CURRICULUM_DATA = {
     faculty: ["education"],
     dept: ["education", "guidance_and_counselling"],
     icon: "🎓",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Meaning of Educational Psychology",
@@ -107819,7 +107639,8 @@ const CURRICULUM_DATA = {
       "Intelligence",
       "Personality Development",
       "Classroom Behaviour",
-      "Educational Assessment",], // NEEDS REVIEW — no topics yet
+      "Educational Assessment"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/GCE116.json"
   },
 
@@ -107833,7 +107654,7 @@ const CURRICULUM_DATA = {
     faculty: ["education"],
     dept: ["education", "guidance_and_counselling"],
     icon: "👥",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Concept of Human Development",
@@ -107843,7 +107664,8 @@ const CURRICULUM_DATA = {
       "Emotional Development",
       "Moral Development",
       "Adolescent Development",
-      "Challenges of Development",], // NEEDS REVIEW — no topics yet
+      "Challenges of Development"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/GCE118.json"
   },
 
@@ -107857,7 +107679,7 @@ const CURRICULUM_DATA = {
     faculty: ["education"],
     dept: ["education", "guidance_and_counselling"],
     icon: "📚",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Psychoanalytic Theory",
@@ -107867,7 +107689,8 @@ const CURRICULUM_DATA = {
       "Reality Therapy",
       "Gestalt Therapy",
       "Existential Therapy",
-      "Application of Counselling Theories",], // NEEDS REVIEW — no topics yet
+      "Application of Counselling Theories"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/GCE120.json"
   },
 
@@ -107881,7 +107704,7 @@ const CURRICULUM_DATA = {
     faculty: ["science"],
     dept: ["computer_science_education", "education"],
     icon: "🧪",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Meaning of Science Education",
@@ -107891,7 +107714,8 @@ const CURRICULUM_DATA = {
       "Laboratory Management",
       "Instructional Materials",
       "Evaluation in Science Education",
-      "Problems of Science Education",], // NEEDS REVIEW — no topics yet
+      "Problems of Science Education"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/STE154.json"
   },
 
@@ -107905,20 +107729,26 @@ const CURRICULUM_DATA = {
     faculty: ["education", "social_sciences"],
     dept: ["adult_education", "computer_science_education", "education", "guidance_and_counselling", "social_studies"],
     icon: "📘",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Athenian vs Spartan Education",
       "Education in Ancient Rome",
       "Pioneers of Educational Thought",
       "Traditional Education in Nigeria and Advent of Islamic Education",
-      "The Advent of Western Education in Nigeria, Education Ordinances, Commissions and Boards since 1882",
-      "Free Education in the Western and Eastern Regions / Post-Independence Development",
+      "Advent of Western Education - Ordinances, Commissions, Boards since 1882",
+      "Free Education in Western and Eastern Regions / Post-Independence Development",
       "The 1969 Curriculum Conference",
       "National Policy on Education",
       "Universal Primary Education / Universal Basic Education",
       "History of Higher Education in Nigeria",
-      "Philosophy and Education",], // NEEDS REVIEW — no topics yet
+      "Philosophy and Education",
+      "The Advent of Western Education in Nigeria, Education Ordinances, Commissions and Boards since 1882",
+      "Free Education in the Western and Eastern Regions, Post-Independence Education Development",
+      "National Policy on Education (First to Sixth Edition)",
+      "Universal Primary Education, Universal Basic Education",
+      "Philosophy and Education, Branches of Philosophy, Schools of Philosophy and their Implication for Educational Practices, Knowledge, Values, Attitudes and Education"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/EDU152.json"
   },
 
@@ -107932,7 +107762,7 @@ const CURRICULUM_DATA = {
     faculty: ["education"],
     dept: ["education", "guidance_and_counselling"],
     icon: "🗣️",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Communication Process",
@@ -107942,7 +107772,8 @@ const CURRICULUM_DATA = {
       "Questioning Techniques",
       "Empathy in Counselling",
       "Barriers to Communication",
-      "Effective Counselling Communication",], // NEEDS REVIEW — no topics yet
+      "Effective Counselling Communication"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/GCE122.json"
   },
 
@@ -107956,7 +107787,7 @@ const CURRICULUM_DATA = {
     faculty: ["education", "social_sciences"],
     dept: ["education", "guidance_and_counselling", "social_studies"],
     icon: "🌍",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Social Studies as a course in Nigerian Schools",
@@ -107965,7 +107796,12 @@ const CURRICULUM_DATA = {
       "Evolution/Relationship between Social Studies and other Social Sciences",
       "Social Studies as a Vehicle to Citizenship Education",
       "Current State of Social Studies",
-      "The Three Traditions of Social Studies",], // NEEDS REVIEW — no topics yet
+      "The Three Traditions of Social Studies",
+      "Social Studies as a Course in Nigeria: Philosophy/Rationale",
+      "General Requirement of Social Studies",
+      "Evolution and Frequency of Social Studies",
+      "Relationship of Social Studies to Other Social Sciences"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/ESS100.json"
   },
 
@@ -107979,18 +107815,19 @@ const CURRICULUM_DATA = {
     faculty: ["education", "social_sciences"],
     dept: ["civic_education", "education", "social_studies"],
     icon: "🗳️",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Introduction to Civic Education",
       "Concept of Civic Education",
       "Relationship between Social Studies and Civic Education",
-      "Development of Civic Education in Nigeria",
-      "Subject Objectives and Rationale of Civic Education",
-      "Scope of Civic Education",
+      "Development of Civic Education as a School Subject in Nigeria",
+      "Objectives and Rationale of Civic Education",
+      "Scope of Civic Education and Its Relationship with Other Subjects",
       "Civic Education in Other Nations",
       "History of Civic Education in Nigeria",
-      "Civic Education Definition and Benefits",], // NEEDS REVIEW — no topics yet
+      "Civic Education Definition and Benefits"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/ESS112.json"
   },
 
@@ -108004,7 +107841,7 @@ const CURRICULUM_DATA = {
     faculty: ["education", "social_sciences"],
     dept: ["civic_education", "political_science", "social_studies"],
     icon: "⚖️",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Concept of Democracy and Democratic Values",
@@ -108014,7 +107851,11 @@ const CURRICULUM_DATA = {
       "Election and Voting Processes in Nigeria",
       "Challenges and Way Forward",
       "Voters Apathy: Causes, Effect and Remedy",
-      "Prospect and Challenges of Democracy in Nigeria",], // NEEDS REVIEW — no topics yet
+      "Prospect and Challenges of Democracy in Nigeria",
+      "Practice of Democracy in Nigeria",
+      "Voters Education - Concept and Objectives",
+      "Voters Apathy - Causes, Effects, and Remedies"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/ESS116.json"
   },
 
@@ -108028,15 +107869,22 @@ const CURRICULUM_DATA = {
     faculty: ["education", "social_sciences"],
     dept: ["education", "guidance_and_counselling", "social_studies"],
     icon: "🌱",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
+      "Family Based Structure of Society",
+      "Nature, Types, and Structure of the Family",
+      "Traditional and Modern Functions of the Family",
+      "Problems of Living among Family",
+      "Family as a Micro Society",
+      "Some Social Institutions that are Family Based",
+      "Changes in Family Based Institutions",
+      "Causes of Changes in Family",
       "Nature, Types and Structure of the Family",
       "Traditional Functions of the Family",
       "Relationships of the Family",
-      "Family as a Micro Society",
-      "Some Social Institutions that are Family Based",
-      "Changes in Family Institution / Causes of Changes in Family Institution",], // NEEDS REVIEW — no topics yet
+      "Changes in Family Institution / Causes of Changes in Family Institution"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/ESS122.json"
   },
 
@@ -108074,7 +107922,7 @@ const CURRICULUM_DATA = {
     faculty: ["social_sciences"],
     dept: ["psychology"],
     icon: "🧪",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Experimental Psychology",
@@ -108084,7 +107932,8 @@ const CURRICULUM_DATA = {
       "Data Collection",
       "Hypothesis Testing",
       "Laboratory Experiments",
-      "Ethics in Experimentation",], // NEEDS REVIEW — no topics yet
+      "Ethics in Experimentation"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/PSY154.json"
   },
 
@@ -108098,7 +107947,7 @@ const CURRICULUM_DATA = {
     faculty: ["social_sciences"],
     dept: ["psychology"],
     icon: "🧒",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Human Development",
@@ -108108,7 +107957,8 @@ const CURRICULUM_DATA = {
       "Cognitive Development",
       "Language Development",
       "Social Development",
-      "Personality Development",], // NEEDS REVIEW — no topics yet
+      "Personality Development"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/PSY156.json"
   },
 
@@ -108122,17 +107972,18 @@ const CURRICULUM_DATA = {
     faculty: ["social_sciences"],
     dept: ["psychology"],
     icon: "📊",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Research in Psychology",
       "Scientific Method",
       "Sampling Techniques",
       "Data Collection Methods",
-      "Questionnaire Design",
-      "Observation Method",
       "Statistical Analysis",
-      "Research Report Writing",], // NEEDS REVIEW — no topics yet
+      "Research Report Writing",
+      "Ethics in Research",
+      "Questionnaire Design"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/PSY158.json"
   },
 
@@ -108146,7 +107997,7 @@ const CURRICULUM_DATA = {
     faculty: ["science"],
     dept: ["biology"],
     icon: "🦠",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Introduction to Microbiology",
@@ -108156,7 +108007,8 @@ const CURRICULUM_DATA = {
       "Viruses",
       "Fungi",
       "Microbial Growth",
-      "Sterilization Techniques",], // NEEDS REVIEW — no topics yet
+      "Sterilisation Techniques"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/MCB102.json"
   },
 
@@ -108170,19 +108022,18 @@ const CURRICULUM_DATA = {
     faculty: ["education"],
     dept: ["adult_and_continuing_education", "adult_education", "education"],
     icon: "🧑‍🏫",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
-      "Concept of Adult Education",
-      "History of Adult Education in Nigeria",
-      "Principles of Adult Learning",
-      "Characteristics of Adult Learners",
-      "Community Development",
-      "Informal and Non-formal Education",
-      "Literacy Education",
-      "Extension Education",
-      "Lifelong Learning",
-      "Adult Teaching Methods",], // NEEDS REVIEW — no topics yet
+      "Foundations of Adult Education",
+      "History of Adult Education",
+      "Adult Learning Theories",
+      "Lifelong Education",
+      "Community Education",
+      "Non-formal Education",
+      "Adult Education Programmes",
+      "Challenges of Adult Education"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/ADE108.json"
   },
 
@@ -108196,19 +108047,18 @@ const CURRICULUM_DATA = {
     faculty: ["education"],
     dept: ["adult_and_continuing_education", "adult_education", "education"],
     icon: "📘",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
-      "Introduction to Adult Education",
-      "Philosophy of Adult Education",
-      "Scope of Adult Education",
-      "Functions of Adult Education",
-      "Types of Adult Education",
-      "Continuing Education",
-      "Mass Literacy Programmes",
-      "Community Education",
+      "Introduction to Continuing Education",
+      "Extension Education",
+      "Continuing Professional Development",
+      "Community Outreach",
       "Distance Learning",
-      "Adult Education Agencies",], // NEEDS REVIEW — no topics yet
+      "Adult Literacy",
+      "Rural Education",
+      "Educational Program Planning"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/EAE102.json"
   },
 
@@ -108222,19 +108072,18 @@ const CURRICULUM_DATA = {
     faculty: ["education"],
     dept: ["adult_and_continuing_education", "adult_education", "education"],
     icon: "🗣️",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
-      "Adult Learning Communication",
-      "Communication Skills",
-      "Teaching Strategies",
-      "Group Discussion Methods",
-      "Counselling in Adult Education",
-      "Learning Barriers",
+      "Principles of Extension Education",
+      "Communication in Extension Work",
       "Community Mobilization",
-      "Leadership in Adult Education",
-      "Extension Communication",
-      "Participatory Learning",], // NEEDS REVIEW — no topics yet
+      "Rural Development Strategies",
+      "Extension Programme Planning",
+      "Evaluation of Extension Services",
+      "Leadership in Community Development",
+      "Field Work in Extension Education"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/EAE162.json"
   },
 
@@ -108248,19 +108097,18 @@ const CURRICULUM_DATA = {
     faculty: ["education"],
     dept: ["adult_and_continuing_education", "adult_education", "education"],
     icon: "👥",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
-      "Sociology of Education",
-      "Education and Society",
-      "Social Institutions",
-      "Culture and Education",
-      "Social Change",
-      "Family and Education",
-      "Education and Socialization",
-      "Education and Development",
-      "Social Problems in Education",
-      "Community Participation",], // NEEDS REVIEW — no topics yet
+      "Introduction to Adult Education",
+      "Concept of Adult Learning",
+      "Characteristics of Adult Learners",
+      "Philosophy of Adult Education",
+      "Methods of Adult Teaching",
+      "Community Development",
+      "Literacy Education",
+      "Continuing Education"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/ADE106.json"
   },
 
@@ -108274,19 +108122,18 @@ const CURRICULUM_DATA = {
     faculty: ["education", "social_sciences"],
     dept: ["adult_and_continuing_education", "adult_education", "education"],
     icon: "💼",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
-      "Introduction to Entrepreneurship",
-      "Entrepreneurial Skills",
-      "Business Planning",
-      "Small Scale Enterprises",
-      "Innovation and Creativity",
-      "Business Opportunities",
-      "Risk Management",
-      "Leadership and Management",
-      "Financial Literacy",
-      "Self Reliance and Employment",], // NEEDS REVIEW — no topics yet
+      "Introduction to Social Institutions",
+      "Social Organization",
+      "Culture and Society",
+      "Social Change",
+      "Family and Marriage",
+      "Education and Society",
+      "Social Problems",
+      "Community Development"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/ESI102.json"
   },
 
@@ -108300,17 +108147,20 @@ const CURRICULUM_DATA = {
     faculty: ["science"],
     dept: ["engineering"],
     icon: "📐",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Technical Drawing Basics",
-      "Drawing Instruments",
+      "Engineering Instruments",
       "Orthographic Projection",
       "Isometric Drawing",
       "Dimensioning",
-      "Sectional Drawing",
-      "Engineering Scales",
-      "Blueprint Reading",], // NEEDS REVIEW — no topics yet
+      "Sectional Views",
+      "Geometric Construction",
+      "Scale Drawing",
+      "Engineering Graphics",
+      "CAD Introduction"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/GET112.json"
   },
 
@@ -108324,7 +108174,7 @@ const CURRICULUM_DATA = {
     faculty: ["social_sciences"],
     dept: ["banking_and_finance", "economics"],
     icon: "💰",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
       "Introduction to Banking",
@@ -108334,7 +108184,10 @@ const CURRICULUM_DATA = {
       "Banking Operations",
       "Electronic Banking",
       "Credit Creation",
-      "Banking Regulations",], // NEEDS REVIEW — no topics yet
+      "Banking Regulations",
+      "Financial Institutions",
+      "Modern Banking Systems"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/FIN156.json"
   },
 
@@ -108348,17 +108201,20 @@ const CURRICULUM_DATA = {
     faculty: ["social_sciences"],
     dept: ["banking_and_finance", "economics"],
     icon: "🏦",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-LEGACY",
     topics: [
-      "Meaning of Money",
+      "Money Concepts",
       "Functions of Money",
-      "Financial Institutions",
       "Commercial Banking",
       "Central Banking",
       "Monetary Policy",
       "Inflation",
-      "Financial Markets",], // NEEDS REVIEW — no topics yet
+      "Financial Systems",
+      "Credit Control",
+      "Banking Reforms",
+      "Money Market"
+    ], // NEEDS REVIEW — no topics yet
     outlineFile: "course-outlines/FIN158.json"
   },
 
@@ -108714,7 +108570,7 @@ const CURRICULUM_DATA = {
     faculty: ["education"],
     dept: ["all"],
     icon: "🎓",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-FROM-CBTJS",
     topics: [
       "Meaning of Education",
@@ -108725,6 +108581,7 @@ const CURRICULUM_DATA = {
       "Teacher Education",
       "Educational System",
       "Contemporary Issues in Education"
+    
     ],
     outlineFile: "course-outlines/EDU103.json"
   },
@@ -108739,7 +108596,7 @@ const CURRICULUM_DATA = {
     faculty: ["education", "social_sciences"],
     dept: ["adult_education", "computer_science_education", "education", "guidance_and_counselling", "social_studies"],
     icon: "🎓",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-FROM-CBTJS",
     topics: [
       "Meaning of Philosophy",
@@ -108750,6 +108607,7 @@ const CURRICULUM_DATA = {
       "Pragmatism",
       "Existentialism",
       "Educational Thinkers"
+    
     ],
     outlineFile: "course-outlines/EDU153.json"
   },
@@ -108764,7 +108622,7 @@ const CURRICULUM_DATA = {
     faculty: ["education", "social_sciences"],
     dept: ["civic_education", "education", "social_studies"],
     icon: "🏛️",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-FROM-CBTJS",
     topics: [
       "Introduction to Social Studies",
@@ -108774,6 +108632,7 @@ const CURRICULUM_DATA = {
       "Social Studies as a Value",
       "Current State of Social Studies",
       "The Tradition of Social Studies: Reflective Tradition"
+    
     ],
     outlineFile: "course-outlines/ESS120.json"
   },
@@ -108788,7 +108647,7 @@ const CURRICULUM_DATA = {
     faculty: ["education", "social_sciences"],
     dept: ["education", "guidance_and_counselling", "social_studies"],
     icon: "🌍",
-    hasContent: true,
+    hasContent: false,
     outlineVersion: "MERGED-FROM-CBTJS",
     topics: [
       "Introduction to Environmental Studies",
@@ -108799,6 +108658,7 @@ const CURRICULUM_DATA = {
       "Climate Change",
       "Environmental Conservation",
       "Waste Management"
+    
     ],
     outlineFile: "course-outlines/ESS180.json"
   },
