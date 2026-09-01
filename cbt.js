@@ -26220,15 +26220,21 @@ const CBT_DATA = {
     // or Firestore is unreachable) — either way, loadData() below falls
     // back to the original CBT_DATA bundle automatically.
     async function fetchFirestoreQuestions(subject) {
-        if (!window.__codexDb || !window.__codexGetDoc || !window.__codexDocFn) return null;
+        if (!window.__codexDb || !window.__codexGetDoc || !window.__codexDocFn) {
+            alert('[DEBUG] Firestore bridge not available: db=' + !!window.__codexDb + ' getDoc=' + !!window.__codexGetDoc + ' docFn=' + !!window.__codexDocFn);
+            return null;
+        }
         try {
             const ref = window.__codexDocFn(window.__codexDb, "questions", subject);
             const snap = await window.__codexGetDoc(ref);
             if (snap.exists() && snap.data().questions) {
+                alert('[DEBUG] Firestore doc found for ' + subject + ', topics: ' + Object.keys(snap.data().questions).join(', '));
                 return snap.data().questions;
+            } else {
+                alert('[DEBUG] Firestore doc for ' + subject + ' — exists: ' + snap.exists() + ', has questions field: ' + !!(snap.exists() && snap.data().questions));
             }
         } catch (e) {
-            console.warn('[Firestore questions] fetch failed, falling back to cbt.js:', e.message);
+            alert('[DEBUG] Firestore fetch THREW an error for ' + subject + ': ' + e.message);
         }
         return null;
     }
