@@ -210,7 +210,8 @@ const EXTERNAL_RESOURCES = {
 </script>
 
 <script type="module">
-import { initializeApp }             from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -222,7 +223,8 @@ const firebaseConfig = {
     appId:             "1:750631534625:web:5f59e1841bb856bdbba360"
 };
 const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 function getQueryParameter(name) {
     return new URLSearchParams(window.location.search).get(name);
@@ -244,16 +246,66 @@ async function initializeNotesDisplay() {
     }
 
     document.getElementById('subjectName').textContent = currentSubjectCode + ': ' + course.title;
-    currentTopics = course.topics || [];
+    currentTopics = Array.isArray(course.topics) ? course.topics : [];
     renderTopics(currentTopics);
 
-    // Fetch the published notes doc for this course, if it exists yet.
-    // Missing doc = content not generated for this course yet (handled per-topic in displayNotes).
+    // IMPORTANT:
+    // Firestore rules require request.auth != null for /questions/{courseCode}.
+    // Wait for Firebase Auth to finish restoring the student's session before
+    // attempting the Firestore read. This prevents an early permission-denied
+    // request during page navigation/refresh.
+    const authUser = await new Promise((resolve) => {
+        let settled = false;
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (settled) return;
+            settled = true;
+            unsubscribe();
+            resolve(user);
+        });
+    });
+
+    if (!authUser) {
+        currentNotesDoc = null;
+        console.warn('[Codex Notes] No authenticated Firebase user. Notes cannot be read under the current Firestore rules.');
+        showNotesLoadError('Please sign in to Codex Hub before opening course notes.');
+        return;
+    }
+
     try {
         const snap = await getDoc(doc(db, "questions", currentSubjectCode));
-        currentNotesDoc = snap.exists() ? snap.data() : null;
+
+        if (!snap.exists()) {
+            currentNotesDoc = null;
+            console.warn('[Codex Notes] Firestore document not found:', `questions/${currentSubjectCode}`);
+            return;
+        }
+
+        currentNotesDoc = snap.data();
+
+        if (!currentNotesDoc.notes || typeof currentNotesDoc.notes !== 'object') {
+            console.warn('[Codex Notes] Course document exists but has no valid notes object:', currentSubjectCode);
+        } else {
+            console.log('[Codex Notes] Loaded notes:', currentSubjectCode,
+                Object.keys(currentNotesDoc.notes).length, 'topic(s)');
+        }
     } catch (e) {
-        currentNotesDoc = null; // Firestore unreachable — cards still render, notes show "not available"
+        currentNotesDoc = null;
+        console.error('[Codex Notes] Failed to load Firestore notes:', e);
+        showNotesLoadError(
+            e && e.code === 'permission-denied'
+                ? 'Your account is not permitted to read these notes. Please sign in again.'
+                : 'Unable to load notes right now. Please refresh and try again.'
+        );
+    }
+}
+
+function showNotesLoadError(message) {
+    const contentEl = document.getElementById('notesContent');
+    if (contentEl) {
+        contentEl.innerHTML =
+            '<p style="margin:3px 0;color:#b42318;line-height:1.75">' +
+            escHtml(message) +
+            '</p>';
     }
 }
 
@@ -328,7 +380,23 @@ function displayNotes(topicName) {
     document.getElementById('notesTopicTitle').textContent = 'Key Notes: ' + topicName;
 
     const contentEl = document.getElementById('notesContent');
-    const rawNotes = currentNotesDoc && currentNotesDoc.notes ? currentNotesDoc.notes[topicName] : null;
+    let rawNotes = null;
+
+    if (currentNotesDoc && currentNotesDoc.notes && typeof currentNotesDoc.notes === 'object') {
+        const notes = currentNotesDoc.notes;
+
+        // 1) Exact curriculum-topic match (preferred).
+        rawNotes = notes[topicName];
+
+        // 2) Safe fallback for capitalization/whitespace differences.
+        if (!rawNotes) {
+            const wanted = String(topicName).trim().toLowerCase();
+            const matchingKey = Object.keys(notes).find(
+                key => String(key).trim().toLowerCase() === wanted
+            );
+            if (matchingKey) rawNotes = notes[matchingKey];
+        }
+    }
 
     if (rawNotes) {
         contentEl.innerHTML = formatNotesContent(rawNotes);
