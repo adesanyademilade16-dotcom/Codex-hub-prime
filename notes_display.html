@@ -4,157 +4,174 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Codex Study Hub — Study Notes</title>
-  <!-- Basic Meta -->
-  <meta name="description" content="Codex Study Hub helps OOU students master CBT exams with past questions, structured notes, AI assistance, progress tracking, and leaderboards.">
-  <meta name="keywords" content="Codex Study Hub, OOU CBT, past questions, exam practice, study notes, leaderboard, OOU 100 level">
-  <meta name="author" content="Codex Study Hub">
-  <meta name="robots" content="index, follow">
 
-  <!-- Open Graph / Social -->
-  <meta property="og:title" content="Codex Study Hub - Smart CBT Practice for OOU Students">
-  <meta property="og:description" content="Practice real CBT exams, access study notes, track progress and climb the leaderboard. Built for Olabisi Onabanjo University students.">
-  <meta property="og:image" content="https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/og-image.png">
-  <meta property="og:url" content="https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Codex Study Hub">
+<meta name="description" content="Codex Study Hub helps OOU students master CBT exams with past questions, structured notes, AI assistance, progress tracking, and leaderboards.">
+<meta name="keywords" content="Codex Study Hub, OOU CBT, past questions, exam practice, study notes, leaderboard, OOU 100 level">
+<meta name="author" content="Codex Study Hub">
+<meta name="robots" content="index, follow">
 
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Codex Study Hub - Smart CBT Practice for OOU Students">
-  <meta name="twitter:description" content="Practice real CBT exams, access study notes, track progress and climb the leaderboard.">
-  <meta name="twitter:image" content="https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/og-image.png">
+<meta property="og:title" content="Codex Study Hub - Smart CBT Practice for OOU Students">
+<meta property="og:description" content="Practice real CBT exams, access study notes, track progress and climb the leaderboard. Built for Olabisi Onabanjo University students.">
+<meta property="og:image" content="https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/og-image.png">
+<meta property="og:url" content="https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Codex Study Hub">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
-  <link rel="apple-touch-icon" href="favicon.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Codex Study Hub - Smart CBT Practice for OOU Students">
+<meta name="twitter:description" content="Practice real CBT exams, access study notes, track progress and climb the leaderboard.">
+<meta name="twitter:image" content="https://adesanyademilade16-dotcom.github.io/Codex-hub-prime/og-image.png">
+
+<link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
 
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
 <style>
-  :root {
-    --ink:#0d1b2a; --ink2:#1b2e44; --ink3:#2c4a6e;
-    --sky:#e8f4fd; --sky2:#d0e8f8; --sky3:#b8ddf5;
-    --gold:#f0a500; --gold2:#fbbf24; --gold3:#fef3c7;
-    --green:#059669; --green2:#d1fae5;
-    --red:#dc2626; --red2:#fee2e2;
-    --amber:#d97706; --amber2:#fef3c7;
-    --border:#dde6f0; --bg:#f2f7fc;
-    --card:#ffffff; --radius:14px;
-    --shadow:0 2px 12px rgba(13,27,42,.08);
-    --shadow-md:0 6px 24px rgba(13,27,42,.12);
-    --shadow-lg:0 16px 48px rgba(13,27,42,.16);
-    --font:'Sora',system-ui,sans-serif;
-    --mono:'JetBrains Mono',monospace;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--ink);font-family:var(--font);min-height:100vh;-webkit-font-smoothing:antialiased}
-  ::-webkit-scrollbar{width:5px;height:5px}
-  ::-webkit-scrollbar-track{background:var(--bg)}
-  ::-webkit-scrollbar-thumb{background:var(--sky3);border-radius:4px}
-  body{display:block;padding:0}
-  .top-bar{
-    background:linear-gradient(135deg,var(--ink) 0%,var(--ink3) 100%);
-    padding:14px 20px;position:sticky;top:0;z-index:50;
-    display:flex;align-items:center;gap:12px;
-    box-shadow:0 3px 16px rgba(13,27,42,.22);
-  }
-  .top-bar-logo{font-size:.95rem;font-weight:700;color:#fff;letter-spacing:-.3px}
-  .top-bar-logo span{color:var(--gold2)}
-  .btn-back{
-    margin-left:auto;background:rgba(255,255,255,.12);
-    border:1.5px solid rgba(255,255,255,.25);color:#fff;
-    padding:7px 16px;border-radius:8px;cursor:pointer;
-    font-size:.8rem;font-weight:600;font-family:var(--font);transition:.2s;
-  }
-  .btn-back:hover{background:rgba(255,255,255,.22)}
-  .page-wrap{max-width:900px;margin:0 auto;padding:24px 16px 60px}
-  .page-header{margin-bottom:28px;padding-bottom:20px;border-bottom:2px solid var(--border)}
-  .subject-badge{
-    display:inline-flex;align-items:center;gap:8px;
-    background:var(--gold3);color:var(--amber);
-    padding:5px 14px;border-radius:20px;font-size:.78rem;font-weight:700;
-    border:1.5px solid var(--gold2);margin-bottom:10px;
-  }
-  .page-header h1{font-size:1.7rem;font-weight:800;color:var(--ink);letter-spacing:-.5px;margin-bottom:6px}
-  .page-header p{color:#64748b;font-size:.9rem}
-  #subjectName{font-size:1.05rem;font-weight:600;color:var(--ink3);margin-top:4px}
-  .topic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
-  .topic-card{
-    background:var(--card);border-radius:12px;padding:16px 18px;
-    cursor:pointer;border:1.5px solid var(--border);
-    box-shadow:var(--shadow);transition:all .22s ease;
-    display:flex;align-items:center;gap:12px;
-  }
-  .topic-card:hover{border-color:var(--ink3);transform:translateY(-2px);box-shadow:var(--shadow-md);background:var(--sky)}
-  .topic-num{
-    width:32px;height:32px;border-radius:8px;flex-shrink:0;
-    background:linear-gradient(135deg,var(--ink2),var(--ink3));
-    color:#fff;font-size:.78rem;font-weight:700;
-    display:flex;align-items:center;justify-content:center;
-  }
-  .topic-name{font-size:.9rem;font-weight:600;color:var(--ink);line-height:1.3}
-  #notesDisplayArea{
-    display:none;margin-top:28px;
-    background:var(--card);border-radius:var(--radius);
-    border:1.5px solid var(--border);box-shadow:var(--shadow-md);
-    overflow:hidden;
-  }
-  .notes-header{
-    background:linear-gradient(135deg,var(--ink2),var(--ink3));
-    padding:18px 24px;
-  }
-  .notes-header h3{
-    font-size:1.1rem;font-weight:700;color:#fff;margin:0;
-    letter-spacing:-.3px;
-  }
-  .notes-header .notes-sub{font-size:.78rem;color:rgba(255,255,255,.7);margin-top:3px}
-  .notes-body{padding:24px}
-  #notesContent{
-    font-family:var(--font);
-    font-size:.93rem;
-    line-height:1.95;
-    color:#334155;
-    white-space:pre-wrap;
-  }
-  .notes-section{margin-bottom:20px}
-  .section-heading{
-    display:inline-block;
-    font-size:.78rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
-    color:var(--ink3);background:var(--sky);border-left:3px solid var(--ink3);
-    padding:4px 10px;border-radius:0 6px 6px 0;margin-bottom:8px;
-  }
-  .notes-divider{height:1px;background:var(--border);margin:18px 0}
-  .formula-line{
-    font-family:var(--mono);font-size:.85rem;
-    background:#f8fafc;border:1px solid var(--border);
-    border-radius:6px;padding:8px 14px;margin:6px 0;
-    color:var(--ink2);display:block;
-  }
-  .notes-actions{
-    display:flex;gap:10px;flex-wrap:wrap;
-    padding:18px 24px;border-top:1px solid var(--border);
-    background:var(--sky);
-  }
-  .notes-btn{
-    padding:10px 20px;border-radius:8px;font-size:.85rem;font-weight:600;
-    cursor:pointer;border:none;font-family:var(--font);transition:.2s;
-    display:flex;align-items:center;gap:6px;
-  }
-  .notes-btn-primary{background:var(--green);color:#fff}
-  .notes-btn-primary:hover{background:#047857}
-  .notes-btn-secondary{background:var(--ink2);color:#fff}
-  .notes-btn-secondary:hover{background:var(--ink)}
-  .cbt-logo{width:70px;height:auto;margin:0 auto;display:block;animation:fadeIn 0.6s ease}
-  @keyframes fadeIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
+:root {
+  --ink:#0d1b2a; --ink2:#1b2e44; --ink3:#2c4a6e;
+  --sky:#e8f4fd; --sky2:#d0e8f8; --sky3:#b8ddf5;
+  --gold:#f0a500; --gold2:#fbbf24; --gold3:#fef3c7;
+  --green:#059669; --green2:#d1fae5;
+  --red:#dc2626; --red2:#fee2e2;
+  --amber:#d97706; --amber2:#fef3c7;
+  --border:#dde6f0; --bg:#f2f7fc;
+  --card:#ffffff; --radius:14px;
+  --shadow:0 2px 12px rgba(13,27,42,.08);
+  --shadow-md:0 6px 24px rgba(13,27,42,.12);
+  --font:'Sora',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);min-height:100vh;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--sky3);border-radius:4px}
+body{display:block;padding:0}
+.top-bar{
+  background:linear-gradient(135deg,var(--ink) 0%,var(--ink3) 100%);
+  padding:14px 20px;position:sticky;top:0;z-index:50;
+  display:flex;align-items:center;gap:12px;
+  box-shadow:0 3px 16px rgba(13,27,42,.22);
+}
+.top-bar-logo{font-size:.95rem;font-weight:700;color:#fff;letter-spacing:-.3px}
+.top-bar-logo span{color:var(--gold2)}
+.btn-back{
+  margin-left:auto;background:rgba(255,255,255,.12);
+  border:1.5px solid rgba(255,255,255,.25);color:#fff;
+  padding:7px 16px;border-radius:8px;cursor:pointer;
+  font-size:.8rem;font-weight:600;font-family:var(--font);transition:.2s;
+}
+.btn-back:hover{background:rgba(255,255,255,.22)}
+.page-wrap{max-width:900px;margin:0 auto;padding:24px 16px 60px}
+.page-header{margin-bottom:28px;padding-bottom:20px;border-bottom:2px solid var(--border)}
+.subject-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--gold3);color:var(--amber);
+  padding:5px 14px;border-radius:20px;font-size:.78rem;font-weight:700;
+  border:1.5px solid var(--gold2);margin-bottom:10px;
+}
+.page-header h1{font-size:1.7rem;font-weight:800;color:var(--ink);letter-spacing:-.5px;margin-bottom:6px}
+.page-header p{color:#64748b;font-size:.9rem}
+#subjectName{font-size:1.05rem;font-weight:600;color:var(--ink3);margin-top:4px}
+.topic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.topic-card{
+  background:var(--card);border-radius:12px;padding:16px 18px;
+  cursor:pointer;border:1.5px solid var(--border);
+  box-shadow:var(--shadow);transition:all .22s ease;
+  display:flex;align-items:center;gap:12px;
+}
+.topic-card:hover{border-color:var(--ink3);transform:translateY(-2px);box-shadow:var(--shadow-md);background:var(--sky)}
+.topic-num{
+  width:32px;height:32px;border-radius:8px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--ink2),var(--ink3));
+  color:#fff;font-size:.78rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.topic-name{font-size:.9rem;font-weight:600;color:var(--ink);line-height:1.3}
+#notesDisplayArea{
+  display:none;margin-top:28px;
+  background:var(--card);border-radius:var(--radius);
+  border:1.5px solid var(--border);box-shadow:var(--shadow-md);
+  overflow:hidden;
+}
+.notes-header{background:linear-gradient(135deg,var(--ink2),var(--ink3));padding:18px 24px}
+.notes-header h3{font-size:1.1rem;font-weight:700;color:#fff;margin:0;letter-spacing:-.3px}
+.notes-header .notes-sub{font-size:.78rem;color:rgba(255,255,255,.7);margin-top:3px}
+.notes-body{padding:24px}
+#notesContent{font-family:var(--font);font-size:.93rem;line-height:1.95;color:#334155}
+.notes-section{margin-bottom:20px}
+.section-heading{
+  display:block;font-size:.92rem;font-weight:800;letter-spacing:.2px;
+  color:var(--ink2);background:var(--sky);border-left:4px solid var(--ink3);
+  padding:8px 12px;border-radius:0 7px 7px 0;margin:18px 0 9px;
+}
+.notes-divider{height:1px;background:var(--border);margin:18px 0}
+.formula-block{
+  font-size:1rem;background:#f8fafc;border:1px solid var(--border);
+  border-radius:8px;padding:14px 12px;margin:12px 0;
+  color:var(--ink2);display:block;overflow-x:auto;text-align:center;
+}
+.example-block{
+  background:#f8fafc;border-left:4px solid var(--green);
+  padding:12px 14px;border-radius:0 8px 8px 0;margin:12px 0;
+}
+.notes-actions{
+  display:flex;gap:10px;flex-wrap:wrap;
+  padding:18px 24px;border-top:1px solid var(--border);
+  background:var(--sky);
+}
+.notes-btn{
+  padding:10px 20px;border-radius:8px;font-size:.85rem;font-weight:600;
+  cursor:pointer;border:none;font-family:var(--font);transition:.2s;
+  display:flex;align-items:center;gap:6px;
+}
+.notes-btn-primary{background:var(--green);color:#fff}
+.notes-btn-primary:hover{background:#047857}
+.notes-btn-secondary{background:var(--ink2);color:#fff}
+.notes-btn-secondary:hover{background:var(--ink)}
+.cbt-logo{width:70px;height:auto;margin:0 auto;display:block;animation:fadeIn .6s ease}
+@keyframes fadeIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+
+/* MathJax */
+mjx-container{max-width:100%;overflow-x:auto;overflow-y:hidden}
+.formula-block mjx-container[display="true"]{margin:0 !important}
 </style>
+
+<script>
+/*
+  IMPORTANT:
+  MathJax must be configured BEFORE its CDN script is loaded.
+  Notes are loaded from Firestore after page load, so displayNotes()
+  explicitly calls MathJax.typesetPromise() after inserting them.
+*/
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]'], ['$$', '$$']],
+    processEscapes: true,
+    processEnvironments: true
+  },
+  options: {
+    skipHtmlTags: ['script','noscript','style','textarea','pre','code']
+  },
+  chtml: {
+    scale: 1
+  }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
 <script src="faculty-data.js"></script>
 <script src="curriculum-data.js"></script>
 <script src="curriculum-loader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
-<body>
 
+<body>
 <div class="top-bar">
-  <span style="font-size:1.3rem"><img src="logo.png" alt="Codex Study Hub Logo" class="cbt-logo"></span>
+  <span style="font-size:1.3rem">
+    <img src="logo.png" alt="Codex Study Hub Logo" class="cbt-logo">
+  </span>
   <div class="top-bar-logo">Codex <span>Study Hub</span></div>
   <button class="btn-back" onclick="window.location.href='subject_selection.html?mode=read'">← Back to Subjects</button>
 </div>
@@ -162,15 +179,17 @@
 <div class="page-wrap">
   <div class="page-header">
     <div class="subject-badge">📚 Study Notes</div>
-    <h1>Key Notes & Formulas</h1>
+    <h1>Key Notes &amp; Formulas</h1>
     <div id="subjectName">Loading...</div>
     <p style="margin-top:8px">Click any topic card below to read the notes</p>
   </div>
+
   <div class="topic-grid" id="topicList"></div>
+
   <div id="notesDisplayArea">
     <div class="notes-header">
       <h3 id="notesTopicTitle">Topic Notes</h3>
-      <div class="notes-sub">Key concepts, formulas &amp; worked examples</div>
+      <div class="notes-sub">Concepts, explanations, formulas &amp; worked examples</div>
     </div>
     <div class="notes-body">
       <div id="notesContent"></div>
@@ -180,34 +199,24 @@
 </div>
 
 <script>
-// STUDY_CONTENT removed — notes now fetched live from Firestore (questions/{courseCode}.notes)
-// Topic list + course name still come from CurriculumLoader (curriculum-data.js)
-
-// ═══════════════════════════════════════════════════════════════
-//  EXTERNAL RESOURCE LINKS
-// ═══════════════════════════════════════════════════════════════
 const EXTERNAL_RESOURCES = {
-    "MTH": "https://www.khanacademy.org/math",
-    "PHY": "https://www.physicsclassroom.com/",
-    "CHM": "https://www.khanacademy.org/chemistry",
-    "COS": "https://www.geeksforgeeks.org/computer-science-portal/",
-    "STA": "https://stattrek.com/",
-    "BIO": "https://www.khanacademy.org/science/biology",
-    "GST": "https://www.bbc.co.uk/learningenglish",
-    "AGR": "https://www.fao.org/home/en/",
-    "FRE": "https://www.collinsdictionary.com/dictionary/english-french",
-    "ACC": "https://www.investopedia.com/accounting-4427647",
-    "CRD": "https://www.ica.coop/en/cooperatives/what-is-a-cooperative",
-    "TPM": "https://www.unwto.org/",
-    "FRS": "https://www.forensicscienceinternational.com/",
-    "AMS": "https://www.pmi.org/",
-    "ENG": "https://www.engineeringtoolbox.com/",
-    "THA": "https://www.britannica.com/art/theatrical-production"
+  "MTH": "https://www.khanacademy.org/math",
+  "PHY": "https://www.physicsclassroom.com/",
+  "CHM": "https://www.khanacademy.org/chemistry",
+  "COS": "https://www.geeksforgeeks.org/computer-science-portal/",
+  "STA": "https://stattrek.com/",
+  "BIO": "https://www.khanacademy.org/science/biology",
+  "GST": "https://www.bbc.co.uk/learningenglish",
+  "AGR": "https://www.fao.org/home/en/",
+  "FRE": "https://www.collinsdictionary.com/dictionary/english-french",
+  "ACC": "https://www.investopedia.com/accounting-4427647",
+  "CRD": "https://www.ica.coop/en/cooperatives/what-is-a-cooperative",
+  "TPM": "https://www.unwto.org/",
+  "FRS": "https://www.forensicscienceinternational.com/",
+  "AMS": "https://www.pmi.org/",
+  "ENG": "https://www.engineeringtoolbox.com/",
+  "THA": "https://www.britannica.com/art/theatrical-production"
 };
-
-// ═══════════════════════════════════════════════════════════════
-//  APPLICATION LOGIC
-// ═══════════════════════════════════════════════════════════════
 </script>
 
 <script type="module">
@@ -216,224 +225,378 @@ import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey:            "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
-    authDomain:        "codex-study-hub-923c5.firebaseapp.com",
-    projectId:         "codex-study-hub-923c5",
-    storageBucket:     "codex-study-hub-923c5.appspot.com",
-    messagingSenderId: "750631534625",
-    appId:             "1:750631534625:web:5f59e1841bb856bdbba360"
+  apiKey: "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+  authDomain: "codex-study-hub-923c5.firebaseapp.com",
+  projectId: "codex-study-hub-923c5",
+  storageBucket: "codex-study-hub-923c5.appspot.com",
+  messagingSenderId: "750631534625",
+  appId: "1:750631534625:web:5f59e1841bb856bdbba360"
 };
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
 function getQueryParameter(name) {
-    return new URLSearchParams(window.location.search).get(name);
+  return new URLSearchParams(window.location.search).get(name);
 }
 
 let currentSubjectCode = null;
-let currentTopics = [];      // array of topic name strings, from CurriculumLoader
-let currentNotesDoc = null;  // { notes: { "Topic Name": "raw note text", ... } } from Firestore, or null if not yet published
+let currentTopics = [];
+let currentNotesDoc = null;
 
 document.addEventListener('DOMContentLoaded', initializeNotesDisplay);
 
 async function initializeNotesDisplay() {
-    currentSubjectCode = getQueryParameter('subject');
-    const course = currentSubjectCode ? CurriculumLoader.getCourseByCode(currentSubjectCode) : null;
+  currentSubjectCode = getQueryParameter('subject');
+  const course = currentSubjectCode
+    ? CurriculumLoader.getCourseByCode(currentSubjectCode)
+    : null;
 
-    if (!currentSubjectCode || !course) {
-        document.getElementById('subjectName').textContent = 'Error: Subject Not Found';
-        return;
-    }
+  if (!currentSubjectCode || !course) {
+    document.getElementById('subjectName').textContent = 'Error: Subject Not Found';
+    return;
+  }
 
-    document.getElementById('subjectName').textContent = currentSubjectCode + ': ' + course.title;
-    currentTopics = Array.isArray(course.topics) ? course.topics : [];
-    renderTopics(currentTopics);
+  document.getElementById('subjectName').textContent =
+    currentSubjectCode + ': ' + course.title;
 
-    // IMPORTANT:
-    // Firestore rules require request.auth != null for /questions/{courseCode}.
-    // Wait for Firebase Auth to finish restoring the student's session before
-    // attempting the Firestore read. This prevents an early permission-denied
-    // request during page navigation/refresh.
-    const authUser = await new Promise((resolve) => {
-        let settled = false;
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            if (settled) return;
-            settled = true;
-            unsubscribe();
-            resolve(user);
-        });
+  currentTopics = Array.isArray(course.topics) ? course.topics : [];
+  renderTopics(currentTopics);
+
+  const authUser = await new Promise((resolve) => {
+    let settled = false;
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (settled) return;
+      settled = true;
+      unsubscribe();
+      resolve(user);
     });
+  });
 
-    if (!authUser) {
-        currentNotesDoc = null;
-        console.warn('[Codex Notes] No authenticated Firebase user. Notes cannot be read under the current Firestore rules.');
-        showNotesLoadError('Please sign in to Codex Hub before opening course notes.');
-        return;
+  if (!authUser) {
+    currentNotesDoc = null;
+    console.warn('[Codex Notes] No authenticated Firebase user.');
+    showNotesLoadError('Please sign in to Codex Hub before opening course notes.');
+    return;
+  }
+
+  try {
+    const snap = await getDoc(doc(db, 'questions', currentSubjectCode));
+
+    if (!snap.exists()) {
+      currentNotesDoc = null;
+      console.warn('[Codex Notes] Firestore document not found:', `questions/${currentSubjectCode}`);
+      showNotesLoadError('Study notes for this course could not be found.');
+      return;
     }
 
-    try {
-        const snap = await getDoc(doc(db, "questions", currentSubjectCode));
+    currentNotesDoc = snap.data();
 
-        if (!snap.exists()) {
-            currentNotesDoc = null;
-            console.warn('[Codex Notes] Firestore document not found:', `questions/${currentSubjectCode}`);
-            return;
-        }
-
-        currentNotesDoc = snap.data();
-
-        if (!currentNotesDoc.notes || typeof currentNotesDoc.notes !== 'object') {
-            console.warn('[Codex Notes] Course document exists but has no valid notes object:', currentSubjectCode);
-        } else {
-            console.log('[Codex Notes] Loaded notes:', currentSubjectCode,
-                Object.keys(currentNotesDoc.notes).length, 'topic(s)');
-        }
-    } catch (e) {
-        currentNotesDoc = null;
-        console.error('[Codex Notes] Failed to load Firestore notes:', e);
-        showNotesLoadError(
-            e && e.code === 'permission-denied'
-                ? 'Your account is not permitted to read these notes. Please sign in again.'
-                : 'Unable to load notes right now. Please refresh and try again.'
-        );
+    if (!currentNotesDoc.notes || typeof currentNotesDoc.notes !== 'object') {
+      console.warn('[Codex Notes] Course document has no valid notes object:', currentSubjectCode);
+      showNotesLoadError('This course does not currently contain valid study notes.');
+    } else {
+      console.log(
+        '[Codex Notes] Loaded notes:',
+        currentSubjectCode,
+        Object.keys(currentNotesDoc.notes).length,
+        'topic(s)'
+      );
     }
+  } catch (e) {
+    currentNotesDoc = null;
+    console.error('[Codex Notes] Failed to load Firestore notes:', e);
+
+    showNotesLoadError(
+      e && e.code === 'permission-denied'
+        ? 'Your account is not permitted to read these notes. Please sign in again.'
+        : 'Unable to load notes right now. Please refresh and try again.'
+    );
+  }
 }
 
 function showNotesLoadError(message) {
-    const contentEl = document.getElementById('notesContent');
-    if (contentEl) {
-        contentEl.innerHTML =
-            '<p style="margin:3px 0;color:#b42318;line-height:1.75">' +
-            escHtml(message) +
-            '</p>';
-    }
+  const contentEl = document.getElementById('notesContent');
+  if (contentEl) {
+    contentEl.innerHTML =
+      '<p style="margin:3px 0;color:#b42318;line-height:1.75">' +
+      escHtml(message) +
+      '</p>';
+  }
 }
 
 function renderTopics(topics) {
-    const list = document.getElementById('topicList');
-    list.innerHTML = '';
-    topics.forEach((topicName, index) => {
-        const card = document.createElement('div');
-        card.className = 'topic-card';
-        card.innerHTML = '<div class="topic-num">' + (index + 1) + '</div><div class="topic-name">' + topicName + '</div>';
-        card.onclick = () => displayNotes(topicName);
-        list.appendChild(card);
-    });
+  const list = document.getElementById('topicList');
+  list.innerHTML = '';
+
+  topics.forEach((topicName, index) => {
+    const card = document.createElement('div');
+    card.className = 'topic-card';
+    card.innerHTML =
+      '<div class="topic-num">' + (index + 1) + '</div>' +
+      '<div class="topic-name">' + escHtml(topicName) + '</div>';
+
+    card.onclick = () => displayNotes(topicName);
+    list.appendChild(card);
+  });
+}
+
+/*
+  Convert simple Markdown emphasis without allowing note content
+  to become executable HTML.
+*/
+function inlineMarkup(text) {
+  let safe = escHtml(text);
+
+  // Bold **text**
+  safe = safe.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+  // Italic *text*
+  safe = safe.replace(/(^|[^\*])\*([^*\n]+)\*(?!\*)/g, '$1<em>$2</em>');
+
+  return safe;
+}
+
+/*
+  Preserve MathJax delimiters while escaping ordinary HTML.
+  Supports:
+    \( inline \)
+    \[ display \]
+    $$ display $$
+    $ inline $
+*/
+function formatMathSafeText(text) {
+  const parts = String(text).split(
+    /(\\\[.*?\\\]|\\\(.*?\\\)|\$\$[\s\S]*?\$\$|\$[^$\n]+\$)/g
+  );
+
+  return parts.map(part => {
+    if (
+      part.startsWith('\\[') ||
+      part.startsWith('\\(') ||
+      part.startsWith('$$') ||
+      (part.startsWith('$') && part.endsWith('$'))
+    ) {
+      return part;
+    }
+
+    return inlineMarkup(part);
+  }).join('');
+}
+
+function isFormulaLine(trimmed) {
+  return (
+    trimmed.startsWith('$$') ||
+    trimmed.startsWith('\\[') ||
+    (
+      trimmed.includes('=') &&
+      /\\(?:frac|sqrt|sum|int|times|cdot|pm|Delta|alpha|beta|gamma|theta|lambda|mu|sigma|Omega|omega)\b/.test(trimmed)
+    )
+  );
+}
+
+function normalizeFormula(trimmed) {
+  if (trimmed.startsWith('$$') && trimmed.endsWith('$$')) {
+    return '\\[' + trimmed.slice(2, -2) + '\\]';
+  }
+
+  if (trimmed.startsWith('\\[') && trimmed.endsWith('\\]')) {
+    return trimmed;
+  }
+
+  return '\\[' + trimmed + '\\]';
 }
 
 function formatNotesContent(raw) {
-    const lines = raw.split('\n');
-    let html = '';
-    
-    lines.forEach(line => {
-        const trimmed = line.trim();
-        
-        if (!trimmed) {
-            html += '<div style="height:6px"></div>';
-            return;
-        }
-        
-        if (/^[A-Z][A-Z0-9 &()'\/—–,-]{4,}$/.test(trimmed) && !trimmed.startsWith('•') && !trimmed.startsWith('-')) {
-            html += '<div class="section-heading">' + trimmed + '</div>';
-            return;
-        }
-        
-        if ((trimmed.includes('=') || trimmed.match(/[∑∫√±≈→←⊆∪∩∀∃∈]/)) 
-            && trimmed.length < 120 && !trimmed.startsWith('•')) {
-            html += '<code class="formula-line">' + escHtml(trimmed) + '</code>';
-            return;
-        }
-        
-        if (trimmed.startsWith('•') || trimmed.startsWith('-')) {
-            html += '<div style="display:flex;gap:8px;margin:3px 0 3px 8px"><span style="color:var(--ink3);flex-shrink:0;margin-top:2px">›</span><span style="color:#334155;line-height:1.7">' + escHtml(trimmed.replace(/^[•\-]\s*/,'')) + '</span></div>';
-            return;
-        }
-        
-        if (/^\d+\.\s/.test(trimmed) && trimmed.length < 200) {
-            html += '<div style="display:flex;gap:8px;margin:4px 0 4px 8px"><span style="background:var(--ink2);color:#fff;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0;margin-top:2px">' + trimmed[0] + '</span><span style="color:#334155;line-height:1.7">' + escHtml(trimmed.replace(/^\d+\.\s+/,'')) + '</span></div>';
-            return;
-        }
-        
-        if (trimmed.includes('|') && trimmed.split('|').length >= 3) {
-            const cells = trimmed.split('|').map(c => c.trim()).filter(Boolean);
-            const isHeader = cells.some(c => /^[A-Z]/.test(c));
-            html += '<div style="display:flex;gap:8px;padding:4px 8px;background:' + (isHeader ? 'var(--sky)' : 'transparent') + ';border-radius:4px;font-size:.83rem;font-family:var(--mono)">';
-            cells.forEach(cell => {
-                html += '<span style="flex:1;color:' + (isHeader ? 'var(--ink2)' : '#475569') + ';font-weight:' + (isHeader ? '600' : '400') + '">' + escHtml(cell) + '</span>';
-            });
-            html += '</div>';
-            return;
-        }
-        
-        html += '<p style="margin:3px 0;color:#334155;line-height:1.75">' + escHtml(trimmed) + '</p>';
-    });
-    
-    return html;
+  if (raw === null || raw === undefined) return '';
+
+  const text = String(raw)
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n');
+
+  const lines = text.split('\n');
+  let html = '';
+
+  for (const original of lines) {
+    const trimmed = original.trim();
+
+    if (!trimmed) {
+      html += '<div style="height:8px"></div>';
+      continue;
+    }
+
+    // Markdown headings: #, ##, ###...
+    const headingMatch = trimmed.match(/^#{1,6}\s+(.+)$/);
+    if (headingMatch) {
+      html +=
+        '<div class="section-heading">' +
+        inlineMarkup(headingMatch[1].trim()) +
+        '</div>';
+      continue;
+    }
+
+    // Bullet points
+    if (/^(?:[-*•›])\s+/.test(trimmed)) {
+      const bullet = trimmed.replace(/^(?:[-*•›])\s+/, '');
+
+      html +=
+        '<div style="display:flex;gap:10px;margin:7px 0 7px 4px">' +
+          '<span style="color:var(--ink3);font-weight:700;flex-shrink:0">›</span>' +
+          '<span style="color:#334155;line-height:1.8">' +
+            formatMathSafeText(bullet) +
+          '</span>' +
+        '</div>';
+
+      continue;
+    }
+
+    // Numbered steps
+    const numbered = trimmed.match(/^(\d+)\.\s+(.+)$/);
+    if (numbered) {
+      html +=
+        '<div style="display:flex;gap:10px;margin:7px 0 7px 4px">' +
+          '<span style="' +
+            'background:var(--ink2);color:#fff;width:22px;height:22px;' +
+            'border-radius:50%;display:inline-flex;align-items:center;' +
+            'justify-content:center;font-size:.68rem;font-weight:700;' +
+            'flex-shrink:0;margin-top:3px">' +
+            escHtml(numbered[1]) +
+          '</span>' +
+          '<span style="color:#334155;line-height:1.8">' +
+            formatMathSafeText(numbered[2]) +
+          '</span>' +
+        '</div>';
+
+      continue;
+    }
+
+    // Standalone formula
+    if (isFormulaLine(trimmed)) {
+      html +=
+        '<div class="formula-block">' +
+          normalizeFormula(trimmed) +
+        '</div>';
+
+      continue;
+    }
+
+    // Example / worked-example labels get a subtle callout.
+    if (/^(example|worked example|example:|worked example:)\b/i.test(trimmed)) {
+      html +=
+        '<div class="example-block">' +
+          formatMathSafeText(trimmed) +
+        '</div>';
+
+      continue;
+    }
+
+    // Ordinary explanatory paragraph.
+    html +=
+      '<p style="margin:7px 0;color:#334155;line-height:1.85">' +
+        formatMathSafeText(trimmed) +
+      '</p>';
+  }
+
+  return html;
 }
 
 function escHtml(str) {
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
 
-function displayNotes(topicName) {
-    const notesArea = document.getElementById('notesDisplayArea');
-    document.getElementById('notesTopicTitle').textContent = 'Key Notes: ' + topicName;
+async function typesetNotes(contentEl) {
+  if (
+    window.MathJax &&
+    typeof window.MathJax.typesetPromise === 'function'
+  ) {
+    try {
+      if (typeof window.MathJax.typesetClear === 'function') {
+        window.MathJax.typesetClear([contentEl]);
+      }
 
-    const contentEl = document.getElementById('notesContent');
-    let rawNotes = null;
-
-    if (currentNotesDoc && currentNotesDoc.notes && typeof currentNotesDoc.notes === 'object') {
-        const notes = currentNotesDoc.notes;
-
-        // 1) Exact curriculum-topic match (preferred).
-        rawNotes = notes[topicName];
-
-        // 2) Safe fallback for capitalization/whitespace differences.
-        if (!rawNotes) {
-            const wanted = String(topicName).trim().toLowerCase();
-            const matchingKey = Object.keys(notes).find(
-                key => String(key).trim().toLowerCase() === wanted
-            );
-            if (matchingKey) rawNotes = notes[matchingKey];
-        }
+      await window.MathJax.typesetPromise([contentEl]);
+    } catch (err) {
+      console.warn('[MathJax] typeset failed:', err);
     }
+  }
+}
 
-    if (rawNotes) {
-        contentEl.innerHTML = formatNotesContent(rawNotes);
-        // Content was injected after page load, so MathJax's initial
-        // auto-scan already missed it — re-typeset explicitly, same
-        // pattern already used successfully in cbt_engine.html/cbt.js.
-        if (window.MathJax && window.MathJax.typesetPromise) {
-            MathJax.typesetPromise([contentEl]).catch(err => console.warn('[MathJax] typeset failed:', err));
-        }
-    } else {
-        contentEl.innerHTML = '<p style="margin:3px 0;color:#64748b;line-height:1.75">'
-            + 'Notes for this topic are still being prepared and will appear here soon. '
-            + 'In the meantime, try the "Read More Online" link below.</p>';
+async function displayNotes(topicName) {
+  const notesArea = document.getElementById('notesDisplayArea');
+  const title = document.getElementById('notesTopicTitle');
+  const contentEl = document.getElementById('notesContent');
+
+  title.textContent = 'Key Notes: ' + topicName;
+
+  let rawNotes = null;
+
+  if (
+    currentNotesDoc &&
+    currentNotesDoc.notes &&
+    typeof currentNotesDoc.notes === 'object'
+  ) {
+    const notes = currentNotesDoc.notes;
+
+    // Exact curriculum-topic match.
+    rawNotes = notes[topicName];
+
+    // Safe capitalization/whitespace fallback.
+    if (!rawNotes) {
+      const wanted = String(topicName).trim().toLowerCase();
+
+      const matchingKey = Object.keys(notes).find(
+        key => String(key).trim().toLowerCase() === wanted
+      );
+
+      if (matchingKey) rawNotes = notes[matchingKey];
     }
+  }
 
-    const btnContainer = document.getElementById('buttonContainer');
-    btnContainer.innerHTML = '';
+  if (typeof rawNotes === 'string' && rawNotes.trim()) {
+    contentEl.innerHTML = formatNotesContent(rawNotes);
 
-    const codePrefix = (currentSubjectCode.match(/^[A-Z]+/) || [''])[0];
-    const topicLink = EXTERNAL_RESOURCES[codePrefix] || '#';
-    const readBtn = document.createElement('button');
-    readBtn.className = 'notes-btn notes-btn-primary';
-    readBtn.innerHTML = '🌐 Read More Online';
-    readBtn.onclick = () => window.open(topicLink, '_blank');
+    // MathJax must run AFTER Firestore content is inserted.
+    await typesetNotes(contentEl);
+  } else {
+    contentEl.innerHTML =
+      '<p style="margin:3px 0;color:#64748b;line-height:1.75">' +
+      'Notes for this topic are still being prepared and will appear here soon.' +
+      '</p>';
+  }
 
-    const driveBtn = document.createElement('button');
-    driveBtn.className = 'notes-btn notes-btn-secondary';
-    driveBtn.innerHTML = '📥 Download Materials';
-    driveBtn.onclick = () => window.open('pdf_resources.html', '_blank');
+  const btnContainer = document.getElementById('buttonContainer');
+  btnContainer.innerHTML = '';
 
-    btnContainer.appendChild(readBtn);
-    btnContainer.appendChild(driveBtn);
-    notesArea.style.display = 'block';
-    notesArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const codePrefix =
+    (currentSubjectCode.match(/^[A-Z]+/) || [''])[0];
+
+  const topicLink =
+    EXTERNAL_RESOURCES[codePrefix] || '#';
+
+  const readBtn = document.createElement('button');
+  readBtn.className = 'notes-btn notes-btn-primary';
+  readBtn.innerHTML = '🌐 Read More Online';
+  readBtn.onclick = () => window.open(topicLink, '_blank');
+
+  const driveBtn = document.createElement('button');
+  driveBtn.className = 'notes-btn notes-btn-secondary';
+  driveBtn.innerHTML = '📥 Download Materials';
+  driveBtn.onclick = () => window.open('pdf_resources.html', '_blank');
+
+  btnContainer.appendChild(readBtn);
+  btnContainer.appendChild(driveBtn);
+
+  notesArea.style.display = 'block';
+  notesArea.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+  });
 }
 </script>
-
 </body>
 </html>
+
