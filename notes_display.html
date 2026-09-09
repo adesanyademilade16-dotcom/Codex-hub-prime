@@ -149,6 +149,7 @@
 <script src="faculty-data.js"></script>
 <script src="curriculum-data.js"></script>
 <script src="curriculum-loader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
 
@@ -400,6 +401,12 @@ function displayNotes(topicName) {
 
     if (rawNotes) {
         contentEl.innerHTML = formatNotesContent(rawNotes);
+        // Content was injected after page load, so MathJax's initial
+        // auto-scan already missed it — re-typeset explicitly, same
+        // pattern already used successfully in cbt_engine.html/cbt.js.
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            MathJax.typesetPromise([contentEl]).catch(err => console.warn('[MathJax] typeset failed:', err));
+        }
     } else {
         contentEl.innerHTML = '<p style="margin:3px 0;color:#64748b;line-height:1.75">'
             + 'Notes for this topic are still being prepared and will appear here soon. '
