@@ -26213,11 +26213,66 @@ const CBT_DATA = {
     }
 
     /* --- IV. DATA LOADING AND INITIALIZATION --- */
-    function loadData() {
+
+    // Tries to fetch this subject's published question bank from Firestore.
+    // Returns the doc's `questions` object ({ "Topic Name": [...] }) if a
+    // real published doc exists, or null if it doesn't (not yet migrated,
+    // or Firestore is unreachable) — either way, loadData() below falls
+    // back to the original CBT_DATA bundle automatically.
+    async function fetchFirestoreQuestions(subject) {
+        if (!window.__codexDb || !window.__codexGetDoc || !window.__codexDocFn) {
+            alert('[DEBUG] Firestore bridge not available: db=' + !!window.__codexDb + ' getDoc=' + !!window.__codexGetDoc + ' docFn=' + !!window.__codexDocFn);
+            return null;
+        }
+        try {
+            const ref = window.__codexDocFn(window.__codexDb, "questions", subject);
+            const snap = await window.__codexGetDoc(ref);
+            if (snap.exists() && snap.data().questions) {
+                alert('[DEBUG] Firestore doc found for ' + subject + ', topics: ' + Object.keys(snap.data().questions).join(', '));
+                return snap.data().questions;
+            } else {
+                alert('[DEBUG] Firestore doc for ' + subject + ' — exists: ' + snap.exists() + ', has questions field: ' + !!(snap.exists() && snap.data().questions));
+            }
+        } catch (e) {
+            alert('[DEBUG] Firestore fetch THREW an error for ' + subject + ': ' + e.message);
+        }
+        return null;
+    }
+
+    // Flattens a Firestore { "Topic": [ {q,options,answer,explanation} ] }
+    // map into the flat array shape the rest of this engine already expects
+    // ({ q, options, ans, topic }) — same shape CBT_DATA has always used.
+    function flattenFirestoreQuestions(questionsByTopic) {
+        const flat = [];
+        Object.keys(questionsByTopic).forEach(topicName => {
+            questionsByTopic[topicName].forEach(item => {
+                flat.push({
+                    q: item.q,
+                    options: item.options,
+                    ans: item.answer,
+                    topic: topicName
+                });
+            });
+        });
+        return flat;
+    }
+
+    async function loadData() {
         const requestedTopic = getQueryParameter('topics'); 
         const requestedCount = parseInt(getQueryParameter('count'));
 
-        let allSubjectQuestions = CBT_DATA[selectedSubject] || [];
+        let allSubjectQuestions;
+        const firestoreQuestions = await fetchFirestoreQuestions(selectedSubject);
+
+        if (firestoreQuestions) {
+            // Published in Firestore — this is now the authoritative source
+            // for this subject, entirely replacing CBT_DATA for it.
+            allSubjectQuestions = flattenFirestoreQuestions(firestoreQuestions);
+        } else {
+            // Not yet migrated (or Firestore unreachable) — original behavior.
+            allSubjectQuestions = CBT_DATA[selectedSubject] || [];
+        }
+
         let filteredQuestions = [];
 
         if (currentMode === 'practice') {
@@ -26243,7 +26298,7 @@ const CBT_DATA = {
         }
     }
 
-    function initializeTest() {
+    async function initializeTest() {
         selectedSubject = getQueryParameter('subject');
         currentMode = getQueryParameter('mode');
 
@@ -26255,7 +26310,7 @@ const CBT_DATA = {
         
         document.getElementById('subjectTitle').textContent = selectedSubject;
         
-        loadData();
+        await loadData();
         
         // Timer Setup
         let requestedTime = parseInt(getQueryParameter('time'));

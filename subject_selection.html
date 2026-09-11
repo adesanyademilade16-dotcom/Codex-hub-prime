@@ -125,6 +125,11 @@
   </div>
 </div>
 
+<!-- Shared curriculum data layer — single source of truth for courses -->
+<script src="faculty-data.js"></script>
+<script src="curriculum-data.js"></script>
+<script src="curriculum-loader.js"></script>
+
 <script type="module">
 import { initializeApp }              from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
@@ -143,220 +148,29 @@ const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
-const SUBJECT_DATA = [
-    // ====================== 1ST SEMESTER (HARMATTAN) ======================
-    { code: "MTH101", name: "Mathematics", semester: 1, faculty: "science", dept: "all", icon: "🔢" },
-    { code: "PHY101", name: "Physics", semester: 1, faculty: "science", dept: "all", icon: "⚙️" },
-    { code: "CHM101", name: "Chemistry", semester: 1, faculty: "science", dept: "all", icon: "🧪" },
-    { code: "COS101", name: "Computer Science", semester: 1, faculty: "science", dept: "all", icon: "💻" },
-    { code: "STA111", name: "Statistics", semester: 1, faculty: "science", dept: "all", icon: "📊" },
-    { code: "STA121", name: "Statistics 2", semester: 1, faculty: "science", dept: "all", icon: "📊" },
-    { code: "BIO101", name: "Biology", semester: 1, faculty: "science", dept: "all", icon: "🧬" },
-    { code: "GST111", name: "General Studies (English)", semester: 1, faculty: "general", dept: "all", icon: "🇬🇧" },
-    { code: "FRE105", name: "FRANCE Studies", semester: 1, faculty: "arts", dept: ["french", "education"], icon: "🇫🇷" },
-    { code: "FRE109", name: "FRENCH", semester: 1, faculty: "arts", dept: ["french", "education"], icon: "🇫🇷" },
-    { code: "GES151", name: "Agriculture", semester: 1, faculty: "science", dept: "all", icon: "🌱" },
-    { code: "BIO107", name: "General Biology Practical I", semester: 1, faculty: "science", dept: ["biology","education","agriculture","medicine"], icon: "🔬" },
-    { code: "BOT101", name: "Diversity of Plants", semester: 1, faculty: "science", dept: ["biology","agriculture","education"], icon: "🌿" },
-    { code: "CHM107", name: "General Chemistry Practical I", semester: 1, faculty: "science", dept: ["chemistry","education","biology"], icon: "🔬" },
-    { code: "PHY107", name: "General Physics Practical I", semester: 1, faculty: "science", dept: " all", icon: "🔬" },
-    { code: "OOU-GES105", name: "Modern Agriculture and Rural Development", semester: 1, faculty: "science", dept: ["agriculture"], icon: "🌱" },
-    { code: "CRD103", name: "Rural Development I", semester: 1, faculty: "social_sciences", dept: ["other"], icon: "🏘️" },
 
-    // ====================== 2ND SEMESTER ======================
-    { code: "GST112", name: "Nigerian Peoples and Culture", semester: 2, faculty: "general", dept: "all", icon: "🏛️" },
-    { code: "BIO102", name: "General Biology II", semester: 2, faculty: "science", dept: ["biology","computer_science_education","education","agriculture","medicine","chemistry"," biochemistry"], icon: "🧬" },
-    { code: "BIO108", name: "General Biology Practical II", semester: 2, faculty: "science", dept: ["biology","education","agriculture","medicine","chemistry"," biochemistry"], icon: "🔬" },
-    { code: "BOT102", name: "Introductory Botany", semester: 2, faculty: "science", dept: ["biology","agriculture","education"], icon: "🌿" },
-    { code: "CHM102", name: "General Chemistry II", semester: 2, faculty: "science", dept: "all", icon: "🧪" },
-    { code: "CHM108", name: "General Chemistry Practical II", semester: 2, faculty: "science", dept: ["chemistry","medicine","agriculture","engineering","other","computer_science_education","education"," biochemistry"], icon: "🔬" },
-    { code: "MTH102", name: "Elementary Mathematics II", semester: 2, faculty: "science", dept: "all", icon: "🔢" },
-    { code: "PHY102", name: "General Physics II", semester: 2, faculty: "science", dept: "all", icon: "⚙️" },
-    { code: "CSC102", name: "Computer Science", semester: 2, faculty: "science", dept:["computer_science_education","computer_science"], icon: "💻" },
-    { code: "PHY104", name: "General Physics IV", semester: 2, faculty: "science", dept: ["physics","engineering","education"], icon: "⚙️" },
-    { code: "PHY108", name: "General Physics Practical II", semester: 2, faculty: "science",dept: "all", icon: "🔬" },
-    { code: "STA102", name: "Statistical Computing I", semester: 2, faculty: "science", dept: ["mathematics","computer_science_education","computer_science","statistics"], icon: "💾" },
-    { code: "STA112", name: "Probability I", semester: 2, faculty: "science", dept: ["mathematics","computer_science_education","computer_science","engineering","statistics"], icon: "📊" },
-    { code: "GET102", name: "Engineering Graphics and Solid Modelling I", semester: 2, faculty: "science", dept: ["engineering"], icon: "📐" },
-    { code: "AGG102", name: "Introduction to Agriculture I", semester: 2, faculty: "science", dept: ["agriculture","education"], icon: "🌾" },
-    { code: "AGG112", name: "Introduction to Agriculture II", semester: 2, faculty: "science", dept: ["agriculture","education"], icon: "🌾" },
-    { code: "ZOO102", name: "Animal Diversity", semester: 2, faculty: "science", dept: ["biology","medicine","agriculture","education","other"], icon: "🦒" },
-    { code: "FRS102", name: "Forensic science", semester: 2, faculty: "science", dept: ["biology","medicine","agriculture","education","other"], icon: "🐾" },
-    { code: "COS102", name: "PROBLEM SOLVING", semester: 2, faculty: "science", dept: "all", icon: "👩‍💻" },
-    { code: "ACC102", name: "Introduction to Financial Accounting II", semester: 2, faculty: "social_sciences", dept: ["banking_and_finance","other"], icon: "📒" },
-    
-    { code: "AMS102", name: "Basic Mathematics", semester: 2, faculty: ["social_sciences","administration_and_management"], dept: [ "banking_and_finance","other"], icon: "🔢" },
-    { code: "AMS104", name: "Principles of Project Management", semester: 2, faculty: "social_sciences", dept: ["other"], icon: "📋" },
-    { code: "CRD102", name: "Organization and Management of Cooperatives", semester: 2, faculty: "social_sciences", dept: ["other"], icon: "🤝" },
-    { code: "CRD104", name: "Rural Development II", semester: 2, faculty: "social_sciences", dept: ["other"], icon: "🏘️" },
-    { code: "CRD106", name: "Cooperative Education", semester: 2, faculty: "social_sciences", dept: ["other"], icon: "📚" },
-    { code: "OOU-CRD152", name: "Principles of Cooperatives", semester: 2, faculty: "social_sciences", dept: ["other"], icon: "🤝" },
-    { code: "OOU-CRD154", name: "Introduction to Cooperative Business Management", semester: 2, faculty: "social_sciences", dept: ["other"], icon: "💼" },
-    { code: "TPM102", name: "Fundamentals of Tourism", semester: 2, faculty: "social_sciences", dept: ["other"], icon: "🗺️" },
-    { code: "FRE102", name: "Laboratory Exercise", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","education"], icon: "🇫🇷" },
-    { code: "FRE104", name: "Introduction to Composition writing in French", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","other","education"], icon: "🇫🇷" },
-    { code: "FRE106", name: "Introduction to Literary Appreciation", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","other","education"], icon: "📖" },
-    { code: "FRE108", name: "Introduction to Negro-African Literature in French", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","other","education"], icon: "📜" },
-    { code: "FRE110", name: "History of the French Language", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","other","education"], icon: "📜" },
-    { code: "OOU-FRE152", name: "Introduction to Comprehension in French", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","other","education"], icon: "🇫🇷" },
-    { code: "OOU-FRE154", name: "Introduction to a Second Foreign Language II", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","other","education"], icon: "🌍" },
-    { code: "OOU-FRE156", name: "Conversation in French II", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","other","education"], icon: "🗣️" },
-    { code: "OOU-FRE158", name: "Gender", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","other","education"], icon: "⚧️" },
-    { code: "OOU-FRE160", name: "Socio-educative activities in French II", semester: 2, faculty: ["social_sciences","arts"], dept: ["french","other","education"], icon: "👥" },
-    
-    { code: "OOU-THA112", name: "Drama as literature", semester: 2, faculty: "arts", dept: ["french","education"], icon: "🎭" }, 
-    { code: "GCE102", name: "Foundations of Guidance and Counselling", semester: 2, faculty: "education", dept: ["education"," Guidance_and_Counselling"], icon: "📘" },
-
-{ code: "GCE114", name: "Introduction to Counselling", semester: 2, faculty: "education", dept: ["education"," Guidance_and_Counselling"], icon: "🧠" },
-
-{ code: "GCE116", name: "Educational Psychology", semester: 2, faculty: "education", dept: ["education"," Guidance_and_Counselling"], icon: "🎓" },
-
-{ code: "GCE118", name: "Human Development", semester: 2, faculty: "education", dept: ["education"," Guidance_and_Counselling"], icon: "👥" },
-
-{ code: "GCE120", name: "Counselling Theories", semester: 2, faculty: "education", dept: ["education",," Guidance_and_Counselling"], icon: "📚" },
-{ code: "STE154", name: "Introduction to Science Education", semester: 2, faculty: "science", dept: ["computer_science_education","education"], icon: "🧪" },
-
-{ code: "EDU152", name: "Philosophy of Education", semester: 2, faculty: ["education","social_sciences"], dept: ["computer_science_education","education","adult_education"," Guidance_and_Counselling","social_studies"], icon: "📘" },
-
-{ code: "GCE122", name: "Communication Skills in Counselling", semester: 2, faculty: "education", dept: ["education"," Guidance_and_Counselling"], icon: "🗣️" },
-
-{ code: "EDU102", name: "Introduction to Education", semester: 2, faculty: ["education"," social_sciences"], dept: ["education","Guidance_and_Counselling","social_studies"], icon: "🏫" },
-
-
-{ code: "ESS100", name: "Environmental Studies", semester: 2, faculty: ["education", "social_sciences"], dept: ["education","Guidance_and_Counselling","social_studies"], icon: "🌍" },
-
- {code: "ESS112",
-        name: "Introduction to Civic Education",
-        semester: 2,
-        faculty: ["education", "social_sciences"],
-        dept: ["social_studies", "civic_education", "education"],
-        icon: "🗳️"
-    },
- 
- {code: "ESS116",
-        name: "Democracy and Citizenship",
-        semester: 2,
-        faculty: ["education", "social_sciences"],
-        dept: ["social_studies", "political_science", "civic_education"],
-        icon: "⚖️"
-    },
-
-{ code: "ESS122", name: "Basic Environmental Systems", semester: 2, faculty: ["education", "social_sciences"], dept: ["education"," Guidance_and_Counselling","social_studies"], icon: "🌱" }, 
-
-{ code: "PSY102", name: "Introduction to Psychology", semester: 2, faculty: "social_sciences", dept: ["psychology"], icon: "🧠" },
-
-{ code: "PSY104", name: "Psychology of Learning", semester: 2, faculty: ["social_sciences"," law"], dept: ["psychology"], icon: "📘" },
-
-{ code: "PSY152", name: "Social Psychology", semester: 2, faculty: "social_sciences", dept: ["psychology"], icon: "👥" },
-
-{ code: "PSY154", name: "Experimental Psychology", semester: 2, faculty: "social_sciences", dept: ["psychology"], icon: "🧪" },
-
-{ code: "PSY156", name: "Developmental Psychology", semester: 2, faculty: "social_sciences", dept: ["psychology"], icon: "🧒" },
-
-{ code: "PSY158", name: "Research Methods in Psychology", semester: 2, faculty: "social_sciences", dept: ["psychology"], icon: "📊" }, 
-{ code: "MCB102", name: "Introductory Microbiology", semester: 2, faculty: "science", dept: ["biology"], icon: "🦠" }, 
-// ====================== ADULT & CONTINUING EDUCATION ======================
-
-    { code: "ADE108", name: "Adult Education", semester: 2, faculty: "education", dept: ["adult_education","adult_and_continuing_education","education"], icon: "🧑‍🏫" },
-
-    { code: "EAE102", name: "Introduction to Adult Education", semester: 2, faculty: "education", dept: ["adult_education","adult_and_continuing_education","education"], icon: "📘" },
-
-    { code: "POL102", name: "Introduction to Political Science", semester: 2, faculty: ["education","social_sciences"], dept: ["adult_education","adult_and_continuing_education","political_science","education"], icon: "🏛️" },
-
-    { code: "POL104", name: "Nigerian Government and Politics", semester: 2, faculty: ["education","social_sciences"], dept: ["adult_education","adult_and_continuing_education","political_science","education","social_studies"], icon: "🗳️" },
-
-    { code: "EAE162", name: "Communication in Adult Education", semester: 2, faculty: "education", dept: ["adult_education","adult_and_continuing_education","education"], icon: "🗣️" },
-
-    { code: "ADE106", name: "Sociology of Education", semester: 2, faculty: "education", dept: ["adult_education","adult_and_continuing_education","education"], icon: "👥" },
-
-    { code: "ESI102", name: "Entrepreneurship Studies", semester: 2, faculty: ["education","social_sciences"], dept: ["adult_education","adult_and_continuing_education","education"], icon: "💼" },
-    
-{ code: "GET112", name: "Technical Drawing", semester: 2, faculty: "science", dept: ["engineering"], icon: "📐" }, 
-{ code: "FIN156", name: "Introduction to Banking", semester: 2, faculty: "social_sciences", dept: ["banking_and_finance","economics"], icon: "💰" },
-
-{ code: "FIN158", name: "Money and Banking", semester: 2, faculty: "social_sciences", dept: ["banking_and_finance","economics"], icon: "🏦" },
-
-{ code: "ECO102", name: "Principles of Economics II", semester: 2, faculty: "social_sciences", dept: ["banking_and_finance","economics"], icon: "📈" },
-
-
-{ code: "BUA102", name: "Business Administration", semester: 2, faculty: ["social_sciences","administration_and_management"], dept: ["economics"," business_administration"], icon: "💼" }, 
-
-// ====================== 300 LEVEL COURSES ======================
-
-{
-    code: "GST312",
-    name: "Peace and Conflict Resolution",
-    semester: 2,
-    faculty: "general",
-    dept: "all",
-    icon: "🕊️",
-    level: "300"
-},
-
-// ====================== ND ACCOUNTING (FACULTY: ADMINISTRATION & MANAGEMENT) — 1ST SEMESTER ======================
-{ code: "GNS101", name: "Use of English I", semester: 1, faculty: "administration_and_management", dept: ["_accounting","accounting"], icon: "📖" },
-{ code: "GNS111", name: "Citizenship Education I", semester: 1, faculty: "administration_and_management", dept: ["_accounting","accounting"], icon: "🏛️" },
-{ code: "GNS112", name: "Nigerian Peoples and Culture", semester: 1, faculty: "administration_and_management", dept: ["_accounting","accounting"], icon: "🏛️" },
-{ code: "GNS113", name: "Use of Library", semester: 1, faculty: "administration_and_management", dept: ["_accounting","accounting"], icon: "📚" },
-{ code: "ICT107", name: "Introduction to Computer Science", semester: 1, faculty: "administration_and_management", dept: ["_accounting","accounting"], icon: "💻" },
-{ code: "BFN111", name: "Elements of Banking I", semester: 1, faculty: "administration_and_management", dept: ["_accounting","accounting"], icon: "🏦" },
-{ code: "ICT103", name: "Systems Analysis and Design", semester: 1, faculty: "administration_and_management", dept: ["_accounting","accounting"], icon: "💻" },
-{ code: "BAM211", name: "Principles of Management", semester: 1, faculty: "administration_and_management", dept: ["_accounting","accounting"], icon: "📋" },
-{ code: "MTH131", name: "Business Mathematics", semester: 1, faculty: "administration_and_management", dept: ["_accounting","accounting"], icon: "🔢" },
-{ code: "INS111", name: "Principles of Insurance I", semester: 1, faculty: "administration_and_management", dept: ["_accounting","accounting"], icon: "🛡️" },
-{ code: "ACC111", name: "Principles of Accounting I", semester: 1, faculty: "administration_and_management", dept: ["_accounting","accounting"], icon: "📒" },
-
-// ====================== ND ACCOUNTING (FACULTY: ADMINISTRATION & MANAGEMENT) — 2ND SEMESTER ======================
-{ code: "ACC215", name: "Cost Accounting", semester: 2, faculty: "administration_and_management", dept: ["_accounting","accounting"], icon: "📒" },
-{ code: "BFN121", name: "Elements of Banking II", semester: 2, faculty: "administration_and_management", dept: ["_accounting","accounting"], icon: "🏦" },
-{ code: "BAM221", name: "Principles of Management II", semester: 2, faculty: "administration_and_management", dept: ["_accounting","accounting"], icon: "📋" },
-{ code: "GNS131", name: "Citizenship Education II", semester: 2, faculty: "administration_and_management", dept: ["_accounting","accounting"], icon: "🏛️" },
-{ code: "ENT126", name: "Introduction to Entrepreneurship", semester: 2, faculty: "administration_and_management", dept: ["_accounting","accounting"], icon: "🚀" },
-{ code: "INS121", name: "Principles and Practice of Insurance II", semester: 2, faculty: "administration_and_management", dept: ["_accounting","accounting"], icon: "🛡️" },
-{ code: "GNS114", name: "Principles of Economics", semester: 2, faculty: "administration_and_management", dept: ["_accounting","accounting"], icon: "📈" },
-{ code: "GNS122", name: "Communication in English II", semester: 2, faculty: "administration_and_management", dept: ["_accounting","accounting"], icon: "📖" },
-{ code: "ICT104", name: "Introduction to Computer Programming", semester: 2, faculty: "administration_and_management", dept: ["_accounting","accounting"], icon: "💻" },
-{ code: "ACC121", name: "Principles of Accounting II", semester: 2, faculty: "administration_and_management", dept: ["_accounting","accounting"], icon: "📒" }
-
-];
-const DEPARTMENT_ALIASES = {
+// Small safety-net alias for department values saved under the OLD schema
+// (before faculty-data.js standardized slugs). New signups already save
+// canonical slugs, so this map only matters for legacy stored profiles.
+const LEGACY_DEPARTMENT_ALIASES = {
     computereducation: "computer_science_education",
     computer_education: "computer_science_education",
-    computer_science_education: "computer_science_education",
-
-    sted: "computer_science_education",
-
-    efc: "education",
-    gce: "education",
-    guidance_and_counseling: "education",
-adult_and_continuing_education: "adult_education",
-    adult_continuing_education: "adult_education",
+    sted: "science_education_sted",
+    education: "education_general",
+    guidance_and_counseling: "guidance_and_counselling",
+    adult_and_continuing_education: "adult_education",
     adulteducation: "adult_education",
-    ace: "adult_education",
     chemical_science: "chemistry",
-    chemical_sciences: "chemistry",
-    chemistry:" biochemistry", 
-    microbiology: "biology",
-microbiology: "biochemistry", 
-    banking_and_finance: "economics",
-
-    civil_engineering: "engineering"
+    chemical_sciences: "chemistry"
 };
 
 function normalizeDept(dept) {
-    if (!dept) return "other";
-
-    const cleaned = dept
-        .toLowerCase()
-        .trim()
-        .replace(/\s+/g, "_");
-
-    return DEPARTMENT_ALIASES[cleaned] || cleaned;
+    if (!dept) return "";
+    const cleaned = dept.toLowerCase().trim().replace(/\s+/g, "_");
+    return LEGACY_DEPARTMENT_ALIASES[cleaned] || cleaned;
 }
 
 let currentMode = null;
-// Map of subjectCode -> true/false, populated from Firestore
-let firestoreUnlocks = {};
 
 function getQueryParameter(name) {
     return new URLSearchParams(window.location.search).get(name);
@@ -367,22 +181,19 @@ function getUserPrefix(email) {
 }
 
 // Codes the student added themselves via course_search.html.
-// Stored as a simple array of subject codes, e.g. ["MTH101","GCE102"].
 function getManuallyAddedSubjects() {
     try {
         return JSON.parse(localStorage.getItem('manuallyAddedSubjects') || '[]');
     } catch (e) { return []; }
 }
 
-function
-
- renderSubjects(currentUserEmail, firestoreData) {
+function renderSubjects(currentUserEmail, firestoreData) {
     const mode = currentMode;
     const session = JSON.parse(localStorage.getItem('loggedInUser') || '{}');
     const userPrefix = getUserPrefix(currentUserEmail || session.email);
-  const userDept = normalizeDept(session.department || "all");
-  
-    const userFaculty = (session.faculty || "general").toLowerCase().trim();
+    const userDept = normalizeDept(session.department || "");
+    const userFaculty = (session.faculty || "").toLowerCase().trim();
+    const userLevel = String(session.level || "100").trim();
     const selectedSemester = localStorage.getItem('selectedSemester') || "1";
 
     const modeText = mode === 'read' ? 'Reading / Study Notes' : 'Practice / Exam Mode';
@@ -391,74 +202,32 @@ function
     const grid = document.getElementById('subjectGrid');
     grid.innerHTML = "";
 
-const userLevel = String(session.level || "100").trim();
-
-const filteredSubjects = SUBJECT_DATA.filter(s => {
-
-    // Default courses without a level are treated as 100 level
-    const courseLevel = String(s.level || "100").trim();
-
-    // Only show courses for the student's level
-    if (courseLevel !== userLevel) {
-        return false;
-    }
-
-    const matchSem = String(s.semester) === String(selectedSemester);
-
-    const targetFac = userFaculty.toLowerCase().trim();
-    const targetDept = userDept.toLowerCase().trim();
-
-    let matchFac = false;
-
-    if (Array.isArray(s.faculty)) {
-        matchFac = s.faculty
-            .map(f => f.toLowerCase().trim())
-            .includes(targetFac);
-    } else {
-        matchFac =
-            s.faculty.toLowerCase().trim() === targetFac ||
-            s.faculty.toLowerCase().trim() === "general";
-    }
-
-    let matchDept = false;
-
-    if (s.dept === "all") {
-        matchDept = true;
-    } else if (Array.isArray(s.dept)) {
-        matchDept = s.dept
-            .map(d => normalizeDept(d))
-            .includes(targetDept);
-    } else {
-        matchDept = normalizeDept(s.dept) === targetDept;
-    }
-
-    return matchSem && matchFac && matchDept;
-});
-
-// Add in any courses the student manually added via the search page.
-// These bypass the faculty/dept match above (that's the whole point —
-// the course exists in the library but didn't match this student's
-// profile tags), but they still must belong to the semester currently
-// being viewed and the student's level, so the grid stays consistent.
-const manuallyAdded = getManuallyAddedSubjects();
-if (manuallyAdded.length) {
-    manuallyAdded.forEach(code => {
-        const alreadyShown = filteredSubjects.some(s => s.code === code);
-        if (alreadyShown) return;
-
-        const subj = SUBJECT_DATA.find(s => s.code === code);
-        if (!subj) return;
-
-        const courseLevel = String(subj.level || "100").trim();
-        const matchSem = String(subj.semester) === String(selectedSemester);
-        if (courseLevel === userLevel && matchSem) {
-            filteredSubjects.push(subj);
-        }
+    // ── Single source of truth: CurriculumLoader reads curriculum-data.js ──
+    const filteredSubjects = CurriculumLoader.getCourses({
+        level: userLevel,
+        semester: selectedSemester,
+        faculty: userFaculty,
+        department: userDept
     });
-}
+
+    // Add in any courses the student manually added via the search page —
+    // these bypass the faculty/dept match (that's the whole point), but
+    // still must match the student's level and the semester being viewed.
+    const manuallyAdded = getManuallyAddedSubjects();
+    if (manuallyAdded.length) {
+        manuallyAdded.forEach(code => {
+            const alreadyShown = filteredSubjects.some(s => s.code === code);
+            if (alreadyShown) return;
+            const subj = CurriculumLoader.getCourseByCode(code);
+            if (!subj) return;
+            if (String(subj.level) === userLevel && String(subj.semester) === String(selectedSemester)) {
+                filteredSubjects.push(subj);
+            }
+        });
+    }
 
     if (filteredSubjects.length === 0) {
-        grid.innerHTML = "<p style='text-align:center; grid-column: 1/-1; color: #666;'>No subjects found for your profile this semester.</p>";
+        grid.innerHTML = "<p style='text-align:center; grid-column: 1/-1; color: #666;'>No subjects found for your profile this semester. <a href='course_search.html?mode=" + encodeURIComponent(mode) + "'>Search all courses instead</a>.</p>";
         return;
     }
 
@@ -469,12 +238,10 @@ if (manuallyAdded.length) {
         const trialKey = `trials_${userPrefix}_${subject.code}`;
         const trials = parseInt(localStorage.getItem(trialKey) || '0');
 
-        // Check unlock: Firestore data takes priority, then localStorage
         const firestoreUnlocked = firestoreData && firestoreData[`unlocked_${subject.code}`] === true;
         const localUnlocked = localStorage.getItem(`unlocked_${userPrefix}_${subject.code}`) === 'true';
         const isUnlocked = firestoreUnlocked || localUnlocked;
 
-        // Sync Firestore unlock back to localStorage so future page loads are instant
         if (firestoreUnlocked && !localUnlocked) {
             try { localStorage.setItem(`unlocked_${userPrefix}_${subject.code}`, 'true'); } catch(e) {}
         }
@@ -482,18 +249,26 @@ if (manuallyAdded.length) {
         const isLocked = !isUnlocked && trials >= 50;
 
         let badge = '';
-        if (isUnlocked) badge = '<div class="unlocked-badge">✓ UNLOCKED</div>';
+        if (!subject.hasContent) badge = '<div class="trial-badge" style="background:#fde68a;color:#78350f">Coming Soon</div>';
+        else if (isUnlocked) badge = '<div class="unlocked-badge">✓ UNLOCKED</div>';
         else if (isLocked) badge = '<div class="lock-badge">🔒 LOCKED</div>';
         else if (trials > 0) badge = `<div class="trial-badge">${50 - trials} Trials Left</div>`;
 
+        // Topics preview — directly fixes the "course outline is different"
+        // complaint by showing the real CCMAS topics before selecting.
+        const topicPreview = (subject.topics || []).slice(0, 3).join(' • ');
+
         card.innerHTML = `
             ${badge}
-            <div class="code">${subject.icon} ${subject.code}</div>
-            <div class="name">${subject.name}</div>
+            <div class="code">${subject.icon || '📘'} ${subject.code}</div>
+            <div class="name">${subject.title}</div>
+            ${topicPreview ? `<div style="font-size:.72rem;color:#94a3b8;margin-top:6px;line-height:1.4">${topicPreview}${subject.topics.length > 3 ? '…' : ''}</div>` : ''}
         `;
 
         card.onclick = () => {
-            if (isLocked) {
+            if (!subject.hasContent) {
+                alert("This course's question bank is coming soon. Its official outline is already loaded, though — check back shortly!");
+            } else if (isLocked) {
                 alert("Subject Locked! Please unlock this subject from the Home screen.");
             } else {
                 selectSubject(subject.code, mode);
@@ -521,28 +296,20 @@ function initializeSubjectSelection() {
         return;
     }
 
-    // Wire up the "can't find your course" link to the new search page,
-    // carrying the current mode along so the user comes back to the right place
     const findLink = document.getElementById('findCourseLink');
     if (findLink) {
         findLink.href = `course_search.html?mode=${encodeURIComponent(mode)}`;
     }
 
-    // Render immediately with localStorage data (fast), then re-render once Firestore loads
     renderSubjects(null, null);
 
-    // Load Firestore unlock data for the logged-in user
     onAuthStateChanged(auth, async (user) => {
-        if (!user) {
-            // Not logged in with Firebase — rely on localStorage only
-            return;
-        }
+        if (!user) return;
         try {
             const userRef  = doc(db, "users", user.uid);
             const userSnap = await getDoc(userRef);
             const firestoreData = userSnap.exists() ? userSnap.data() : {};
 
-            // Merge in any subjects added via course_search.html on this or another device
             const remoteAdded = Array.isArray(firestoreData.manuallyAddedSubjects) ? firestoreData.manuallyAddedSubjects : [];
             if (remoteAdded.length) {
                 const localAdded = getManuallyAddedSubjects();
@@ -550,7 +317,6 @@ function initializeSubjectSelection() {
                 try { localStorage.setItem('manuallyAddedSubjects', JSON.stringify(merged)); } catch(e) {}
             }
 
-            // Re-render with accurate Firestore data
             renderSubjects(user.email, firestoreData);
         } catch(e) {
             // Firestore error — keep using localStorage data

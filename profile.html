@@ -182,16 +182,16 @@
   <div class="form-card">
     <div class="form-group"><label>Full Name</label><input type="text" id="inputName" placeholder="Your full name"></div>
     <div class="form-group">
+      <label>Academic Level</label>
+      <select id="inputLevel">
+        <option value="">-- Select Level --</option>
+      </select>
+    </div>
+    <div class="form-group">
       <label>Faculty</label>
       <select id="inputFaculty" onchange="updateDepts()">
         <option value="">-- Select Faculty --</option>
-        <option value="science">Science</option>
-        <option value="social_sciences">Social Science</option>
-        <option value="arts">Arts</option>
-        <option value="administration_and_management"> Administration_and_Management   </option>
-        <option value="law">Law</option>
-        <option value="education">education</option>
-              </select>
+      </select>
     </div>
     <div class="form-group"><label>Department</label><select id="inputDept"><option value="">-- Select Faculty First --</option></select></div>
   </div>
@@ -201,80 +201,17 @@
 
 </div>
 
+<!-- Shared faculty/department/level data — single source of truth -->
+<script src="faculty-data.js"></script>
+
 <script>
 function updateDepts() {
-  const f = document.getElementById('inputFaculty').value;
-  const ds = document.getElementById('inputDept');
-   const DEPTS = {
-      science: [
-        "Computer Science",
-        "Engineering",
-        "Agriculture",
-        "Medicine",
-        "Physics",
-        "Chemistry",
-        "Chemical Science",
-        "Mathematics",
-        "Biology",
-        "Biochemistry", 
-        "Microbiology",
-        "Forensic Science",
-        "Computer Education",
-        " Mathematical Education", 
-        "Other"
-    ],
-
-    social_sciences: [
-        "Economics",
-        "Political Science",
-        "Sociology",
-        "Mass Communication",
-        "Psychology",
-        "Banking and Finance",
-        "Cooperative and Rural Development",
-        "Tourism",
-        "Social Studies", 
-        "Other"
-    ],
-
-    education: [
-        "Science Education STED",
-        "Guidance and Counselling",
-        "Computer Science Education",
-        "Physics Education",
-        "Chemistry Education",
-        "Biology Education",
-        " Mathematical Education", 
-        "Education",
-        "Other"
-    ],
-
-    arts: [
-        "English",
-        "History",
-        "Philosophy",
-        "French",
-        "Theatre Arts",
-        "Other"
-    ],
-    administration_and_management:[
-      "Business Administration", 
-      "Accounting"
-   ], 
-
-    law: [
-        "Law",
-        "Other"
-    ]
-  };
-  const list = DEPTS[f] || [];
-  ds.innerHTML = '<option value="">-- Select Department --</option>';
-  ds.disabled = !list.length;
-  list.forEach(d => {
-    const o = document.createElement('option');
-    o.value = d.toLowerCase().replace(/\s+/g,'_'); o.textContent = d; ds.appendChild(o);
-  });
+  populateDepartments('inputFaculty', 'inputDept');
 }
+
+// Populate faculty + level dropdowns from the shared data file on load
+populateFaculties('inputFaculty');
+populateLevels('inputLevel');
 </script>
 
 <script type="module">
@@ -359,6 +296,7 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById('profileName').textContent  = d.fullName || 'Student';
     document.getElementById('profileEmail').textContent = d.email || user.email;
     document.getElementById('inputName').value = d.fullName || '';
+    if (d.level) { document.getElementById('inputLevel').value = d.level; }
     if (d.faculty)    { document.getElementById('inputFaculty').value = d.faculty; window.updateDepts(); }
     if (d.department) { document.getElementById('inputDept').value = d.department; }
 
@@ -446,6 +384,7 @@ window.saveProfile = async function() {
   try {
     let updates = {
       fullName:   document.getElementById('inputName').value.trim(),
+      level:      document.getElementById('inputLevel').value,
       faculty:    document.getElementById('inputFaculty').value,
       department: document.getElementById('inputDept').value,
     };
@@ -467,6 +406,7 @@ window.saveProfile = async function() {
     try {
       const session = JSON.parse(localStorage.getItem('loggedInUser') || '{}');
       session.fullName   = updates.fullName;
+      session.level      = updates.level;
       session.faculty    = updates.faculty;
       session.department = updates.department;
       localStorage.setItem('loggedInUser', JSON.stringify(session));
