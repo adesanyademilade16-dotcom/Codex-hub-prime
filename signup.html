@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create your Codex account</title>
+  <meta name="theme-color" content="#312e81">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --indigo: #4F46E5;
+      --purple: #7C3AED;
+      --muted: #64748B;
+      --border: #E2E8F0;
+      --font: "Plus Jakarta Sans", system-ui, sans-serif;
+      --display: "Plus Jakarta Sans", system-ui, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); color: #0F172A; min-height: 100dvh; background: #F8FAFC; }
+    a { color: inherit; text-decoration: none; }
+    button, input, select { font: inherit; }
+
+    .auth-layout { min-height: 100dvh; display: grid; }
+    .auth-side {
+      display: none;
+      background: linear-gradient(160deg, #1e1b4b 0%, #312e81 40%, #4c1d95 100%);
+      color: #fff; padding: 40px 44px; position: relative; overflow: hidden;
+    }
+    .auth-side::before {
+      content: ""; position: absolute; width: 320px; height: 320px;
+      right: -80px; bottom: -60px;
+      background: linear-gradient(135deg, #6366F1, #A78BFA);
+      transform: rotate(45deg); border-radius: 48px; opacity: .35;
+    }
+    .auth-side::after {
+      content: ""; position: absolute; width: 160px; height: 160px;
+      left: -40px; top: 20%; background: rgba(96,165,250,.25);
+      transform: rotate(20deg); border-radius: 28px;
+    }
+    .auth-side-inner { position: relative; z-index: 1; max-width: 420px; }
+    .auth-brand { display: inline-flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 800; margin-bottom: 36px; }
+    .auth-brand img { width: 36px; height: 36px; }
+    .auth-side h1 { font-family: var(--display); font-size: clamp(2rem, 3vw, 2.6rem); line-height: 1.08; letter-spacing: -.03em; margin-bottom: 14px; }
+    .auth-side h1 span { color: #C4B5FD; }
+    .auth-side-inner > p { color: #C7D2FE; line-height: 1.6; margin-bottom: 28px; }
+    .auth-feature { display: grid; grid-template-columns: 42px 1fr; gap: 12px; margin-bottom: 16px; }
+    .auth-feature i {
+      width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,.1);
+      display: grid; place-items: center; font-style: normal; font-weight: 800; font-size: .8rem; color: #DDD6FE;
+    }
+    .auth-feature strong { display: block; margin-bottom: 2px; }
+    .auth-feature small { color: #A5B4FC; line-height: 1.45; }
+
+    .auth-form {
+      display: flex; align-items: center; justify-content: center; padding: 28px 18px 40px;
+      background:
+        radial-gradient(ellipse 70% 50% at 100% 0%, rgba(124,58,237,.1), transparent 55%),
+        radial-gradient(ellipse 60% 40% at 0% 100%, rgba(37,99,235,.1), transparent 50%),
+        #F8FAFC;
+    }
+    .form-wrap {
+      width: min(100%, 460px);
+      position: relative;
+      overflow: hidden;
+      background: #fff;
+      border-radius: 28px;
+      padding: 28px 24px 24px;
+      border: 5px solid #fff;
+      box-shadow: 0 30px 40px -20px rgba(79, 70, 229, 0.28);
+    }
+    .form-wrap::before {
+      content: "";
+      position: absolute;
+      width: 240px; height: 240px;
+      left: -130px; bottom: -50px;
+      background: linear-gradient(135deg, #93C5FD 0%, #6366F1 50%, #7C3AED 100%);
+      transform: rotate(45deg);
+      border-radius: 32px;
+      opacity: .88;
+      z-index: 0;
+      box-shadow: 8px 8px 24px rgba(79, 70, 229, 0.22);
+      pointer-events: none;
+    }
+    .form-wrap::after {
+      content: "";
+      position: absolute;
+      width: 110px; height: 110px;
+      right: -36px; top: -28px;
+      background: linear-gradient(135deg, rgba(124,58,237,.4), rgba(37,99,235,.25));
+      transform: rotate(25deg);
+      border-radius: 22px;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .form-wrap > * { position: relative; z-index: 2; }
+    .form-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--indigo); margin-bottom: 6px; }
+    h2 { font-family: var(--display); font-size: 1.7rem; letter-spacing: -.03em; margin-bottom: 6px; }
+    .lead { color: var(--muted); font-size: .92rem; margin-bottom: 18px; line-height: 1.55; }
+
+    .steps-dots { display: flex; gap: 6px; margin-bottom: 18px; }
+    .dot { height: 6px; flex: 1; border-radius: 99px; background: #E2E8F0; }
+    .dot.on { background: linear-gradient(90deg, #4F46E5, #7C3AED); }
+
+    .form-grid { display: grid; gap: 12px; }
+    @media (min-width: 520px) {
+      .form-grid { grid-template-columns: 1fr 1fr; }
+      .form-grid .full { grid-column: 1 / -1; }
+    }
+    .field label { display: block; font-size: .78rem; font-weight: 700; color: #475569; margin-bottom: 6px; }
+    .field input, .field select {
+      width: 100%; height: 50px; border-radius: 14px; border: 1.5px solid var(--border); padding: 0 14px; background: #fff;
+    }
+    .field input:focus, .field select:focus { outline: none; border-color: #818CF8; box-shadow: 0 0 0 4px rgba(99,102,241,.15); }
+    .hint { font-size: .72rem; color: #94A3B8; margin-top: 4px; }
+
+    .pw-wrap { position: relative; }
+    .pw-wrap input { padding-right: 46px; }
+    .eye-btn {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      width: 36px; height: 36px; border: 0; background: transparent; border-radius: 10px;
+      color: #94A3B8; cursor: pointer; display: grid; place-items: center;
+    }
+    .eye-btn:hover { color: #475569; background: #F1F5F9; }
+    .eye-btn.is-open { color: var(--indigo); }
+    .eye-btn .eye-open, .eye-btn .eye-closed { display: grid; place-items: center; }
+
+    .check {
+      display: flex; gap: 10px; align-items: flex-start; margin: 14px 0 16px;
+      font-size: .82rem; color: #475569; line-height: 1.45;
+    }
+    .check input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--indigo); flex-shrink: 0; }
+    .check a { color: var(--indigo); font-weight: 700; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      height: 52px; padding: 0 18px; border-radius: 14px; border: 0; font-weight: 700; cursor: pointer; width: 100%;
+    }
+    .btn-primary { background: linear-gradient(45deg, #4F46E5, #7C3AED); color: #fff; box-shadow: 0 14px 24px -10px rgba(79,70,229,.55); }
+    .btn-primary:disabled { opacity: .65; cursor: wait; }
+    .btn-ghost { background: #F1F5F9; color: #0F172A; }
+    .actions { display: flex; gap: 10px; margin-top: 8px; }
+    .actions .btn { flex: 1; }
+
+    .divider { display: flex; align-items: center; gap: 12px; margin: 18px 0; color: #94A3B8; font-size: .75rem; font-weight: 600; }
+    .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+    .google-btn {
+      width: 100%; height: 50px; border-radius: 14px; border: 1.5px solid #CBD5E1; background: #fff;
+      display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 700; cursor: pointer;
+    }
+    .google-btn:hover { background: #F8FAFC; }
+    .google-btn svg { width: 18px; height: 18px; }
+    .form-foot { text-align: center; margin-top: 18px; font-size: .88rem; color: var(--muted); }
+    .form-foot a { color: var(--indigo); font-weight: 800; }
+
+    .alert { display: none; padding: 12px 14px; border-radius: 12px; font-size: .85rem; font-weight: 600; margin-bottom: 14px; line-height: 1.4; }
+    .alert.show { display: block; }
+    .alert.error { background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; }
+    .alert.ok { background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .modal { position: fixed; inset: 0; background: rgba(15,23,42,.5); display: none; place-items: center; padding: 20px; z-index: 80; }
+    .modal.show { display: grid; }
+    .modal-box { background: #fff; border-radius: 20px; padding: 24px; max-width: 420px; width: 100%; max-height: 80vh; overflow: auto; position: relative; }
+    .modal-close { position: absolute; right: 12px; top: 10px; border: 0; background: #F1F5F9; width: 36px; height: 36px; border-radius: 10px; font-size: 1.2rem; cursor: pointer; }
+    .modal-box h3 { margin-bottom: 10px; font-family: var(--display); }
+    .modal-box p { color: var(--muted); font-size: .9rem; margin-bottom: 10px; line-height: 1.55; }
+
+    @media (min-width: 960px) {
+      .auth-layout { grid-template-columns: 1fr 1fr; }
+      .auth-side { display: flex; align-items: center; }
+    }
+  
+    .auth-brand {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-family: var(--display); font-weight: 800; margin-bottom: 36px;
+      text-decoration: none; color: #0F172A;
+    }
+    .auth-brand img {
+      width: 36px; height: 36px; border-radius: 10px;
+      animation: logoPulse 2.8s ease-in-out infinite;
+    }
+    .auth-brand span, .auth-brand {
+      background: linear-gradient(120deg, #4F46E5, #7C3AED 55%, #0EA5E9);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .auth-brand img { -webkit-text-fill-color: initial; }
+    @keyframes logoPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+    .auth-side h1 span {
+      background: linear-gradient(120deg, #A5B4FC, #E9D5FF);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    /* Button shine */
+    .btn-primary, .google-btn, #createBtn, #toStep2, #toStep3 {
+      position: relative; overflow: hidden;
+    }
+    .btn-primary::after, #createBtn::after, #toStep2::after, #toStep3::after {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.45) 50%, transparent 65%);
+      transform: translateX(-120%);
+      animation: btnBeam 3s ease-in-out infinite;
+    }
+    @keyframes btnBeam {
+      0%, 50% { transform: translateX(-120%); }
+      70% { transform: translateX(120%); }
+      100% { transform: translateX(120%); }
+    }
+    .eye-btn { z-index: 5; pointer-events: auto; -webkit-tap-highlight-color: transparent; }
+    .pw-wrap { z-index: 2; }
+
+  </style>
+</head>
+<body>
+  <div class="auth-layout">
+    <aside class="auth-side">
+      <div class="auth-side-inner">
+        <a class="auth-brand" href="index.html"><img src="assets/logo.png" alt=""><span>Codex Hub</span></a>
+        <h1>Start your<br><span>university journey.</span></h1>
+        <p>One account gives you a home for your courses, practice, resources, study tools and the community you're going to meet along the way.</p>
+        <div class="auth-feature"><i>01</i><div><strong>Tell us who you are.</strong><small>Your name and username become part of your Codex identity.</small></div></div>
+        <div class="auth-feature"><i>02</i><div><strong>Build your academic profile.</strong><small>Faculty, department and level so practice and resources fit you.</small></div></div>
+        <div class="auth-feature"><i>03</i><div><strong>Agree &amp; start.</strong><small>Then open Home — CBT, Nova, Study Lab and more.</small></div></div>
+      </div>
+    </aside>
+
+    <main class="auth-form">
+      <div class="form-wrap">
+        <div class="form-kicker" id="kicker">Create account</div>
+        <h2 id="title">Let's get you in.</h2>
+        <p class="lead" id="lead">Choose a username you'll be happy to use in chat and around the platform.</p>
+        <div class="steps-dots" aria-hidden="true">
+          <div class="dot on" id="d1"></div>
+          <div class="dot" id="d2"></div>
+          <div class="dot" id="d3"></div>
+        </div>
+        <div id="alert" class="alert" role="status"></div>
+
+        <div class="panel active" id="step1">
+          <div class="form-grid">
+            <div class="field full">
+              <label for="fullName">Full name</label>
+              <input id="fullName" type="text" autocomplete="name" placeholder="e.g. Ibrahim Adesanya" required>
+            </div>
+            <div class="field">
+              <label for="username">Username</label>
+              <input id="username" type="text" autocomplete="username" placeholder="e.g. ibrahim" maxlength="20" required>
+              <p class="hint">@username · letters, numbers and _</p>
+            </div>
+            <div class="field">
+              <label for="level">Current level</label>
+              <select id="level" required>
+                <option value="">Choose level</option>
+                <option>100</option><option>200</option><option>300</option>
+                <option>400</option><option>500</option><option>600</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label for="email">Email address</label>
+              <input id="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+            </div>
+            <div class="field">
+              <label for="password">Password</label>
+              <div class="pw-wrap">
+                <input id="password" type="password" autocomplete="new-password" placeholder="At least 8 characters" required>
+                <button type="button" class="eye-btn" data-target="password" aria-label="Show password" aria-pressed="false"><svg class="eye-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+              </div>
+            </div>
+            <div class="field">
+              <label for="confirmPassword">Confirm password</label>
+              <div class="pw-wrap">
+                <input id="confirmPassword" type="password" autocomplete="new-password" placeholder="Repeat password" required>
+                <button type="button" class="eye-btn" data-target="confirmPassword" aria-label="Show password" aria-pressed="false"><svg class="eye-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+              </div>
+            </div>
+            <div class="field full">
+              <label for="referralCode">Referral code <span style="font-weight:500;opacity:.7">(optional)</span></label>
+              <input type="text" id="referralCode" maxlength="24" autocomplete="off" placeholder="e.g. HUB-AB12CD34" style="text-transform:uppercase" />
+              <p class="hint" style="margin-top:4px;font-size:.72rem;opacity:.75">If a classmate invited you, enter their code. You can only link one code per account.</p>
+            </div>
+            <div class="field full">
+              <label for="heardFrom">How did you hear about Codex Hub?</label>
+              <select id="heardFrom" required>
+                <option value="">Choose one</option>
+                <option>Friend / classmate</option>
+                <option>WhatsApp</option>
+                <option>TikTok / Instagram</option>
+                <option>Google / web search</option>
+                <option>Codex Prep</option>
+                <option>School / campus</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="actions" style="margin-top:16px">
+            <button type="button" class="btn btn-primary" id="toStep2">Continue →</button>
+          </div>
+          <div class="divider">or</div>
+          <button type="button" class="google-btn" id="googleBtn">
+            <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 8 3l5.7-5.7C34 6.1 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.7-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 8 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C36.9 39.2 44 34 44 24c0-1.3-.1-2.7-.4-3.9z"/></svg>
+            Continue with Google
+          </button>
+        </div>
+
+        <div class="panel" id="step2">
+          <div class="form-grid">
+            <div class="field full">
+              <label for="university">University</label>
+              <select id="university">
+                <option value="OOU">Olabisi Onabanjo University (OOU)</option>
+                <option value="OTHER">Other university</option>
+              </select>
+            </div>
+            <div class="field full" id="otherUniWrap" style="display:none">
+              <label for="otherUniversity">Your university</label>
+              <input id="otherUniversity" placeholder="University name">
+            </div>
+            <div class="field full">
+              <label for="faculty">Faculty</label>
+              <select id="faculty" required><option value="">Select faculty…</option></select>
+            </div>
+            <div class="field full">
+              <label for="department">Department</label>
+              <select id="department" required><option value="">Select department…</option></select>
+            </div>
+          </div>
+          <div class="actions" style="margin-top:16px">
+            <button type="button" class="btn btn-ghost" id="back1">Back</button>
+            <button type="button" class="btn btn-primary" id="toStep3">Continue →</button>
+          </div>
+        </div>
+
+        <div class="panel" id="step3">
+          <label class="check">
+            <input id="terms" type="checkbox" required>
+            <span>I agree to Codex Hub's <a href="#" id="termsOpen">Terms &amp; Conditions</a> and understand that my academic profile and username will be used to personalize the platform and community experience.</span>
+          </label>
+          <div class="actions">
+            <button type="button" class="btn btn-ghost" id="back2">Back</button>
+            <button type="button" class="btn btn-primary" id="createBtn">Create my Codex account →</button>
+          </div>
+        </div>
+
+        <p class="form-foot">Already have an account? <a href="login.html">Log in</a></p>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal" id="termsModal">
+    <div class="modal-box">
+      <button class="modal-close" id="termsClose" type="button">×</button>
+      <h3>Codex Hub Terms &amp; Conditions</h3>
+      <p>Codex Hub is a student learning platform. Use your account responsibly, do not impersonate other students, and do not abuse academic or community features.</p>
+      <p>Your username is your public student identity in chat and community. Do not impersonate others.</p>
+      <p>Content and pricing may evolve. Premium access follows plan terms at purchase.</p>
+      <button class="btn btn-primary" id="termsAgree" type="button">I understand</button>
+    </div>
+  </div>
+
+  
+  <script src="js/faculty-data.js"></script>
+  <script src="js/referrals.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script>
+  (function () {
+    "use strict";
+    if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+    if (typeof CodexFirebaseReady === "function") CodexFirebaseReady();
+    else { try { firebase.firestore().settings({ experimentalForceLongPolling: true, merge: true }); } catch(e){} }
+    var auth = firebase.auth();
+    var db = firebase.firestore();
+    function el(id) { return document.getElementById(id); }
+    var alertEl = el("alert");
+
+    function alertMsg(msg, ok) {
+      alertEl.textContent = msg;
+      alertEl.className = "alert show " + (ok ? "ok" : "error");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    function clearAlert() { alertEl.className = "alert"; alertEl.textContent = ""; }
+
+    /* Eye toggles — single reliable handler */
+    var openIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+    var closedIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+    document.querySelectorAll(".eye-btn").forEach(function (btn) {
+      btn.innerHTML = openIcon;
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var input = el(btn.getAttribute("data-target"));
+        if (!input) return;
+        var show = input.type === "password";
+        input.type = show ? "text" : "password";
+        btn.classList.toggle("is-open", show);
+        btn.setAttribute("aria-pressed", show ? "true" : "false");
+        btn.setAttribute("aria-label", show ? "Hide password" : "Show password");
+        btn.innerHTML = show ? closedIcon : openIcon;
+      });
+    });
+
+    
+    function stashReferralFromForm() {
+      try {
+        var c = (el("referralCode") && el("referralCode").value || "").trim().toUpperCase();
+        if (c) localStorage.setItem("codex_pending_referral", c);
+        else localStorage.removeItem("codex_pending_referral");
+      } catch (e) {}
+    }
+    function applyPendingReferral(user) {
+      if (!user || !window.CodexReferrals) return Promise.resolve();
+      var code = "";
+      try { code = localStorage.getItem("codex_pending_referral") || ""; } catch (e) {}
+      if (!code && el("referralCode")) code = (el("referralCode").value || "").trim().toUpperCase();
+      return CodexReferrals.ensureReferralCode(user).then(function () {
+        if (!code) return;
+        return CodexReferrals.registerReferral(user, code).then(function (r) {
+          try { localStorage.removeItem("codex_pending_referral"); } catch (e2) {}
+          return r;
+        });
+      }).catch(function () {});
+    }
+
+    var facultySel = el("faculty");
+    var deptSel = el("department");
+    function loadFaculties() {
+      facultySel.innerHTML = '<option value="">Select faculty…</option>';
+      Object.keys(window.FACULTY_DATA || FACULTY_DATA || {}).forEach(function (key) {
+        var data = (window.FACULTY_DATA || FACULTY_DATA)[key];
+        var o = document.createElement("option");
+        o.value = key;
+        o.textContent = data.label || key;
+        facultySel.appendChild(o);
+      });
+    }
+    function loadDepts() {
+      deptSel.innerHTML = '<option value="">Select department…</option>';
+      var entry = (window.FACULTY_DATA || FACULTY_DATA)[facultySel.value];
+      if (!entry) return;
+      var list = entry.departments || [];
+      list.forEach(function (d) {
+        var name = typeof d === "string" ? d : d.name;
+        var has = typeof d === "string" ? true : d.hasContent !== false;
+        var o = document.createElement("option");
+        o.value = name;
+        o.textContent = has ? name : name + " (Coming soon)";
+        deptSel.appendChild(o);
+      });
+    }
+    loadFaculties();
+    facultySel.addEventListener("change", loadDepts);
+    if (el("university")) {
+      el("university").addEventListener("change", function () {
+        el("otherUniWrap").style.display = el("university").value === "OTHER" ? "block" : "none";
+      });
+    }
+
+    var step = 1;
+    function go(n) {
+      step = n;
+      [1, 2, 3].forEach(function (i) {
+        var panel = el("step" + i);
+        var dot = el("d" + i);
+        if (panel) panel.classList.toggle("active", i === n);
+        if (dot) dot.classList.toggle("on", i <= n);
+      });
+      var copy = {
+        1: ["Create account", "Let's get you in.", "Choose a username you'll be happy to use in chat and around the platform."],
+        2: ["Academic profile", "Tell us what you study.", "Faculty and department personalize courses, resources and practice."],
+        3: ["Almost done", "Agree & create.", "One checkbox — then your Codex account is ready."]
+      };
+      if (el("kicker")) el("kicker").textContent = copy[n][0];
+      if (el("title")) el("title").textContent = copy[n][1];
+      if (el("lead")) el("lead").textContent = copy[n][2];
+    }
+
+    function cleanUsername(v) { return String(v || "").trim().toLowerCase().replace(/^@/, ""); }
+    function validUsername(v) { return /^[a-z0-9_]{3,20}$/.test(v); }
+
+    if (el("toStep2")) el("toStep2").onclick = function () {
+      clearAlert();
+      var username = cleanUsername(el("username").value);
+      var password = el("password").value;
+      var confirm = el("confirmPassword").value;
+      if (!el("fullName").value.trim() || !username || !el("email").value.trim()) return alertMsg("Fill full name, username and email.");
+      if (!validUsername(username)) return alertMsg("Username: 3–20 characters, letters, numbers or _ only.");
+      if (!el("level").value) return alertMsg("Select your current level.");
+      if (password.length < 8 || !/\d/.test(password)) return alertMsg("Password must be at least 8 characters and contain a number.");
+      if (password !== confirm) return alertMsg("Passwords do not match.");
+      if (!el("heardFrom").value) return alertMsg("Tell us how you heard about Codex Hub.");
+      el("username").value = username;
+      go(2);
+    };
+    if (el("back1")) el("back1").onclick = function () { go(1); };
+    if (el("toStep3")) el("toStep3").onclick = function () {
+      clearAlert();
+      if (!facultySel.value || !deptSel.value) return alertMsg("Select faculty and department.");
+      if (el("university").value === "OTHER" && !el("otherUniversity").value.trim()) return alertMsg("Enter your university name.");
+      go(3);
+    };
+    if (el("back2")) el("back2").onclick = function () { go(2); };
+
+    function claimUsername(uid, username) {
+      var ref = db.collection("usernames").doc(username);
+      return db.runTransaction(function (tx) {
+        return tx.get(ref).then(function (snap) {
+          if (snap.exists) throw new Error("USERNAME_TAKEN");
+          tx.set(ref, { uid: uid, username: username, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+        });
+      });
+    }
+
+    function createProfile(user, extra) {
+      extra = extra || {};
+      var uni = el("university").value === "OTHER" ? el("otherUniversity").value.trim() : "Olabisi Onabanjo University";
+      stashReferralFromForm();
+      var pendingRef = "";
+      try { pendingRef = localStorage.getItem("codex_pending_referral") || ""; } catch (e) {}
+      var data = {
+        uid: user.uid,
+        fullName: el("fullName").value.trim() || user.displayName || "Student",
+        username: cleanUsername(el("username").value),
+        usernameLower: cleanUsername(el("username").value),
+        email: user.email || el("email").value.trim().toLowerCase(),
+        level: el("level").value,
+        faculty: facultySel.value,
+        department: deptSel.value,
+        university: uni,
+        heardFrom: el("heardFrom").value || "",
+        isPro: false,
+        trialsUsed: 0,
+        pendingReferralCode: pendingRef || null,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      Object.keys(extra).forEach(function (k) { data[k] = extra[k]; });
+      return db.collection("users").doc(user.uid).set(data, { merge: true }).then(function () {
+        return applyPendingReferral(user);
+      });
+    }
+
+    if (el("createBtn")) el("createBtn").onclick = function () {
+      clearAlert();
+      if (!el("terms").checked) return alertMsg("Please agree to the Terms & Conditions.");
+      var btn = el("createBtn");
+      btn.disabled = true;
+      btn.textContent = "Creating your account…";
+      var username = cleanUsername(el("username").value);
+      auth.createUserWithEmailAndPassword(el("email").value.trim().toLowerCase(), el("password").value)
+        .then(function (cred) {
+          return claimUsername(cred.user.uid, username).then(function () {
+            return cred.user.updateProfile({ displayName: el("fullName").value.trim() }).then(function () {
+              return createProfile(cred.user, { authProvider: "email" }).then(function () {
+                try { cred.user.sendEmailVerification(); } catch (e) {}
+                alertMsg("Account created. Check your email (and Spam) to verify before logging in.", true);
+                setTimeout(function () { location.href = "verify-email.html"; }, 900);
+              });
+            });
+          }).catch(function (err) {
+            if (err.message === "USERNAME_TAKEN") {
+              alertMsg("That username is taken. Go back and choose another.");
+              btn.disabled = false; btn.textContent = "Create my Codex account →"; go(1);
+              throw err;
+            }
+            throw err;
+          });
+        })
+        .catch(function (err) {
+          if (err.message === "USERNAME_TAKEN") return;
+          btn.disabled = false;
+          btn.textContent = "Create my Codex account →";
+          var map = {
+            "auth/email-already-in-use": "This email is already registered. Try logging in.",
+            "auth/invalid-email": "Please enter a valid email.",
+            "auth/weak-password": "Password is too weak.",
+            "auth/network-request-failed": "Network issue reaching Google. Try again — nothing was deleted."
+          };
+          alertMsg(map[err.code] || err.message || "Could not create account.");
+        });
+    };
+
+    if (el("googleBtn")) el("googleBtn").onclick = function () {
+      clearAlert();
+      var b = el("googleBtn");
+      b.disabled = true;
+      b.textContent = "Connecting…";
+      var provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then(function (cred) {
+          stashReferralFromForm();
+          try {
+            if (window.CodexReferrals) CodexReferrals.ensureReferralCode(cred.user);
+          } catch (e) {}
+          location.href = "chooseFaculty.html";
+        })
+        .catch(function (err) {
+          if (err.code !== "auth/popup-closed-by-user") alertMsg(err.message || "Google sign-in failed.");
+          b.disabled = false;
+          b.innerHTML = b.getAttribute("data-label") || "Continue with Google";
+        });
+    };
+
+    var modal = el("termsModal");
+    if (modal) {
+      function open() { modal.classList.add("show"); }
+      if (el("termsOpen")) el("termsOpen").onclick = open;
+      if (el("termsOpen2")) el("termsOpen2").onclick = open;
+      if (el("termsClose")) el("termsClose").onclick = function () { modal.classList.remove("show"); };
+      if (el("termsAgree")) el("termsAgree").onclick = function () {
+        el("terms").checked = true;
+        modal.classList.remove("show");
+      };
+    }
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complete your Codex profile</title>
+  <meta name="theme-color" content="#312e81">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --indigo: #4F46E5; --purple: #7C3AED; --muted: #64748B; --border: #E2E8F0;
+      --font: "Plus Jakarta Sans", system-ui, sans-serif; --display: "Plus Jakarta Sans", system-ui, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); color: #0F172A; min-height: 100dvh; background: #F8FAFC; }
+    a { color: inherit; text-decoration: none; }
+    button, input, select { font: inherit; }
+    .auth-layout { min-height: 100dvh; display: grid; width: 100%; }
+    .auth-side {
+      display: none; min-height: 100dvh; align-items: center;
+      background: linear-gradient(160deg, #1e1b4b 0%, #312e81 42%, #4c1d95 100%);
+      color: #fff; padding: 40px 44px; position: relative; overflow: hidden;
+    }
+    .auth-side::before {
+      content: ""; position: absolute; width: 300px; height: 300px; right: -70px; bottom: -50px;
+      background: linear-gradient(135deg, #6366F1, #A78BFA); transform: rotate(45deg);
+      border-radius: 44px; opacity: .35;
+    }
+    .auth-side-inner { position: relative; z-index: 1; max-width: 400px; }
+    .auth-brand { display: inline-flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 800; margin-bottom: 28px; }
+    .auth-brand img { width: 36px; height: 36px; }
+    .auth-side h1 { font-family: var(--display); font-size: clamp(1.85rem, 3vw, 2.4rem); line-height: 1.08; letter-spacing: -.03em; margin-bottom: 14px; }
+    .auth-side h1 span { color: #C4B5FD; }
+    .auth-side-inner > p { color: #C7D2FE; line-height: 1.6; margin-bottom: 22px; }
+    .auth-note { color: #A5B4FC; font-size: .8rem; line-height: 1.65; margin-top: 24px; }
+    .auth-feature { display: grid; grid-template-columns: 42px 1fr; gap: 12px; margin-bottom: 14px; }
+    .auth-feature i {
+      width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,.1);
+      display: grid; place-items: center; font-style: normal; font-weight: 800; font-size: .8rem; color: #DDD6FE;
+    }
+    .auth-feature strong { display: block; margin-bottom: 2px; }
+    .auth-feature small { color: #A5B4FC; line-height: 1.45; }
+    .auth-form {
+      display: flex; align-items: flex-start; justify-content: center; padding: 28px 16px 48px; min-height: 100dvh;
+      background: radial-gradient(ellipse 70% 50% at 100% 0%, rgba(124,58,237,.1), transparent 55%), #F8FAFC;
+    }
+    .form-wrap {
+      width: min(100%, 440px); margin-top: 12px; position: relative; overflow: hidden;
+      background: #fff; border-radius: 28px; padding: 28px 24px 24px; border: 5px solid #fff;
+      box-shadow: 0 30px 40px -20px rgba(79, 70, 229, 0.28);
+    }
+    .form-wrap::before {
+      content: ""; position: absolute; width: 220px; height: 220px; left: -120px; bottom: -60px;
+      background: linear-gradient(135deg, #93C5FD, #6366F1 50%, #7C3AED); transform: rotate(45deg);
+      border-radius: 32px; opacity: .85; z-index: 0; pointer-events: none;
+    }
+    .form-wrap::after {
+      content: ""; position: absolute; width: 100px; height: 100px; right: -32px; top: -24px;
+      background: linear-gradient(135deg, rgba(124,58,237,.4), rgba(37,99,235,.25));
+      transform: rotate(25deg); border-radius: 20px; z-index: 0; pointer-events: none;
+    }
+    .form-wrap > * { position: relative; z-index: 2; }
+    .form-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--indigo); margin-bottom: 6px; }
+    h2 { font-family: var(--display); font-size: 1.55rem; letter-spacing: -.03em; margin-bottom: 6px; }
+    .lead { color: var(--muted); font-size: .9rem; margin-bottom: 16px; line-height: 1.55; }
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-size: .78rem; font-weight: 700; color: #475569; margin-bottom: 6px; }
+    .field select, .field input {
+      width: 100%; height: 48px; border-radius: 14px; border: 1.5px solid var(--border); padding: 0 14px; background: #fff;
+    }
+    .field select:focus, .field input:focus { outline: none; border-color: #818CF8; box-shadow: 0 0 0 4px rgba(99,102,241,.15); }
+    .field select:disabled { opacity: .55; cursor: not-allowed; }
+    .hint { font-size: .72rem; color: #94A3B8; margin-top: 4px; }
+    .select-heading {
+      font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--indigo); margin: 16px 0 10px; padding-top: 8px; border-top: 1px solid var(--border);
+    }
+    .select-help { font-size: .75rem; color: #94A3B8; margin: -4px 0 10px; }
+    .pw-wrap { position: relative; }
+    .pw-wrap input { padding-right: 46px; }
+    .eye-btn {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      width: 36px; height: 36px; border: 0; background: transparent; border-radius: 10px;
+      color: #94A3B8; cursor: pointer; display: grid; place-items: center; z-index: 3;
+    }
+    .eye-btn:hover { color: #475569; background: #F1F5F9; }
+    .eye-btn.is-open { color: var(--indigo); }
+    .pw-box {
+      display: none; margin-top: 8px; padding: 14px; border-radius: 16px;
+      background: linear-gradient(135deg, rgba(79,70,229,.06), rgba(16,185,129,.05)); border: 1px solid #E0E7FF;
+    }
+    .pw-box.show { display: block; }
+    .pw-box > p { font-size: .82rem; color: #475569; margin-bottom: 10px; line-height: 1.45; }
+    .check {
+      display: flex; gap: 10px; align-items: flex-start; margin: 14px 0 16px;
+      font-size: .82rem; color: #475569; line-height: 1.45;
+    }
+    .check input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--indigo); flex-shrink: 0; }
+    .check a { color: var(--indigo); font-weight: 700; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      height: 52px; width: 100%; border: 0; border-radius: 14px; font-weight: 700; cursor: pointer;
+    }
+    .btn-primary {
+      background: linear-gradient(45deg, #4F46E5, #7C3AED); color: #fff;
+      box-shadow: 0 14px 24px -10px rgba(79,70,229,.55);
+    }
+    .btn-primary:disabled { opacity: .65; cursor: wait; }
+    .alert {
+      display: none; padding: 12px 14px; border-radius: 12px; font-size: .85rem;
+      font-weight: 600; margin-bottom: 14px; line-height: 1.4;
+    }
+    .alert.show { display: block; }
+    .alert.error { background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; }
+    .alert.ok { background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; }
+    .modal { position: fixed; inset: 0; background: rgba(15,23,42,.5); display: none; place-items: center; padding: 20px; z-index: 80; }
+    .modal.show { display: grid; }
+    .modal-box { background: #fff; border-radius: 20px; padding: 24px; max-width: 420px; width: 100%; max-height: 80vh; overflow: auto; position: relative; }
+    .modal-close { position: absolute; right: 12px; top: 10px; border: 0; background: #F1F5F9; width: 36px; height: 36px; border-radius: 10px; font-size: 1.2rem; cursor: pointer; }
+    .modal-box h3 { margin-bottom: 10px; font-family: var(--display); }
+    .modal-box p { color: var(--muted); font-size: .9rem; margin-bottom: 10px; line-height: 1.55; }
+    @media (min-width: 960px) {
+      .auth-layout { grid-template-columns: minmax(320px, 1fr) minmax(400px, 1fr); }
+      .auth-side { display: flex; }
+      .auth-form { padding: 40px 32px; align-items: center; }
+      .form-wrap { margin-top: 0; }
+    }
+  
+    .btn-primary, #saveBtn {
+      position: relative; overflow: hidden;
+    }
+    #saveBtn::after, .btn-primary::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.45) 50%, transparent 65%);
+      transform: translateX(-120%);
+      animation: btnBeam 3s ease-in-out infinite;
+    }
+    @keyframes btnBeam {
+      0%, 50% { transform: translateX(-120%); }
+      70% { transform: translateX(120%); }
+      100% { transform: translateX(120%); }
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-layout">
+    <aside class="auth-side">
+      <div class="auth-side-inner">
+        <a class="auth-brand" href="index.html"><img src="assets/logo.png" alt="">Codex Hub</a>
+        <p class="form-kicker" style="color:#A5B4FC">Step · Your academic home</p>
+        <h1>Let&apos;s make Codex feel like it was <span>built for you.</span></h1>
+        <p>Your faculty, department, level and semester help us put the right courses, CBT practice and resources in front of you.</p>
+        <div class="auth-feature"><i>01</i><div><strong>Your identity</strong><small>Name and username for community later.</small></div></div>
+        <div class="auth-feature"><i>02</i><div><strong>Academic profile</strong><small>University, faculty, department, level, semester.</small></div></div>
+        <div class="auth-feature"><i>03</i><div><strong>Optional password</strong><small>Google users can add a password for email login.</small></div></div>
+        <p class="auth-note">You can update your academic profile later. A programme marked &ldquo;Coming soon&rdquo; still saves correctly — some course content may not be ready yet.</p>
+      </div>
+    </aside>
+    <main class="auth-form">
+      <div class="form-wrap">
+        <div class="form-kicker">Complete your profile</div>
+        <h2>Where are you studying?</h2>
+        <p class="lead">Start with who you are, then university, faculty, department, level and semester.</p>
+        <div id="alert" class="alert" role="status"></div>
+        <form id="profileForm">
+          <div class="field">
+            <label for="fullName">Full name</label>
+            <input id="fullName" type="text" autocomplete="name" placeholder="Your full name" required>
+          </div>
+          <div class="field">
+            <label for="username">Username</label>
+            <input id="username" type="text" autocomplete="username" placeholder="Choose your @username" maxlength="20" required>
+            <p class="hint">Your student identity in chat/community · letters, numbers, _</p>
+          </div>
+          <div class="field">
+            <label for="university">University</label>
+            <input id="university" type="text" value="Olabisi Onabanjo University" placeholder="Your university" required>
+          </div>
+          <div class="select-heading">Your academic profile</div>
+          <div class="field">
+            <label for="level">Level</label>
+            <select id="level" required>
+              <option value="">Choose level</option>
+              <option>100</option><option>200</option><option>300</option>
+              <option>400</option><option>500</option><option>600</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="faculty">Faculty</label>
+            <select id="faculty" required><option value="">Choose faculty</option></select>
+          </div>
+          <p class="select-help">Choose your faculty first. Codex will then load departments under it.</p>
+          <div class="field">
+            <label for="department">Department</label>
+            <select id="department" required disabled><option value="">Choose a faculty first</option></select>
+          </div>
+          <div class="field">
+            <label for="semester">Current semester</label>
+            <select id="semester" required>
+              <option value="">Choose semester</option>
+              <option value="1">First Semester</option>
+              <option value="2">Second Semester</option>
+            </select>
+          </div>
+          <div class="pw-box" id="pwBox">
+            <p><strong>Add a password?</strong> You signed in with Google. Optionally set a password so you can also log in with email later.</p>
+            <div class="field">
+              <label for="password">Create password</label>
+              <div class="pw-wrap">
+                <input id="password" type="password" autocomplete="new-password" placeholder="At least 8 characters + a number">
+                <button type="button" class="eye-btn" data-target="password" aria-label="Show password"></button>
+              </div>
+            </div>
+            <div class="field">
+              <label for="confirmPassword">Confirm password</label>
+              <div class="pw-wrap">
+                <input id="confirmPassword" type="password" autocomplete="new-password" placeholder="Repeat password">
+                <button type="button" class="eye-btn" data-target="confirmPassword" aria-label="Show password"></button>
+              </div>
+            </div>
+            <p class="hint">Leave blank if you only want Google sign-in.</p>
+          </div>
+          <label class="check">
+            <input id="terms" type="checkbox" required>
+            <span>I agree to the Codex Hub <a href="#" id="termsOpen">Terms &amp; Conditions</a>.</span>
+          </label>
+          <div class="field full" style="margin-bottom:14px">
+            <label for="referralCode">Referral code <span style="font-weight:500;opacity:.7">(optional)</span></label>
+            <input type="text" id="referralCode" maxlength="24" autocomplete="off" placeholder="e.g. HUB-AB12CD34" style="text-transform:uppercase;width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--border);box-sizing:border-box" />
+            <p class="hint">Google sign-in users: enter a friend's code here if you have one. One link per account.</p>
+          </div>
+          <button class="btn btn-primary" id="saveBtn" type="submit">Save my academic profile →</button>
+        </form>
+      </div>
+    </main>
+  </div>
+  <div class="modal" id="termsModal">
+    <div class="modal-box">
+      <button class="modal-close" id="termsClose" type="button">×</button>
+      <h3>Codex Hub Terms &amp; Conditions</h3>
+      <p>Your username can be visible to other students in chat and community. Do not impersonate others or abuse the platform.</p>
+      <p>Codex Hub supports your studies — practice results and AI help do not guarantee exam outcomes.</p>
+      <p><a href="terms.html" target="_blank" rel="noopener" style="color:var(--indigo);font-weight:700">Read full Terms ↗</a></p>
+      <button class="btn btn-primary" id="termsAgree" type="button" style="margin-top:12px">I understand &amp; agree</button>
+    </div>
+  </div>
+  
+  <script>
+    (function () {
+      var openIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+      var closedIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+      document.querySelectorAll(".eye-btn").forEach(function (btn) {
+        btn.innerHTML = openIcon;
+        btn.addEventListener("click", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var input = document.getElementById(btn.getAttribute("data-target"));
+          if (!input) return;
+          var show = input.type === "password";
+          input.type = show ? "text" : "password";
+          btn.classList.toggle("is-open", show);
+          btn.setAttribute("aria-label", show ? "Hide password" : "Show password");
+          btn.innerHTML = show ? closedIcon : openIcon;
+        });
+      });
+    })();
+  </script>
+
+  <script src="js/faculty-data.js"></script>
+  <script src="js/referrals.js"></script>
+  <script src="js/firebase-config.js"></script>
+  
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script>
+  (function () {
+    "use strict";
+    if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+    var auth = firebase.auth();
+    var db = firebase.firestore();
+    var el = function (id) { return document.getElementById(id); };
+    var alertEl = el("alert");
+
+    function alertMsg(msg, ok) {
+      alertEl.textContent = msg;
+      alertEl.className = "alert show " + (ok ? "ok" : "error");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    // Password eyes
+    document.querySelectorAll(".eye-btn").forEach(function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        var input = el(btn.getAttribute("data-target"));
+        if (!input) return;
+        var show = input.type === "password";
+        input.type = show ? "text" : "password";
+        btn.classList.toggle("is-open", show);
+      });
+    });
+
+    var facultySel = el("faculty");
+    var deptSel = el("department");
+    function loadFaculties() {
+      facultySel.innerHTML = '<option value="">Select faculty…</option>';
+      Object.keys(FACULTY_DATA || {}).forEach(function (key) {
+        var o = document.createElement("option");
+        o.value = key;
+        o.textContent = FACULTY_DATA[key].label || key;
+        facultySel.appendChild(o);
+      });
+    }
+    function loadDepts() {
+      var data = window.FACULTY_DATA || FACULTY_DATA;
+      var entry = data && data[facultySel.value];
+      deptSel.innerHTML = '<option value="">Select department…</option>';
+      if (!entry || !entry.departments || !entry.departments.length) {
+        deptSel.disabled = true;
+        return;
+      }
+      deptSel.disabled = false;
+      entry.departments.forEach(function (d) {
+        var name = typeof d === "string" ? d : (d.name || "");
+        if (!name) return;
+        var has = typeof d === "string" ? true : d.hasContent !== false;
+        var o = document.createElement("option");
+        o.value = name;
+        o.textContent = has ? name : name + " (Coming soon)";
+        deptSel.appendChild(o);
+      });
+    }
+    loadFaculties();
+    facultySel.addEventListener("change", loadDepts);
+
+    // Terms modal
+    var modal = el("termsModal");
+    if (modal) {
+      var open = function () { modal.classList.add("show"); };
+      if (el("termsOpen")) el("termsOpen").onclick = open;
+      if (el("termsClose")) el("termsClose").onclick = function () { modal.classList.remove("show"); };
+      if (el("termsAgree")) el("termsAgree").onclick = function () {
+        el("terms").checked = true;
+        modal.classList.remove("show");
+      };
+    }
+
+    auth.onAuthStateChanged(function (user) {
+      if (!user) {
+        location.href = "login.html";
+        return;
+      }
+      db.collection("users").doc(user.uid).get().then(function (snap) {
+        if (!snap.exists) return;
+        var d = snap.data();
+        if (d.fullName) el("fullName").value = d.fullName;
+        if (d.username) el("username").value = d.username;
+        if (d.university) el("university").value = d.university;
+        if (d.level) el("level").value = d.level;
+        if (d.faculty && FACULTY_DATA[d.faculty]) {
+          facultySel.value = d.faculty;
+          loadDepts();
+          if (d.department) deptSel.value = d.department;
+        }
+        if (d.semester && el("semester")) el("semester").value = d.semester;
+        // If profile already complete, go home
+        if (d.faculty && d.department && d.level) {
+          // stay so user can edit, or redirect:
+          // location.href = "app/home.html";
+        }
+        // Google users may set password later
+        if (el("pwBox") && user.providerData && user.providerData[0] && user.providerData[0].providerId === "password") {
+          el("pwBox").style.display = "none";
+        }
+      });
+    });
+
+    el("profileForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var user = auth.currentUser;
+      if (!user) return alertMsg("Please sign in again.");
+      if (!el("terms").checked) return alertMsg("Please agree to the Terms & Conditions.");
+      var uni = (el("university").value || "").trim() || "Olabisi Onabanjo University";
+      var fac = facultySel.value;
+      var dept = deptSel.value;
+      var lev = el("level").value;
+      var sem = el("semester") ? el("semester").value : "";
+      var uname = (el("username").value || "").trim().toLowerCase().replace(/\s+/g, "");
+      if (!fac || !dept || !lev || !el("fullName").value.trim()) {
+        return alertMsg("Fill full name, faculty, department and level.");
+      }
+      if (!sem) return alertMsg("Select your semester — we need it for course content.");
+      var btn = el("saveBtn");
+      btn.disabled = true;
+      btn.textContent = "Saving…";
+
+      var finish = function () {
+        var data = {
+          uid: user.uid,
+          fullName: el("fullName").value.trim(),
+          username: uname,
+          usernameLower: uname,
+          email: user.email || "",
+          university: uni,
+          faculty: fac,
+          department: dept,
+          level: lev,
+          semester: sem,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        return db.collection("users").doc(user.uid).set(data, { merge: true }).then(function () {
+          var refCode = (el("referralCode") && el("referralCode").value || "").trim().toUpperCase();
+          try {
+            if (!refCode) refCode = localStorage.getItem("codex_pending_referral") || "";
+          } catch (e0) {}
+          var chain = Promise.resolve();
+          if (window.CodexReferrals) {
+            chain = CodexReferrals.ensureReferralCode(user).then(function () {
+              if (!refCode) return null;
+              return CodexReferrals.registerReferral(user, refCode).then(function () {
+                try { localStorage.removeItem("codex_pending_referral"); } catch (e1) {}
+              });
+            });
+          }
+          return chain.then(function () {
+            try {
+              db.collection("public_profiles").doc(user.uid).set({
+                displayName: data.fullName,
+                university: uni,
+                faculty: fac,
+                department: dept,
+                level: lev,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+              }, { merge: true });
+            } catch (e) {}
+            localStorage.setItem("loggedInUser", JSON.stringify({
+              uid: user.uid, email: user.email || "", fullName: data.fullName,
+              username: uname, university: uni, level: lev, faculty: fac, department: dept, semester: sem
+            }));
+            localStorage.setItem("selectedSemester", sem);
+            alertMsg("Profile saved. Welcome to Codex Hub.", true);
+            setTimeout(function () { location.href = "app/home.html"; }, 800);
+          });
+        });
+      };
+
+      // Optional password for Google users
+      var pw = el("password") ? el("password").value : "";
+      var pw2 = el("confirmPassword") ? el("confirmPassword").value : "";
+      var chain = Promise.resolve();
+      if (pw) {
+        if (pw.length < 6) {
+          btn.disabled = false; btn.textContent = "Save my academic profile →";
+          return alertMsg("Password must be at least 6 characters.");
+        }
+        if (pw !== pw2) {
+          btn.disabled = false; btn.textContent = "Save my academic profile →";
+          return alertMsg("Passwords do not match.");
+        }
+        chain = user.updatePassword(pw).catch(function (err) {
+          // May need recent login
+          console.warn(err);
+        });
+      }
+
+      chain.then(finish).catch(function (err) {
+        btn.disabled = false;
+        btn.textContent = "Save my academic profile →";
+        if (err && err.message === "USERNAME_TAKEN") alertMsg("That username is already taken.");
+        else alertMsg(err.message || "Could not save profile.");
+      });
+    });
+  })();
+  </script>
+
+</body>
+</html>
