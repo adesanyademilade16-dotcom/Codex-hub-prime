@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="../js/theme-boot.js"></script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Course Library · Codex Hub</title>
+<meta name="theme-color" content="#0F172A">
+<link rel="icon" href="../assets/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#0F172A; --ink:#1E293B; --muted:#64748B; --line:#E2E8F0;
+  --bg:#F8FAFC; --card:#FFFFFF; --blue:#2563EB; --blue2:#1D4ED8;
+  --purple:#7C3AED; --purple-soft:#EDE9FE; --green:#059669; --green-soft:#D1FAE5;
+  --amber:#D97706; --amber-soft:#FEF3C7; --red:#DC2626;
+  --radius:16px; --shadow:0 4px 20px rgba(15,23,42,.06);
+  --font:"DM Sans",system-ui,sans-serif;
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:var(--font);background:var(--bg);color:var(--ink);
+  -webkit-font-smoothing:antialiased;padding-bottom:calc(72px + var(--safe-b));
+}
+button,input,textarea,select{font:inherit}
+a{color:inherit;text-decoration:none}
+
+/* Top bar */
+.top{
+  position:relative;z-index:2;
+  background:rgba(248,250,252,.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+  padding:10px 14px;padding-top:max(10px,env(safe-area-inset-top));
+  display:flex;align-items:center;gap:10px;
+}
+.top .back{
+  width:40px;height:40px;border-radius:12px;border:1px solid var(--line);
+  background:var(--card);display:grid;place-items:center;cursor:pointer;color:var(--navy);
+}
+.top h1{flex:1;font-size:1.05rem;font-weight:800;letter-spacing:-.02em}
+.top .lib-btn{
+  border:0;background:linear-gradient(135deg,var(--blue),var(--purple));
+  color:#fff;font-weight:700;font-size:.78rem;padding:10px 14px;border-radius:999px;cursor:pointer;
+}
+
+/* Search */
+.search-wrap{padding:12px 14px 0}
+.search{
+  display:flex;align-items:center;gap:10px;
+  background:var(--card);border:1.5px solid var(--line);border-radius:14px;
+  padding:0 14px;box-shadow:var(--shadow);
+}
+.search:focus-within{border-color:#93C5FD;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.search svg{flex-shrink:0;color:var(--muted)}
+.search input{
+  flex:1;border:0;outline:none;background:transparent;
+  padding:14px 0;font-size:.95rem;color:var(--navy);
+}
+.search input::placeholder{color:#94A3B8}
+
+/* Chips */
+.chips{
+  display:flex;gap:8px;padding:12px 14px;overflow-x:auto;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  flex-shrink:0;border:1.5px solid var(--line);background:var(--card);
+  color:var(--muted);font-weight:700;font-size:.75rem;padding:8px 14px;
+  border-radius:999px;cursor:pointer;transition:.15s;
+}
+.chip.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.chip.accent{border-color:#C4B5FD;color:var(--purple)}
+.chip.accent.active{background:var(--purple);border-color:var(--purple);color:#fff}
+
+/* Stats strip */
+.stats{
+  display:flex;gap:8px;padding:0 14px 12px;overflow-x:auto;
+}
+.stat{
+  flex:1;min-width:90px;background:var(--card);border:1px solid var(--line);
+  border-radius:12px;padding:10px 12px;text-align:center;
+}
+.stat b{display:block;font-size:1.1rem;font-weight:800;color:var(--navy)}
+.stat span{font-size:.68rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+
+/* Section */
+.section{padding:4px 14px 18px}
+.section-head{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;
+}
+.section-head h2{font-size:.92rem;font-weight:800;color:var(--navy)}
+.section-head span{font-size:.75rem;color:var(--muted);font-weight:600}
+
+/* Grid */
+.grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:12px;
+}
+@media(min-width:480px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:900px){.grid{grid-template-columns:repeat(4,1fr);gap:16px}}
+@media(min-width:1200px){.grid{grid-template-columns:repeat(5,1fr)}}
+
+/* Course card — product style */
+.ccard{
+  position:relative;background:var(--card);border:1.5px solid var(--line);
+  border-radius:var(--radius);overflow:hidden;cursor:pointer;
+  transition:transform .18s,box-shadow .18s,border-color .18s;
+  display:flex;flex-direction:column;min-height:168px;
+  box-shadow:0 2px 8px rgba(15,23,42,.04);
+}
+.ccard:active{transform:scale(.98)}
+.ccard:hover{border-color:#BFDBFE;box-shadow:var(--shadow)}
+.ccard .art{
+  height:72px;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#1E3A5F 0%,#312E81 100%);
+}
+.ccard .art.live{background:linear-gradient(135deg,#1D4ED8 0%,#7C3AED 100%)}
+.ccard .art.soon{background:linear-gradient(135deg,#334155 0%,#475569 100%)}
+.ccard .art svg.mark{
+  position:absolute;right:-8px;bottom:-12px;width:88px;height:88px;opacity:.18;color:#fff;
+}
+.ccard .art .code-lg{
+  position:absolute;left:12px;top:14px;
+  font-size:1.05rem;font-weight:800;color:#fff;letter-spacing:-.02em;
+  text-shadow:0 1px 2px rgba(0,0,0,.2);
+}
+.ccard .art .badge{
+  position:absolute;right:8px;top:8px;font-size:.62rem;font-weight:800;
+  padding:3px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em;
+}
+.ccard .art .badge.live{background:rgba(16,185,129,.95);color:#fff}
+.ccard .art .badge.soon{background:rgba(255,255,255,.18);color:#fff;backdrop-filter:blur(4px)}
+.ccard .body{padding:10px 12px 12px;flex:1;display:flex;flex-direction:column;gap:6px}
+.ccard .title{
+  font-size:.78rem;font-weight:700;color:var(--navy);line-height:1.35;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  min-height:2.1em;
+}
+.ccard .meta{display:flex;flex-wrap:wrap;gap:4px}
+.ccard .meta span{
+  font-size:.65rem;font-weight:700;color:var(--muted);
+  background:#F1F5F9;padding:3px 7px;border-radius:6px;
+}
+.ccard .foot{
+  display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:4px;
+}
+.ccard .add{
+  width:34px;height:34px;border-radius:10px;border:0;
+  background:var(--navy);color:#fff;display:grid;place-items:center;cursor:pointer;
+  transition:.15s;
+}
+.ccard .add:hover{background:var(--blue)}
+.ccard .add.in{
+  background:var(--green-soft);color:var(--green);
+}
+.ccard .add svg{width:16px;height:16px}
+
+/* Empty */
+.empty{
+  text-align:center;padding:40px 20px;color:var(--muted);
+}
+.empty svg{margin:0 auto 12px;opacity:.5}
+.empty h3{color:var(--navy);font-size:1rem;margin-bottom:6px}
+.empty p{font-size:.85rem;line-height:1.5;margin-bottom:16px}
+.empty button{
+  border:0;background:var(--navy);color:#fff;font-weight:700;
+  padding:12px 18px;border-radius:12px;cursor:pointer;
+}
+
+/* Load more */
+.more-wrap{padding:0 14px 24px;text-align:center}
+.more-wrap button{
+  border:1.5px solid var(--line);background:var(--card);color:var(--navy);
+  font-weight:700;padding:12px 20px;border-radius:12px;cursor:pointer;width:100%;max-width:280px;
+}
+
+/* Detail sheet */
+.sheet-bg{
+  display:none;position:fixed;inset:0;z-index:80;background:rgba(15,23,42,.45);
+  backdrop-filter:blur(4px);
+}
+.sheet-bg.open{display:block}
+.sheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:90;
+  max-height:92vh;background:var(--card);border-radius:20px 20px 0 0;
+  transform:translateY(110%);transition:transform .28s cubic-bezier(.22,1,.36,1);
+  display:flex;flex-direction:column;box-shadow:0 -12px 40px rgba(15,23,42,.2);
+}
+.sheet.open{transform:translateY(0)}
+.sheet-handle{width:40px;height:4px;background:#CBD5E1;border-radius:4px;margin:10px auto 0}
+.sheet-head{
+  padding:12px 18px 8px;display:flex;align-items:flex-start;gap:12px;
+}
+.sheet-head .code-pill{
+  font-size:.85rem;font-weight:800;color:#fff;background:var(--navy);
+  padding:8px 12px;border-radius:10px;flex-shrink:0;
+}
+.sheet-head .info{flex:1;min-width:0}
+.sheet-head h2{font-size:1.05rem;font-weight:800;line-height:1.3;color:var(--navy)}
+.sheet-head .sub{font-size:.78rem;color:var(--muted);margin-top:4px;font-weight:600}
+.sheet-close{
+  width:36px;height:36px;border:0;border-radius:10px;background:#F1F5F9;
+  cursor:pointer;font-size:1.1rem;color:var(--muted);
+}
+.sheet-body{flex:1;overflow-y:auto;padding:8px 18px 20px;-webkit-overflow-scrolling:touch}
+.sheet-body .desc{font-size:.88rem;line-height:1.65;color:#475569;margin-bottom:16px}
+.sheet-body h3{font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:16px 0 8px}
+.topic-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.topic-list li{
+  font-size:.84rem;padding:10px 12px;background:#F8FAFC;border:1px solid var(--line);
+  border-radius:10px;color:var(--ink);font-weight:500;
+}
+.sheet-foot{
+  padding:12px 18px calc(14px + var(--safe-b));
+  border-top:1px solid var(--line);display:flex;gap:10px;background:var(--card);
+}
+.sheet-foot button{
+  flex:1;border:0;padding:14px;border-radius:14px;font-weight:800;font-size:.9rem;cursor:pointer;
+}
+.sheet-foot .primary{background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff}
+.sheet-foot .ghost{background:#F1F5F9;color:var(--navy)}
+.sheet-foot .danger{background:#FEE2E2;color:var(--red)}
+
+/* Request modal */
+.modal-bg{display:none;position:fixed;inset:0;z-index:100;background:rgba(15,23,42,.5);align-items:flex-end;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{
+  width:100%;max-width:480px;background:var(--card);border-radius:20px 20px 0 0;
+  padding:18px 18px calc(18px + var(--safe-b));max-height:90vh;overflow-y:auto;
+}
+.modal h2{font-size:1.1rem;font-weight:800;margin-bottom:4px}
+.modal p.hint{font-size:.82rem;color:var(--muted);margin-bottom:14px;line-height:1.45}
+.modal label{display:block;font-size:.72rem;font-weight:700;color:var(--muted);margin:10px 0 4px;text-transform:uppercase;letter-spacing:.04em}
+.modal input,.modal textarea,.modal select{
+  width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;
+  background:#F8FAFC;color:var(--navy);outline:none;
+}
+.modal input:focus,.modal textarea:focus{border-color:#93C5FD}
+.modal textarea{min-height:80px;resize:vertical}
+.modal .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modal .actions{display:flex;gap:10px;margin-top:16px}
+.modal .actions button{flex:1;border:0;padding:13px;border-radius:12px;font-weight:800;cursor:pointer}
+.modal .actions .send{background:var(--navy);color:#fff}
+.modal .actions .cancel{background:#F1F5F9;color:var(--muted)}
+
+/* Toast */
+.toast{
+  position:fixed;left:50%;bottom:calc(88px + var(--safe-b));transform:translateX(-50%) translateY(20px);
+  background:var(--navy);color:#fff;padding:12px 18px;border-radius:12px;font-size:.85rem;font-weight:600;
+  opacity:0;pointer-events:none;transition:.25s;z-index:120;max-width:90%;text-align:center;
+  box-shadow:0 8px 24px rgba(15,23,42,.25);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Confirm */
+.confirm-bg{display:none;position:fixed;inset:0;z-index:110;background:rgba(15,23,42,.45);align-items:center;justify-content:center;padding:20px}
+.confirm-bg.open{display:flex}
+.confirm{
+  background:var(--card);border-radius:18px;padding:22px;max-width:340px;width:100%;
+  box-shadow:0 20px 50px rgba(15,23,42,.25);
+}
+.confirm h3{font-size:1rem;font-weight:800;margin-bottom:8px}
+.confirm p{font-size:.88rem;color:var(--muted);line-height:1.5;margin-bottom:18px}
+.confirm .actions{display:flex;gap:10px}
+.confirm .actions button{flex:1;border:0;padding:12px;border-radius:12px;font-weight:800;cursor:pointer}
+.confirm .yes{background:var(--navy);color:#fff}
+.confirm .no{background:#F1F5F9;color:var(--muted)}
+
+/* My library panel */
+.mylib-panel{
+  display:none;position:fixed;inset:0;z-index:70;background:var(--bg);
+  flex-direction:column;padding-top:max(0px,env(safe-area-inset-top));
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+}
+.mylib-panel.open{display:flex}
+.mylib-panel .mph{
+  display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--card);
+  position:relative; /* scrolls with content — not sticky */
+}
+.mylib-panel .mph h2{flex:1;font-size:1.05rem;font-weight:800}
+.mylib-panel .list{flex:none;overflow:visible;padding:18px 16px 28px}
+
+
+/* ── My Library polished shell ─────────────────────────────────────────── */
+.mylib-panel {
+  background: var(--lib-bg, #F1F5F9) !important;
+}
+.mylib-panel .mph {
+  background: var(--lib-header, #FFFFFF) !important;
+  flex-shrink: 0;
+  position: relative !important;
+  z-index: 1;
+  padding: 14px 16px !important;
+  gap: 12px !important;
+}
+.mylib-hero {
+  margin: 16px 16px 14px;
+  padding: 22px 18px;
+  border-radius: 20px;
+  background: var(--lib-hero, linear-gradient(135deg, #1E3A5F 0%, #312E81 100%));
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  min-height: 104px;
+  box-shadow: 0 8px 24px rgba(30, 58, 95, 0.25);
+}
+.mylib-hero h3 {
+  font-size: 1.08rem;
+  font-weight: 800;
+  position: relative;
+  z-index: 2;
+  max-width: 78%;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.mylib-hero p {
+  font-size: 0.76rem;
+  opacity: 0.9;
+  margin: 8px 0 0;
+  position: relative;
+  z-index: 2;
+  line-height: 1.5;
+  max-width: 80%;
+  font-weight: 500;
+}
+.mylib-hero .book-deco {
+  position: absolute !important;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 56px !important;
+  height: 42px !important;
+  opacity: 0.45;
+  z-index: 1;
+  pointer-events: none;
+}
+.theme-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 16px 16px;
+}
+.theme-row .theme-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-right: 2px;
+}
+.theme-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2.5px solid #fff !important;
+  box-shadow: 0 0 0 1.5px #CBD5E1, 0 2px 6px rgba(15, 23, 42, 0.12);
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.theme-dot.active {
+  box-shadow: 0 0 0 2.5px #2563EB, 0 2px 8px rgba(37, 99, 235, 0.35);
+}
+.mylib-actions {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 12px;
+  padding: 4px 16px 18px;
+}
+.mylib-actions button {
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: 14px;
+  padding: 14px 14px;
+  font-weight: 800;
+  font-size: 0.8rem;
+  cursor: pointer;
+  line-height: 1.3;
+  font-family: inherit;
+  transition: transform 0.12s, box-shadow 0.12s;
+  min-height: 48px;
+}
+.mylib-actions button:active {
+  transform: scale(0.98);
+}
+.mylib-actions #btnReseed {
+  background: linear-gradient(135deg, #4F46E5, #7C3AED);
+  border: none;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+}
+.mylib-actions #btnClearLib {
+  background: #fff;
+  border: 1.5px solid #FECACA;
+  color: #B91C1C;
+}
+.mylib-panel .list {
+  flex: none;
+  overflow: visible;
+  padding: 14px 14px 28px;
+}
+.mylib-empty-seed {
+  margin: 0 0 12px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #EEF2FF;
+  border: 1px dashed #A5B4FC;
+  font-size: 0.82rem;
+  color: #3730A3;
+  line-height: 1.5;
+}
+.mylib-banner {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #FEF3C7;
+  border: 1px solid #FCD34D;
+  font-size: 0.8rem;
+  color: #92400E;
+  line-height: 1.45;
+  font-weight: 600;
+}
+.mylib-panel .grid {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+
+.mylib-panel .mph .back {
+  width: 40px; height: 40px; border-radius: 12px;
+  border: 1.5px solid var(--line); background: #fff;
+  display: grid; place-items: center; cursor: pointer;
+  color: var(--navy); flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(15,23,42,.06);
+}
+.mylib-panel .mph .back:active { transform: scale(.96); background: #F8FAFC; }
+.mylib-panel .mph .lib-btn,
+.mylib-panel .mph #btnBrowseFromLib {
+  border: 0 !important;
+  background: linear-gradient(135deg, #2563EB, #7C3AED) !important;
+  color: #fff !important;
+  font-weight: 800 !important;
+  font-size: .75rem !important;
+  padding: 10px 14px !important;
+  border-radius: 999px !important;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(37,99,235,.3);
+  font-family: inherit;
+}
+.mylib-sem {
+  display: flex; gap: 8px; padding: 0 14px 12px; align-items: center;
+}
+.mylib-sem .lab {
+  font-size: .68rem; font-weight: 800; color: #64748B;
+  text-transform: uppercase; letter-spacing: .05em;
+}
+.mylib-sem button {
+  flex: 1; appearance: none; -webkit-appearance: none;
+  border: 1.5px solid #E2E8F0; background: #fff;
+  border-radius: 12px; padding: 10px 8px;
+  font-weight: 800; font-size: .78rem; color: #64748B;
+  cursor: pointer; font-family: inherit;
+}
+.mylib-sem button.active {
+  background: var(--navy); border-color: var(--navy); color: #fff;
+  box-shadow: 0 4px 12px rgba(15,23,42,.2);
+}
+
+
+/* Breathing room — My Library chrome (not cramped) */
+.mylib-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 14px;
+  padding: 4px 16px 14px;
+}
+.mylib-toolbar .theme-row {
+  padding: 0 !important;
+  gap: 10px;
+}
+.mylib-toolbar .mylib-sem {
+  padding: 0 !important;
+  flex: 1;
+  min-width: 160px;
+  gap: 10px;
+}
+.mylib-sem button {
+  padding: 12px 10px !important;
+  min-height: 44px;
+  border-radius: 14px !important;
+}
+.mylib-banner {
+  margin: 0 0 16px !important;
+  padding: 14px 16px !important;
+  border-radius: 14px !important;
+}
+.mylib-panel .grid {
+  gap: 14px !important;
+}
+
+/* Responsive grid inside My Library (match catalog) */
+.mylib-panel .grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+@media (min-width: 480px) {
+  .mylib-panel .grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+}
+@media (min-width: 768px) {
+  .mylib-panel .grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+}
+@media (min-width: 1100px) {
+  .mylib-panel .grid { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }
+}
+
+
+#detailPrimaryBtns .primary {
+  border: 0; border-radius: 12px; padding: 12px;
+  background: linear-gradient(135deg, #2563EB, #7C3AED);
+  color: #fff; font-weight: 800; font-size: .85rem; width: 100%;
+}
+#detailPrimaryBtns .ghost {
+  border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 12px;
+  background: #fff; font-weight: 800; font-size: .85rem; width: 100%; color: #0F172A;
+}
+
+/* Desktop */
+@media(min-width:960px){
+  body{padding-bottom:24px}
+  .page{max-width:1100px;margin:0 auto}
+  .sheet{left:50%;right:auto;width:min(520px,100%);transform:translate(-50%,110%);border-radius:20px;bottom:24px;max-height:85vh}
+  .sheet.open{transform:translate(-50%,0)}
+}
+
+.featured-rails { padding: 0 14px 8px; }
+.feat-block { margin-bottom: 18px; }
+.feat-block h3 {
+  font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 10px;
+}
+.feat-rail {
+  display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px;
+  -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory;
+}
+.feat-rail::-webkit-scrollbar { height: 4px; }
+.feat-rail .ccard {
+  flex: 0 0 160px; scroll-snap-align: start; max-width: 160px;
+}
+
+
+/* ── My Library hero — readable header (not ultra-slim) ── */
+.mylib-hero {
+  padding: 18px 18px 16px !important;
+  margin: 12px 14px 10px !important;
+  border-radius: 18px !important;
+  min-height: 96px !important;
+  display: block !important;
+}
+.mylib-hero h3 {
+  font-size: 1.05rem !important;
+  line-height: 1.35 !important;
+  margin: 0 !important;
+  font-weight: 800 !important;
+  max-width: 85%;
+}
+.mylib-hero p {
+  font-size: 0.8rem !important;
+  line-height: 1.45 !important;
+  margin: 8px 0 0 !important;
+  opacity: 0.92;
+  display: block !important;
+  -webkit-line-clamp: unset !important;
+  overflow: visible !important;
+  max-width: 88%;
+}
+.mylib-hero .book-deco {
+  display: block !important;
+  opacity: 0.4 !important;
+}
+.theme-row {
+  margin: 6px 14px 4px !important;
+  gap: 10px !important;
+  align-items: center;
+  padding: 4px 0 8px !important;
+}
+.theme-label { font-size: 0.68rem !important; letter-spacing: 0.06em; font-weight: 800; }
+.theme-dot { width: 24px !important; height: 24px !important; }
+.mylib-actions, .mylib-toolbar .mylib-actions {
+  display: grid !important;
+  grid-template-columns: 1.25fr 0.9fr !important;
+  gap: 10px !important;
+  margin: 6px 14px 12px !important;
+  padding: 0 !important;
+}
+.mylib-actions button,
+#btnReseed,
+#btnClearLib {
+  flex: none;
+  min-width: 0;
+  font-size: 0.78rem !important;
+  font-weight: 800 !important;
+  padding: 12px 12px !important;
+  border-radius: 14px !important;
+  line-height: 1.3 !important;
+  min-height: 46px !important;
+}
+.mylib-sem, .sem-row, [data-sem-toggle] {
+  margin: 6px 14px !important;
+}
+.mylib-banner {
+  margin: 6px 14px 12px !important;
+  padding: 12px 14px !important;
+  font-size: 0.8rem !important;
+  border-radius: 12px !important;
+  line-height: 1.45 !important;
+}
+@media (max-width: 420px) {
+  .mylib-hero { margin: 10px 12px 8px !important; padding: 16px 14px !important; min-height: 88px !important; }
+  .mylib-hero h3 { font-size: 0.98rem !important; }
+  .mylib-hero p { font-size: 0.76rem !important; }
+}
+
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="top">
+    <button type="button" class="back" id="btnBack" aria-label="Back">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <h1>Course Library</h1>
+    <button type="button" class="lib-btn" id="btnMyLib">My Library</button>
+  </header>
+
+  <div class="search-wrap">
+    <div class="search" id="searchBox">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>
+      <div class="spin" aria-hidden="true"></div>
+      <input type="search" id="searchInput" placeholder="Search code or title (e.g. MTH101)" autocomplete="off">
+    </div>
+    <div class="search-hint" id="searchHint"></div>
+  </div>
+
+  <div class="chips" id="levelChips" role="tablist"></div>
+
+  <div class="stats" id="statsBar">
+    <div class="stat"><b id="stTotal">—</b><span>Courses</span></div>
+    <div class="stat"><b id="stLive">—</b><span>Ready</span></div>
+    <div class="stat"><b id="stSoon">—</b><span>Soon</span></div>
+    <div class="stat"><b id="stLib">—</b><span>In library</span></div>
+  </div>
+
+  <div class="chips" id="filterChips">
+    <button type="button" class="chip active" data-f="all">All</button>
+    <button type="button" class="chip" data-f="live">Ready</button>
+    <button type="button" class="chip" data-f="soon">Coming soon</button>
+    <button type="button" class="chip accent" data-f="mine">For my level</button>
+  </div>
+
+  <div id="featuredRails" class="featured-rails"></div>
+
+  <section class="section">
+    <div class="section-head">
+      <h2 id="sectionTitle">Browse courses</h2>
+      <span id="sectionCount"></span>
+    </div>
+    <div class="grid" id="courseGrid"></div>
+    <div class="empty" id="emptyState" style="display:none">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+      <h3>No courses match</h3>
+      <p>Try another search or level. Can’t find your course? Request it and we’ll prioritise content.</p>
+      <button type="button" id="btnRequestEmpty">Request a course</button>
+    </div>
+    <div class="more-wrap" id="moreWrap" style="display:none">
+      <button type="button" id="btnMore">Load more</button>
+    </div>
+  </section>
+
+  <section class="section" style="padding-bottom:32px">
+    <button type="button" id="btnRequest" style="width:100%;border:1.5px dashed #C4B5FD;background:#F5F3FF;color:var(--purple);font-weight:800;padding:16px;border-radius:14px;cursor:pointer;font-size:.9rem">
+      Can’t find your course? Request it
+    </button>
+  </section>
+</div>
+
+<!-- My library panel -->
+<div class="mylib-panel" id="myLibPanel">
+  <div class="mph">
+    <button type="button" class="back" id="myLibClose" aria-label="Close">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <h2>My Library</h2>
+    <button type="button" class="lib-btn" id="btnBrowseFromLib" style="font-size:.72rem;padding:8px 12px">Browse</button>
+  </div>
+  <div class="mylib-hero" id="myLibHero">
+    <h3 id="myLibTitle">Your courses</h3>
+    <p id="myLibSub">Courses for your programme appear here. Add more from the catalog or remove any you don’t need.</p>
+    <svg class="book-deco" width="56" height="42" viewBox="0 0 56 42" fill="none" aria-hidden="true">
+      <rect x="4" y="6" width="32" height="28" rx="3" fill="#fff" fill-opacity=".9"/>
+      <path d="M10 12h20" stroke="#312E81" stroke-opacity=".35" stroke-width="2" stroke-linecap="round"/>
+      <path d="M10 18h14" stroke="#312E81" stroke-opacity=".35" stroke-width="2" stroke-linecap="round"/>
+      <path d="M10 24h18" stroke="#312E81" stroke-opacity=".35" stroke-width="2" stroke-linecap="round"/>
+      <path d="M36 8l12 5v22l-12-5V8z" fill="#C4B5FD" fill-opacity=".85"/>
+    </svg>
+  </div>
+  <div class="mylib-toolbar">
+    <div class="theme-row" id="themeRow" title="Library theme">
+      <span class="theme-label">Theme</span>
+      <button type="button" class="theme-dot active" data-theme="default" style="background:#1E3A5F" aria-label="Navy"></button>
+      <button type="button" class="theme-dot" data-theme="ocean" style="background:#0E7490" aria-label="Ocean"></button>
+      <button type="button" class="theme-dot" data-theme="forest" style="background:#047857" aria-label="Forest"></button>
+      <button type="button" class="theme-dot" data-theme="sunset" style="background:#C2410C" aria-label="Sunset"></button>
+      <button type="button" class="theme-dot" data-theme="violet" style="background:#6D28D9" aria-label="Violet"></button>
+    </div>
+    <div class="mylib-sem" id="myLibSem">
+      <span class="lab">Sem</span>
+      <button type="button" data-sem="1" id="sem1Btn">1st</button>
+      <button type="button" data-sem="2" id="sem2Btn">2nd</button>
+    </div>
+  </div>
+  <div class="mylib-actions">
+    <button type="button" id="btnReseed">Restore programme courses</button>
+    <button type="button" id="btnClearLib">Clear library</button>
+  </div>
+  <div class="list" id="myLibList"></div>
+</div>
+
+<!-- Detail sheet -->
+<div class="sheet-bg" id="sheetBg"></div>
+<div class="sheet" id="detailSheet" role="dialog" aria-modal="true">
+  <div class="sheet-handle"></div>
+  <div class="sheet-head">
+    <div class="code-pill" id="dCode">—</div>
+    <div class="info">
+      <h2 id="dTitle">—</h2>
+      <div class="sub" id="dSub">—</div>
+    </div>
+    <button type="button" class="sheet-close" id="sheetClose" aria-label="Close">×</button>
+  </div>
+  <div class="sheet-body" id="dBody"></div>
+  <div class="sheet-foot">
+    <button type="button" class="ghost" id="dClose2">Close</button>
+    <button type="button" class="primary" id="dAdd">Add to library</button>
+  </div>
+</div>
+
+<!-- Request course modal -->
+<div class="modal-bg" id="reqModal">
+  <div class="modal">
+    <h2>Request a course</h2>
+    <p class="hint">Tell us the course details. Requests go to the Codex team so we can prioritise CBT &amp; notes uploads.</p>
+    <label>Course code</label>
+    <input id="reqCode" placeholder="e.g. CSC201" maxlength="20">
+    <label>Course title</label>
+    <input id="reqTitle" placeholder="e.g. Data Structures" maxlength="120">
+    <div class="row">
+      <div>
+        <label>Level</label>
+        <select id="reqLevel">
+          <option value="100">100</option>
+          <option value="200">200</option>
+          <option value="300">300</option>
+          <option value="400">400</option>
+          <option value="500">500</option>
+          <option value="600">600</option>
+        </select>
+      </div>
+      <div>
+        <label>Semester</label>
+        <select id="reqSem">
+          <option value="1">1st</option>
+          <option value="2">2nd</option>
+        </select>
+      </div>
+    </div>
+    <label>Outline / topics (optional)</label>
+    <textarea id="reqOutline" placeholder="List main topics if you know them…"></textarea>
+    <div class="actions">
+      <button type="button" class="cancel" id="reqCancel">Cancel</button>
+      <button type="button" class="send" id="reqSend">Send request</button>
+    </div>
+  </div>
+</div>
+
+<!-- Level mismatch confirm -->
+<div class="confirm-bg" id="confirmBg">
+  <div class="confirm">
+    <h3 id="confirmTitle">Different level</h3>
+    <p id="confirmMsg">This course is not for your current level. Add it anyway?</p>
+    <div class="actions">
+      <button type="button" class="no" id="confirmNo">Cancel</button>
+      <button type="button" class="yes" id="confirmYes">Add anyway</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/faculty-data.js"></script>
+<script src="../js/curriculum-data.js"></script>
+<script src="../js/curriculum-loader.js"></script>
+<script src="../js/onboarding.js"></script>
+  <script src="../js/shell.js"></script>
+<script src="../js/course-library.js"></script>
+
+<script>try{if(window.CodexOnboarding)CodexOnboarding.auto("course-library",700);}catch(e){}</script>
+<script>
+(function(){
+  function tipMyLib(){
+    try { if (window.CodexOnboarding) CodexOnboarding.welcomePage("my-library"); } catch(e){}
+  }
+  var btn = document.getElementById("btnMyLib");
+  if (btn) btn.addEventListener("click", function(){ setTimeout(tipMyLib, 500); });
+  // if opened via URL hash
+  if (/mylib|library/i.test(location.hash||"")) setTimeout(tipMyLib, 800);
+})();
+</script>
+</body>
+</html>

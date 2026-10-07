@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="../js/theme-boot.js"></script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>About · Codex Hub</title>
+  <meta name="theme-color" content="#4F46E5">
+  <link rel="icon" href="../assets/favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/shell.css">
+  <style>
+    :root {
+      --indigo: #4F46E5; --violet: #7C3AED; --ink: #0F172A;
+      --muted: #64748B; --line: #E8ECF4; --font: "Plus Jakarta Sans", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body.app-body { margin: 0; font-family: var(--font); background: #F1F5F9; color: var(--ink); }
+    .page { max-width: 640px; margin: 0 auto; padding: 12px 14px 32px; }
+    @media (min-width: 960px) { .page { max-width: 800px; padding: 20px 24px 40px; } }
+    .top { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .top a {
+      width: 40px; height: 40px; border-radius: 12px; background: #fff; border: 1px solid var(--line);
+      display: grid; place-items: center; text-decoration: none; color: var(--ink); font-weight: 700;
+    }
+    .top h1 { font-size: 1.15rem; margin: 0; font-weight: 800; }
+    .hero {
+      position: relative; overflow: hidden;
+      border-radius: 22px; padding: 24px 18px; color: #fff; margin-bottom: 16px;
+      background: linear-gradient(135deg, #312E81, #4F46E5 50%, #7C3AED);
+      box-shadow: 0 14px 32px rgba(79,70,229,.25);
+    }
+    .hero h2 { margin: 0 0 8px; font-size: 1.35rem; font-weight: 800; letter-spacing: -.02em; }
+    .hero p { margin: 0; color: #E0E7FF; line-height: 1.55; font-size: .92rem; }
+    .card {
+      background: #fff; border: 1px solid var(--line); border-radius: 18px;
+      padding: 18px; margin-bottom: 12px;
+    }
+    .card h3 { margin: 0 0 8px; font-size: 1rem; font-weight: 800; }
+    .card p { margin: 0; color: var(--muted); line-height: 1.55; font-size: .9rem; }
+    .tree {
+      display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 8px 0;
+    }
+    .node {
+      padding: 12px 18px; border-radius: 14px; font-weight: 800; font-size: .88rem;
+      text-align: center; min-width: 140px;
+    }
+    .node.tf { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: #fff; }
+    .node.cx { background: #EEF2FF; color: #3730A3; border: 1px solid #C7D2FE; }
+    .branch {
+      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; width: 100%;
+    }
+    .node.sm { background: #F5F3FF; color: #5B21B6; border: 1px solid #DDD6FE; min-width: 120px; }
+    .line { width: 2px; height: 16px; background: #C7D2FE; }
+    .hline { width: 60%; height: 2px; background: #C7D2FE; max-width: 200px; }
+  </style>
+</head>
+<body class="app-body" data-page="profile">
+  <div class="page">
+    <div class="top">
+      <a href="profile.html" aria-label="Back">←</a>
+      <h1>About us</h1>
+    </div>
+
+    <section class="hero">
+      <h2>Built by students, for students.</h2>
+      <p>
+        Codex Hub helps Nigerian university students practice CBT, organise notes,
+        use Nova AI, and stay connected — in one calm, modern study home.
+      </p>
+    </section>
+
+    <div class="card">
+      <h3>The TriForge story</h3>
+      <p>
+        TriForge is the studio behind Codex Hub. More of the founding story, faces and roles
+        will land here soon — for now, think of TriForge as the team shipping tools that
+        respect how real students actually learn: practice, resources, community and progress
+        in one place.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Family tree</h3>
+      <div class="tree">
+        <div class="node tf">TriForge</div>
+        <div class="line"></div>
+        <div class="node cx">Codex Hub</div>
+        <div class="line"></div>
+        <div class="hline"></div>
+        <div class="branch">
+          <div class="node sm">Gremdev</div>
+          <div class="node sm">Motbug</div>
+        </div>
+      </div>
+      <p style="margin-top:12px">You’ll be able to expand this with real bios when you share the full team details.</p>
+    </div>
+
+    <div class="card">
+      <h3>What we’re building</h3>
+      <p>
+        CBT practice that feels like the real exam · Notes and PDFs in context ·
+        Nova for stuck moments · Chats and ranks for healthy competition ·
+        Fair Free / Regular / Pro plans via Paystack.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Legal</h3>
+      <p><a href="../terms.html" style="color:#4F46E5;font-weight:700">Terms &amp; privacy →</a></p>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/app-auth.js"></script>
+  <script src="../js/shell.js"></script>
+  <script>
+    CodexShell.mountShell({ page: "profile", title: "About", user: { fullName: "Student" } });
+    CodexAuth.requireUser().then(function (res) {
+      CodexShell.mountShell({
+        page: "profile",
+        title: "About",
+        user: { fullName: res.profile.fullName || res.user.displayName }
+      });
+    });
+  </script>
+</body>
+</html>

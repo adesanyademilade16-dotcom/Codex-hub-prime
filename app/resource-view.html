@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script src="../js/theme-boot.js"></script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Resource — Codex Hub</title>
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/shell.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/resources.css">
+</head>
+<body class="shell-body res-section">
+<div id="shellRoot"></div>
+<header class="res-topbar">
+  <button class="res-back" type="button" data-res-back aria-label="Go back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <div class="res-top-title"><strong>Resource</strong><span>Preview &amp; study</span></div>
+  <a class="res-top-link" href="resources.html">Library</a>
+</header>
+<script>
+(function(){
+  var b=document.querySelector('[data-res-back]');
+  if(!b)return;
+  b.addEventListener('click',function(){
+    try { if(document.referrer && document.referrer.indexOf(location.origin)===0 && history.length>1){ history.back(); return; } } catch(e){}
+    location.href='home.html';
+  });
+})();
+</script>
+
+<main class="res-page" id="main">
+  <div id="body" class="res-loading"><p>Loading…</p></div>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/app-auth.js"></script>
+<script src="../js/media.js"></script>
+<script src="../js/shell.js"></script>
+<script src="../js/resources-core.js"></script>
+<script>
+(function () {
+  var params = new URLSearchParams(location.search);
+  var id = params.get("id");
+  var resource = null;
+  var liked = false;
+
+  function render() {
+    var r = resource;
+    if (!r) {
+      document.getElementById("body").innerHTML =
+        '<div class="res-error"><h3>Resource not found</h3><p>It may still be under review or was removed.</p></div>';
+      return;
+    }
+    var isG = /docs\.google\.com|drive\.google\.com/i.test(String(r.fileUrl || ""));
+    var ft = String(r.fileType || "pdf").toLowerCase();
+    var canViewPdf = CodexResources.canPreviewOnline
+      ? CodexResources.canPreviewOnline(r)
+      : (ft === "pdf" && !!r.fileUrl && !isG);
+    var typeLabel = isG ? "GOOGLE DOC" : String(ft || "FILE").toUpperCase();
+    var thumb;
+    if (r.thumbnailUrl && canViewPdf) {
+      thumb = '<img src="' + CodexResources.escapeHtml(r.thumbnailUrl) + '" alt="Preview">';
+    } else {
+      thumb =
+        '<div class="res-detail-placeholder">' +
+        CodexResources.ICONS.doc +
+        '<span class="res-detail-type">' + CodexResources.escapeHtml(typeLabel) + "</span>" +
+        '<span class="res-detail-title-bit">' + CodexResources.escapeHtml(String(r.title || "Document").slice(0, 60)) + "</span>" +
+        (isG
+          ? '<span class="res-detail-note">Stored as a Google link — use Open / Download</span>'
+          : ft !== "pdf"
+            ? '<span class="res-detail-note">Word documents open via Download (1 credit)</span>'
+            : "") +
+        "</div>";
+    }
+    var tier = (r.accessTier || "free").toLowerCase();
+    var likeCls = liked ? " is-liked" : "";
+    var primaryBtn = canViewPdf
+      ? '<button type="button" class="res-btn res-btn-primary" id="btnView">' + CodexResources.ICONS.eye + " View online</button>"
+      : isG
+        ? '<a class="res-btn res-btn-primary" id="btnOpenFile" href="' + CodexResources.escapeHtml(r.fileUrl || "#") + '" target="_blank" rel="noopener">' + CodexResources.ICONS.eye + " Open in Google</a>"
+        : "";
+    document.getElementById("body").innerHTML =
+      '<div class="res-detail">' +
+      '<div class="res-detail-preview">' + thumb + "</div>" +
+      '<div class="res-detail-panel">' +
+      (r.verified ? '<span class="res-badge" style="position:static;margin-bottom:8px;display:inline-flex">' + CodexResources.ICONS.verified + " Verified</span>" : "") +
+      "<h1>" + CodexResources.escapeHtml(r.title) + "</h1>" +
+      '<p class="desc">' + CodexResources.escapeHtml(r.description || "No description provided.") + "</p>" +
+      '<dl class="res-kv">' +
+      "<dt>Course</dt><dd>" + CodexResources.escapeHtml((r.courseCode || "") + " · " + (r.courseTitle || "—")) + "</dd>" +
+      "<dt>Category</dt><dd>" + CodexResources.escapeHtml(r.category || "—") + "</dd>" +
+      "<dt>Level</dt><dd>" + CodexResources.escapeHtml(r.level || "—") + "</dd>" +
+      "<dt>Pages</dt><dd>" + (r.pageCount || "—") + "</dd>" +
+      "<dt>Type</dt><dd>" + CodexResources.escapeHtml(typeLabel) + " · " + CodexResources.formatBytes(r.fileSize) + "</dd>" +
+      "<dt>Access</dt><dd>" + tier + "</dd>" +
+      "<dt>Stats</dt><dd>" + (r.views || 0) + " views · " + (r.likes || 0) + " likes · " + (r.downloads || 0) + " downloads</dd>" +
+      "<dt>Uploader</dt><dd>" + CodexResources.escapeHtml(r.uploaderName || "Student") + "</dd>" +
+      "</dl>" +
+      '<div class="res-detail-actions">' +
+      primaryBtn +
+      '<button type="button" class="res-btn ' + (canViewPdf || isG ? 'res-btn-ghost' : 'res-btn-primary') + '" id="btnDl">' + CodexResources.ICONS.download + " Download (1 credit)</button>" +
+      '<button type="button" class="res-btn res-btn-ghost res-like-btn' + likeCls + '" id="btnLike" aria-pressed="' + (liked ? "true" : "false") + '">' +
+        '<span class="res-heart" aria-hidden="true">' + CodexResources.ICONS.heart + "</span>" +
+        ' <span id="likeLbl">' + (liked ? "Liked" : "Like") + "</span></button>" +
+      '<button type="button" class="res-btn res-btn-danger" id="btnReport">' + CodexResources.ICONS.flag + " Report</button>" +
+      "</div>" +
+      '<p class="res-status" id="msg"></p>' +
+      "</div></div>" +
+      '<div class="res-related"><h2>Related resources</h2><div class="res-grid" id="related"></div></div>';
+
+    var btnView = document.getElementById("btnView");
+    if (btnView) {
+      btnView.onclick = function () {
+        location.href = "pdf-viewer.html?id=" + encodeURIComponent(r.id);
+      };
+    }
+    var btnDl = document.getElementById("btnDl");
+    if (btnDl) btnDl.onclick = onDownload;
+    document.getElementById("btnLike").onclick = onLike;
+    document.getElementById("btnReport").onclick = onReport;
+  }
+
+  var _dlBusy = false;
+  async function onDownload() {
+    var msg = document.getElementById("msg");
+    var btn = document.getElementById("btnDl");
+    if (_dlBusy) return;
+    _dlBusy = true;
+    if (btn) { btn.disabled = true; btn.style.opacity = "0.6"; }
+    msg.className = "res-status";
+    msg.textContent = "Preparing download…";
+    try {
+      var result = await CodexResources.downloadResource(resource.id);
+      if (!result || !result.ok) {
+        throw new Error("No valid file link returned");
+      }
+      msg.className = "res-status ok";
+      if (result.adminFree) {
+        msg.textContent = result.via === "blob"
+          ? "Admin download started — unlimited, no credit used."
+          : "Opened (admin — no credit used).";
+      } else if (result.via === "blob") {
+        msg.textContent = "Saved to your device. 1 credit used.";
+        try {
+          var pill = document.getElementById("creditNum");
+          if (pill) {
+            var c = parseInt(pill.textContent, 10);
+            if (!isNaN(c) && c > 0) pill.textContent = String(c - 1);
+          }
+        } catch (eC) {}
+      } else if (result.via === "gdrive") {
+        msg.textContent = "Opened Google link. 1 credit used.";
+        try {
+          var pill2 = document.getElementById("creditNum");
+          if (pill2) {
+            var c2 = parseInt(pill2.textContent, 10);
+            if (!isNaN(c2) && c2 > 0) pill2.textContent = String(c2 - 1);
+          }
+        } catch (eC2) {}
+      } else {
+        msg.textContent = "Download started.";
+      }
+    } catch (err) {
+      msg.className = "res-status err";
+      var m = (err && err.message) || "Download failed";
+      if (m === "INSUFFICIENT_CREDITS") {
+        msg.textContent = "Out of download credits.";
+        if (CodexResources.showOutOfCreditsModal) CodexResources.showOutOfCreditsModal();
+      } else {
+        // Fallback open path throws a long message — still show it; no credit was taken
+        msg.textContent = m;
+      }
+    } finally {
+      _dlBusy = false;
+      if (btn) { btn.disabled = false; btn.style.opacity = ""; }
+    }
+  }
+
+  async function onLike() {
+    var prevLiked = liked;
+    var prevCount = resource.likes || 0;
+    liked = !liked;
+    resource.likes = Math.max(0, prevCount + (liked ? 1 : -1));
+    render();
+    try {
+      var server = await CodexResources.toggleLike(resource.id);
+      if (server !== liked) {
+        liked = !!server;
+        resource.likes = Math.max(0, prevCount + (liked ? 1 : -1));
+        render();
+      }
+    } catch (err) {
+      liked = prevLiked;
+      resource.likes = prevCount;
+      render();
+      alert(err.message || "Could not update like");
+    }
+  }
+
+  async function onReport() {
+    var reason = prompt("Report reason (Wrong course, Poor quality, Duplicate, Spam, Copyright, Inappropriate, Other):", "Poor quality");
+    if (!reason) return;
+    var note = prompt("Optional details:", "") || "";
+    try {
+      await CodexResources.reportResource(resource.id, reason, note);
+      alert("Report submitted. Thank you.");
+    } catch (err) {
+      alert(err.message || "Could not report");
+    }
+  }
+
+  CodexAuth.requireUser().then(async function (ctx) {
+    try {
+      var profile = (ctx && ctx.profile) || {};
+      if (window.CodexShell) {
+        var shellOpts = { page: "resources", user: ctx && ctx.user, profile: profile };
+        if (typeof CodexShell.mountShell === "function") CodexShell.mountShell(shellOpts);
+        else if (typeof CodexShell.mount === "function") CodexShell.mount(shellOpts);
+      }
+      if (CodexResources.bindCardActions) CodexResources.bindCardActions(document);
+      if (!id) {
+        document.getElementById("body").innerHTML = '<div class="res-error"><h3>Missing resource id</h3></div>';
+        return;
+      }
+      resource = await CodexResources.getResource(id);
+      if (resource && resource.status === "approved" && resource.visibility !== "private") {
+        try { CodexResources.recordView(id); } catch (eV) {}
+        try { liked = await CodexResources.hasLiked(id); } catch (eL) { liked = false; }
+      }
+      render();
+      if (resource) {
+        try {
+          var rel = await CodexResources.relatedResources(resource, 6);
+          var box = document.getElementById("related");
+          if (box) {
+            box.innerHTML = rel.length
+              ? rel.map(CodexResources.cardHtml).join("")
+              : '<p class="res-card-meta">No related resources yet.</p>';
+          }
+        } catch (eR) {}
+      }
+    } catch (err) {
+      console.error(err);
+      document.getElementById("body").innerHTML =
+        '<div class="res-error"><h3>Could not open resource</h3><p>' +
+        CodexResources.escapeHtml(err.message || "Unknown error") +
+        "</p></div>";
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="../js/theme-boot.js"></script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Diagram Maker · Codex Hub</title>
+<meta name="theme-color" content="#4F46E5">
+<link rel="icon" href="../assets/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/shell.css">
+<style>
+body.app-body{background:#F5F7FB;font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:#0F172A}
+.tool{max-width:960px;margin:0 auto;padding:16px 14px 120px}
+.tool-top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.back{display:inline-flex;align-items:center;gap:6px;font:700 .78rem "Plus Jakarta Sans",system-ui;color:#4F46E5;text-decoration:none;padding:8px 0}
+.tool-top h1{flex:1;margin:0;font-size:1.2rem;letter-spacing:-.02em}
+.pill{font-size:.65rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:#EEF2FF;color:#4338CA;border-radius:999px;padding:4px 10px}
+.panel{background:#fff;border:1px solid #E2E8F0;border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 6px 18px rgba(15,23,42,.03)}
+.panel h2{margin:0 0 10px;font-size:.88rem;font-weight:800}
+.panel .hint{margin:0 0 12px;font-size:.76rem;color:#64748B;line-height:1.45}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.btn{border:0;border-radius:12px;padding:10px 14px;font:800 .76rem "Plus Jakarta Sans",system-ui;cursor:pointer}
+.btn-primary{background:#4F46E5;color:#fff}
+.btn-ghost{background:#fff;color:#334155;border:1px solid #E2E8F0}
+.btn-soft{background:#EEF2FF;color:#4338CA}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+textarea,input[type=text],select{width:100%;border:1px solid #E2E8F0;border-radius:12px;padding:11px 12px;font:600 .85rem "Plus Jakarta Sans",system-ui;background:#fff;color:#0F172A}
+textarea{min-height:110px;resize:vertical;line-height:1.5}
+textarea:focus,input:focus,select:focus{outline:none;border-color:#A5B4FC;box-shadow:0 0 0 3px rgba(79,70,229,.12)}
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.step{font-size:.68rem;font-weight:800;padding:5px 10px;border-radius:999px;background:#F1F5F9;color:#64748B}
+.step.on{background:#4F46E5;color:#fff}
+.step.done{background:#D1FAE5;color:#047857}
+.workspace{background:#0F172A;color:#E2E8F0;border-radius:14px;padding:14px;min-height:160px;font-size:.84rem;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.workspace:empty::before{content:attr(data-empty);color:#64748B}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%) translateY(12px);background:#0F172A;color:#fff;padding:10px 14px;border-radius:12px;font:700 .76rem "Plus Jakarta Sans",system-ui;opacity:0;pointer-events:none;transition:.2s;z-index:90;max-width:90vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.file-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.file-row input[type=file]{font-size:.75rem}
+.preview{max-width:100%;max-height:220px;border-radius:12px;margin-top:10px;border:1px solid #E2E8F0}
+.seg{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.seg button{border:1px solid #E2E8F0;background:#fff;border-radius:10px;padding:8px 11px;font:700 .72rem "Plus Jakarta Sans",system-ui;cursor:pointer;color:#475569}
+.seg button.on{background:#4F46E5;border-color:#4F46E5;color:#fff}
+.code-ed{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.8rem;min-height:180px;background:#0B1220;color:#E2E8F0;border-radius:12px;border:1px solid #1E293B;padding:12px;width:100%;resize:vertical;line-height:1.5}
+.canvas-box{background:#F8FAFC;border:1px dashed #CBD5E1;border-radius:14px;min-height:280px;padding:12px;overflow:auto}
+.flow-node{display:inline-block;background:#EEF2FF;border:1px solid #A5B4FC;border-radius:12px;padding:10px 14px;margin:6px;font-size:.78rem;font-weight:700;color:#312E81;min-width:100px;text-align:center}
+.flow-arrow{text-align:center;color:#64748B;font-size:.75rem;margin:2px 0}
+.img-result{max-width:100%;border-radius:12px;margin-top:10px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:720px){.grid-2{grid-template-columns:1fr}}
+
+    .spin-load{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:28px;color:#64748B;font-size:.82rem;font-weight:600}
+    .spin-load .ring{width:36px;height:36px;border:3px solid #E2E8F0;border-top-color:#4F46E5;border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    </style>
+</head>
+<body class="app-body">
+
+<main class="tool">
+  <div class="tool-top">
+    <a class="back" href="student-tools.html">← Tools</a>
+    <h1>Diagram Maker</h1>
+    <span class="pill">Create · Science</span>
+  </div>
+  <div class="grid-2">
+    <div class="panel">
+      <h2>Describe the diagram</h2>
+      <p class="hint">Be specific: subject, labels needed, 2D academic style. Example: “Labelled structure of an amoeba for SS1 Biology.”</p>
+      <textarea id="desc" placeholder="Describe the academic diagram you need..."></textarea>
+      <div class="row" style="margin-top:10px">
+        <select id="mode" style="max-width:180px" title="Output mode">
+          <option value="hybrid">Hybrid SVG + AI</option>
+          <option value="ai">AI image only</option>
+          <option value="svg">SVG schematic only</option>
+        </select>
+        <select id="style" style="max-width:200px">
+          <option value="clean 2D academic illustration">Clean 2D academic</option>
+          <option value="labelled textbook figure">Textbook labelled</option>
+          <option value="simple schematic black and white">Simple schematic</option>
+        </select>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn btn-primary" id="btnGen">Generate</button>
+        <button type="button" class="btn btn-soft" id="btnRegen">Regenerate</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Visual workspace</h2>
+      <p class="hint">Preview appears here. Download PNG when ready.</p>
+      <div class="canvas-box" id="canvas" style="min-height:240px;display:grid;place-items:center;color:#64748B;font-size:.8rem">No diagram yet</div>
+      <div class="actions">
+        <button type="button" class="btn btn-ghost" id="btnDl" disabled>Download PNG</button>
+        <button type="button" class="btn btn-ghost" id="btnOpen" disabled>Open full size</button>
+      <button type="button" class="btn btn-soft" id="btnPdf" disabled>Download PDF</button>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Label notes</h2>
+    <div class="workspace" id="labels" data-empty="Suggested labels and teaching notes will appear here."></div>
+  </div>
+</main>
+<div class="toast" id="toast"></div>
+
+<script src="../js/firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="../js/app-auth.js"></script>
+<script src="../js/media.js"></script>
+<script src="../js/shell.js"></script>
+<script src="../js/student-tools-core.js"></script>
+<script src="../js/auto-scroll.js"></script>
+
+<script>
+(function(){
+  "use strict";
+  if(!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+  var ST = window.CodexStudentTools;
+  var uid = null, profile = null;
+  function toast(m){
+    var t=document.getElementById("toast");
+    if(!t) return;
+    t.textContent=m; t.classList.add("show");
+    clearTimeout(t._tm); t._tm=setTimeout(function(){t.classList.remove("show");},2400);
+  }
+  window.__toolToast = toast;
+  window.__toolUid = function(){ return uid; };
+  window.__toolProfile = function(){ return profile; };
+  async function boot(){
+    var r; try{ r = await CodexAuth.requireUser(); }catch(e){ return; }
+    uid = r.user.uid;
+    profile = Object.assign({}, r.profile||{});
+    try{
+      var pub = await firebase.firestore().collection("public_profiles").doc(uid).get();
+      if(pub.exists){
+        var pp = pub.data()||{};
+        if(pp.avatarKey) profile.avatarKey = pp.avatarKey;
+        if(pp.photoURL) profile.photoURL = pp.photoURL;
+      }
+    }catch(e){}
+    var name = (profile.fullName||profile.displayName||r.user.email||"Student");
+    CodexShell.mountShell({ page:"tools", title:'Diagram Maker', user: Object.assign({fullName:name}, r.user), profile: profile });
+    ST.pushRecent(uid, { toolId: 'diagram', title: 'Diagram Maker', subtitle: "Opened", href: location.pathname.split("/").pop() });
+    if(typeof window.__toolReady === "function") window.__toolReady();
+  }
+  boot();
+})();
+</script>
+
+<script>
+window.__toolReady = function(){
+  var ST = CodexStudentTools, lastUrl = "", lastDesc = "", lastSvg = "";
+  function pollinationsUrl(prompt){
+    var p = encodeURIComponent(prompt + ", clean educational diagram, high quality, white background, sharp labels, no photorealism");
+    return "https://image.pollinations.ai/prompt/" + encodeURIComponent("well labelled educational diagram, clear labels, white background, textbook style: " + p) + "?width=1024&height=1024&nologo=true&enhance=true";
+  }
+  /** Prefer backend HF SD3 (same chain as Nova); Pollinations only as last client fallback */
+  
+  function showDiagramLoading(msg){
+    var box = document.getElementById("preview") || document.getElementById("workspace") || document.querySelector(".canvas-box, .visual-workspace, #diagramOut");
+    if(!box) return;
+    box.innerHTML = '<div class="spin-load"><div class="ring"></div><span>'+(msg||"Loading diagram…")+'</span></div>';
+  }
+
+  function generateAiImage(prompt){
+    var full = String(prompt || "") + ", clean educational diagram, labelled scientific illustration, white background, sharp labels, textbook style, no photorealism, no watermark";
+    if (ST && typeof ST.generateImage === "function") {
+      return ST.generateImage(full).then(function (data) {
+        return (data && data.image_url) || pollinationsUrl(full);
+      }).catch(function () {
+        return pollinationsUrl(full);
+      });
+    }
+    return Promise.resolve(pollinationsUrl(full));
+  }
+  function buildHybridSvg(title){
+    var t = String(title || "Diagram").slice(0, 48);
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" width="100%" style="max-width:100%;background:#fff;border-radius:12px">' +
+      '<rect x="8" y="8" width="624" height="404" rx="16" fill="#F8FAFC" stroke="#CBD5E1"/>' +
+      '<text x="320" y="42" text-anchor="middle" font-family="system-ui,sans-serif" font-size="18" font-weight="700" fill="#0F172A">' + t.replace(/[<>&]/g,"") + '</text>' +
+      '<rect x="80" y="80" width="200" height="120" rx="14" fill="#EEF2FF" stroke="#6366F1" stroke-width="2"/>' +
+      '<text x="180" y="148" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="700" fill="#312E81">Core</text>' +
+      '<rect x="360" y="80" width="200" height="120" rx="14" fill="#ECFDF5" stroke="#10B981" stroke-width="2"/>' +
+      '<text x="460" y="148" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="700" fill="#065F46">Label A</text>' +
+      '<path d="M280 140 H360" stroke="#64748B" stroke-width="2" marker-end="url(#arr)"/>' +
+      '<rect x="180" y="260" width="280" height="100" rx="14" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/>' +
+      '<text x="320" y="318" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="700" fill="#92400E">Label B / process</text>' +
+      '<path d="M180 200 V260" stroke="#64748B" stroke-width="2"/>' +
+      '<path d="M460 200 V260" stroke="#64748B" stroke-width="2"/>' +
+      '<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#64748B"/></marker></defs>' +
+      '<text x="320" y="400" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#94A3B8">Hybrid SVG schematic · edit labels in notes below</text>' +
+      '</svg>';
+  }
+  async function gen(){
+    var d = document.getElementById("desc").value.trim();
+    if(!d){ __toolToast("Describe the diagram first"); return; }
+    lastDesc = d;
+    var mode = (document.getElementById("mode") || {}).value || "hybrid";
+    var style = document.getElementById("style").value;
+    var box = document.getElementById("canvas");
+    if(ST.scrollToResult) ST.scrollToResult(box);
+    box.innerHTML = '<p style="color:#64748B;font-size:.8rem">Generating diagram…</p>';
+    document.getElementById("btnDl").disabled = true;
+    document.getElementById("btnOpen").disabled = true;
+
+    if (mode === "svg" || mode === "hybrid") {
+      lastSvg = buildHybridSvg(d);
+      box.innerHTML = lastSvg;
+      document.getElementById("btnDl").disabled = false;
+      document.getElementById("btnOpen").disabled = false;
+      var pb0=document.getElementById("btnPdf"); if(pb0) pb0.disabled=false;
+    }
+    if (mode === "ai" || mode === "hybrid") {
+      var prompt = style + ": " + d;
+      showDiagramLoading("Generating labelled diagram…");
+var url = await generateAiImage(prompt);
+      try{ var pv=document.getElementById("preview")||document.querySelector(".canvas-box"); if(pv) pv.scrollIntoView({behavior:"smooth",block:"nearest"}); }catch(e){}
+      lastUrl = url;
+      if (mode === "ai") {
+        var img = new Image();
+        img.className = "img-result";
+        img.alt = "Generated diagram";
+        img.onload = function(){
+          box.innerHTML = "";
+          box.appendChild(img);
+          document.getElementById("btnDl").disabled = false;
+          document.getElementById("btnOpen").disabled = false;
+          var pb=document.getElementById("btnPdf"); if(pb) pb.disabled=false;
+        };
+        img.onerror = function(){ box.textContent = "Could not load AI image. Try SVG mode or regenerate."; };
+        img.src = url + (url.indexOf("data:") === 0 ? "" : ((url.indexOf("?") >= 0 ? "&" : "?") + "t=" + Date.now()));
+      } else {
+        // hybrid: keep SVG, also offer AI image below
+        var wrap = document.createElement("div");
+        wrap.innerHTML = lastSvg;
+        var img2 = new Image();
+        img2.className = "img-result";
+        img2.alt = "AI reference";
+        img2.style.marginTop = "12px";
+        img2.onerror = function(){ img2.style.display = "none"; };
+        img2.src = url + (url.indexOf("data:") === 0 ? "" : ((url.indexOf("?") >= 0 ? "&" : "?") + "t=" + Date.now()));
+        box.innerHTML = "";
+        if (wrap.firstChild) box.appendChild(wrap.firstChild);
+        box.appendChild(img2);
+        document.getElementById("btnDl").disabled = false;
+        document.getElementById("btnOpen").disabled = false;
+        var pb2=document.getElementById("btnPdf"); if(pb2) pb2.disabled=false;
+      }
+    }
+    document.getElementById("labels").textContent = "Drafting label notes…";
+    try{
+      var notes = await ST.callToolAI({ uid:__toolUid(), 
+        tool: "diagram",
+        message: "For this academic diagram request, list recommended labels (bullet list) and a 3-line teaching note:\n" + d,
+        system: "You help Nigerian university/secondary science students. Output only labels and a short teaching note. No image URLs."
+      });
+      document.getElementById("labels").textContent = notes;
+    }catch(e){
+      document.getElementById("labels").textContent = "Labels unavailable offline. Diagram may still load above.";
+    }
+    ST.pushRecent(__toolUid(), { toolId:"diagram", title:d.slice(0,48), subtitle:"Diagram", href:"tool-diagram.html" });
+  }
+  document.getElementById("btnGen").onclick = gen;
+  document.getElementById("btnRegen").onclick = gen;
+  document.getElementById("btnDl").onclick = function(){
+    if(!lastUrl) return;
+    // open in new tab — user can long-press save on mobile
+    window.open(lastUrl, "_blank");
+    __toolToast("Opened image — save from the browser menu");
+  };
+  document.getElementById("btnOpen").onclick = function(){ if(lastUrl) window.open(lastUrl, "_blank"); };
+  var pdfB=document.getElementById("btnPdf");
+  if(pdfB) pdfB.onclick=function(){
+    var labels=document.getElementById("labels").textContent||"";
+    var img = lastUrl ? ('<p><img src="'+lastUrl+'" style="max-width:100%"/></p>') : '';
+    ST.openPrintPdf("Diagram Maker", img+"<h2>Label notes</h2><pre>"+ST.esc(labels)+"</pre>");
+  };
+};
+</script>
+</body></html>

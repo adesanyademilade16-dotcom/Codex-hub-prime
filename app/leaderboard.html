@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="../js/theme-boot.js"></script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Ranks · Codex Hub</title>
+  <meta name="theme-color" content="#4F46E5">
+  <link rel="icon" href="../assets/favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/shell.css">
+  <style>
+    :root {
+      --indigo: #4F46E5; --violet: #7C3AED; --ink: #0F172A;
+      --muted: #64748B; --line: #E8ECF4; --font: "Plus Jakarta Sans", system-ui, sans-serif;
+      --gold: #F59E0B; --silver: #94A3B8; --bronze: #D97706;
+    }
+    * { box-sizing: border-box; }
+    body.app-body { margin: 0; font-family: var(--font); background: #F1F5F9; color: var(--ink); }
+
+    .page { max-width: 560px; margin: 0 auto; padding: 12px 14px 28px; }
+    @media (min-width: 960px) {
+      .page { max-width: 980px; padding: 20px 24px 36px; }
+    }
+
+    .head {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+      margin-bottom: 14px;
+    }
+    .head h1 {
+      margin: 0; font-size: 1.35rem; font-weight: 800; letter-spacing: -.03em;
+      background: linear-gradient(120deg, #1E3A8A, #4F46E5 50%, #7C3AED);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .head p { margin: 4px 0 0; font-size: .82rem; color: var(--muted); }
+
+    .filters { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+    .seg {
+      display: flex; gap: 6px; padding: 4px; background: #fff; border: 1px solid var(--line);
+      border-radius: 14px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    }
+    .seg button {
+      flex: 1; min-width: max-content; border: 0; background: transparent;
+      padding: 10px 12px; border-radius: 10px; font: inherit; font-size: .75rem; font-weight: 700;
+      color: var(--muted); cursor: pointer; white-space: nowrap;
+      transition: .2s;
+    }
+    .seg button.on {
+      background: linear-gradient(135deg, #4F46E5, #7C3AED); color: #fff;
+      box-shadow: 0 6px 16px rgba(79,70,229,.28);
+    }
+
+    /* Podium */
+    .podium-wrap {
+      background: linear-gradient(160deg, #312E81 0%, #4F46E5 48%, #7C3AED 100%);
+      border-radius: 22px; padding: 20px 12px 16px; margin-bottom: 16px;
+      box-shadow: 0 16px 40px rgba(79,70,229,.28); position: relative; overflow: hidden;
+    }
+    .podium-wrap::before {
+      content: ""; position: absolute; width: 180px; height: 180px; border-radius: 50%;
+      background: rgba(255,255,255,.08); top: -60px; right: -40px; pointer-events: none;
+    }
+    .podium {
+      display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 8px; align-items: end;
+      min-height: 220px; position: relative; z-index: 1;
+    }
+    .slot {
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+    }
+    .slot .av {
+      width: 56px; height: 56px; border-radius: 50%; overflow: hidden;
+      border: 3px solid rgba(255,255,255,.45); background: rgba(255,255,255,.2);
+      display: grid; place-items: center; font-weight: 800; color: #fff; font-size: .85rem;
+      margin-bottom: 8px; box-shadow: 0 8px 20px rgba(0,0,0,.2);
+    }
+    .slot.s1 .av {
+      width: 72px; height: 72px; border-color: #FDE68A;
+      box-shadow: 0 0 0 4px rgba(245,158,11,.35), 0 10px 24px rgba(0,0,0,.25);
+    }
+    .slot .av img, .slot .av svg { width: 100%; height: 100%; object-fit: cover; }
+    .slot .crown {
+      font-size: .75rem; font-weight: 800; color: #FDE68A; margin-bottom: 4px;
+      letter-spacing: .06em;
+    }
+    .slot .name {
+      font-size: .78rem; font-weight: 700; color: #fff; max-width: 100%;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 2px;
+    }
+    .slot .pts {
+      font-size: .7rem; color: #E0E7FF; font-weight: 600; margin: 2px 0 10px;
+    }
+    .bar {
+      width: 100%; border-radius: 14px 14px 8px 8px;
+      display: flex; align-items: flex-start; justify-content: center;
+      padding-top: 10px; font-weight: 800; color: #fff; font-size: .95rem;
+      transform-origin: bottom; transform: scaleY(0);
+      animation: rise .9s cubic-bezier(.22,1,.36,1) forwards;
+    }
+    .slot.s2 .bar { background: linear-gradient(180deg, #94A3B8, #64748B); height: 72px; animation-delay: .12s; }
+    .slot.s1 .bar { background: linear-gradient(180deg, #FBBF24, #D97706); height: 110px; animation-delay: .05s; }
+    .slot.s3 .bar { background: linear-gradient(180deg, #FB923C, #C2410C); height: 56px; animation-delay: .2s; }
+    @keyframes rise {
+      from { transform: scaleY(0); opacity: .4; }
+      to { transform: scaleY(1); opacity: 1; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .bar { animation: none; transform: none; }
+    }
+
+    .you-card {
+      display: flex; align-items: center; gap: 12px;
+      background: #fff; border: 1px solid var(--line); border-radius: 16px;
+      padding: 12px 14px; margin-bottom: 14px;
+      box-shadow: 0 6px 18px rgba(15,23,42,.04);
+    }
+    .you-card .rank-pill {
+      min-width: 44px; height: 44px; border-radius: 12px;
+      background: linear-gradient(135deg, #EEF2FF, #F5F3FF);
+      display: grid; place-items: center; font-weight: 800; color: var(--indigo);
+    }
+    .you-card .grow { flex: 1; min-width: 0; }
+    .you-card b { display: block; font-size: .9rem; }
+    .you-card span { font-size: .75rem; color: var(--muted); }
+    .you-card .score { font-weight: 800; color: var(--indigo); }
+
+    .list {
+      background: #fff; border: 1px solid var(--line); border-radius: 18px; overflow: hidden;
+      box-shadow: 0 6px 18px rgba(15,23,42,.04);
+    }
+    .list-head {
+      display: grid; grid-template-columns: 48px 1fr auto; gap: 8px;
+      padding: 10px 14px; font-size: .65rem; font-weight: 800; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--muted); border-bottom: 1px solid #F1F5F9;
+    }
+    .row {
+      display: grid; grid-template-columns: 48px 1fr auto; gap: 8px; align-items: center;
+      padding: 12px 14px; border-bottom: 1px solid #F8FAFC;
+    }
+    .row:last-child { border-bottom: 0; }
+    .row.me {
+      background: #EEF2FF;
+    }
+    .row .r {
+      font-weight: 800; font-size: .9rem; color: var(--muted);
+    }
+    .row .r.top { color: var(--indigo); }
+    .who { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .who .av {
+      width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex-shrink: 0;
+      background: linear-gradient(135deg, #4F46E5, #7C3AED); color: #fff;
+      display: grid; place-items: center; font-size: .7rem; font-weight: 800;
+    }
+    .who .av img, .who .av svg { width: 100%; height: 100%; object-fit: cover; }
+    .who .meta { min-width: 0; }
+    .who .meta b {
+      display: block; font-size: .88rem; font-weight: 700;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .who .meta span { font-size: .7rem; color: var(--muted); }
+    .badge {
+      display: inline-block; margin-left: 6px; padding: 2px 7px; border-radius: 999px;
+      font-size: .6rem; font-weight: 800; vertical-align: middle;
+      background: #F5F3FF; color: #6D28D9;
+    }
+    .badge.free { background: #F1F5F9; color: #64748B; }
+    .xp { font-weight: 800; font-size: .88rem; color: var(--ink); white-space: nowrap; }
+
+    .empty {
+      text-align: center; padding: 36px 20px; color: var(--muted); font-size: .9rem; line-height: 1.5;
+    }
+    .empty strong { display: block; color: var(--ink); margin-bottom: 6px; font-size: 1rem; }
+    .skel { height: 14px; border-radius: 8px; background: linear-gradient(90deg,#E2E8F0,#F8FAFC,#E2E8F0); background-size: 200% 100%; animation: shimmer 1.2s linear infinite; margin: 8px 0; }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    /* Desktop split */
+    @media (min-width: 960px) {
+      .desk-grid {
+        display: grid; grid-template-columns: 1.1fr .9fr; gap: 18px; align-items: start;
+      }
+      .podium-wrap { min-height: 280px; }
+      .podium { min-height: 260px; }
+      .slot .av { width: 64px; height: 64px; }
+      .slot.s1 .av { width: 84px; height: 84px; }
+      .side-panel {
+        background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 18px;
+      }
+      .side-panel h2 {
+        margin: 0 0 12px; font-size: .7rem; font-weight: 800; letter-spacing: .12em;
+        text-transform: uppercase; color: var(--muted);
+      }
+      .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .stat-grid div {
+        background: #F8FAFC; border-radius: 14px; padding: 14px; text-align: center;
+      }
+      .stat-grid b { display: block; font-size: 1.2rem; color: var(--indigo); }
+      .stat-grid span { font-size: .68rem; color: var(--muted); font-weight: 700; }
+    }
+    @media (max-width: 959px) {
+      .side-panel { display: none; }
+    }
+  
+    .slot.rank1 .bar { background: linear-gradient(135deg, #F59E0B, #B45309); color: #fff; font-weight: 900; box-shadow: 0 0 16px rgba(245,158,11,.45); }
+    .slot.rank2 .bar { background: linear-gradient(135deg, #94A3B8, #475569); color: #fff; font-weight: 900; box-shadow: 0 0 16px rgba(148,163,184,.4); }
+    .slot.rank3 .bar { background: linear-gradient(135deg, #EA580C, #9A3412); color: #fff; font-weight: 900; box-shadow: 0 0 16px rgba(234,88,12,.4); }
+    .slot.rank1, .slot.rank2, .slot.rank3 { position: relative; overflow: hidden; }
+    /* shine removed — caused layout overflow */
+    /* rankBeam removed */
+    }
+    .row .r.top1 { color: #B45309; font-weight: 900; text-shadow: 0 0 8px rgba(245,158,11,.5); }
+    .row .r.top2 { color: #64748B; font-weight: 900; text-shadow: 0 0 8px rgba(148,163,184,.45); }
+    .row .r.top3 { color: #C2410C; font-weight: 900; text-shadow: 0 0 8px rgba(234,88,12,.45); }
+
+  </style>
+
+<style id="dark-override">
+html.theme-dark body.app-body { background: #0F172A !important; color: #F1F5F9 !important; }
+html.theme-dark .rank-row, html.theme-dark .card, html.theme-dark .list-row {
+  background: #1E293B !important; border-color: #334155 !important; color: #F1F5F9 !important;
+}
+html.theme-dark .rank-row strong, html.theme-dark .name { color: #F8FAFC !important; }
+html.theme-dark .muted, html.theme-dark .sub { color: #94A3B8 !important; }
+</style>
+
+</head>
+<body class="app-body" data-page="board">
+  <div class="page">
+    <div class="head">
+      <div>
+        <h1>Leaderboard</h1>
+        <p>Compete with classmates — climb with real CBT practice.</p>
+      </div>
+    </div>
+
+    <div class="filters">
+      <div class="seg" id="periodSeg" role="tablist" aria-label="Period">
+        <button type="button" data-period="today">Today</button>
+        <button type="button" data-period="3d">3 days</button>
+        <button type="button" data-period="week">This week</button>
+        <button type="button" data-period="all" class="on">All time</button>
+      </div>
+      <div class="seg" id="catSeg" role="tablist" aria-label="Category">
+        <button type="button" data-cat="all" class="on">All levels</button>
+        <button type="button" data-cat="level">My level</button>
+        <button type="button" data-cat="semester">My semester</button>
+        <button type="button" data-cat="dept">My department</button>
+      </div>
+    </div>
+
+    <div class="desk-grid">
+      <div>
+        <div class="podium-wrap" id="podiumWrap">
+          <div class="podium" id="podium">
+            <div class="empty" style="grid-column:1/-1;color:#E0E7FF">Loading top ranks…</div>
+          </div>
+        </div>
+        <div class="you-card" id="youCard" hidden>
+          <div class="rank-pill" id="youRank">—</div>
+          <div class="grow">
+            <b id="youName">You</b>
+            <span id="youMeta">Your position on this board</span>
+          </div>
+          <div class="score" id="youScore">0 XP</div>
+        </div>
+        <div class="list" id="list">
+          <div class="list-head"><span>Rank</span><span>Player</span><span>XP</span></div>
+          <div id="listBody"><div class="empty"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div></div>
+        </div>
+      </div>
+      <aside class="side-panel">
+        <h2>Board snapshot</h2>
+        <div class="stat-grid">
+          <div><b id="stCount">—</b><span>Students ranked</span></div>
+          <div><b id="stTop">—</b><span>Top score</span></div>
+          <div><b id="stPeriod">Today</b><span>Active filter</span></div>
+          <div><b id="stYou">—</b><span>Your rank</span></div>
+        </div>
+        <p style="margin:16px 0 0;font-size:.8rem;color:var(--muted);line-height:1.5">
+          Rankings use Firestore <code>leaderboard</code> data written from real study activity — not local scores.
+          Filters refine who appears; they never invent XP.
+        </p>
+      </aside>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/app-auth.js"></script>
+  <script src="../js/media.js"></script>
+  <script src="../js/onboarding.js"></script>
+  <script src="../js/shell.js"></script>
+  <script>
+  (function () {
+    "use strict";
+
+    var state = {
+      period: "all",
+      cat: "all",
+      rows: [],
+      me: null,
+      profile: null,
+      user: null
+    };
+
+    CodexShell.mountShell({ page: "board", title: "Ranks", user: { fullName: "Student" } });
+
+    function initials(name) {
+      return (name || "ST").split(/\s+/).map(function (p) { return p[0]; }).slice(0, 2).join("").toUpperCase();
+    }
+    function escape(s) {
+      return String(s || "").replace(/[&<>"']/g, function (m) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[m];
+      });
+    }
+    function personName(row) {
+      if (!row) return "Student";
+      var n = row.displayName || row.userName || row.fullName || row.name || "";
+      n = String(n).trim();
+      if (!n || n.toLowerCase() === "student") {
+        if (state.user && (row.uid === state.user.uid || row._id === state.user.uid)) {
+          var p = state.profile || {};
+          n = p.fullName || p.displayName || p.username || p.userName || "";
+        }
+      }
+      return n || "Student";
+    }
+    function avatarHtml(row) {
+      row = row || {};
+      var photo = row.photoURL || row.avatarUrl || row.photo || "";
+      var key = row.avatarKey || row.avatar || "";
+      var ini = initials(personName(row));
+      if (photo && (String(photo).indexOf("http") === 0 || String(photo).indexOf("data:") === 0)) {
+        return '<img class="avatar-img" alt="" src="' + String(photo).replace(/"/g, "") + '">';
+      }
+      if (key) {
+        var src = (window.CodexMedia && CodexMedia.PORTRAIT && CodexMedia.PORTRAIT[key])
+          ? CodexMedia.PORTRAIT[key]
+          : ("../assets/avatars/" + key + ".png");
+        return '<img class="avatar-img" alt="" src="' + src + '">';
+      }
+      if (window.CodexMedia && CodexMedia.resolveAvatar) {
+        return CodexMedia.resolveAvatar({ photoURL: photo, avatarKey: key }, ini);
+      }
+      return '<span class="avatar-ini">' + ini + '</span>';
+    }
+        function scoreOf(d) {
+      var n = d.score != null ? d.score : (d.xp != null ? d.xp : (d.points != null ? d.points : 0));
+      return Number(n) || 0;
+    }
+    function periodLabel(p) {
+      return ({ today: "Today", "3d": "3 days", week: "This week", all: "All time" })[p] || p;
+    }
+        function inPeriod(d, period) {
+      if (period === "all") return true;
+      var todayStr = new Date().toISOString().slice(0, 10);
+      if (period === "today" && d.date && String(d.date).slice(0, 10) === todayStr) return true;
+      var ts = d.timestamp != null ? d.timestamp : d.updatedAt;
+      if (ts && typeof ts.toMillis === "function") ts = ts.toMillis();
+      if (ts && typeof ts.seconds === "number") ts = ts.seconds * 1000;
+      var ms = Number(ts);
+      if (!ms || isNaN(ms)) {
+        // no timestamp: include on today only if date matches
+        if (period === "today") return d.date && String(d.date).slice(0, 10) === todayStr;
+        return true;
+      }
+      var age = Date.now() - ms;
+      if (period === "today") return age <= 24 * 60 * 60 * 1000;
+      if (period === "3d") return age <= 3 * 24 * 60 * 60 * 1000;
+      if (period === "week") return age <= 7 * 24 * 60 * 60 * 1000;
+      return true;
+    }
+    function matchesCat(d, cat, profile) {
+      if (cat === "all" || !profile) return true;
+      if (cat === "level") return !d.level || d.level === profile.level;
+      if (cat === "semester") return !d.semester || d.semester === profile.semester;
+      if (cat === "dept") return !d.department || d.department === profile.department;
+      return true;
+    }
+
+    function render(rows) {
+      var filtered = rows.filter(function (r) {
+        return inPeriod(r, state.period) && matchesCat(r, state.cat, state.profile);
+      });
+      filtered.sort(function (a, b) { return scoreOf(b) - scoreOf(a); });
+
+      document.getElementById("stCount").textContent = filtered.length || "0";
+      document.getElementById("stTop").textContent = filtered[0] ? scoreOf(filtered[0]) : "—";
+      document.getElementById("stPeriod").textContent = periodLabel(state.period);
+
+      // Podium
+      var podium = document.getElementById("podium");
+      if (!filtered.length) {
+        podium.innerHTML = '<div class="empty" style="grid-column:1/-1;color:#E0E7FF"><strong style="color:#fff">No ranks for this filter yet</strong>Complete CBT sessions — scores sync from the server.</div>';
+      } else {
+        var top = [filtered[1], filtered[0], filtered[2]]; // visual order 2nd, 1st, 3rd
+        var labels = ["2", "1", "3"];
+        var slots = ["s2", "s1", "s3"];
+        podium.innerHTML = top.map(function (row, i) {
+          var medal = labels[i] === '1' ? 'rank1' : labels[i] === '2' ? 'rank2' : 'rank3';
+          if (!row) {
+            return '<div class="slot ' + slots[i] + ' ' + medal + '"><div class="av">—</div><div class="name">—</div><div class="pts"> </div><div class="bar">' + labels[i] + '</div></div>';
+          }
+          var name = personName(row);
+          var crown = i === 1 ? '<div class="crown">TOP</div>' : '';
+          return (
+            '<div class="slot ' + slots[i] + ' ' + medal + '">' +
+              crown +
+              '<div class="av">' + avatarHtml(row) + '</div>' +
+              '<div class="name">' + escape(name) + '</div>' +
+              '<div class="pts">' + scoreOf(row).toLocaleString() + ' XP</div>' +
+              '<div class="bar r">' + labels[i] + '</div>' +
+            '</div>'
+          );
+        }).join("");
+      }
+
+      // Your rank
+            var myUid = state.user && state.user.uid;
+      var myIndex = -1;
+      filtered.forEach(function (r, i) {
+        if (!myUid) return;
+        if (r._id === myUid || r.uid === myUid || String(r.uid || "") === String(myUid)) myIndex = i;
+      });
+      // If aggregate missing but profile-named row exists, still show XP from best row
+      if (myIndex < 0 && myUid) {
+        filtered.forEach(function (r, i) {
+          if (String(r._id || "").indexOf(myUid) >= 0) myIndex = i;
+        });
+      }
+      var youCard = document.getElementById("youCard");
+      if (myIndex >= 0) {
+        youCard.hidden = false;
+        document.getElementById("youRank").textContent = "#" + (myIndex + 1);
+        document.getElementById("youName").textContent = personName(filtered[myIndex]);
+        document.getElementById("youMeta").textContent =
+          (filtered[myIndex].level || state.profile.level || "") +
+          (filtered[myIndex].department ? " · " + filtered[myIndex].department : "");
+        document.getElementById("youScore").textContent = scoreOf(filtered[myIndex]).toLocaleString() + " XP";
+        document.getElementById("stYou").textContent = "#" + (myIndex + 1);
+      } else {
+        youCard.hidden = false;
+        document.getElementById("youRank").textContent = "—";
+        document.getElementById("youName").textContent = (state.profile && state.profile.fullName) || "You";
+        document.getElementById("youMeta").textContent = "Not ranked on this filter yet";
+        document.getElementById("youScore").textContent = "0 XP";
+        document.getElementById("stYou").textContent = "—";
+      }
+
+      // List from rank 4+ (or all if short)
+      var listBody = document.getElementById("listBody");
+      var rest = filtered.length > 3 ? filtered.slice(3) : filtered;
+      if (!filtered.length) {
+        listBody.innerHTML = '<div class="empty"><strong>Board is empty</strong>Practice CBT to earn XP. Rankings are stored in Firestore.</div>';
+        return;
+      }
+      var startRank = filtered.length > 3 ? 4 : 1;
+      if (filtered.length > 3) {
+        listBody.innerHTML = rest.map(function (row, i) {
+          var rank = startRank + i;
+          var name = personName(row);
+          var me = row._id === myUid || row.uid === myUid;
+          var tier = (row.subscriptionTier || row.plan || "").toString().toLowerCase();
+          var badge = "";
+          if (tier.indexOf("pro") >= 0) badge = '<span class="badge">Pro</span>';
+          else if (tier.indexOf("regular") >= 0) badge = '<span class="badge">Regular</span>';
+          return (
+            '<div class="row' + (me ? " me" : "") + '">' +
+              '<div class="r' + (rank === 1 ? " top top1" : rank === 2 ? " top top2" : rank === 3 ? " top top3" : "") + '>#' + rank + '</div>' +
+              '<div class="who"><div class="av">' + avatarHtml(row) + '</div>' +
+              '<div class="meta"><b>' + escape(name) + badge + '</b>' +
+              '<span>' + escape([row.level, row.department].filter(Boolean).join(" · ")) + '</span></div></div>' +
+              '<div class="xp">' + scoreOf(row).toLocaleString() + '</div>' +
+            '</div>'
+          );
+        }).join("");
+      } else {
+        // show all in list too when fewer than 4
+        listBody.innerHTML = filtered.map(function (row, i) {
+          var rank = i + 1;
+          var name = personName(row);
+          var me = row._id === myUid || row.uid === myUid;
+          return (
+            '<div class="row' + (me ? " me" : "") + '">' +
+              '<div class="r top">#' + rank + '</div>' +
+              '<div class="who"><div class="av">' + avatarHtml(row) + '</div>' +
+              '<div class="meta"><b>' + escape(name) + '</b>' +
+              '<span>' + escape([row.level, row.department].filter(Boolean).join(" · ")) + '</span></div></div>' +
+              '<div class="xp">' + scoreOf(row).toLocaleString() + '</div>' +
+            '</div>'
+          );
+        }).join("");
+      }
+    }
+
+    function wireSeg(id, attr, key) {
+      var root = document.getElementById(id);
+      root.addEventListener("click", function (e) {
+        var btn = e.target.closest("button");
+        if (!btn) return;
+        Array.prototype.forEach.call(root.querySelectorAll("button"), function (b) {
+          b.classList.toggle("on", b === btn);
+        });
+        state[key] = btn.getAttribute(attr);
+        render(state.rows);
+      });
+    }
+    wireSeg("periodSeg", "data-period", "period");
+    wireSeg("catSeg", "data-cat", "cat");
+
+    try{if(window.CodexRank)CodexRank.injectRankStyles();}catch(e){}
+    CodexAuth.requireUser().then(function (res) {
+      state.user = res.user;
+      state.profile = res.profile || {};
+      CodexShell.mountShell({
+        page: "board",
+        title: "Ranks",
+        profile: state.profile,
+        user: { fullName: state.profile.fullName || res.user.displayName }
+      });
+
+      function dedupeRows(rows) {
+        var byUid = {};
+        rows.forEach(function (r) {
+          var id = r.uid || r._id;
+          if (!id) return;
+          var isAgg = r._id === id || (!r.subject && !r.code) || r.sessions != null;
+          var prev = byUid[id];
+          if (!prev) { byUid[id] = r; return; }
+          var prevAgg = prev._id === id || (!prev.subject && !prev.code) || prev.sessions != null;
+          if (isAgg && !prevAgg) { byUid[id] = r; return; }
+          if (isAgg === prevAgg && scoreOf(r) >= scoreOf(prev)) byUid[id] = r;
+        });
+        return Object.keys(byUid).map(function (k) { return byUid[k]; });
+      }
+
+      async function enrichAvatars(db, rows) {
+        return Promise.all(rows.map(async function (row) {
+          // Always try to fill missing avatar fields from live profile
+          var uid = row.uid || row._id;
+          if (!uid) return row;
+          // Per-course docs: CODE_uid
+          if (String(uid).indexOf("_") > 0 && String(uid).length > 28) {
+            var parts = String(uid).split("_");
+            if (parts.length >= 2) uid = parts[parts.length - 1];
+          }
+          if (row._id && String(row._id).indexOf("_") > 0 && (!row.uid || row.uid === row._id)) {
+            var p2 = String(row._id).split("_");
+            if (p2.length >= 2) { row.uid = p2[p2.length - 1]; uid = row.uid; }
+          }
+          try {
+            var p = await db.collection("public_profiles").doc(uid).get();
+            if (p.exists) {
+              var d = p.data() || {};
+              if (!row.photoURL && d.photoURL) row.photoURL = d.photoURL;
+              if (!row.avatarKey && d.avatarKey) row.avatarKey = d.avatarKey;
+              if (!row.displayName && (d.displayName || d.username)) row.displayName = d.displayName || d.username;
+            }
+          } catch (e) {}
+          if (!row.photoURL && !row.avatarKey) {
+            try {
+              var u = await db.collection("users").doc(uid).get();
+              if (u.exists) {
+                var d2 = u.data() || {};
+                if (d2.photoURL) row.photoURL = d2.photoURL;
+                if (d2.avatarKey) row.avatarKey = d2.avatarKey;
+                if (!row.displayName && (d2.fullName || d2.displayName)) {
+                  row.displayName = d2.fullName || d2.displayName;
+                }
+              }
+            } catch (e2) {}
+          }
+          return row;
+        }));
+      }
+
+      // Firestore only — no fabricated ranks
+      res.db.collection("leaderboard").orderBy("score", "desc").limit(80).get()
+        .then(function (snap) {
+          var rows = [];
+          snap.forEach(function (doc) {
+            var d = doc.data() || {};
+            d._id = doc.id;
+            if (!d.uid) d.uid = doc.id;
+            rows.push(d);
+          });
+          function finish(list) {
+            state.rows = dedupeRows(list);
+            enrichAvatars(res.db, state.rows).then(function (enriched) {
+              state.rows = enriched;
+              render(state.rows);
+            });
+          }
+          if (!rows.length) {
+            return res.db.collection("leaderboard").limit(80).get().then(function (snap2) {
+              snap2.forEach(function (doc) {
+                var d = doc.data() || {};
+                d._id = doc.id;
+                if (!d.uid) d.uid = doc.id;
+                rows.push(d);
+              });
+              finish(rows);
+            });
+          }
+          finish(rows);
+        })
+.catch(function (err) {
+          console.error(err);
+          document.getElementById("podium").innerHTML =
+            '<div class="empty" style="grid-column:1/-1;color:#E0E7FF"><strong style="color:#fff">Could not load ranks</strong>Check Firestore rules for leaderboard read.</div>';
+          document.getElementById("listBody").innerHTML =
+            '<div class="empty"><strong>Load failed</strong>' + escape(err.message || "Permission or network error") + '</div>';
+        });
+    });
+  })();
+  </script>
+<script src="../js/rank.js"></script>
+
+<script>try{if(window.CodexOnboarding)CodexOnboarding.auto("ranks",700);}catch(e){}</script>
+</body>
+</html>

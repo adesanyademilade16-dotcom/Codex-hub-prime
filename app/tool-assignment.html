@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="../js/theme-boot.js"></script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Assignment Helper · Codex Hub</title>
+<meta name="theme-color" content="#4F46E5">
+<link rel="icon" href="../assets/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/shell.css">
+<script>
+window.MathJax = { tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] }, svg: { fontCache: 'global' } };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+body.app-body{background:#F5F7FB;font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:#0F172A}
+.tool{max-width:960px;margin:0 auto;padding:16px 14px 120px}
+.tool-top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.back{display:inline-flex;align-items:center;gap:6px;font:700 .78rem "Plus Jakarta Sans",system-ui;color:#4F46E5;text-decoration:none;padding:8px 0}
+.tool-top h1{flex:1;margin:0;font-size:1.2rem;letter-spacing:-.02em}
+.pill{font-size:.65rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:#EEF2FF;color:#4338CA;border-radius:999px;padding:4px 10px}
+.panel{background:#fff;border:1px solid #E2E8F0;border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 6px 18px rgba(15,23,42,.03)}
+.panel h2{margin:0 0 10px;font-size:.88rem;font-weight:800}
+.panel .hint{margin:0 0 12px;font-size:.76rem;color:#64748B;line-height:1.45}
+.btn{border:0;border-radius:12px;padding:10px 14px;font:800 .76rem "Plus Jakarta Sans",system-ui;cursor:pointer}
+.btn-primary{background:#4F46E5;color:#fff}
+.btn-ghost{background:#fff;color:#334155;border:1px solid #E2E8F0}
+.btn-soft{background:#EEF2FF;color:#4338CA}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+textarea,input[type=text],select{width:100%;border:1px solid #E2E8F0;border-radius:12px;padding:11px 12px;font:600 .85rem "Plus Jakarta Sans",system-ui;background:#fff}
+textarea{min-height:100px;resize:vertical;line-height:1.5}
+.workspace{background:#0F172A;color:#E2E8F0;border-radius:14px;padding:14px;min-height:140px;font-size:.84rem;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.workspace.md-ready{white-space:normal}
+.workspace .md-h{margin:12px 0 6px;font-weight:800;color:#A5B4FC}
+.workspace .md-p{margin:0 0 8px}.workspace .md-ul,.workspace .md-ol{margin:0 0 10px;padding-left:1.2rem}
+.workspace strong{color:#FDE68A}.workspace em{font-style:italic}
+.workspace code{background:#1E293B;padding:1px 5px;border-radius:5px;font-size:.8em}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%) translateY(12px);background:#0F172A;color:#fff;padding:10px 14px;border-radius:12px;font:700 .76rem "Plus Jakarta Sans",system-ui;opacity:0;pointer-events:none;transition:.2s;z-index:90}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.seg{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.seg button{border:1px solid #E2E8F0;background:#fff;border-radius:10px;padding:8px 11px;font:700 .72rem "Plus Jakarta Sans",system-ui;cursor:pointer;color:#475569}
+.seg button.on{background:#4F46E5;border-color:#4F46E5;color:#fff}
+.code-ed{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.8rem;min-height:200px;background:#0B1220;color:#E2E8F0;border-radius:12px;border:1px solid #1E293B;padding:12px;width:100%;resize:vertical;line-height:1.5}
+.canvas-box{background:#F8FAFC;border:1px dashed #CBD5E1;border-radius:14px;min-height:260px;padding:14px;overflow:auto}
+.flow-node{display:block;max-width:280px;margin:0 auto 4px;background:#EEF2FF;border:1px solid #A5B4FC;border-radius:12px;padding:10px 14px;font-size:.78rem;font-weight:700;color:#312E81;text-align:center}
+.flow-node.decision{border-radius:4px;transform:rotate(0deg);background:#FEF3C7;border-color:#F59E0B;color:#92400E}
+.flow-arrow{text-align:center;color:#64748B;font-size:.8rem;margin:2px 0}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:720px){.grid-2{grid-template-columns:1fr}}
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.step{font-size:.68rem;font-weight:800;padding:5px 10px;border-radius:999px;background:#F1F5F9;color:#64748B}
+.step.on{background:#4F46E5;color:#fff}
+</style>
+</head>
+<body class="app-body">
+
+<main class="tool">
+  <div class="tool-top">
+    <a class="back" href="student-tools.html">← Tools</a>
+    <h1>Assignment Helper</h1>
+    <span class="pill">Academic</span>
+  </div>
+  <div class="steps" id="steps">
+    <span class="step on" data-s="1">1 Assignment</span>
+    <span class="step" data-s="2">2 Understand</span>
+    <span class="step" data-s="3">3 Structure</span>
+    <span class="step" data-s="4">4 Workspace</span>
+    <span class="step" data-s="5">5 Review</span>
+  </div>
+  <div class="panel">
+    <h2>Assignment brief</h2>
+    <p class="hint">Paste the question or instructions. This tool helps you structure and develop work — not dump a finished essay to submit blindly.</p>
+    <textarea id="brief" placeholder="Paste the assignment question / brief here..."></textarea>
+    <p class="hint" style="margin-top:8px">Optional: attach a photo of the brief (or use <a href="tool-scan-solve.html" style="color:#4F46E5;font-weight:700">Scan &amp; Solve</a> for full step-by-step solutions).</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px">
+      <input type="file" id="asgImg" accept="image/*" style="display:none">
+      <input type="file" id="asgCam" accept="image/*" capture="environment" style="display:none">
+      <button type="button" class="btn btn-soft" id="btnAsgGal">Upload photo</button>
+      <button type="button" class="btn btn-ghost" id="btnAsgCam">Camera</button>
+    </div>
+    <div id="asgFileName" style="font-size:.72rem;color:#64748B;margin-top:6px"></div>
+    <img id="asgPreview" alt="" style="max-width:100%;max-height:200px;border-radius:12px;margin-top:10px;display:none;object-fit:contain;background:#F8FAFC;border:1px solid #E2E8F0">
+    <div class="actions">
+      <button type="button" class="btn btn-primary" id="btnUnderstand">Understand</button>
+      <button type="button" class="btn btn-soft" id="btnStructure">Build structure</button>
+      <button type="button" class="btn btn-ghost" id="btnReview">Review my draft</button>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Understanding</h2>
+    <div class="workspace" id="understand"></div>
+  </div>
+  <div class="panel">
+    <h2>Suggested structure</h2>
+    <div class="workspace" id="structure"></div>
+  </div>
+  <div class="panel">
+    <h2>Your workspace</h2>
+    <p class="hint">Write your draft here. Use structure above as a guide.</p>
+    <textarea id="draft" style="min-height:200px" placeholder="Start writing your assignment here..."></textarea>
+    <div class="actions">
+      <button type="button" class="btn btn-ghost" id="btnCopy">Copy draft</button>
+      <button type="button" class="btn btn-ghost" id="btnDl">Download .txt</button>
+      <button type="button" class="btn btn-soft" id="btnPdfDraft">Download PDF</button>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Review feedback</h2>
+    <div class="workspace" id="review"></div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+<script src="../js/firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="../js/app-auth.js"></script>
+<script src="../js/media.js"></script>
+<script src="../js/shell.js"></script>
+<script src="../js/codex-md.js"></script>
+<script src="../js/student-tools-core.js"></script>
+<script src="../js/auto-scroll.js"></script>
+<script>
+(function(){
+  "use strict";
+  if(!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+  var ST = window.CodexStudentTools;
+  var uid=null, profile=null;
+  function toast(m){ var t=document.getElementById("toast"); if(!t)return; t.textContent=m; t.classList.add("show"); clearTimeout(t._tm); t._tm=setTimeout(function(){t.classList.remove("show");},2400); }
+  window.__toolToast=toast; window.__toolUid=function(){return uid;}; window.__toolProfile=function(){return profile;};
+  async function boot(){
+    var r; try{ r=await CodexAuth.requireUser(); }catch(e){return;}
+    uid=r.user.uid; profile=Object.assign({}, r.profile||{});
+    try{ var pub=await firebase.firestore().collection("public_profiles").doc(uid).get(); if(pub.exists){ var pp=pub.data()||{}; if(pp.avatarKey)profile.avatarKey=pp.avatarKey; if(pp.photoURL)profile.photoURL=pp.photoURL; } }catch(e){}
+    var name=(profile.fullName||profile.displayName||r.user.email||"Student");
+    CodexShell.mountShell({page:"tools", title:'Assignment Helper', user:Object.assign({fullName:name}, r.user), profile:profile});
+    ST.pushRecent(uid, {toolId:'assignment', title:'Assignment Helper', subtitle:"Opened", href:location.pathname.split("/").pop()});
+    if(typeof window.__toolReady==="function") window.__toolReady();
+  }
+  boot();
+})();
+</script>
+
+<script>
+window.__toolReady=function(){
+  var ST=CodexStudentTools, imgB64=null;
+  function setStep(n){
+    document.querySelectorAll("#steps .step").forEach(function(s){
+      var v=+s.getAttribute("data-s");
+      s.classList.toggle("on", v===n);
+    });
+  }
+  function fileToB64(file){
+    return new Promise(function(res,rej){
+      var r=new FileReader();
+      r.onload=function(){ res(String(r.result||"")); };
+      r.onerror=rej; r.readAsDataURL(file);
+    });
+  }
+  function onImg(file){
+    if(!file) return;
+    fileToB64(file).then(function(d){
+      imgB64=d;
+      var p=document.getElementById("asgPreview");
+      if(p){
+        p.onload=function(){ p.style.display="block"; };
+        p.onerror=function(){ p.style.display="none"; };
+        p.src=d;
+      }
+      var fn=document.getElementById("asgFileName");
+      if(fn) fn.textContent=file.name||"Photo attached";
+    });
+  }
+  var cam=document.getElementById("btnAsgCam");
+  if(cam) cam.onclick=function(){ document.getElementById("asgCam").click(); };
+  var gal=document.getElementById("btnAsgGal");
+  if(gal) gal.onclick=function(){ document.getElementById("asgImg").click(); };
+  var fi=document.getElementById("asgImg");
+  if(fi) fi.onchange=function(){ onImg(this.files&&this.files[0]); };
+  var fc=document.getElementById("asgCam");
+  if(fc) fc.onchange=function(){ onImg(this.files&&this.files[0]); };
+
+  async function understand(){
+    var b=document.getElementById("brief").value.trim();
+    if(!b && !imgB64){ __toolToast("Paste the assignment or upload an image"); return; }
+    setStep(2); document.getElementById("understand").textContent="Analysing…";
+    if(ST.scrollToResult) ST.scrollToResult(document.getElementById("understand"));
+    try{
+      var r=await ST.callToolAI({
+        tool:"assignment",
+        message:"Analyse this assignment brief for a university student:\n"+(b||"(see attached image of the assignment paper)"),
+        system:"Respond with sections:\n## What the question asks\n## Requirements & constraints\n## Key concepts\n## Suggested approach\nDo NOT write the full essay. Help the student think. If an image is attached, read the question from the image.",
+        imageBase64: imgB64,
+        uid: __toolUid(),
+        profile: __toolProfile()
+      });
+      (function(el){ el=document.getElementById("understand"); el.classList.add("md-ready"); if(window.CodexMd) CodexMd.setHtml(el,r); else el.textContent=r; })();
+      ST.pushRecent(__toolUid(),{toolId:"assignment",title:(b||"Assignment photo").slice(0,48),subtitle:"Understood",href:"tool-assignment.html"});
+    }catch(e){ document.getElementById("understand").textContent=e.message||"Failed"; __toolToast("Request failed"); }
+  }
+  async function structure(){
+    var b=document.getElementById("brief").value.trim();
+    if(!b && !imgB64){ __toolToast("Paste the assignment or upload an image"); return; }
+    setStep(3); document.getElementById("structure").textContent="Building structure…";
+    if(ST.scrollToResult) ST.scrollToResult(document.getElementById("structure"));
+    try{
+      var r=await ST.callToolAI({
+        tool:"assignment",
+        message:"Propose an outline/structure for this assignment:\n"+(b||"(see attached image)"),
+        system:"Output a clear outline with sections. Short guidance under each heading. Do not write the full paper.",
+        imageBase64: imgB64,
+        uid: __toolUid()
+      });
+      (function(el){ el=document.getElementById("structure"); el.classList.add("md-ready"); if(window.CodexMd) CodexMd.setHtml(el,r); else el.textContent=r; })(); setStep(4);
+    }catch(e){ document.getElementById("structure").textContent=e.message||"Failed"; __toolToast("Request failed"); }
+  }
+  async function review(){
+    var b=document.getElementById("brief").value.trim();
+    var d=document.getElementById("draft").value.trim();
+    if(!d){ __toolToast("Write a draft first"); return; }
+    setStep(5); document.getElementById("review").textContent="Reviewing…";
+    if(ST.scrollToResult) ST.scrollToResult(document.getElementById("review"));
+    try{
+      var r=await ST.callToolAI({
+        tool:"assignment",
+        message:"Brief:\n"+(b||"(from image if any)")+"\n\nStudent draft:\n"+d,
+        system:"Review the draft against the brief. Sections:\n## Structure\n## Clarity\n## Relevance\n## Grammar & style\n## Missing areas\nGive concrete tips. Do not rewrite the entire essay unless a short sample helps.",
+        imageBase64: imgB64,
+        uid: __toolUid()
+      });
+      (function(el){ el=document.getElementById("review"); el.classList.add("md-ready"); if(window.CodexMd) CodexMd.setHtml(el,r); else el.textContent=r; })();
+    }catch(e){ document.getElementById("review").textContent=e.message||"Failed"; __toolToast("Request failed"); }
+  }
+  document.getElementById("btnUnderstand").onclick=understand;
+  document.getElementById("btnStructure").onclick=structure;
+  document.getElementById("btnReview").onclick=review;
+  document.getElementById("btnCopy").onclick=function(){
+    var d=document.getElementById("draft").value; if(!d)return;
+    if(navigator.clipboard) navigator.clipboard.writeText(d).then(function(){ __toolToast("Copied"); });
+  };
+  document.getElementById("btnDl").onclick=function(){
+    ST.downloadText("assignment-draft.txt", document.getElementById("draft").value||"");
+    __toolToast("Downloaded");
+  };
+  var pdfBtn=document.getElementById("btnPdfDraft");
+  if(pdfBtn) pdfBtn.onclick=function(){
+    var u=document.getElementById("understand").textContent||"";
+    var s=document.getElementById("structure").textContent||"";
+    var d=document.getElementById("draft").value||"";
+    var r=document.getElementById("review").textContent||"";
+    var html="<h2>Understanding</h2><pre>"+ST.esc(u)+"</pre><h2>Structure</h2><pre>"+ST.esc(s)+"</pre><h2>Draft</h2><pre>"+ST.esc(d)+"</pre><h2>Review</h2><pre>"+ST.esc(r)+"</pre>";
+    ST.openPrintPdf("Assignment Helper", html);
+  };
+};
+</script>
+
+</body></html>

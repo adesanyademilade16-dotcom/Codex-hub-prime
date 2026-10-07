@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script src="../js/theme-boot.js"></script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Study Resources — Codex Hub</title>
+<meta name="theme-color" content="#4f46e5">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/shell.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/resources.css">
+</head>
+<body class="shell-body res-section" data-page="resources">
+<div id="shellRoot"></div>
+<header class="res-topbar">
+  <button class="res-back" type="button" data-res-back aria-label="Go back">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
+  <div class="res-top-title"><strong>Study Resources</strong><span>Library</span></div>
+  <div class="res-top-actions">
+    <div class="res-top-credit"><span id="creditIconTop"></span><b id="creditNumTop">—</b></div>
+    <a class="res-top-upload" href="resource-upload.html" aria-label="Contribute a resource">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+      <span>Contribute</span>
+    </a>
+  </div>
+</header>
+<script>
+(function(){
+  var b=document.querySelector('[data-res-back]');
+  if(!b)return;
+  b.addEventListener('click',function(){
+    try { if(document.referrer && document.referrer.indexOf(location.origin)===0 && history.length>1){ history.back(); return; } } catch(e){}
+    location.href='home.html';
+  });
+})();
+</script>
+
+<main class="res-page" id="main">
+  <div class="res-hero">
+    <div>
+      <h1>Study Resources</h1>
+      <p>Lecture notes, past questions, and course materials shared by students and verified by Codex.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+      <div class="res-credits" id="creditPill" title="Download credits">
+        <span id="creditIcon"></span>
+        <span><span id="creditNum">—</span> download credits</span>
+      </div>
+      <a id="adminCtrl" href="../admin/pdf-resources.html" class="res-btn res-btn-primary" style="display:none;padding:8px 14px;font-size:.8rem;text-decoration:none">Resource Control</a>
+    </div>
+  </div>
+
+  <div class="res-toolbar">
+    <div class="res-search">
+      <span id="searchIco"></span>
+      <input type="search" id="q" placeholder="Search by title, course code, or topic" autocomplete="off">
+    </div>
+    <div class="res-filters" id="catFilters" role="tablist" aria-label="Categories"></div>
+    <div class="res-actions-row">
+      <select class="res-sort" id="sort" aria-label="Sort resources">
+        <option value="recent">Most recent</option>
+        <option value="views">Most viewed</option>
+        <option value="likes">Most liked</option>
+        <option value="downloads">Most downloaded</option>
+      </select>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a class="res-btn res-btn-ghost" href="my-resources.html">My contributions</a>
+        <a class="res-btn res-btn-primary" href="resource-upload.html" id="uploadBtn">Contribute</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="rails"></div>
+  <h2 class="res-section-label" id="allLabel">All resources</h2>
+  <div id="grid" class="res-grid" aria-live="polite"></div>
+  <div id="state" class="res-loading" hidden></div>
+  <div style="text-align:center;margin-top:16px">
+    <button type="button" class="res-btn res-btn-ghost" id="loadMore" hidden>Load more</button>
+  </div>
+</main>
+
+<nav class="res-tabbar" aria-label="Resources navigation">
+  <a class="active" href="resources.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19a2 2 0 01-2-2V7a2 2 0 012-2h6l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H4z"/></svg>
+    Library
+  </a>
+  <a href="my-resources.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12a4 4 0 100-8 4 4 0 000 8z"/><path d="M4 20a8 8 0 0116 0"/></svg>
+    Contributions
+  </a>
+  <a href="resource-upload.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+    Upload
+  </a>
+</nav>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/app-auth.js"></script>
+<script src="../js/media.js"></script>
+<script src="../js/onboarding.js"></script>
+  <script src="../js/shell.js"></script>
+<script src="../js/resources-core.js"></script>
+<script>
+(function () {
+  var lastDoc = null, hasMore = false, busy = false;
+  var state = { category: "", sort: "recent", q: "" };
+
+  document.getElementById("searchIco").innerHTML = CodexResources.ICONS.search;
+  document.getElementById("creditIcon").innerHTML = CodexResources.ICONS.credit;
+  document.getElementById("creditIconTop").innerHTML = CodexResources.ICONS.credit;
+
+  var catEl = document.getElementById("catFilters");
+  catEl.innerHTML = '<button type="button" class="res-chip active" data-cat="">All</button>' +
+    CodexResources.CATEGORIES.map(function (c) {
+      return '<button type="button" class="res-chip" data-cat="' + CodexResources.escapeHtml(c) + '">' + CodexResources.escapeHtml(c) + "</button>";
+    }).join("");
+
+  catEl.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-cat]");
+    if (!btn) return;
+    state.category = btn.getAttribute("data-cat") || "";
+    catEl.querySelectorAll(".res-chip").forEach(function (b) {
+      b.classList.toggle("active", b === btn);
+    });
+    reload();
+  });
+
+  document.getElementById("sort").onchange = function () {
+    state.sort = this.value;
+    reload();
+  };
+
+  var searchTimer;
+  document.getElementById("q").addEventListener("input", function () {
+    clearTimeout(searchTimer);
+    var v = this.value.trim();
+    searchTimer = setTimeout(function () {
+      state.q = v;
+      reload();
+    }, 280);
+  });
+
+  document.getElementById("loadMore").onclick = function () { load(true); };
+
+  function showState(html, cls) {
+    var s = document.getElementById("state");
+    s.hidden = !html;
+    s.className = cls || "res-empty";
+    s.innerHTML = html || "";
+  }
+
+  async function reload() {
+    lastDoc = null;
+    document.getElementById("grid").innerHTML = "";
+    await load(false);
+  }
+
+  function railHtml(title, sub, items) {
+    if (!items || !items.length) return "";
+    return '<section class="res-rail"><div class="res-rail-head"><h2>' + title +
+      '</h2><span>' + (sub || "") + '</span></div><div class="res-rail-track">' +
+      items.map(CodexResources.cardHtml).join("") + "</div></section>";
+  }
+
+  async function load(more) {
+    if (busy) return;
+    busy = true;
+    var grid = document.getElementById("grid");
+    var moreBtn = document.getElementById("loadMore");
+    var rails = document.getElementById("rails");
+    if (!more) {
+      showState('<p>Loading resources…</p>', "res-loading");
+      if (rails) rails.innerHTML = "";
+      grid.innerHTML = "";
+    }
+    try {
+      var res = await CodexResources.listResources({
+        category: state.category || undefined,
+        sort: state.sort,
+        q: state.q || undefined,
+        limit: 40,
+        startAfter: more ? lastDoc : null
+      });
+      lastDoc = res.lastDoc;
+      hasMore = res.hasMore;
+      moreBtn.hidden = !hasMore;
+      var items = res.items || [];
+      if (!more && !items.length) {
+        showState(
+          CodexResources.ICONS.empty +
+          "<h3>No study resources yet</h3>" +
+          "<p>Be the first to contribute lecture notes or past questions for your course.</p>" +
+          '<a class="res-btn res-btn-primary" href="resource-upload.html">Contribute a resource</a>',
+          "res-empty"
+        );
+        document.getElementById("allLabel").hidden = true;
+      } else {
+        showState("", "res-empty");
+        document.getElementById("allLabel").hidden = false;
+        if (!more && rails && !state.q && !state.category) {
+          var byViews = items.slice().sort(function (a, b) { return (b.views || 0) - (a.views || 0); });
+          var byLikes = items.slice().sort(function (a, b) { return (b.likes || 0) - (a.likes || 0); });
+          var featured = items.filter(function (x) { return x.featured; });
+          if (!featured.length) featured = byViews.slice(0, 8);
+          var trending = byViews.slice(0, 10);
+          var popular = byLikes.slice(0, 10);
+          rails.innerHTML =
+            railHtml("Featured", "Hand-picked for you", featured.slice(0, 8)) +
+            railHtml("Trending", "Most viewed", trending) +
+            railHtml("Popular", "Most liked", popular);
+        } else if (rails && (state.q || state.category)) {
+          rails.innerHTML = "";
+        }
+        var list = items;
+        if (state.sort === "views") list = items.slice().sort(function (a, b) { return (b.views || 0) - (a.views || 0); });
+        if (state.sort === "likes") list = items.slice().sort(function (a, b) { return (b.likes || 0) - (a.likes || 0); });
+        if (state.sort === "downloads") list = items.slice().sort(function (a, b) { return (b.downloads || 0) - (a.downloads || 0); });
+        if (more) grid.insertAdjacentHTML("beforeend", list.map(CodexResources.cardHtml).join(""));
+        else grid.innerHTML = list.map(CodexResources.cardHtml).join("");
+        if (CodexResources.paintLikedCards) CodexResources.paintLikedCards(document);
+      }
+    } catch (err) {
+      console.error(err);
+      showState(
+        "<h3>Could not load resources</h3><p>" + CodexResources.escapeHtml(err.message || "Permission or network error") +
+        "</p><p style=\"font-size:.8rem\">Legacy PDFs still load if the pdfs collection is readable. Composite index is optional (fallback is on).</p>",
+        "res-error"
+      );
+    }
+    busy = false;
+  }
+
+  CodexAuth.requireUser().then(async function (ctx) {
+    var profile = Object.assign({}, ctx.profile || {});
+    // Merge public_profiles so avatar (upload or character) shows in the top bar
+    try {
+      if (ctx.user && ctx.user.uid) {
+        var pp = await firebase.firestore().collection("public_profiles").doc(ctx.user.uid).get();
+        if (pp.exists) {
+          var d = pp.data() || {};
+          if (d.photoURL && !profile.photoURL) profile.photoURL = d.photoURL;
+          if (d.avatarUrl && !profile.avatarUrl) profile.avatarUrl = d.avatarUrl;
+          if (d.avatarKey && !profile.avatarKey) profile.avatarKey = d.avatarKey;
+          if (d.displayName && !profile.fullName) profile.fullName = d.displayName;
+        }
+      }
+    } catch (eAv) {}
+    if (window.CodexShell) {
+      var shellOpts = { page: "resources", title: "Study Resources", user: ctx.user, profile: profile };
+      if (typeof CodexShell.mountShell === "function") CodexShell.mountShell(shellOpts);
+      else if (typeof CodexShell.mount === "function") CodexShell.mount(shellOpts);
+    }
+    if (CodexResources.bindCardActions) CodexResources.bindCardActions(document);
+    try {
+      var c = await CodexResources.getUserCredits(ctx.user.uid);
+      document.getElementById("creditNum").textContent = String(c);
+      document.getElementById("creditNumTop").textContent = String(c);
+    } catch (e) {
+      document.getElementById("creditNum").textContent = "0";
+      document.getElementById("creditNumTop").textContent = "0";
+    }
+    try {
+      var ac = document.getElementById("adminCtrl");
+      if (ac && CodexResources.isAdminEmail(ctx.user.email)) {
+        ac.style.display = "inline-flex";
+      }
+    } catch (eAd) {}
+    await reload();
+  });
+})();
+</script>
+
+<script>try{if(window.CodexOnboarding)CodexOnboarding.auto("resources",700);}catch(e){}</script>
+</body>
+</html>

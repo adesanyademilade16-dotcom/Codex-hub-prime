@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="../js/theme-boot.js"></script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Study Planner · Codex Hub</title>
+<meta name="theme-color" content="#4F46E5">
+<link rel="icon" href="../assets/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/shell.css">
+<style>
+body.app-body{background:#F5F7FB;font-family:"Plus Jakarta Sans",system-ui,sans-serif}
+.planner{max-width:720px;margin:auto;padding:18px 14px 100px}
+.hero{
+  background:linear-gradient(135deg,#312E81,#4F46E5 52%,#7C3AED);
+  color:#fff;border-radius:22px;padding:20px 18px;
+  box-shadow:0 18px 42px rgba(79,70,229,.18);margin-bottom:14px
+}
+.hero-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.eyebrow{font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#C7D2FE}
+.hero h1{font-size:1.4rem;margin:6px 0 4px;letter-spacing:-.03em}
+.hero p{margin:0;color:#E0E7FF;font-size:.78rem;line-height:1.5}
+.progress-pill{
+  padding:7px 10px;border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.12);border-radius:999px;
+  font-size:.7rem;font-weight:800;white-space:nowrap;height:fit-content
+}
+.progress{margin-top:14px;height:8px;border-radius:999px;background:rgba(255,255,255,.2);overflow:hidden}
+.progress span{display:block;height:100%;width:0;background:#fff;border-radius:999px;transition:width .3s}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.btn{border:0;border-radius:12px;padding:11px 14px;font:800 .78rem "Plus Jakarta Sans",system-ui;cursor:pointer}
+.btn-primary{background:#4F46E5;color:#fff}
+.btn-ghost{background:#fff;color:#334155;border:1px solid #E2E8F0}
+.btn-danger{background:#FEF2F2;color:#B91C1C}
+.btn-soft{background:#EEF2FF;color:#4338CA}
+
+/* ONE plan document */
+.plan-doc{
+  background:#fff;border:1px solid #E2E8F0;border-radius:20px;
+  box-shadow:0 10px 28px rgba(15,23,42,.05);overflow:hidden;margin-bottom:16px
+}
+.plan-doc-head{
+  padding:16px 16px 12px;
+  border-bottom:1px solid #F1F5F9;
+  background:linear-gradient(180deg,#FAFBFF 0%,#fff 100%)
+}
+.plan-doc-head h2{
+  margin:0 0 4px;font-size:.95rem;font-weight:800;color:#0F172A;
+  display:flex;align-items:center;gap:8px
+}
+.plan-doc-head h2 .badge{
+  font-size:.65rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  background:#EEF2FF;color:#4338CA;padding:3px 8px;border-radius:999px
+}
+.plan-doc-head .note{margin:0 0 12px;font-size:.75rem;color:#64748B;line-height:1.45}
+.form-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px
+}
+.field{display:flex;flex-direction:column;gap:4px}
+.field.full{grid-column:1/-1}
+.field label{font-size:.68rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.04em}
+.field input,.field select{
+  border:1px solid #E2E8F0;border-radius:11px;padding:10px 11px;
+  font:600 .82rem "Plus Jakarta Sans",system-ui;background:#fff;color:#0F172A
+}
+.field input:focus,.field select:focus{outline:none;border-color:#A5B4FC;box-shadow:0 0 0 3px rgba(79,70,229,.12)}
+
+.plan-doc-body{padding:14px 16px 16px}
+.tasks-label{
+  display:flex;justify-content:space-between;align-items:center;
+  margin:0 0 10px;font-size:.78rem;font-weight:800;color:#0F172A
+}
+.tasks-label span{font-weight:600;color:#64748B;font-size:.72rem}
+.tasks{display:flex;flex-direction:column;gap:8px}
+.task{
+  display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:center;
+  padding:12px 12px;border:1px solid #E2E8F0;border-radius:14px;background:#F8FAFC
+}
+.task.done,.task.completed-task{opacity:.72;background:#F1F5F9}
+.task.done .task-title{text-decoration:line-through;color:#64748B}
+.check{
+  width:26px;height:26px;border-radius:8px;border:2px solid #CBD5E1;
+  background:#fff;cursor:pointer;display:grid;place-items:center;
+  font-size:.75rem;font-weight:800;color:#4F46E5;padding:0
+}
+.task.done .check,.task.completed-task .check{background:#4F46E5;border-color:#4F46E5;color:#fff}
+.task-title{font-size:.88rem;font-weight:700;color:#0F172A;line-height:1.3}
+.task-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.chip{
+  font-size:.65rem;font-weight:700;color:#475569;background:#fff;
+  border:1px solid #E2E8F0;padding:2px 7px;border-radius:999px
+}
+.task-actions{display:flex;flex-direction:column;gap:4px}
+.icon-btn2{
+  border:0;background:transparent;color:#64748B;font:700 .68rem "Plus Jakarta Sans",system-ui;
+  cursor:pointer;padding:4px 6px;border-radius:8px;text-align:right
+}
+.icon-btn2:hover{background:#E2E8F0;color:#0F172A}
+.icon-btn2.danger{color:#B91C1C}
+
+.empty-start{
+  text-align:center;padding:22px 12px;border:1px dashed #CBD5E1;border-radius:14px;background:#FAFBFF
+}
+.empty-start strong{display:block;font-size:.9rem;color:#0F172A;margin-bottom:4px}
+.empty-start p{margin:0 0 12px;font-size:.78rem;color:#64748B;line-height:1.45}
+.start-task-btn,.add-task-btn{
+  border:0;border-radius:12px;padding:11px 16px;font:800 .8rem "Plus Jakarta Sans",system-ui;
+  background:#4F46E5;color:#fff;cursor:pointer
+}
+.empty{padding:12px;font-size:.78rem;color:#64748B;text-align:center}
+
+.add{
+  display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-top:12px;
+  padding:12px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:14px
+}
+.add.is-hidden{display:none}
+.add input[type="text"],.add input:not([type]){
+  border:1px solid #E2E8F0;border-radius:11px;padding:10px 12px;
+  font:600 .82rem "Plus Jakarta Sans",system-ui;min-width:0
+}
+.add input[type="datetime-local"]{
+  border:1px solid #E2E8F0;border-radius:11px;padding:9px 10px;
+  font:600 .72rem "Plus Jakarta Sans",system-ui;max-width:160px
+}
+
+.completed-wrap{margin-top:14px;padding-top:12px;border-top:1px solid #F1F5F9}
+.completed-wrap.is-empty{display:none}
+.subhead{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:.75rem;font-weight:800;color:#64748B;margin-bottom:8px
+}
+
+.plan-footer{
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+  margin-top:14px;padding-top:14px;border-top:1px solid #F1F5F9
+}
+.save-state{font-size:.72rem;font-weight:600;color:#64748B;margin-left:auto}
+
+/* Saved plans */
+.saved-block{
+  background:#fff;border:1px solid #E2E8F0;border-radius:20px;
+  padding:16px;box-shadow:0 8px 24px rgba(15,23,42,.04)
+}
+.saved-block h2{margin:0 0 4px;font-size:.95rem;font-weight:800}
+.saved-block .note{margin:0 0 12px;font-size:.75rem;color:#64748B}
+.side-list{display:flex;flex-direction:column;gap:8px}
+.plan-row{
+  display:flex;gap:10px;align-items:center;justify-content:space-between;
+  padding:12px;border:1px solid #E2E8F0;border-radius:14px;background:#F8FAFC
+}
+.plan-row.current{border-color:#A5B4FC;background:#EEF2FF}
+.plan-main{flex:1;min-width:0;cursor:pointer}
+.plan-main strong{display:block;font-size:.85rem;color:#0F172A}
+.plan-main small{font-size:.72rem;color:#64748B}
+.plan-actions{display:flex;flex-wrap:wrap;gap:4px}
+.plan-actions button{
+  border:1px solid #E2E8F0;background:#fff;border-radius:9px;
+  padding:6px 9px;font:700 .68rem "Plus Jakarta Sans",system-ui;cursor:pointer;color:#334155
+}
+.plan-actions button.danger{color:#B91C1C;border-color:#FECACA;background:#FEF2F2}
+
+.toast{
+  position:fixed;left:50%;bottom:88px;transform:translateX(-50%) translateY(20px);
+  background:#0F172A;color:#fff;padding:10px 16px;border-radius:12px;
+  font:700 .78rem "Plus Jakarta Sans",system-ui;opacity:0;pointer-events:none;
+  transition:.25s;z-index:80;max-width:90vw
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:560px){
+  .form-grid{grid-template-columns:1fr}
+  .add{grid-template-columns:1fr; }
+  .add input[type="datetime-local"]{max-width:none}
+  .task{grid-template-columns:28px minmax(0,1fr); }
+  .task-actions{grid-column:2;flex-direction:row;justify-content:flex-end}
+  .save-state{margin-left:0;width:100%}
+}
+</style>
+</head>
+<body class="app-body">
+<main class="planner">
+  <section class="hero">
+    <div class="hero-top">
+      <div>
+        <div class="eyebrow">Study Planner</div>
+        <h1 id="planTitle">My study plan</h1>
+        <p id="planMeta">One plan. Tasks live inside it. Save when you are ready.</p>
+      </div>
+      <div class="progress-pill" id="progressText">0 / 0</div>
+    </div>
+    <div class="progress"><span id="progressBar"></span></div>
+  </section>
+
+  <div class="toolbar">
+    <button class="btn btn-ghost" id="newPlan" type="button">New plan</button>
+    <button class="btn btn-ghost" id="notifyBtn" type="button">Enable reminders</button>
+  </div>
+
+  <!-- ONE document: this plan + its tasks -->
+  <article class="plan-doc" aria-label="Current study plan">
+    <div class="plan-doc-head">
+      <h2>This plan <span class="badge">Container</span></h2>
+      <p class="note">Name the plan and set its schedule. Tasks below belong to this plan only.</p>
+      <div class="form-grid">
+        <div class="field full">
+          <label>Plan name</label>
+          <input id="nameInput" value="My study plan" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>Plan type</label>
+          <select id="modeInput">
+            <option value="today">Today</option>
+            <option value="24h">Next 24 hours</option>
+            <option value="custom">Custom</option>
+            <option value="recurring">Recurring</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Default duration</label>
+          <select id="durationInput">
+            <option value="30">30 min</option>
+            <option value="45" selected>45 min</option>
+            <option value="60">1 hour</option>
+            <option value="90">90 min</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Start</label>
+          <input id="startInput" type="datetime-local">
+        </div>
+        <div class="field">
+          <label>Due</label>
+          <input id="dueInput" type="datetime-local">
+        </div>
+        <div class="field full">
+          <label>Reminder default</label>
+          <select id="reminderInput">
+            <option value="none">No reminder</option>
+            <option value="30">30 minutes before</option>
+            <option value="10">10 minutes before</option>
+            <option value="0">At due time</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="plan-doc-body">
+      <div class="tasks-label">
+        <strong>Tasks in this plan</strong>
+        <span>Check = done · stays under Completed</span>
+      </div>
+
+      <div class="tasks" id="tasks"></div>
+
+      <div class="empty-start" id="emptyStart">
+        <strong>No tasks yet</strong>
+        <p>Add study blocks, CBT practice, or breaks. They stay inside this plan until you save it.</p>
+        <button class="start-task-btn" id="startTask" type="button">+ Add your first task</button>
+      </div>
+
+      <div class="add is-hidden" id="taskComposer">
+        <input id="taskInput" type="text" placeholder="What do you want to complete?" autocomplete="off">
+        <input id="taskDueInput" type="datetime-local" aria-label="Task due time">
+        <button class="btn btn-primary" id="addTask" type="button">Add task</button>
+      </div>
+
+      <div class="completed-wrap is-empty" id="completedWrap">
+        <div class="subhead"><span>Completed in this plan</span><span id="completedCount">0</span></div>
+        <div class="tasks" id="completedTasks"></div>
+      </div>
+
+      <div class="plan-footer">
+        <button class="btn btn-primary" id="savePlan" type="button">Save plan</button>
+        <button class="btn btn-danger" id="deletePlan" type="button" hidden>Delete plan</button>
+        <span class="save-state" id="saveState">New plan · not saved</span>
+      </div>
+    </div>
+  </article>
+
+  <section class="saved-block" aria-label="Saved plans">
+    <h2>Saved plans</h2>
+    <p class="note">Open a plan to continue, duplicate it for another day, or delete it.</p>
+    <div class="side-list" id="savedPlans">
+      <div class="empty">No saved plans yet. Save your first plan above.</div>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+<script src="../js/firebase-config.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="../js/app-auth.js"></script><script src="../js/media.js"></script><script src="../js/onboarding.js"></script>
+  <script src="../js/shell.js"></script>
+<script>
+(function(){"use strict";if(!firebase.apps.length)firebase.initializeApp(window.FIREBASE_CONFIG);var db=firebase.firestore(),uid=null,currentId=null,tasks=[],timer=null,saveTimer=null;var $=id=>document.getElementById(id);
+function esc(s){return String(s==null?"":s).replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function toast(t){$("toast").textContent=t;$("toast").classList.add("show");clearTimeout(timer);timer=setTimeout(()=>$('toast').classList.remove('show'),2200)}
+function ms(v){if(!v)return 0;if(v.toMillis)return v.toMillis();return new Date(v).getTime()||0}
+function fmt(v){var n=ms(v);return n?new Date(n).toLocaleString(undefined,{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"No time set"}
+function inputValue(v){var n=ms(v);if(!n)return"";var d=new Date(n),pad=x=>String(x).padStart(2,"0");return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+"T"+pad(d.getHours())+":"+pad(d.getMinutes())}
+function setSaveState(text){$("saveState").textContent=text}
+function updateSaveButton(){ $("savePlan").textContent=currentId?"Save changes":"Save plan"; $("deletePlan").hidden=!currentId; }
+function taskHtml(t,i,done){return '<div class="task '+(done?'done completed-task':'')+'"><button class="check" data-done="'+i+'" aria-label="'+(done?'Mark task as pending':'Mark task complete')+'">'+(done?'✓':'')+'</button><div><div class="task-title">'+esc(t.title)+'</div><div class="task-meta">'+(t.courseCode?'<span class="chip">'+esc(t.courseCode)+'</span>':'')+(t.duration?'<span class="chip">'+t.duration+' min</span>':'')+(t.dueAt?'<span class="chip">Due '+esc(fmt(t.dueAt))+'</span>':'')+'</div></div><div class="task-actions"><button class="icon-btn2" data-edit="'+i+'" type="button">Edit</button><button class="icon-btn2 danger" data-remove="'+i+'" type="button">Delete</button></div></div>'}
+function render(){var active=tasks.filter(t=>!t.done),done=tasks.filter(t=>t.done),box=$("tasks"),cbox=$("completedTasks");if(!active.length){box.innerHTML="";$("emptyStart").style.display=tasks.length?"none":"block";if(tasks.length){$("taskComposer").classList.remove("is-hidden");box.innerHTML='<div class="empty">All current tasks are complete. Add another task below or use the Completed section to undo one.</div>';}}else{box.innerHTML=active.map(t=>taskHtml(t,tasks.indexOf(t),false)).join("");$("emptyStart").style.display="none";$("taskComposer").classList.remove("is-hidden")}
+if(tasks.length&&active.length===0)$("emptyStart").style.display="none";if(!tasks.length){$("taskComposer").classList.add("is-hidden");$("completedWrap").classList.add("is-empty")}else{$("completedWrap").classList.toggle("is-empty",!done.length);cbox.innerHTML=done.map(t=>taskHtml(t,tasks.indexOf(t),true)).join("");$("completedCount").textContent=String(done.length)}
+var total=tasks.length,p=total?Math.round(done.length/total*100):0;$("progressText").textContent=done.length+" / "+total;$("progressBar").style.width=p+"%";bindTaskActions();}
+function bindTaskActions(){document.querySelectorAll('[data-done]').forEach(b=>b.onclick=function(){var i=+b.dataset.done;if(!tasks[i])return;tasks[i].done=!tasks[i].done;render();queueAutoSave();});document.querySelectorAll('[data-remove]').forEach(b=>b.onclick=function(){var i=+b.dataset.remove;if(!tasks[i])return;if(!confirm('Delete this task?'))return;tasks.splice(i,1);render();queueAutoSave();});document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=function(){var i=+b.dataset.edit;if(!tasks[i])return;var n=prompt('Edit task',tasks[i].title);if(n&&n.trim()){tasks[i].title=n.trim();render();queueAutoSave();}})}
+function taskFromInput(){var title=$("taskInput").value.trim();if(!title){$("taskInput").focus();return}var due=$("taskDueInput").value?new Date($("taskDueInput").value).toISOString():($("dueInput").value?new Date($("dueInput").value).toISOString():null);tasks.push({title:title,done:false,duration:Number($("durationInput").value)||45,dueAt:due,reminderMinutes:Number($("reminderInput").value||0),createdAt:Date.now()});$("taskInput").value="";$("taskDueInput").value="";render();queueAutoSave();toast(currentId?'Task added and saved':'Task added · save the plan when ready')}
+function collectPlan(){return{uid:uid,name:$("nameInput").value.trim()||"My study plan",mode:$("modeInput").value,defaultDuration:Number($("durationInput").value)||45,startAt:$("startInput").value?new Date($("startInput").value):null,dueAt:$("dueInput").value?new Date($("dueInput").value):null,reminderMinutes:Number($("reminderInput").value||0),tasks:tasks,completedCount:tasks.filter(t=>t.done).length,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}}
+async function save(opts){opts=opts||{};if(!uid)return;var data=collectPlan();try{if(currentId)await db.collection('study_plans').doc(currentId).set(data,{merge:true});else{data.createdAt=firebase.firestore.FieldValue.serverTimestamp();var ref=await db.collection('study_plans').add(data);currentId=ref.id;}setSaveState('Saved just now');updateSaveButton();if(!opts.silent)toast(currentId?'Plan saved':'Plan created');await loadSaved();}catch(e){console.error('Study Planner save error',e);setSaveState('Not saved · check your connection');if(!opts.silent)toast('Could not save the plan.')}}
+function queueAutoSave(){if(!currentId){setSaveState('Unsaved changes · save the plan');updateSaveButton();return}setSaveState('Saving…');clearTimeout(saveTimer);saveTimer=setTimeout(()=>save({silent:true}),350)}
+async function loadSaved(){var s=await db.collection('study_plans').where('uid','==',uid).limit(40).get();var rows=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>ms(b.updatedAt)-ms(a.updatedAt));$("savedPlans").innerHTML=rows.length?rows.map(p=>{var ts=(p.tasks||[]),done=ts.filter(t=>t.done).length;return '<div class="plan-row '+(p.id===currentId?'current':'')+'" data-plan-row="'+p.id+'"><div class="plan-main" data-open="'+p.id+'"><strong>'+esc(p.name||'Untitled plan')+'</strong><small>'+((ts.length-done))+' pending · '+done+' completed · '+esc(p.mode||'plan')+'</small></div><div class="plan-actions"><button type="button" data-open="'+p.id+'">Open</button><button type="button" data-duplicate="'+p.id+'">Duplicate</button><button type="button" class="danger" data-delete="'+p.id+'">Delete</button></div></div>'}).join(''):'<div class="empty">No saved plans yet. Save your first plan from Plan settings.</div>';
+$("savedPlans").querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>loadPlan(b.dataset.open));$("savedPlans").querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>deletePlan(b.dataset.delete));$("savedPlans").querySelectorAll('[data-duplicate]').forEach(b=>b.onclick=()=>duplicatePlan(b.dataset.duplicate));}
+async function loadPlan(id){try{var d=await db.collection('study_plans').doc(id).get();if(!d.exists)return;var p=d.data()||{};if(p.uid!==uid)return;currentId=id;$("nameInput").value=p.name||'My study plan';$("modeInput").value=p.mode||'today';$("durationInput").value=String(p.defaultDuration||45);$("reminderInput").value=String(p.reminderMinutes||0);$("startInput").value=inputValue(p.startAt);$("dueInput").value=inputValue(p.dueAt);tasks=Array.isArray(p.tasks)?p.tasks:[];$("planTitle").textContent=p.name||'My study plan';$("planMeta").textContent='Saved plan · '+fmt(p.updatedAt);setSaveState('Saved');updateSaveButton();render();await loadSaved();toast('Plan loaded');}catch(e){console.error('Study Planner load plan',e);toast('Could not open that plan.')}}
+function reset(){currentId=null;tasks=[];$("nameInput").value='My study plan';$("modeInput").value='today';$("durationInput").value='45';$("startInput").value='';$("dueInput").value='';$("reminderInput").value='none';$("planTitle").textContent='My study plan';$("planMeta").textContent='Build a plan, add tasks, then save it.';setSaveState('New plan · not saved');updateSaveButton();render();window.scrollTo({top:0,behavior:'smooth'});}
+async function deletePlan(id){if(!confirm('Delete this saved plan and all of its tasks?'))return;try{await db.collection('study_plans').doc(id).delete();if(currentId===id)reset();await loadSaved();toast('Plan deleted');}catch(e){console.error(e);toast('Could not delete the plan.')}}
+async function duplicatePlan(id){try{var d=await db.collection('study_plans').doc(id).get();if(!d.exists)return;var p=d.data()||{};if(p.uid!==uid)return;currentId=null;$("nameInput").value=(p.name||'My study plan')+' copy';$("modeInput").value=p.mode||'today';$("durationInput").value=String(p.defaultDuration||45);$("reminderInput").value=String(p.reminderMinutes||0);$("startInput").value=inputValue(p.startAt);$("dueInput").value=inputValue(p.dueAt);tasks=JSON.parse(JSON.stringify(p.tasks||[]));$("planTitle").textContent=$("nameInput").value;$("planMeta").textContent='Copied plan · not saved';setSaveState('New copy · not saved');updateSaveButton();render();window.scrollTo({top:0,behavior:'smooth'});toast('Plan duplicated · save it when ready');}catch(e){console.error(e);toast('Could not duplicate the plan.')}}
+function requestReminders(){if('Notification' in window){Notification.requestPermission().then(x=>toast(x==='granted'?'Reminders enabled on this device':'Reminder permission not enabled'));}else toast('This browser does not support device notifications.')}
+function checkReminders(){var now=Date.now();tasks.forEach(t=>{if(t.done||!t.dueAt||t._reminded)return;var due=ms(t.dueAt),lead=(Number(t.reminderMinutes)||0)*60000;if(due-now<=lead&&due-now>=-60000){t._reminded=true;if('Notification' in window&&Notification.permission==='granted')new Notification('Codex Hub reminder',{body:'Complete: '+t.title});else toast('Reminder: '+t.title);}})}
+async function boot(){var r;try{r=await CodexAuth.requireUser();}catch(e){console.error('Study Planner auth error',e);toast('Your session could not be verified. Please refresh.');return}uid=r.user.uid;var shellProfile=Object.assign({},r.profile||{});try{var pub=await db.collection('public_profiles').doc(uid).get();if(pub.exists){var pp=pub.data()||{};if(pp.avatarKey)shellProfile.avatarKey=pp.avatarKey;if(pp.photoURL)shellProfile.photoURL=pp.photoURL;}}catch(ePub){console.warn('Planner public profile',ePub)}CodexShell.mountShell({page:'todo',title:'Study Planner',user:r.user,profile:shellProfile});try{await loadSaved();}catch(eLoad){console.error('Study Planner load error',eLoad);toast('Could not load saved plans. Your session is still active.');}render();$("startTask").onclick=function(){$("emptyStart").style.display='none';$("taskComposer").classList.remove('is-hidden');$("taskInput").focus()};$("addTask").onclick=taskFromInput;$("taskInput").onkeydown=e=>{if(e.key==='Enter')taskFromInput()};$("savePlan").onclick=()=>save();$("deletePlan").onclick=()=>currentId&&deletePlan(currentId);$("newPlan").onclick=reset;$("notifyBtn").onclick=requestReminders;$("nameInput").oninput=()=>{$("planTitle").textContent=$("nameInput").value||'My study plan';queueAutoSave()};["modeInput","durationInput","startInput","dueInput","reminderInput"].forEach(id=>$(id).onchange=queueAutoSave);setInterval(checkReminders,30000);}boot();})();
+</script>
+<script>try{if(window.CodexOnboarding)CodexOnboarding.auto("todo",700);}catch(e){}</script>
+</body></html>

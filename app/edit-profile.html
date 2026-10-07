@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="../js/theme-boot.js"></script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Edit profile · Codex Hub</title>
+  <meta name="theme-color" content="#4F46E5">
+  <link rel="icon" href="../assets/favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/shell.css">
+  <script src="../js/faculty-data.js"></script>
+  <style>
+    :root {
+      --indigo: #4F46E5; --violet: #7C3AED; --ink: #0F172A;
+      --muted: #64748B; --line: #E8ECF4; --font: "Plus Jakarta Sans", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body.app-body { margin: 0; font-family: var(--font); background: #F1F5F9; color: var(--ink); }
+    .page { max-width: 560px; margin: 0 auto; padding: 12px 14px 32px; }
+    @media (min-width: 960px) { .page { max-width: 640px; padding: 20px 24px 40px; } }
+    .top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .top a {
+      width: 40px; height: 40px; border-radius: 12px; background: #fff; border: 1px solid var(--line);
+      display: grid; place-items: center; text-decoration: none; color: var(--ink); font-weight: 700;
+    }
+    .top h1 { font-size: 1.15rem; margin: 0; font-weight: 800; }
+    .card {
+      background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 18px;
+      box-shadow: 0 8px 24px rgba(15,23,42,.05); margin-bottom: 14px;
+    }
+    .card h2 {
+      font-size: .68rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--muted); margin: 0 0 12px;
+    }
+    .avatar-stage { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .preview {
+      width: 96px; height: 96px; border-radius: 50%;
+      background: linear-gradient(145deg, #EEF2FF, #F5F3FF);
+      border: 3px solid #C7D2FE; overflow: hidden;
+      display: grid; place-items: center;
+    }
+    .preview img, .preview svg { width: 100%; height: 100%; object-fit: cover; }
+    .preview svg { padding: 8px; }
+    .chars {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%;
+    }
+    .char {
+      aspect-ratio: 1; border-radius: 16px; border: 2px solid var(--line);
+      background: #F8FAFC; cursor: pointer; padding: 6px;
+      display: grid; place-items: center; transition: .2s;
+    }
+    .char.on { border-color: #4F46E5; box-shadow: 0 0 0 3px rgba(79,70,229,.2); background: #EEF2FF; }
+    .char svg { width: 100%; height: 100%; }
+    @media (min-width: 520px) {
+      .chars { grid-template-columns: repeat(6, 1fr); }
+      .char { aspect-ratio: 1; }
+    }
+    .upload-row { display: flex; gap: 8px; width: 100%; }
+    .upload-row label, .upload-row button {
+      flex: 1; min-height: 42px; border-radius: 12px; font-weight: 700; font-size: .82rem;
+      display: grid; place-items: center; cursor: pointer; border: 1.5px solid var(--line);
+      background: #F8FAFC; color: var(--ink); font-family: inherit;
+    }
+    .upload-row label { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: #fff; border: 0; position: relative; overflow: hidden; }
+    .upload-row label::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.4) 50%, transparent 65%);
+      transform: translateX(-120%); animation: beam 3s ease-in-out infinite;
+    }
+    @keyframes beam {
+      0%, 50% { transform: translateX(-120%); }
+      70% { transform: translateX(120%); }
+      100% { transform: translateX(120%); }
+    }
+    .upload-row input { display: none; }
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-size: .78rem; font-weight: 700; color: #475569; margin-bottom: 6px; }
+    .field input, .field select {
+      width: 100%; height: 48px; border-radius: 12px; border: 1.5px solid var(--line);
+      padding: 0 12px; font: inherit; background: #fff;
+    }
+    .field input:focus, .field select:focus {
+      outline: none; border-color: #818CF8; box-shadow: 0 0 0 4px rgba(99,102,241,.15);
+    }
+    .grid2 { display: grid; gap: 12px; }
+    @media (min-width: 520px) { .grid2 { grid-template-columns: 1fr 1fr; } }
+    .save {
+      width: 100%; height: 52px; border: 0; border-radius: 14px; margin-top: 8px;
+      font-weight: 800; font-size: .95rem; color: #fff; cursor: pointer;
+      background: linear-gradient(135deg, #4F46E5, #7C3AED);
+      position: relative; overflow: hidden;
+    }
+    .save::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.45) 50%, transparent 65%);
+      transform: translateX(-120%); animation: beam 3s ease-in-out infinite;
+    }
+    .save:disabled { opacity: .65; cursor: wait; }
+    .alert {
+      display: none; padding: 12px; border-radius: 12px; font-size: .85rem; font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .alert.show { display: block; }
+    .alert.ok { background: #ECFDF5; color: #065F46; }
+    .alert.err { background: #FEF2F2; color: #991B1B; }
+    .hint { font-size: .72rem; color: var(--muted); margin-top: 4px; }
+  </style>
+</head>
+<body class="app-body" data-page="profile">
+  <div class="page">
+    <div class="top">
+      <a href="profile.html" aria-label="Back">←</a>
+      <h1>Edit profile</h1>
+    </div>
+    <div class="alert" id="alert"></div>
+
+    <div class="card">
+      <h2>Avatar</h2>
+      <div class="avatar-stage">
+        <div class="preview" id="preview" aria-hidden="true"></div>
+        <div class="chars" id="chars" role="listbox" aria-label="Default characters"></div>
+        <div class="upload-row">
+          <label for="photo">Upload photo</label>
+          <input type="file" id="photo" accept="image/*">
+          <button type="button" id="clearPhoto">Use character</button>
+        </div>
+        <p class="hint">Photos upload to Cloudinary. You can also set a Nova module character on the Nova chat screen — it syncs to your profile.</p>
+      </div>
+    </div>
+
+    <form class="card" id="form">
+      <h2>Your details</h2>
+      <div class="field">
+        <label for="fullName">Full name</label>
+        <input id="fullName" required autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="bio">Short bio (public)</label>
+        <input id="bio" maxlength="160" placeholder="e.g. 200L Biochemistry · love past questions">
+        <p class="hint">Shown on your profile. Keep it academic — max 160 characters.</p>
+      </div>
+      <div class="field">
+        <label for="username">Username</label>
+        <input id="username" required pattern="[A-Za-z0-9_]{3,20}" autocomplete="username">
+        <p class="hint">3–20 characters · letters, numbers, _</p>
+      </div>
+      <div class="field">
+        <label for="university">University</label>
+        <select id="university">
+          <option value="OOU">Olabisi Onabanjo University (OOU)</option>
+          <option value="OTHER">Other university</option>
+        </select>
+      </div>
+      <div class="field" id="otherUniWrap" style="display:none">
+        <label for="otherUniversity">Your university</label>
+        <input id="otherUniversity" placeholder="University name">
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label for="faculty">Faculty</label>
+          <select id="faculty" required><option value="">Select faculty…</option></select>
+        </div>
+        <div class="field">
+          <label for="department">Department</label>
+          <select id="department" required disabled><option value="">Choose faculty first</option></select>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label for="level">Level</label>
+          <select id="level" required>
+            <option value="">Select…</option>
+            <option>100</option><option>200</option><option>300</option>
+            <option>400</option><option>500</option><option>600</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="semester">Semester</label>
+          <select id="semester" required>
+            <option value="">Select…</option>
+            <option value="1st">1st</option>
+            <option value="2nd">2nd</option>
+          </select>
+        </div>
+      </div>
+      <button class="save" type="submit" id="saveBtn">Save changes</button>
+    </form>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/app-auth.js"></script>
+  <script src="../js/media.js"></script>
+  <script src="../js/nova-characters.js"></script>
+  <script src="../js/shell.js"></script>
+  <script src="../js/onboarding.js"></script>
+  <script>
+  (function () {
+    "use strict";
+    /* Illustrated portrait characters (assets/avatars/char01–18.png) */
+    var AVATARS = {};
+    if (window.CodexMedia && CodexMedia.PORTRAIT) {
+      Object.keys(CodexMedia.PORTRAIT).forEach(function (k) {
+        if (k.indexOf('char') === 0) {
+          AVATARS[k] = '<img src="' + CodexMedia.PORTRAIT[k] + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:12px">';
+        }
+      });
+    }
+    if (!Object.keys(AVATARS).length) {
+      AVATARS.char01 = '<span style="font-weight:800">?</span>';
+    }
+
+    try { if (window.CodexOnboarding) setTimeout(function () {
+        CodexOnboarding.start("edit-profile", [{
+          title: "Remember to save",
+          body: "After you change your name, bio, or photo, tap Save changes at the bottom before you leave — or your edits won’t stick."
+        }]);
+      }, 600); } catch (eTip) {}
+      CodexShell.mountShell({ page: "profile", title: "Edit profile", user: { fullName: "Student" } });
+
+    var preview = document.getElementById("preview");
+    var chars = document.getElementById("chars");
+    var selected = "char01";
+    var photoData = "";
+
+    function renderPreview() {
+      if (photoData) {
+        preview.innerHTML = '<img alt="" src="' + photoData + '">';
+      } else {
+        preview.innerHTML = AVATARS[selected] || AVATARS.char01 || Object.values(AVATARS)[0];
+      }
+    }
+    Object.keys(AVATARS).forEach(function (key) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "char" + (key === selected && !photoData ? " on" : "");
+      btn.setAttribute("data-av", key);
+      btn.innerHTML = AVATARS[key];
+      btn.onclick = function () {
+        selected = key;
+        photoData = "";
+        localStorage.setItem("codex_avatar", key);
+        localStorage.removeItem("codex_avatar_photo");
+        Array.prototype.forEach.call(chars.children, function (c) {
+          c.classList.toggle("on", c.getAttribute("data-av") === key);
+        });
+        renderPreview();
+      };
+      chars.appendChild(btn);
+    });
+    renderPreview();
+
+    var pendingFile = null;
+    var cloudPhotoURL = "";
+
+    document.getElementById("photo").onchange = function (e) {
+      var file = e.target.files && e.target.files[0];
+      if (!file) return;
+      if (file.size > 4 * 1024 * 1024) {
+        alert("Please choose an image under 4MB.");
+        return;
+      }
+      pendingFile = file;
+      cloudPhotoURL = "";
+      var reader = new FileReader();
+      reader.onload = function () {
+        photoData = String(reader.result || ""); // preview only
+        Array.prototype.forEach.call(chars.children, function (c) { c.classList.remove("on"); });
+        renderPreview();
+      };
+      reader.readAsDataURL(file);
+    };
+    document.getElementById("clearPhoto").onclick = function () {
+      pendingFile = null;
+      photoData = "";
+      cloudPhotoURL = "";
+      Array.prototype.forEach.call(chars.children, function (c) {
+        c.classList.toggle("on", c.getAttribute("data-av") === selected);
+      });
+      renderPreview();
+    };
+
+    function el(id) { return document.getElementById(id); }
+    var facultySel = el("faculty");
+    var deptSel = el("department");
+    var data = window.FACULTY_DATA || {};
+
+    function loadFaculties() {
+      facultySel.innerHTML = '<option value="">Select faculty…</option>';
+      Object.keys(data).forEach(function (key) {
+        var o = document.createElement("option");
+        o.value = key;
+        o.textContent = data[key].label || key;
+        facultySel.appendChild(o);
+      });
+    }
+    function loadDepts() {
+      var entry = data[facultySel.value];
+      deptSel.innerHTML = '<option value="">Select department…</option>';
+      if (!entry || !entry.departments) { deptSel.disabled = true; return; }
+      deptSel.disabled = false;
+      entry.departments.forEach(function (d) {
+        var name = typeof d === "string" ? d : d.name;
+        if (!name) return;
+        var has = typeof d === "string" ? true : d.hasContent !== false;
+        var o = document.createElement("option");
+        o.value = name;
+        o.textContent = has ? name : name + " (Coming soon)";
+        deptSel.appendChild(o);
+      });
+    }
+    loadFaculties();
+    facultySel.addEventListener("change", loadDepts);
+    el("university").addEventListener("change", function () {
+      el("otherUniWrap").style.display = el("university").value === "OTHER" ? "block" : "none";
+    });
+
+    function alertMsg(msg, ok) {
+      var a = el("alert");
+      a.textContent = msg;
+      a.className = "alert show " + (ok ? "ok" : "err");
+    }
+
+    CodexAuth.requireUser().then(function (res) {
+      var p = res.profile || {};
+      var u = res.user;
+      CodexShell.mountShell({ page: "profile", title: "Edit profile", user: { fullName: p.fullName || u.displayName } });
+      el("fullName").value = p.fullName || u.displayName || "";
+      el("username").value = p.username || "";
+      if (el("bio")) el("bio").value = p.bio || p.about || "";
+      if (p.university && p.university.indexOf("Olabisi") < 0 && p.university !== "OOU") {
+        el("university").value = "OTHER";
+        el("otherUniWrap").style.display = "block";
+        el("otherUniversity").value = p.university;
+      }
+      if (p.faculty && data[p.faculty]) {
+        facultySel.value = p.faculty;
+        loadDepts();
+        if (p.department) deptSel.value = p.department;
+      }
+      if (p.level) el("level").value = p.level;
+      if (p.semester) el("semester").value = p.semester.indexOf("2") === 0 ? "2nd" : "1st";
+
+      // Avatar from backend (Firestore), not localStorage
+      selected = p.avatarKey || "char01";
+      if (p.photoURL) {
+        photoData = p.photoURL;
+        cloudPhotoURL = p.photoURL;
+        pendingFile = null;
+        Array.prototype.forEach.call(chars.children, function (c) { c.classList.remove("on"); });
+      } else {
+        Array.prototype.forEach.call(chars.children, function (c) {
+          c.classList.toggle("on", c.getAttribute("data-av") === selected);
+        });
+      }
+      renderPreview();
+
+
+      
+    /* Unsaved-changes guard */
+    var formDirty = false;
+    var savingOk = false;
+    function markDirty() { formDirty = true; }
+    ["fullName","bio","username","otherUniversity"].forEach(function (id) {
+      var node = document.getElementById(id);
+      if (node) {
+        node.addEventListener("input", markDirty);
+        node.addEventListener("change", markDirty);
+      }
+    });
+    document.querySelectorAll("#form select").forEach(function (s) {
+      s.addEventListener("change", markDirty);
+    });
+    window.addEventListener("beforeunload", function (e) {
+      if (formDirty && !savingOk) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    });
+    function confirmLeave() {
+      if (!formDirty || savingOk) return true;
+      return window.confirm("You have unsaved changes. Exit anyway? Tap Cancel, then Save changes to keep them.");
+    }
+    // Intercept shell back / profile links
+    document.addEventListener("click", function (e) {
+      var a = e.target.closest("a[href]");
+      if (!a) return;
+      var href = a.getAttribute("href") || "";
+      if (!href || href.charAt(0) === "#") return;
+      if (!formDirty || savingOk) return;
+      if (!confirmLeave()) {
+        e.preventDefault();
+        e.stopPropagation();
+      } else {
+        formDirty = false;
+      }
+    }, true);
+
+    el("form").onsubmit = function (e) {
+        savingOk = false;
+        e.preventDefault();
+        var btn = el("saveBtn");
+        btn.disabled = true;
+        btn.textContent = "Saving…";
+        var uni = el("university").value === "OTHER"
+          ? (el("otherUniversity").value.trim() || "Other")
+          : "Olabisi Onabanjo University";
+        var uname = el("username").value.trim().toLowerCase().replace(/^@/, "");
+        if (!/^[a-z0-9_]{3,20}$/.test(uname)) {
+          btn.disabled = false; btn.textContent = "Save changes";
+          return alertMsg("Username must be 3–20 letters, numbers or _");
+        }
+
+        function writeProfile(photoURL) {
+          var payload = {
+            fullName: el("fullName").value.trim(),
+            displayName: el("fullName").value.trim(),
+            bio: (el("bio") && el("bio").value.trim().slice(0, 160)) || "",
+            username: uname,
+            usernameLower: uname,
+            university: uni,
+            faculty: facultySel.value,
+            department: deptSel.value,
+            level: el("level").value,
+            semester: el("semester").value,
+            // Character avatar: store key, clear photo so resolveAvatar uses portrait
+            avatarKey: (pendingFile || photoURL) ? "" : (selected || ""),
+            novaCharacter: (selected && String(selected).indexOf("nova_") === 0) ? selected : (p.novaCharacter || null),
+            photoURL: photoURL || "",
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          };
+          // Do NOT touch subscriptionTier / trialsUsed (rules require unchanged)
+          return res.db.collection("users").doc(u.uid).set(payload, { merge: true }).then(function () {
+            // Keep the public profile mirror in sync. Several pages (chat, leaderboard, profile viewers)
+            // read this mirror instead of the private users document.
+            return res.db.collection("public_profiles").doc(u.uid).set({
+              displayName: payload.fullName,
+              username: payload.username,
+              photoURL: payload.photoURL,
+              university: payload.university,
+              faculty: payload.faculty,
+              department: payload.department,
+              level: payload.level,
+              bio: payload.bio,
+              avatarKey: payload.avatarKey,
+              updatedAt: payload.updatedAt
+            }, { merge: true });
+          }).then(function () {
+            formDirty = false; savingOk = true;
+            alertMsg("Profile saved to your account.", true);
+            setTimeout(function () { location.href = "profile.html"; }, 700);
+          });
+        }
+
+        var chain = Promise.resolve();
+        if (pendingFile && window.CodexMedia) {
+          btn.textContent = "Uploading photo…";
+          chain = CodexMedia.uploadToCloudinary(pendingFile).then(function (up) {
+            cloudPhotoURL = up.url;
+            return writeProfile(up.url);
+          });
+        } else if (cloudPhotoURL) {
+          chain = writeProfile(cloudPhotoURL);
+        } else if (!photoData) {
+          // character only — clear photoURL
+          chain = writeProfile("");
+        } else if (photoData.indexOf("http") === 0) {
+          chain = writeProfile(photoData);
+        } else {
+          // leftover base64 preview without file — force re-pick
+          btn.disabled = false;
+          btn.textContent = "Save changes";
+          return alertMsg("Please choose your photo again so we can upload it to the cloud.");
+        }
+
+        chain.catch(function (err) {
+          btn.disabled = false;
+          btn.textContent = "Save changes";
+          if (err && err.code === "permission-denied") {
+            alertMsg("Firestore blocked the write. Check users/{uid} update rules (tier fields must stay unchanged).");
+          } else {
+            alertMsg(err.message || "Could not save.");
+          }
+        });
+      };
+    });
+  })();
+  </script>
+
+<script>try{if(window.CodexOnboarding)CodexOnboarding.auto("edit-profile",700);}catch(e){}</script>
+</body>
+</html>

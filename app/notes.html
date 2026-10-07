@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="../js/theme-boot.js"></script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0F172A">
+<title>Notes · Codex Hub</title>
+<link rel="icon" href="../favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+:root {
+  --blue: #2563EB;
+  --purple: #7C3AED;
+  --navy: #0F172A;
+  --muted: #64748B;
+  --line: #E2E8F0;
+  --bg: #F8FAFC;
+  --card: #FFFFFF;
+  --ok: #10B981;
+  --warn: #F59E0B;
+  --danger: #EF4444;
+  --radius: 16px;
+  --font: "DM Sans", system-ui, sans-serif;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100%; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--navy);
+  -webkit-font-smoothing: antialiased;
+  padding-bottom: calc(24px + var(--safe-b));
+}
+button, a { font-family: inherit; }
+.hidden { display: none !important; }
+
+.top {
+  position: sticky; top: 0; z-index: 30;
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px;
+  background: rgba(248,250,252,.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.icon-btn {
+  width: 40px; height: 40px; border-radius: 12px;
+  border: 1px solid var(--line); background: #fff;
+  display: grid; place-items: center; cursor: pointer; color: var(--navy);
+  flex-shrink: 0;
+}
+.icon-btn svg { width: 18px; height: 18px; }
+.top-meta { flex: 1; min-width: 0; }
+.top-meta .code {
+  font-size: .72rem; font-weight: 800; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--blue);
+}
+.top-meta .title {
+  font-size: .95rem; font-weight: 800; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.top-meta .sub {
+  font-size: .75rem; color: var(--muted); font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.wrap { max-width: 820px; margin: 0 auto; padding: 16px 14px 32px; }
+
+/* Load / empty */
+.center-state {
+  min-height: 50vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center; gap: 10px;
+  color: var(--muted); padding: 40px 20px;
+}
+.spinner {
+  width: 36px; height: 36px; border: 3px solid var(--line);
+  border-top-color: var(--blue); border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.center-state h2 { color: var(--navy); font-size: 1.15rem; font-weight: 800; }
+.btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: 12px; padding: 12px 20px; border-radius: 999px; border: 0;
+  background: var(--navy); color: #fff; font-weight: 700; font-size: .9rem;
+  cursor: pointer; text-decoration: none;
+}
+
+/* Media banner */
+.media-banner {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; border-radius: var(--radius);
+  background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 55%, #4C1D95 100%);
+  color: #fff; margin-bottom: 14px;
+  box-shadow: 0 10px 28px rgba(15,23,42,.18);
+}
+.media-banner .ico {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: rgba(255,255,255,.12); display: grid; place-items: center; flex-shrink: 0;
+}
+.media-banner .ico svg { width: 22px; height: 22px; }
+.media-banner .txt { flex: 1; min-width: 0; }
+.media-banner .txt b { display: block; font-size: .88rem; font-weight: 800; }
+.media-banner .txt span { font-size: .72rem; opacity: .85; }
+.media-banner a {
+  flex-shrink: 0; padding: 10px 14px; border-radius: 999px;
+  background: #fff; color: var(--navy); font-weight: 800; font-size: .78rem;
+  text-decoration: none;
+}
+
+/* Continue */
+.continue {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; border-radius: var(--radius);
+  background: #EEF2FF; border: 1px solid #C7D2FE;
+  margin-bottom: 14px;
+}
+.continue .txt { flex: 1; min-width: 0; }
+.continue .txt small { display: block; font-size: .68rem; font-weight: 800; color: var(--purple); text-transform: uppercase; letter-spacing: .04em; }
+.continue .txt b { font-size: .9rem; font-weight: 800; color: var(--navy); }
+.continue button {
+  border: 0; background: var(--purple); color: #fff;
+  padding: 10px 14px; border-radius: 999px; font-weight: 700; font-size: .78rem; cursor: pointer;
+}
+
+.section-label {
+  font-size: .68rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--muted); margin: 8px 0 10px;
+}
+
+.topic-list { display: flex; flex-direction: column; gap: 8px; }
+.topic-row {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; text-align: left;
+  padding: 14px 12px; border-radius: 14px;
+  border: 1px solid var(--line); background: var(--card);
+  cursor: pointer; transition: border-color .15s, box-shadow .15s;
+}
+.topic-row:active { transform: scale(.99); }
+.topic-row.last { border-color: #C7D2FE; box-shadow: 0 0 0 2px rgba(124,58,237,.12); }
+.topic-row .num {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: #F1F5F9; color: var(--muted);
+  display: grid; place-items: center; font-size: .72rem; font-weight: 800; flex-shrink: 0;
+}
+.topic-row .name {
+  flex: 1; min-width: 0; font-size: .9rem; font-weight: 700;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.badge {
+  font-size: .62rem; font-weight: 800; padding: 3px 8px; border-radius: 999px;
+  text-transform: uppercase; letter-spacing: .03em; flex-shrink: 0;
+}
+.badge.ready { background: #D1FAE5; color: #065F46; }
+.badge.soon { background: #F1F5F9; color: #64748B; }
+.badge.cont { background: #EDE9FE; color: #5B21B6; }
+.topic-row .chev { color: #94A3B8; font-size: 1.2rem; font-weight: 300; }
+.empty-inline {
+  padding: 28px 16px; text-align: center; color: var(--muted);
+  font-size: .9rem; line-height: 1.5; border: 1px dashed var(--line); border-radius: 14px;
+}
+
+/* Reader */
+.read-shell {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 8px 28px rgba(15,23,42,.05);
+}
+.read-head {
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, #F8FAFC, #fff);
+}
+.read-head .code {
+  font-size: .68rem; font-weight: 800; color: var(--blue);
+  text-transform: uppercase; letter-spacing: .05em;
+}
+.read-head h1 {
+  font-size: 1.2rem; font-weight: 800; margin-top: 4px;
+  letter-spacing: -.02em; line-height: 1.3;
+}
+
+.actions {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+  position: sticky; top: 57px; z-index: 20;
+}
+.act {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 12px; border-radius: 999px;
+  border: 1px solid var(--line); background: #F8FAFC;
+  font-size: .75rem; font-weight: 700; color: var(--navy);
+  cursor: pointer; text-decoration: none;
+}
+.act svg { width: 15px; height: 15px; flex-shrink: 0; }
+.act.primary {
+  background: var(--navy); color: #fff; border-color: var(--navy);
+}
+.act.purple {
+  background: #F5F3FF; color: #5B21B6; border-color: #DDD6FE;
+}
+.act.danger-soft { color: var(--muted); }
+.act.hidden { display: none; }
+
+.notes-body {
+  padding: 18px 16px 28px;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: #1E293B;
+}
+.notes-body p { margin: 0 0 1em; }
+.notes-body h1, .notes-body h2, .notes-body h3 {
+  color: var(--navy); margin: 1.2em 0 .5em; font-weight: 800; line-height: 1.3;
+}
+.notes-body h1 { font-size: 1.2rem; }
+.notes-body h2 { font-size: 1.08rem; }
+.notes-body h3 { font-size: 1rem; }
+.notes-body ul, .notes-body ol { margin: 0 0 1em 1.2em; }
+.notes-body li { margin: .25em 0; }
+.notes-body table {
+  width: 100%; border-collapse: collapse; margin: 1em 0; font-size: .9rem;
+}
+.notes-body th, .notes-body td {
+  border: 1px solid var(--line); padding: 8px 10px; text-align: left;
+}
+.notes-body th { background: #F1F5F9; }
+.notes-body .muted { color: var(--muted); }
+.notes-body mjx-container { overflow-x: auto; max-width: 100%; }
+
+.toast {
+  position: fixed; left: 50%; bottom: calc(24px + var(--safe-b));
+  transform: translateX(-50%) translateY(120%);
+  background: var(--navy); color: #fff; padding: 12px 18px;
+  border-radius: 999px; font-size: .85rem; font-weight: 700;
+  z-index: 80; transition: transform .25s ease; pointer-events: none;
+  max-width: 90vw; text-align: center;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+@media (min-width: 900px) {
+  .wrap { padding-top: 24px; }
+  .notes-body { padding: 28px 32px 40px; font-size: 1.05rem; }
+  .actions { top: 65px; }
+  .read-head { padding: 22px 28px 16px; }
+  .read-head h1 { font-size: 1.4rem; }
+}
+
+@media (min-width: 900px) {
+  body.notes-desk .top { padding-left: 24px; padding-right: 24px; }
+  body.notes-desk .wrap {
+    max-width: 1100px;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 20px;
+    align-items: start;
+    padding: 20px 24px 40px;
+  }
+  body.notes-desk #screenTopics {
+    position: sticky;
+    top: 72px;
+    max-height: calc(100vh - 90px);
+    overflow: auto;
+    padding-right: 4px;
+  }
+  body.notes-desk #screenTopics .media-banner,
+  body.notes-desk #screenTopics .continue { margin-bottom: 12px; }
+  body.notes-desk #screenRead {
+    min-width: 0;
+  }
+  body.notes-desk #screenRead .read-shell {
+    position: sticky;
+    top: 72px;
+  }
+  body.notes-desk #screenLoad,
+  body.notes-desk #screenEmpty {
+    grid-column: 1 / -1;
+  }
+  /* When only topics or only read on mobile we show one; on desk show both when reading */
+  body.notes-desk.mode-read #screenTopics { display: block !important; }
+  body.notes-desk.mode-read #screenRead { display: block !important; }
+  body.notes-desk.mode-read #screenTopics .section-label,
+  body.notes-desk.mode-read #listTitle { font-size: .9rem; }
+  body.notes-desk .topic-row.active {
+    border-color: #C7D2FE;
+    background: #EEF2FF;
+    box-shadow: 0 0 0 2px rgba(79,70,229,.12);
+  }
+  body.notes-desk #btnBackTopics { display: none; }
+}
+
+
+.notes-body .section-heading {
+  display: block; font-size: .92rem; font-weight: 800;
+  color: var(--navy); background: #EEF2FF; border-left: 4px solid var(--blue);
+  padding: 8px 12px; border-radius: 0 8px 8px 0; margin: 16px 0 10px;
+}
+.notes-body .formula-block {
+  font-size: 1.05rem; background: #F8FAFC; border: 1px solid var(--line);
+  border-radius: 10px; padding: 14px 12px; margin: 12px 0;
+  overflow-x: auto; text-align: center; color: var(--navy);
+}
+.notes-body .example-block {
+  background: #ECFDF5; border-left: 4px solid #10B981;
+  padding: 12px 14px; border-radius: 0 10px 10px 0; margin: 12px 0;
+}
+.notes-body .note-bullet, .notes-body .note-num {
+  display: flex; gap: 10px; margin: 7px 0 7px 2px; line-height: 1.8;
+}
+.notes-body .note-bullet .b { color: var(--blue); font-weight: 800; flex-shrink: 0; }
+.notes-body .note-num .n {
+  background: var(--navy); color: #fff; width: 22px; height: 22px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: .68rem; font-weight: 700; flex-shrink: 0; margin-top: 3px;
+}
+.notes-body .note-p { margin: 7px 0; color: #334155; line-height: 1.85; }
+.notes-body strong { color: var(--navy); font-weight: 800; }
+.notes-body mjx-container { max-width: 100%; overflow-x: auto; }
+
+
+.topic-progress {
+  display: flex; gap: 10px; flex-wrap: wrap; margin: 24px 0 8px;
+  padding-top: 16px; border-top: 1px solid var(--line, #E2E8F0);
+}
+.btn-mark-read, .btn-next-topic {
+  flex: 1; min-width: 140px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 16px; border-radius: 14px; font-weight: 800; font-size: .88rem;
+  font-family: inherit; cursor: pointer; border: 1.5px solid var(--line, #E2E8F0);
+  background: #fff; color: var(--navy, #0F172A); transition: .15s;
+}
+.btn-mark-read:hover { border-color: #10B981; background: #ECFDF5; color: #065F46; }
+.btn-mark-read.done {
+  background: #D1FAE5; color: #065F46; border-color: #6EE7B7; cursor: default;
+}
+.btn-next-topic {
+  background: var(--navy, #0F172A); color: #fff; border-color: var(--navy, #0F172A);
+}
+.btn-next-topic:disabled {
+  opacity: .45; cursor: not-allowed; background: #94A3B8; border-color: #94A3B8;
+}
+.btn-next-topic:not(:disabled):hover { filter: brightness(1.08); }
+
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="top" id="topBar">
+  <button type="button" class="icon-btn" id="btnBackLib" aria-label="Back to library">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
+  <div class="top-meta">
+    <div class="code" id="topCode">Notes</div>
+    <div class="title" id="topTitle">Study notes</div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- LOADING -->
+  <section id="screenLoad" class="center-state">
+    <div class="spinner" aria-hidden="true"></div>
+    <p id="loadLabel">Loading notes…</p>
+  </section>
+
+  <!-- EMPTY -->
+  <section id="screenEmpty" class="center-state hidden">
+    <h2 id="emptyCode">—</h2>
+    <p id="emptyMsg">No study notes found for this course yet.</p>
+    <a class="btn-primary" href="course-library.html?mode=notes">Back to My Library</a>
+  </section>
+
+  <!-- TOPIC LIST -->
+  <section id="screenTopics" class="hidden">
+    <div class="media-banner hidden" id="mediaBanner">
+      <div class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 15.5l6-3.5-6-3.5v7z"/><path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 14H4V6h16v12z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+      </div>
+      <div class="txt">
+        <b id="mediaTitle">Lecture playlist</b>
+        <span>Watch on YouTube · full course lectures</span>
+      </div>
+      <a id="btnPlaylist" href="#" target="_blank" rel="noopener">Watch</a>
+    </div>
+
+    <div class="continue hidden" id="continueCard">
+      <div class="txt">
+        <small>Continue reading</small>
+        <b id="continueTopic">—</b>
+      </div>
+      <button type="button" id="btnContinue">Resume</button>
+    </div>
+
+    <div class="section-label" id="listSub">Topics</div>
+    <h2 style="font-size:1.25rem;font-weight:800;margin:-4px 0 14px;letter-spacing:-.02em" id="listTitle">Course</h2>
+    <div class="topic-list" id="topicList"></div>
+  </section>
+
+  <!-- READER -->
+  <section id="screenRead" class="hidden">
+    <div class="read-shell">
+      <div class="read-head">
+        <div class="code" id="readCode">—</div>
+        <h1 id="readTopic">Topic</h1>
+      </div>
+
+      <div class="actions" role="toolbar" aria-label="Note actions">
+        <button type="button" class="act" id="btnBackTopics" title="All topics">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          Topics
+        </button>
+        <button type="button" class="act" id="btnCopy" title="Copy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+        <button type="button" class="act" id="btnShare" title="Share">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v14"/></svg>
+          Share
+        </button>
+        <button type="button" class="act" id="btnDownload" title="Download">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
+          Download
+        </button>
+        <button type="button" class="act" id="btnSpeak" title="Read aloud">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18"/><path d="M8 8v8"/><path d="M4 10v4"/><path d="M16 6v12"/><path d="M20 9v6"/></svg>
+          Listen
+        </button>
+        <button type="button" class="act danger-soft" id="btnStopSpeak" title="Stop">
+          Stop
+        </button>
+        <button type="button" class="act purple" id="btnNova" title="Ask Nova">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z"/><path d="M18 15l.75 2.25L21 18l-2.25.75L18 21l-.75-2.25L15 18l2.25-.75L18 15z"/></svg>
+          Ask Nova
+        </button>
+        <button type="button" class="act" id="btnOnline" title="Search online">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 010 18"/><path d="M12 3a15 15 0 000 18"/></svg>
+          Online
+        </button>
+        <button type="button" class="act primary hidden" id="btnYt" title="Watch lectures">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 15.5l6-3.5-6-3.5v7z"/></svg>
+          Lectures
+        </button>
+      </div>
+
+      <article class="notes-body" id="notesBody"></article>
+
+      <div class="topic-progress" id="topicProgress">
+        <button type="button" class="btn-mark-read" id="btnMarkRead">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
+          Mark as read
+        </button>
+        <button type="button" class="btn-next-topic" id="btnNextTopic" disabled>
+          Next topic
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <p style="text-align:center;margin-top:18px">
+      <button type="button" class="btn-primary" id="btnBackLib2" style="background:transparent;color:var(--muted);border:1px solid var(--line)">Back to My Library</button>
+    </p>
+  </section>
+</main>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="../js/firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="../js/course-media.js"></script>
+<script src="../js/notes.js"></script>
+<script>
+(function () {
+  var code = new URLSearchParams(location.search).get("code") || "";
+  if (code) {
+    var el = document.getElementById("topCode");
+    var t = document.getElementById("topTitle");
+    if (el) el.textContent = code;
+    if (t) t.textContent = "Study notes";
+  }
+})();
+</script>
+  <script src="../js/onboarding.js"></script>
+
+<script>try{if(window.CodexOnboarding)CodexOnboarding.auto("notes",700);}catch(e){}</script>
+</body>
+</html>

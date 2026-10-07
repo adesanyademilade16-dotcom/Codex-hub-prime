@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="../js/theme-boot.js"></script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Settings · Codex Hub</title>
+  <meta name="theme-color" content="#4F46E5">
+  <link rel="icon" href="../assets/favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/shell.css">
+  <style>
+    :root {
+      --indigo: #4F46E5; --violet: #7C3AED; --ink: #0F172A;
+      --muted: #64748B; --line: #E8ECF4; --font: "Plus Jakarta Sans", system-ui, sans-serif;
+      --card: #fff; --page-bg: #F1F5F9;
+    }
+    html.theme-dark {
+      --ink: #E2E8F0; --muted: #94A3B8; --line: #1E293B;
+      --card: #0F172A; --page-bg: #020617;
+    }
+    html.theme-dark body.app-body { background: var(--page-bg); color: var(--ink); }
+    html.theme-dark .card, html.theme-dark .stat-chip { background: var(--card); border-color: var(--line); }
+    html.theme-dark .link-row, html.theme-dark .row { border-color: #1E293B; }
+    html.theme-dark .top a { background: #1E293B; border-color: #334155; color: #E2E8F0; }
+    html.theme-dark .note { background: #1E1B4B; color: #C7D2FE; }
+    html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after {
+      animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important; scroll-behavior: auto !important;
+    }
+    * { box-sizing: border-box; }
+    body.app-body { margin: 0; font-family: var(--font); background: var(--page-bg); color: var(--ink); }
+    .page { max-width: 560px; margin: 0 auto; padding: 12px 14px 100px; }
+    @media (min-width: 960px) { .page { max-width: 720px; padding: 20px 24px 32px; } }
+    .top { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .top a {
+      width: 40px; height: 40px; border-radius: 12px; background: #fff; border: 1px solid var(--line);
+      display: grid; place-items: center; text-decoration: none; color: var(--ink); font-weight: 700;
+    }
+    .top h1 { font-size: 1.2rem; margin: 0; font-weight: 800; }
+    .hero {
+      margin: 8px 0 18px; padding: 16px; border-radius: 18px;
+      background: linear-gradient(135deg, #4F46E5, #7C3AED); color: #fff;
+      box-shadow: 0 10px 28px rgba(79,70,229,.28);
+    }
+    .hero h2 { margin: 0 0 4px; font-size: 1rem; font-weight: 800; }
+    .hero p { margin: 0; font-size: .78rem; opacity: .9; line-height: 1.45; }
+    .stats {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px;
+    }
+    .stat-chip {
+      background: rgba(255,255,255,.14); border-radius: 12px; padding: 10px 8px; text-align: center;
+    }
+    .stat-chip b { display: block; font-size: 1.05rem; font-weight: 800; }
+    .stat-chip span { font-size: .62rem; opacity: .85; font-weight: 600; }
+    .sec {
+      font-size: .68rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--muted); margin: 18px 0 8px;
+    }
+    .card {
+      background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden;
+      box-shadow: 0 6px 18px rgba(15,23,42,.04);
+    }
+    .row {
+      display: flex; align-items: center; gap: 12px; padding: 14px;
+      border-bottom: 1px solid #F1F5F9;
+    }
+    .row:last-child { border-bottom: 0; }
+    .row .grow { flex: 1; min-width: 0; }
+    .row strong { display: block; font-size: .9rem; font-weight: 700; }
+    .row span { font-size: .72rem; color: var(--muted); line-height: 1.35; }
+    .toggle {
+      width: 48px; height: 28px; border-radius: 999px; border: 0; cursor: pointer;
+      background: #E2E8F0; position: relative; flex-shrink: 0;
+      transition: background .25s;
+    }
+    .toggle.on { background: linear-gradient(135deg, #4F46E5, #7C3AED); }
+    .toggle i {
+      position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%;
+      background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.15);
+      transition: transform .25s cubic-bezier(.22,1,.36,1);
+    }
+    .toggle.on i { transform: translateX(20px); }
+    .link-row {
+      display: flex; align-items: center; gap: 12px; padding: 14px;
+      border-bottom: 1px solid #F1F5F9; text-decoration: none; color: inherit;
+    }
+    .link-row:last-child { border-bottom: 0; }
+    .link-row .ico {
+      width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center;
+      background: #EEF2FF; color: #4F46E5; flex-shrink: 0; font-size: .9rem;
+    }
+    .link-row .chev { margin-left: auto; color: #CBD5E1; font-weight: 700; }
+    .note {
+      margin-top: 14px; padding: 12px 14px; border-radius: 14px;
+      background: #EEF2FF; color: #3730A3; font-size: .8rem; line-height: 1.45;
+    }
+    /* compact settings */
+    .page { max-width: 520px; margin: 0 auto; padding: 12px 14px 88px; }
+    .hero { padding: 14px 16px; border-radius: 16px; margin-bottom: 12px; }
+    .hero h2 { font-size: 1.05rem; margin: 0 0 4px; }
+    .hero p { font-size: .78rem; margin: 0 0 10px; opacity: .85; }
+    .stats { display: flex; gap: 8px; flex-wrap: wrap; }
+    .stat-chip { flex: 1; min-width: 90px; padding: 8px 10px; border-radius: 12px; }
+    .stat-chip b { font-size: .95rem; display: block; }
+    .stat-chip span { font-size: .65rem; }
+    .sec { font-size: .68rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #64748B; margin: 14px 0 6px; }
+    .card { border-radius: 16px; padding: 4px 12px; margin-bottom: 8px; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line, #E2E8F0); }
+    .row:last-child { border-bottom: 0; }
+    .grow strong { font-size: .88rem; display: block; }
+    .grow span { font-size: .72rem; color: #64748B; line-height: 1.3; }
+    select {
+      border: 1.5px solid var(--line); border-radius: 10px; padding: 8px 10px;
+      font: inherit; font-weight: 700; background: var(--card); color: var(--ink);
+    }
+  </style>
+</head>
+<body class="app-body" data-page="profile">
+  <div class="page">
+    <div class="top">
+      <a href="profile.html" aria-label="Back">←</a>
+      <h1>Settings</h1>
+    </div>
+
+    <div class="hero">
+      <h2>Your control centre</h2>
+      <p>Theme, privacy, notifications, and Nova usage — all in one place.</p>
+      <div class="stats">
+        <div class="stat-chip"><b id="stNovaLeft">—</b><span>Nova left today</span></div>
+        <div class="stat-chip"><b id="stCbtTrials">—</b><span>CBT trials left</span></div>
+        <div class="stat-chip"><b id="stPlan">Free</b><span>Plan</span></div>
+      </div>
+    </div>
+
+    <p class="sec">Appearance</p>
+    <div class="card">
+      <div class="row">
+        <div class="grow">
+          <strong>Dark mode</strong>
+          <span>Home, Profile, tools</span>
+        </div>
+        <button type="button" class="toggle" id="darkToggle" aria-pressed="false"><i></i></button>
+      </div>
+      <div class="row">
+        <div class="grow">
+          <strong>Reduce motion</strong>
+          <span>Less animation</span>
+        </div>
+        <button type="button" class="toggle" id="motionToggle" aria-pressed="false"><i></i></button>
+      </div>
+      <div class="row">
+        <div class="grow">
+          <strong>Liquid UI</strong>
+          <span>Soft gradients</span>
+        </div>
+        <button type="button" class="toggle on" id="liquidToggle" aria-pressed="true"><i></i></button>
+      </div>
+      <div class="row">
+        <div class="grow">
+          <strong>App tips</strong>
+          <span>First-run tutorial</span>
+        </div>
+        <button type="button" class="btn" id="btnReplayTips" style="min-height:36px;padding:0 12px;border-radius:10px;border:1px solid #E2E8F0;background:#fff;font-weight:700;font-size:.78rem;cursor:pointer">Replay</button>
+      </div>
+    </div>
+
+    
+    <p class="sec">Nova voice (text-to-speech)</p>
+    <div class="card">
+      <div class="row">
+        <div class="grow">
+          <strong>Voice</strong>
+          <span>When you tap speak on a reply</span>
+        </div>
+        <p class="hint" id="voiceHint" style="font-size:.72rem;color:#64748B;margin:0 0 8px;line-height:1.4">Loading device voices…</p>
+        <select id="voiceSelect" style="max-width:160px;font-size:.78rem">
+          <option value="">Device default</option>
+        </select>
+      </div>
+      <div class="row">
+        <div class="grow">
+          <strong>Test voice</strong>
+          <span>Hear a sample</span>
+        </div>
+        <button type="button" class="btn" id="btnTestVoice" style="min-height:36px;padding:0 12px;border-radius:10px;border:1px solid #E2E8F0;background:#fff;font-weight:700;font-size:.78rem;cursor:pointer">Play</button>
+      </div>
+    </div>
+
+    <p class="sec">Study preferences</p>
+    <div class="card">
+      <div class="row">
+        <div class="grow">
+          <strong>Default semester</strong>
+          <span id="semLabel">1st</span>
+        </div>
+        <select id="semSelect">
+          <option value="1st">1st</option>
+          <option value="2nd">2nd</option>
+        </select>
+      </div>
+    </div>
+
+    <p class="sec">Privacy &amp; presence</p>
+    <div class="card">
+      <div class="row">
+        <div class="grow">
+          <strong>Show online status</strong>
+          <span>Let classmates see when you’re active in chat</span>
+        </div>
+        <button type="button" class="toggle on" id="presenceToggle" aria-pressed="true"><i></i></button>
+      </div>
+      <div class="row">
+        <div class="grow">
+          <strong>Read receipts</strong>
+          <span>Show when you’ve read direct messages</span>
+        </div>
+        <button type="button" class="toggle on" id="readToggle" aria-pressed="true"><i></i></button>
+      </div>
+    </div>
+
+    <p class="sec">Notifications</p>
+    <div class="card">
+      <div class="row">
+        <div class="grow">
+          <strong>Study reminders</strong>
+          <span>To-do and practice nudges</span>
+        </div>
+        <button type="button" class="toggle on" id="remindToggle" aria-pressed="true"><i></i></button>
+      </div>
+      <div class="row">
+        <div class="grow">
+          <strong>Nova reply ready</strong>
+          <span>Alert when an offline/background answer finishes</span>
+        </div>
+        <button type="button" class="toggle on" id="novaNotifToggle" aria-pressed="true"><i></i></button>
+      </div>
+      <div class="row">
+        <div class="grow">
+          <strong>Chat messages</strong>
+          <span>New DMs and group messages</span>
+        </div>
+        <button type="button" class="toggle on" id="chatNotifToggle" aria-pressed="true"><i></i></button>
+      </div>
+      <div class="row">
+        <div class="grow">
+          <strong>Friend requests</strong>
+          <span>When someone wants to connect</span>
+        </div>
+        <button type="button" class="toggle on" id="friendToggle" aria-pressed="true"><i></i></button>
+      </div>
+      <div class="row">
+        <div class="grow">
+          <strong>Enable push (FCM)</strong>
+          <span>Browser permission for background alerts</span>
+        </div>
+        <button type="button" class="toggle" id="fcmToggle" aria-pressed="false"><i></i></button>
+      </div>
+    </div>
+
+    <p class="sec">Nova &amp; tools</p>
+    <div class="card">
+      <a class="link-row" href="nova.html">
+        <div class="ico">✦</div>
+        <div class="grow"><strong>Open Nova AI</strong><span>Chat, search, diagrams</span></div>
+        <span class="chev">›</span>
+      </a>
+      <a class="link-row" href="student-tools.html">
+        <div class="ico">◇</div>
+        <div class="grow"><strong>Student tools</strong><span>Diagram maker, scan, code</span></div>
+        <span class="chev">›</span>
+      </a>
+      <a class="link-row" href="stats.html">
+        <div class="ico">▣</div>
+        <div class="grow"><strong>Study statistics</strong><span>CBT history and streaks</span></div>
+        <span class="chev">›</span>
+      </a>
+    </div>
+
+    <p class="sec">Account</p>
+    <div class="card">
+      <a class="link-row" href="edit-profile.html">
+        <div class="grow"><strong>Edit profile</strong><span>Name, faculty, department</span></div>
+        <span class="chev">›</span>
+      </a>
+      <a class="link-row" href="change-password.html">
+        <div class="grow"><strong>Change password</strong><span>Email sign-in security</span></div>
+        <span class="chev">›</span>
+      </a>
+      <a class="link-row" href="pricing.html">
+        <div class="grow"><strong>Subscription</strong><span>Paystack plans</span></div>
+        <span class="chev">›</span>
+      </a>
+      <a class="link-row" href="../terms.html">
+        <div class="grow"><strong>Terms &amp; privacy</strong></div>
+        <span class="chev">›</span>
+      </a>
+    </div>
+
+    <p class="note">
+      Dark mode, presence and notification prefs save on this device (and to your account when signed in).
+      Push alerts need browser permission — enable “Enable push (FCM)” above.
+    </p>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/app-auth.js"></script>
+  <script src="../js/media.js"></script>
+  <script src="../js/onboarding.js"></script>
+  <script src="../js/shell.js"></script>
+  <script src="../js/codex-quota.js"></script>
+  <script>
+  (function () {
+    CodexShell.mountShell({ page: "profile", title: "Settings", user: { fullName: "Student" } });
+
+    function applyDark(on) {
+      document.documentElement.classList.toggle("theme-dark", !!on);
+      try { localStorage.setItem("codex_dark", on ? "1" : "0"); } catch (e) {}
+    }
+    function applyMotion(on) {
+      document.documentElement.classList.toggle("reduce-motion", !!on);
+      try { localStorage.setItem("codex_reduce_motion", on ? "1" : "0"); } catch (e) {}
+    }
+    // restore on load
+    try {
+      if (localStorage.getItem("codex_dark") === "1") applyDark(true);
+      if (localStorage.getItem("codex_reduce_motion") === "1") applyMotion(true);
+    } catch (e) {}
+
+    function wireToggle(id, key, onChange) {
+      var btn = document.getElementById(id);
+      if (!btn) return;
+      var on = localStorage.getItem(key) !== "0";
+      if (key === "codex_dark") on = localStorage.getItem(key) === "1";
+      if (key === "codex_fcm") on = localStorage.getItem(key) === "1";
+      btn.classList.toggle("on", on);
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+      btn.onclick = function () {
+        on = !on;
+        btn.classList.toggle("on", on);
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+        localStorage.setItem(key, on ? "1" : "0");
+        if (onChange) onChange(on);
+        // mirror to Firestore when possible
+        try {
+          CodexAuth.requireUser().then(function (res) {
+            var patch = {};
+            patch["settings." + key] = on;
+            patch.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+            return res.db.collection("users").doc(res.user.uid).set(patch, { merge: true });
+          }).catch(function () {});
+        } catch (e) {}
+      };
+    }
+
+    wireToggle("darkToggle", "codex_dark", applyDark);
+    wireToggle("motionToggle", "codex_reduce_motion", applyMotion);
+    wireToggle("liquidToggle", "codex_liquid_ui", null);
+    wireToggle("presenceToggle", "codex_presence_online", function (on) {
+      try {
+        CodexAuth.requireUser().then(function (res) {
+          res.db.collection("presence").doc(res.user.uid).set({
+            hideOnline: !on,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+        }).catch(function () {});
+      } catch (e) {}
+    });
+    wireToggle("readToggle", "codex_read_receipts", null);
+    wireToggle("remindToggle", "codex_reminders", null);
+    wireToggle("novaNotifToggle", "codex_nova_notif", null);
+    wireToggle("chatNotifToggle", "codex_chat_notif", null);
+    wireToggle("friendToggle", "codex_friend_notif", null);
+    wireToggle("fcmToggle", "codex_fcm", function (on) {
+      if (!on) return;
+      enableFcm().catch(function (e) {
+        alert("Could not enable push: " + (e && e.message ? e.message : "permission denied"));
+        localStorage.setItem("codex_fcm", "0");
+        var b = document.getElementById("fcmToggle");
+        if (b) { b.classList.remove("on"); b.setAttribute("aria-pressed", "false"); }
+      });
+    });
+
+    async function enableFcm() {
+      if (!("Notification" in window)) throw new Error("Notifications not supported");
+      var perm = await Notification.requestPermission();
+      if (perm !== "granted") throw new Error("Permission not granted");
+      // Store preference; full FCM token needs firebase-messaging-sw.js + VAPID on deploy
+      localStorage.setItem("codex_fcm_ready", "1");
+      try {
+        if (firebase.messaging) {
+          var messaging = firebase.messaging();
+          // Token registration requires messagingSenderId + service worker in production
+          console.log("FCM preference saved — deploy messaging SW for tokens");
+        }
+      } catch (e) { console.warn(e); }
+      if (Notification.permission === "granted") {
+        new Notification("Codex Hub", { body: "Push alerts enabled on this device.", tag: "codex-fcm-test" });
+      }
+    }
+
+    var sem = localStorage.getItem("selectedSemester") || "1st";
+    var sel = document.getElementById("semSelect");
+    sel.value = sem.indexOf("2") === 0 ? "2nd" : "1st";
+    document.getElementById("semLabel").textContent = sel.value;
+    sel.onchange = function () {
+      document.getElementById("semLabel").textContent = sel.value;
+      localStorage.setItem("selectedSemester", sel.value);
+      CodexAuth.requireUser().then(function (res) {
+        return res.db.collection("users").doc(res.user.uid).set({
+          semester: sel.value,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+      }).catch(function () {});
+    };
+
+    
+    (function initVoices(){
+      var sel = document.getElementById("voiceSelect");
+      var hint = document.getElementById("voiceHint");
+      if (!sel) return;
+      if (!window.speechSynthesis) {
+        sel.innerHTML = '<option value="">TTS not supported on this browser</option>';
+        if (hint) hint.textContent = "Try Chrome or Safari for more voices.";
+        return;
+      }
+      function voiceTag(v) {
+        var n = (v.name || "").toLowerCase();
+        var gender = /female|woman|girl|samantha|victoria|karen|moira|tessa|fiona|zira|hazel|susan|kate|linda|google uk english female|google us english female/i.test(n)
+          ? " · female"
+          : (/male|man|boy|david|daniel|thomas|fred|alex|google uk english male|google us english male|microsoft david|microsoft mark/i.test(n) ? " · male" : "");
+        var loc = "";
+        if (/en-GB|en_GB|british|uk english/i.test(v.lang + " " + n)) loc = " · UK";
+        else if (/en-US|en_US|american|us english/i.test(v.lang + " " + n)) loc = " · US";
+        else if (/en-NG|en_NG|nigeria/i.test(v.lang + " " + n)) loc = " · NG";
+        else if (/en-AU|en_AU|australian/i.test(v.lang + " " + n)) loc = " · AU";
+        else if (/en-IN|en_IN|india/i.test(v.lang + " " + n)) loc = " · IN";
+        return (v.name || "Voice") + (v.lang ? " (" + v.lang + ")" : "") + gender + loc;
+      }
+      function fill() {
+        var voices = speechSynthesis.getVoices() || [];
+        var saved = localStorage.getItem("codex_tts_voice") || "";
+        // Prefer English first, then others
+        var en = [], other = [];
+        voices.forEach(function (v) {
+          if (/^en/i.test(v.lang || "")) en.push(v);
+          else other.push(v);
+        });
+        var ordered = en.concat(other);
+        sel.innerHTML = '<option value="">Device default</option>';
+        ordered.forEach(function (v) {
+          var opt = document.createElement("option");
+          opt.value = v.name;
+          opt.textContent = voiceTag(v);
+          if (v.name === saved) opt.selected = true;
+          sel.appendChild(opt);
+        });
+        if (hint) {
+          if (!voices.length) {
+            hint.textContent = "Voices load from your phone/browser. On some Android builds only one voice appears until you open system Text-to-speech settings.";
+          } else {
+            hint.textContent = voices.length + " voice(s) from this device. Pick one and tap Test voice.";
+          }
+        }
+      }
+      fill();
+      if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = fill;
+      }
+      // Android/Chrome often populate voices late
+      setTimeout(fill, 250);
+      setTimeout(fill, 1000);
+      setTimeout(fill, 2500);
+      sel.onchange = function () { localStorage.setItem("codex_tts_voice", sel.value || ""); };
+      var btn = document.getElementById("btnTestVoice");
+      if (btn) btn.onclick = function () {
+        fill(); // refresh list on user gesture
+        var u = new SpeechSynthesisUtterance("Hello, I am Pulse on Codex Hub. Ready to study.");
+        u.rate = 1;
+        var name = sel.value;
+        if (name) {
+          var vs = speechSynthesis.getVoices() || [];
+          for (var i = 0; i < vs.length; i++) {
+            if (vs[i].name === name) { u.voice = vs[i]; break; }
+          }
+        }
+        speechSynthesis.cancel();
+        speechSynthesis.speak(u);
+      };
+    })();
+
+    var br = document.getElementById("btnReplayTips");
+    if (br) br.onclick = function () {
+      try {
+        localStorage.removeItem("codex_onboarding_v1_done");
+        localStorage.removeItem("codex_onboarding_v1_skip");
+        if (window.CodexOnboarding && CodexOnboarding.clearSeen) CodexOnboarding.clearSeen();
+        else try { Object.keys(localStorage).forEach(function(k){ if(k.indexOf("codex_tour_")==0) localStorage.removeItem(k); }); } catch(eR){}
+      } catch (e) {}
+      if (window.CodexOnboarding && CodexOnboarding.start) CodexOnboarding.start(true);
+      else location.href = "home.html";
+    };
+
+    CodexAuth.requireUser().then(function (res) {
+      CodexShell.mountShell({
+        page: "profile",
+        title: "Settings",
+        user: { fullName: res.profile.fullName || res.user.displayName },
+        profile: res.profile
+      });
+      var p = res.profile || {};
+      var plan = String(p.plan || p.subscription || p.tier || "free").toLowerCase();
+      document.getElementById("stPlan").textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
+      var trialsUsed = Number(p.cbtTrialsUsed) || 0;
+      var trialsBonus = Number(p.cbtTrialsBonus) || 0;
+      // Match cbt.js: Free 3, Regular 30, Pro unlimited (from system/limits)
+      var baseLimit = 3;
+      if (/pro/i.test(plan) || p.isAdmin) baseLimit = 999;
+      else if (/regular/i.test(plan)) baseLimit = 30;
+      var personal = Number(p.cbtTrialsLimit) || 0;
+      var trialsLimit = Math.max(baseLimit, personal) + trialsBonus;
+      // Load admin-configured caps when available
+      function paintCbtLeft(limit, used) {
+        var el = document.getElementById("stCbtTrials");
+        if (!el) return;
+        if (limit >= 999) el.textContent = "∞";
+        else el.textContent = String(Math.max(0, limit - used));
+      }
+      paintCbtLeft(trialsLimit, trialsUsed);
+      try {
+        firebase.firestore().collection("system").doc("limits").get().then(function (snap) {
+          if (!snap.exists) return;
+          var lim = snap.data() || {};
+          var free = Number(lim.cbtTrialsFree);
+          var reg = Number(lim.cbtTrialsRegular);
+          var pro = Number(lim.cbtTrialsPro);
+          var base = 3;
+          if (/pro/i.test(plan) || p.isAdmin) base = (pro > 0 ? pro : 999);
+          else if (/regular/i.test(plan)) base = (reg > 0 ? reg : 30);
+          else base = (free >= 0 ? free : 3);
+          var limit = Math.max(base, personal) + trialsBonus;
+          paintCbtLeft(limit, trialsUsed);
+        }).catch(function () {});
+      } catch (eLim) {}
+      if (window.CodexQuota) {
+        var left = CodexQuota.remainingNova(res.user.uid, plan);
+        var cap = CodexQuota.novaCap(plan);
+        document.getElementById("stNovaLeft").textContent = left + "/" + cap;
+      }
+    });
+  })();
+  </script>
+
+<script>try{if(window.CodexOnboarding)CodexOnboarding.auto("settings",700);}catch(e){}</script>
+</body>
+</html>

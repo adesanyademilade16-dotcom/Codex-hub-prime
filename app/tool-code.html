@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="../js/theme-boot.js"></script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Code Assistant · Codex Hub</title>
+<meta name="theme-color" content="#4F46E5">
+<link rel="icon" href="../assets/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/shell.css">
+<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']]},svg:{fontCache:'global'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+body.app-body{background:#F5F7FB;font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:#0F172A}
+.tool{max-width:960px;margin:0 auto;padding:16px 14px 120px}
+.tool-top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.back{display:inline-flex;align-items:center;gap:6px;font:700 .78rem "Plus Jakarta Sans",system-ui;color:#4F46E5;text-decoration:none;padding:8px 0}
+.tool-top h1{flex:1;margin:0;font-size:1.2rem;letter-spacing:-.02em}
+.pill{font-size:.65rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:#EEF2FF;color:#4338CA;border-radius:999px;padding:4px 10px}
+.panel{background:#fff;border:1px solid #E2E8F0;border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 6px 18px rgba(15,23,42,.03)}
+.panel h2{margin:0 0 10px;font-size:.88rem;font-weight:800}
+.panel .hint{margin:0 0 12px;font-size:.76rem;color:#64748B;line-height:1.45}
+.btn{border:0;border-radius:12px;padding:10px 14px;font:800 .76rem "Plus Jakarta Sans",system-ui;cursor:pointer}
+.btn-primary{background:#4F46E5;color:#fff}
+.btn-ghost{background:#fff;color:#334155;border:1px solid #E2E8F0}
+.btn-soft{background:#EEF2FF;color:#4338CA}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+textarea,input[type=text],select{width:100%;border:1px solid #E2E8F0;border-radius:12px;padding:11px 12px;font:600 .85rem "Plus Jakarta Sans",system-ui;background:#fff}
+textarea{min-height:100px;resize:vertical;line-height:1.5}
+.workspace{background:#0F172A;color:#E2E8F0;border-radius:14px;padding:14px;min-height:140px;font-size:.84rem;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%) translateY(12px);background:#0F172A;color:#fff;padding:10px 14px;border-radius:12px;font:700 .76rem "Plus Jakarta Sans",system-ui;opacity:0;pointer-events:none;transition:.2s;z-index:90}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.seg{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.seg button{border:1px solid #E2E8F0;background:#fff;border-radius:10px;padding:8px 11px;font:700 .72rem "Plus Jakarta Sans",system-ui;cursor:pointer;color:#475569}
+.seg button.on{background:#4F46E5;border-color:#4F46E5;color:#fff}
+.code-ed{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.8rem;min-height:200px;background:#0B1220;color:#E2E8F0;border-radius:12px;border:1px solid #1E293B;padding:12px;width:100%;resize:vertical;line-height:1.5}
+.canvas-box{background:#F8FAFC;border:1px dashed #CBD5E1;border-radius:14px;min-height:260px;padding:14px;overflow:auto}
+.flow-node{display:block;max-width:280px;margin:0 auto 4px;background:#EEF2FF;border:1px solid #A5B4FC;border-radius:12px;padding:10px 14px;font-size:.78rem;font-weight:700;color:#312E81;text-align:center}
+.flow-node.decision{border-radius:4px;transform:rotate(0deg);background:#FEF3C7;border-color:#F59E0B;color:#92400E}
+.flow-arrow{text-align:center;color:#64748B;font-size:.8rem;margin:2px 0}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:720px){.grid-2{grid-template-columns:1fr}}
+.run-panel{background:#0B1220;color:#E2E8F0;border-radius:12px;padding:12px;min-height:120px;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.78rem;white-space:pre-wrap}
+.run-panel .ok{color:#34D399}.run-panel .err{color:#F87171}
+.run-note{font-size:.72rem;color:#64748B;margin:0 0 8px}
+
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.step{font-size:.68rem;font-weight:800;padding:5px 10px;border-radius:999px;background:#F1F5F9;color:#64748B}
+.step.on{background:#4F46E5;color:#fff}
+#runPanel, .run-panel, pre#runPanel {
+      max-height: 220px; overflow: auto; white-space: pre-wrap; word-break: break-word;
+      font-size: .78rem; line-height: 1.4; padding: 10px; border-radius: 12px;
+    }
+    .code-editor, #codeEditor, textarea#code {
+      max-height: 280px; overflow: auto;
+    }
+    </style>
+</head>
+<body class="app-body">
+
+<main class="tool">
+  <div class="tool-top">
+    <a class="back" href="student-tools.html">← Tools</a>
+    <h1>Code Assistant</h1>
+    <span class="pill">Computer Science</span>
+  </div>
+  <div class="panel">
+    <h2>Mode &amp; language</h2>
+    <div class="seg" id="modes">
+      <button type="button" class="on" data-mode="write">Write Code</button>
+      <button type="button" data-mode="explain">Explain</button>
+      <button type="button" data-mode="debug">Debug</button>
+      <button type="button" data-mode="convert">Convert</button>
+      <button type="button" data-mode="pseudo">Pseudocode</button>
+      <button type="button" data-mode="algo">Algorithm</button>
+    </div>
+    <select id="lang">
+      <option>Python</option><option>C</option><option>C++</option><option>Java</option>
+      <option>JavaScript</option><option>HTML/CSS</option><option>SQL</option><option>Fortran</option><option>BASIC</option><option>Other</option>
+    </select>
+  </div>
+  <div class="grid-2">
+    <div class="panel">
+      <h2>Request</h2>
+      <p class="hint">Describe what you need, or paste code to explain/debug.</p>
+      <textarea id="req" placeholder="e.g. Write a Python function to compute GPA from a list of scores..."></textarea>
+      <div class="actions">
+        <button type="button" class="btn btn-primary" id="btnRun">Run assistant</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Code editor</h2>
+      <textarea id="code" class="code-ed" placeholder="// Your code appears or is edited here"></textarea>
+      <div class="actions">
+        <button type="button" class="btn btn-ghost" id="btnCopy">Copy code</button>
+        <button type="button" class="btn btn-ghost" id="btnDl">Download</button>
+        <button type="button" class="btn btn-soft" id="btnImprove">Improve</button>
+        <button type="button" class="btn btn-primary" id="btnRunCode">▶ Run code</button>
+        <button type="button" class="btn btn-soft" id="btnPdf">PDF</button>
+      </div>
+      <p class="run-note" id="runNote">Run: JS, HTML/CSS, Python (Pyodide), hardened BASIC. C / C++ / Java / Fortran need a real compiler (not available inside the phone browser).</p>
+      <div class="run-panel" id="runPanel">Ready — generate or paste code, then press Run.</div>
+      <iframe id="runFrame" title="Code output" style="display:none;width:100%;min-height:180px;border:1px solid #1E293B;border-radius:12px;margin-top:8px;background:#fff"></iframe>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Explanation / notes</h2>
+    <div class="workspace" id="notes"></div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+<script src="../js/firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="../js/app-auth.js"></script>
+<script src="../js/media.js"></script>
+<script src="../js/shell.js"></script>
+<script src="../js/codex-md.js"></script>
+<script src="../js/student-tools-core.js"></script>
+<script src="../js/auto-scroll.js"></script>
+<script>
+(function(){
+  "use strict";
+  if(!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+  var ST = window.CodexStudentTools;
+  var uid=null, profile=null;
+  function toast(m){ var t=document.getElementById("toast"); if(!t)return; t.textContent=m; t.classList.add("show"); clearTimeout(t._tm); t._tm=setTimeout(function(){t.classList.remove("show");},2400); }
+  window.__toolToast=toast; window.__toolUid=function(){return uid;}; window.__toolProfile=function(){return profile;};
+  async function boot(){
+    var r; try{ r=await CodexAuth.requireUser(); }catch(e){return;}
+    uid=r.user.uid; profile=Object.assign({}, r.profile||{});
+    try{ var pub=await firebase.firestore().collection("public_profiles").doc(uid).get(); if(pub.exists){ var pp=pub.data()||{}; if(pp.avatarKey)profile.avatarKey=pp.avatarKey; if(pp.photoURL)profile.photoURL=pp.photoURL; } }catch(e){}
+    var name=(profile.fullName||profile.displayName||r.user.email||"Student");
+    CodexShell.mountShell({page:"tools", title:'Code Assistant', user:Object.assign({fullName:name}, r.user), profile:profile});
+    ST.pushRecent(uid, {toolId:'code', title:'Code Assistant', subtitle:"Opened", href:location.pathname.split("/").pop()});
+    if(typeof window.__toolReady==="function") window.__toolReady();
+  }
+  boot();
+})();
+</script>
+
+<script>
+window.__toolReady=function(){
+  var ST=CodexStudentTools, mode="write";
+  document.getElementById("modes").onclick=function(e){
+    var b=e.target.closest("button[data-mode]"); if(!b) return;
+    mode=b.getAttribute("data-mode");
+    document.querySelectorAll("#modes button").forEach(function(x){ x.classList.toggle("on", x===b); });
+  };
+  async function run(extra){
+    var lang=document.getElementById("lang").value;
+    var req=document.getElementById("req").value.trim();
+    var code=document.getElementById("code").value.trim();
+    if(!req && !code){ __toolToast("Add a request or code"); return; }
+    document.getElementById("notes").textContent="Working…";
+    var sys="You are Code Assistant on Codex Hub for university CS students. Respond with:\n1) A fenced code block in the requested language when code is produced\n2) A short explanation after the code\nModes: write, explain, debug (show fixed code), convert, pseudo, algorithm.\nPrefer clear, working academic-quality code. Language: "+lang;
+    var msg="Mode: "+mode+"\nLanguage: "+lang+"\n"+(extra||"")+"\nRequest:\n"+req+"\n\nCode:\n"+code;
+    try{
+      var reply=await ST.callToolAI({tool:"code", message:msg, system:sys, profile:__toolProfile(), uid:__toolUid()});
+      var m=reply.match(/```[a-zA-Z]*\n([\s\S]*?)```/);
+      if(m){ document.getElementById("code").value=m[1].trim(); }
+      var ne=document.getElementById("notes"); if(window.CodexMd){ne.classList.add("md-ready");CodexMd.setHtml(ne,reply);} else ne.textContent=reply;
+      ST.pushRecent(__toolUid(),{toolId:"code",title:(req||lang+" code").slice(0,48),subtitle:mode+" · "+lang,href:"tool-code.html"});
+    }catch(e){
+      document.getElementById("notes").textContent=e.message||"Failed";
+      __toolToast("Request failed");
+    }
+  }
+  document.getElementById("btnRun").onclick=function(){ run(""); };
+  document.getElementById("btnImprove").onclick=function(){ run("Improve and refactor the code for clarity and correctness."); };
+  document.getElementById("btnCopy").onclick=function(){
+    var c=document.getElementById("code").value; if(!c)return;
+    if(navigator.clipboard) navigator.clipboard.writeText(c).then(function(){ __toolToast("Copied"); });
+  };
+  document.getElementById("btnDl").onclick=function(){
+    var lang=document.getElementById("lang").value;
+    var ext={Python:".py",C:".c","C++":".cpp",Java:".java",JavaScript:".js","HTML/CSS":".html",SQL:".sql",Fortran:".f90",BASIC:".bas",Other:".txt"}[lang]||".txt";
+    ST.downloadText("codex-code"+ext, document.getElementById("code").value||"");
+    __toolToast("Downloaded");
+  };
+  function setRunNote(lang){
+    var el=document.getElementById("runNote");
+    if(!el) return;
+    var map={
+      "JavaScript":"JavaScript runs live in a sandbox below.",
+      "HTML/CSS":"HTML/CSS renders in a live preview frame.",
+      "Python":"Python runs via Pyodide (loads once, needs network).",
+      "BASIC":"Hardened BASIC: PRINT, INPUT, LET, IF/THEN/ELSE, FOR/NEXT, GOTO, GOSUB/RETURN, ABS/INT/SQR/RND, BODMAS math.",
+      "C":"C cannot compile in the phone browser — write & download, then use gcc / an online compiler.",
+      "C++":"C++ cannot compile in the phone browser — generate, study, then compile on a PC.",
+      "Java":"Java needs a JDK on desktop — editor is for writing & learning here.",
+      "SQL":"SQL preview is educational text only (no live database in the browser).",
+      "Fortran":"Fortran needs a compiler on desktop.",
+      "Other":"Run support depends on the language."
+    };
+    el.textContent=map[lang]||map.Other;
+  }
+  document.getElementById("lang").onchange=function(){ setRunNote(this.value); };
+  setRunNote(document.getElementById("lang").value);
+
+  function runJs(code){
+    var logs=[];
+    var fakeConsole={
+      log:function(){ logs.push(Array.prototype.slice.call(arguments).join(" ")); },
+      error:function(){ logs.push("Error: "+Array.prototype.slice.call(arguments).join(" ")); },
+      warn:function(){ logs.push("Warn: "+Array.prototype.slice.call(arguments).join(" ")); }
+    };
+    try{
+      var fn=new Function("console", code);
+      fn(fakeConsole);
+      return {ok:true, out: logs.join("\n") || "(ran with no console output)"};
+    }catch(e){
+      return {ok:false, out: String(e && e.message || e)};
+    }
+  }
+  function runHtml(code){
+    var fr=document.getElementById("runFrame");
+    fr.style.display="block";
+    fr.srcdoc=code;
+    return {ok:true, out:"Preview updated in the frame below."};
+  }
+
+  /* ── Hardened classroom BASIC interpreter (Just BASIC–style subset) ── */
+  function runBasic(code){
+    try{
+      return runBasicInner(code);
+    }catch(e){
+      return {ok:false, out:"BASIC error: "+(e && e.message ? e.message : e)};
+    }
+  }
+  function runBasicInner(code){
+    var raw=String(code||"").replace(/\r\n/g,"\n").replace(/\r/g,"\n").split("\n");
+    var program=[];
+    for(var ri=0;ri<raw.length;ri++){
+      var L=raw[ri].replace(/^\s+|\s+$/g,"");
+      if(!L) continue;
+      var m=L.match(/^(\d+)\s+(.*)$/);
+      if(m) program.push({num:parseInt(m[1],10), text:m[2], src:L});
+      else program.push({num:null, text:L, src:L});
+    }
+    if(!program.length) return {ok:true, out:"(empty program)"};
+
+    var lineIndex={};
+    for(var i=0;i<program.length;i++){
+      if(program[i].num!=null) lineIndex[program[i].num]=i;
+    }
+
+    var vars={}, arrays={}, out=[], pc=0, guard=0, maxGuard=20000;
+    var forStack=[], gosubStack=[];
+
+    function isStrName(n){ return /\$\s*$/.test(n); }
+    function normName(n){ return String(n||"").replace(/\s+/g,"").toUpperCase(); }
+
+    function getVar(name){
+      name=normName(name);
+      if(Object.prototype.hasOwnProperty.call(vars,name)) return vars[name];
+      return isStrName(name) ? "" : 0;
+    }
+    function setVar(name, val){
+      name=normName(name);
+      if(isStrName(name)) vars[name]=String(val);
+      else {
+        var n=Number(val);
+        vars[name]=isFinite(n)?n:0;
+      }
+    }
+
+    function tokenizeExpr(s){
+      var tokens=[], i=0, str=String(s);
+      while(i<str.length){
+        var c=str[i];
+        if(c===" "||c==="\t"){ i++; continue; }
+        if(c==='"' ){
+          var j=i+1, buf="";
+          while(j<str.length && str[j]!=='"'){ buf+=str[j++]; }
+          tokens.push({t:"str", v:buf}); i=j+1; continue;
+        }
+        if(/[0-9.]/.test(c)){
+          var k=i, num="";
+          while(k<str.length && /[0-9.]/.test(str[k])) num+=str[k++];
+          tokens.push({t:"num", v:parseFloat(num)}); i=k; continue;
+        }
+        if(/[A-Za-z_]/.test(c)){
+          var p=i, id="";
+          while(p<str.length && /[A-Za-z0-9_$]/.test(str[p])) id+=str[p++];
+          tokens.push({t:"id", v:id}); i=p; continue;
+        }
+        if("+-*/^(),<>=".indexOf(c)>=0){
+          if((c==="<"||c===">"||c==="=") && i+1<str.length){
+            var two=c+str[i+1];
+            if(two==="<="||two===">="||two==="<>"||two==="=="){ tokens.push({t:"op", v:two}); i+=2; continue; }
+          }
+          tokens.push({t:"op", v:c}); i++; continue;
+        }
+        throw new Error("Bad character in expression: "+c);
+      }
+      return tokens;
+    }
+
+    function evalExpr(expr){
+      expr=String(expr||"").trim();
+      if(!expr) return 0;
+      var tokens=tokenizeExpr(expr);
+      var pos=0;
+      function peek(){ return tokens[pos]; }
+      function take(){ return tokens[pos++]; }
+
+      function parsePrimary(){
+        var tk=peek();
+        if(!tk) throw new Error("Unexpected end of expression");
+        if(tk.t==="num"){ take(); return tk.v; }
+        if(tk.t==="str"){ take(); return tk.v; }
+        if(tk.t==="op" && tk.v==="("){
+          take();
+          var v=parseCmp();
+          if(!peek()||peek().v!==")") throw new Error("Missing )");
+          take();
+          return v;
+        }
+        if(tk.t==="op" && (tk.v==="-"||tk.v==="+")){
+          take();
+          var u=parsePrimary();
+          return tk.v==="-" ? -Number(u) : Number(u);
+        }
+        if(tk.t==="id"){
+          take();
+          var name=tk.v.toUpperCase();
+          /* function call */
+          if(peek() && peek().t==="op" && peek().v==="("){
+            take();
+            var args=[];
+            if(!(peek() && peek().t==="op" && peek().v===")")){
+              args.push(parseCmp());
+              while(peek() && peek().t==="op" && peek().v===","){
+                take(); args.push(parseCmp());
+              }
+            }
+            if(!peek()||peek().v!==")") throw new Error("Missing ) after function");
+            take();
+            return callFn(name, args);
+          }
+          /* array access NAME(index) already handled as function-like if we used (); simple vars: */
+          return getVar(name);
+        }
+        throw new Error("Bad expression near "+(tk.v||tk.t));
+      }
+      function callFn(name, args){
+        var a=args[0];
+        if(name==="ABS") return Math.abs(Number(a)||0);
+        if(name==="INT") return Math.floor(Number(a)||0);
+        if(name==="SQR"||name==="SQRT") return Math.sqrt(Math.max(0, Number(a)||0));
+        if(name==="RND") return Math.random();
+        if(name==="SIN") return Math.sin(Number(a)||0);
+        if(name==="COS") return Math.cos(Number(a)||0);
+        if(name==="TAN") return Math.tan(Number(a)||0);
+        if(name==="LOG") return Math.log(Number(a)||1);
+        if(name==="EXP") return Math.exp(Number(a)||0);
+        if(name==="LEN") return String(a==null?"":a).length;
+        if(name==="VAL") return parseFloat(a)||0;
+        if(name==="STR$"||name==="STR") return String(a);
+        if(name==="ASC") return String(a||" ").charCodeAt(0)||0;
+        if(name==="CHR$"||name==="CHR") return String.fromCharCode(Number(a)||32);
+        /* treat unknown NAME(args) as array get */
+        var key=name;
+        if(!arrays[key]) arrays[key]={};
+        var idx=String(Math.floor(Number(a)||0));
+        return arrays[key][idx]!=null ? arrays[key][idx] : 0;
+      }
+      function parsePower(){
+        var left=parsePrimary();
+        while(peek() && peek().t==="op" && peek().v==="^"){
+          take();
+          var right=parsePrimary();
+          left=Math.pow(Number(left)||0, Number(right)||0);
+        }
+        return left;
+      }
+      function parseTerm(){
+        var left=parsePower();
+        while(peek() && peek().t==="op" && (peek().v==="*"||peek().v==="/")){
+          var op=take().v;
+          var right=parsePower();
+          if(op==="*") left=(Number(left)||0)*(Number(right)||0);
+          else {
+            var d=Number(right)||0;
+            if(d===0) throw new Error("Division by zero");
+            left=(Number(left)||0)/d;
+          }
+        }
+        return left;
+      }
+      function parseAdd(){
+        var left=parseTerm();
+        while(peek() && peek().t==="op" && (peek().v==="+"||peek().v==="-")){
+          var op=take().v;
+          var right=parseTerm();
+          if(typeof left==="string" || typeof right==="string"){
+            left = op==="+" ? (String(left)+String(right)) : (Number(left)||0)-(Number(right)||0);
+          } else {
+            left = op==="+" ? left+right : left-right;
+          }
+        }
+        return left;
+      }
+      function parseCmp(){
+        var left=parseAdd();
+        if(peek() && peek().t==="op" && ["=","==","<",">","<=",">=","<>"].indexOf(peek().v)>=0){
+          var op=take().v;
+          var right=parseAdd();
+          if(op==="="||op==="==") return left==right ? 1 : 0;
+          if(op==="<>") return left!=right ? 1 : 0;
+          if(op==="<") return (Number(left)<Number(right)) ? 1 : 0;
+          if(op===">") return (Number(left)>Number(right)) ? 1 : 0;
+          if(op==="<=") return (Number(left)<=Number(right)) ? 1 : 0;
+          if(op===">=") return (Number(left)>=Number(right)) ? 1 : 0;
+        }
+        return left;
+      }
+      var result=parseCmp();
+      if(pos<tokens.length) throw new Error("Extra tokens in expression");
+      return result;
+    }
+
+    function splitPrintParts(s){
+      var parts=[], cur="", inQ=false;
+      for(var i=0;i<s.length;i++){
+        var ch=s[i];
+        if(ch==='"'){ inQ=!inQ; cur+=ch; continue; }
+        if(!inQ && (ch===";"||ch===",")){
+          parts.push({text:cur, sep:ch});
+          cur="";
+          continue;
+        }
+        cur+=ch;
+      }
+      parts.push({text:cur, sep:null});
+      return parts;
+    }
+
+    function execLine(text){
+      var cmd=String(text||"").replace(/^\s+|\s+$/g,"");
+      if(!cmd) return "next";
+      var u=cmd.toUpperCase();
+
+      if(u==="END"||u==="STOP") return "end";
+      if(u.indexOf("REM")===0 || cmd.charAt(0)==="'") return "next";
+      if(u==="CLS"){ out=[]; return "next"; }
+      if(u==="RETURN"){
+        if(!gosubStack.length) throw new Error("RETURN without GOSUB");
+        pc=gosubStack.pop();
+        return "jump";
+      }
+
+      if(u.indexOf("PRINT")===0){
+        var rest=cmd.slice(5).replace(/^\s+/,"");
+        if(!rest){ out.push(""); return "next"; }
+        var parts=splitPrintParts(rest);
+        var line="";
+        for(var pi=0;pi<parts.length;pi++){
+          var piece=parts[pi].text.replace(/^\s+|\s+$/g,"");
+          if(piece) line+=String(evalExpr(piece));
+          if(parts[pi].sep===",") line+="\t";
+        }
+        out.push(line);
+        return "next";
+      }
+
+      if(u.indexOf("INPUT")===0){
+        var restI=cmd.slice(5).replace(/^\s+/,"");
+        var prompt="? ", varPart=restI;
+        var qm=restI.match(/^("([^"]*)"|'([^']*)')\s*,\s*(.+)$/);
+        if(qm){
+          prompt=qm[2]!=null&&qm[1].charAt(0)==='"' ? qm[2] : (qm[3]||"?");
+          varPart=qm[4];
+        } else {
+          var semi=restI.split(";");
+          if(semi.length>1 && /^["']/.test(semi[0].trim())){
+            prompt=String(evalExpr(semi[0].trim()));
+            varPart=semi.slice(1).join(";").trim();
+          }
+        }
+        var names=varPart.split(",");
+        for(var ni=0;ni<names.length;ni++){
+          var vn=names[ni].replace(/^\s+|\s+$/g,"");
+          if(!vn) continue;
+          var ask=(typeof window!=="undefined"&&window.prompt)?window.prompt:(typeof prompt==="function"?prompt:null);
+          var ans=ask?ask(prompt+(names.length>1?(" ["+vn+"]"):""), isStrName(vn)?"":"0"):"0";
+          if(ans===null) ans=isStrName(vn)?"":"0";
+          var arrIn=vn.match(/^([A-Za-z_][A-Za-z0-9_$]*)\s*\((.+)\)\s*$/);
+          if(arrIn){
+            var an=normName(arrIn[1]);
+            if(!arrays[an]) arrays[an]={};
+            var ix=String(Math.floor(Number(evalExpr(arrIn[2]))||0));
+            var num=Number(ans);
+            arrays[an][ix]= isStrName(arrIn[1]) ? String(ans) : (isNaN(num)?0:num);
+          } else if(isStrName(vn)) setVar(vn, ans);
+          else setVar(vn, isNaN(Number(ans))?0:Number(ans));
+        }
+        return "next";
+      }
+
+      if(u.indexOf("LET ")===0 || /^[A-Za-z_][A-Za-z0-9_$]*\s*=/.test(cmd)){
+        var body=u.indexOf("LET ")===0 ? cmd.slice(4) : cmd;
+        var eq=body.indexOf("=");
+        if(eq<0) throw new Error("LET needs =");
+        var left=body.slice(0,eq).replace(/^\s+|\s+$/g,"");
+        var right=body.slice(eq+1);
+        var arr=left.match(/^([A-Za-z_][A-Za-z0-9_$]*)\s*\((.+)\)\s*$/);
+        if(arr){
+          var an=normName(arr[1]);
+          if(!arrays[an]) arrays[an]={};
+          var ix=String(Math.floor(Number(evalExpr(arr[2]))||0));
+          arrays[an][ix]=evalExpr(right);
+        } else {
+          setVar(left, evalExpr(right));
+        }
+        return "next";
+      }
+
+      if(u.indexOf("GOTO ")===0){
+        var target=parseInt(cmd.slice(5).trim(),10);
+        if(lineIndex[target]==null) throw new Error("GOTO line not found: "+target);
+        pc=lineIndex[target];
+        return "jump";
+      }
+      if(u.indexOf("GOSUB ")===0){
+        var gt=parseInt(cmd.slice(6).trim(),10);
+        if(lineIndex[gt]==null) throw new Error("GOSUB line not found: "+gt);
+        gosubStack.push(pc+1);
+        pc=lineIndex[gt];
+        return "jump";
+      }
+
+      if(u.indexOf("IF ")===0){
+        /* IF cond THEN stmt [ELSE stmt] */
+        var thenPos=u.indexOf(" THEN ");
+        if(thenPos<0) throw new Error("IF needs THEN");
+        var condStr=cmd.slice(3, thenPos).trim();
+        var after=cmd.slice(thenPos+6);
+        var elsePos=-1, depthQ=false, au=after.toUpperCase();
+        /* find ELSE at top level */
+        for(var ei=0;ei<after.length-4;ei++){
+          if(after[ei]==='"') depthQ=!depthQ;
+          if(!depthQ && after.slice(ei,ei+4).toUpperCase()==="ELSE" && (ei===0||/\s/.test(after[ei-1]))){
+            elsePos=ei; break;
+          }
+        }
+        var thenStmt, elseStmt=null;
+        if(elsePos>=0){
+          thenStmt=after.slice(0,elsePos).replace(/^\s+|\s+$/g,"");
+          elseStmt=after.slice(elsePos+4).replace(/^\s+|\s+$/g,"");
+        } else {
+          thenStmt=after.replace(/^\s+|\s+$/g,"");
+        }
+        var truth=evalExpr(condStr);
+        var branch=(truth && truth!=="0" && truth!==0) ? thenStmt : elseStmt;
+        if(branch==null || branch==="") return "next";
+        /* THEN 100  (goto) */
+        if(/^\d+$/.test(branch)){
+          var ln=parseInt(branch,10);
+          if(lineIndex[ln]==null) throw new Error("IF THEN line not found: "+ln);
+          pc=lineIndex[ln];
+          return "jump";
+        }
+        return execLine(branch);
+      }
+
+      if(u.indexOf("FOR ")===0){
+        var fm=cmd.match(/^FOR\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)\s+TO\s+(.+?)(?:\s+STEP\s+(.+))?$/i);
+        if(!fm) throw new Error("Bad FOR syntax");
+        var fvar=fm[1], start=Number(evalExpr(fm[2]))||0, limit=Number(evalExpr(fm[3]))||0;
+        var step=fm[4]!=null ? (Number(evalExpr(fm[4]))||1) : 1;
+        setVar(fvar, start);
+        forStack.push({var:normName(fvar), limit:limit, step:step, bodyPc:pc+1});
+        /* if start already past limit, skip to matching NEXT */
+        var done=(step>=0 && start>limit) || (step<0 && start<limit);
+        if(done){
+          var depth=1;
+          for(var sj=pc+1;sj<program.length;sj++){
+            var tu=program[sj].text.toUpperCase().replace(/^\s+/,"");
+            if(tu.indexOf("FOR ")===0) depth++;
+            if(tu.indexOf("NEXT")===0){ depth--; if(depth===0){ pc=sj; forStack.pop(); return "jump"; } }
+          }
+          throw new Error("FOR without NEXT");
+        }
+        return "next";
+      }
+      if(u.indexOf("NEXT")===0){
+        if(!forStack.length) throw new Error("NEXT without FOR");
+        var fr=forStack[forStack.length-1];
+        var cur=Number(getVar(fr.var))||0;
+        cur+=fr.step;
+        setVar(fr.var, cur);
+        var cont=(fr.step>=0 && cur<=fr.limit) || (fr.step<0 && cur>=fr.limit);
+        if(cont){ pc=fr.bodyPc; return "jump"; }
+        forStack.pop();
+        return "next";
+      }
+
+      if(u.indexOf("DIM ")===0){
+        /* DIM A(10) — allocate sparse array */
+        var dm=cmd.slice(4).match(/([A-Za-z_][A-Za-z0-9_$]*)\s*\(/);
+        if(dm) arrays[normName(dm[1])]={};
+        return "next";
+      }
+
+      throw new Error("Unknown statement: "+cmd.slice(0,60));
+    }
+
+    while(pc<program.length && guard++<maxGuard){
+      var action=execLine(program[pc].text);
+      if(action==="end") break;
+      if(action==="jump") continue;
+      pc++;
+    }
+    if(guard>=maxGuard) return {ok:false, out:out.join("\n")+"\n[Stopped: infinite loop guard]"};
+    return {ok:true, out: out.join("\n") || "(BASIC finished — no PRINT output)"};
+  }
+
+var _pyodide = null;
+  async function runPython(code) {
+    var panel = document.getElementById("runPanel");
+    var chunks = [];
+    function onOut(s) {
+      chunks.push(String(s));
+      if (panel) panel.textContent = chunks.join("");
+    }
+    if (panel) panel.textContent = "Loading Python runtime (first time may take a moment)...";
+    if (!_pyodide) {
+      if (!window.loadPyodide) {
+        await new Promise(function (res, rej) {
+          var s = document.createElement("script");
+          s.src = "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js";
+          s.onload = res;
+          s.onerror = rej;
+          document.head.appendChild(s);
+        });
+      }
+      _pyodide = await loadPyodide({
+        stdout: function (s) { onOut(s + String.fromCharCode(10)); },
+        stderr: function (s) { onOut(s + String.fromCharCode(10)); }
+      });
+    } else {
+      try {
+        _pyodide.setStdout({ batched: function (s) { onOut(s + String.fromCharCode(10)); } });
+        _pyodide.setStderr({ batched: function (s) { onOut(s + String.fromCharCode(10)); } });
+      } catch (e) {}
+    }
+    chunks = [];
+    if (panel) panel.textContent = "Running..." + String.fromCharCode(10);
+    try {
+      var boot = [
+        "import sys",
+        "class _CodexIn:",
+        "  def readline(self):",
+        "    try:",
+        "      from js import prompt as _p",
+        "      v = _p('Program is asking for input:')",
+        "      return (v or '') + chr(10)",
+        "    except Exception:",
+        "      return chr(10)",
+        "sys.stdin = _CodexIn()"
+      ].join(String.fromCharCode(10));
+      await _pyodide.runPythonAsync(boot);
+      var result = await _pyodide.runPythonAsync(code);
+      var printed = chunks.join("").trim();
+      var ret = (result != null && result !== undefined && String(result) !== "undefined" && String(result) !== "None") ? String(result) : "";
+      var out = printed || ret || "(no print output - add print(...) in your code)";
+      if (printed && ret) out = printed + String.fromCharCode(10) + "[return] " + ret;
+      if (panel) panel.textContent = out;
+      return { ok: true, out: out };
+    } catch (e) {
+      var msg = String(e && e.message || e);
+      if (/Errno 29|I\/O error|OSError/i.test(msg)) {
+        msg = "This program uses input(). Enter values in the popup, or use fixed sample values instead of input().";
+      }
+      var printed2 = chunks.join("").trim();
+      if (printed2) msg = printed2 + String.fromCharCode(10) + msg;
+      if (panel) panel.textContent = msg;
+      return { ok: false, out: msg };
+    }
+  }
+
+
+
+  document.getElementById("btnRunCode").onclick=async function(){
+    var outEl=document.getElementById("runPanel")||document.getElementById("output")||document.querySelector(".code-out, #runOut");
+    if(outEl) outEl.scrollIntoView({behavior:"smooth",block:"nearest"});
+
+    var lang=document.getElementById("lang").value;
+    var code=document.getElementById("code").value;
+    var panel=document.getElementById("runPanel");
+    var fr=document.getElementById("runFrame");
+    fr.style.display="none";
+    if(!code.trim()){ __toolToast("No code to run"); return; }
+    panel.textContent="Running…";
+    var res;
+    if(lang==="JavaScript") res=runJs(code);
+    else if(lang==="HTML/CSS") res=runHtml(code);
+    else if(lang==="BASIC") res=runBasic(code);
+    else if(lang==="Python") res=await runPython(code);
+    else {
+      res={ok:false, out: lang+" cannot be executed inside the mobile browser.\nUse this editor to write & learn, then compile/run on a PC (Just BASIC, FreeBASIC, gcc, javac, etc.)."};
+    }
+    panel.innerHTML = res.ok ? ('<span class="ok">'+ST.esc(res.out)+'</span>') : ('<span class="err">'+ST.esc(res.out)+'</span>');
+    if (ST.scrollToResult) ST.scrollToResult(panel);
+  };
+  var pdfB=document.getElementById("btnPdf");
+  if(pdfB) pdfB.onclick=function(){
+    var code=document.getElementById("code").value||"";
+    var notes=document.getElementById("notes").textContent||"";
+    ST.openPrintPdf("Code Assistant — "+document.getElementById("lang").value, "<h2>Code</h2><pre>"+ST.esc(code)+"</pre><h2>Notes</h2><pre>"+ST.esc(notes)+"</pre>");
+  };
+
+};
+</script>
+
+</body></html>

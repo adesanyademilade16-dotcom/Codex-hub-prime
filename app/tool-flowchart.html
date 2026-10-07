@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="../js/theme-boot.js"></script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Flowchart Maker · Codex Hub</title>
+<meta name="theme-color" content="#4F46E5">
+<link rel="icon" href="../assets/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/shell.css">
+<style>
+body.app-body{background:#F5F7FB;font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:#0F172A}
+.tool{max-width:960px;margin:0 auto;padding:16px 14px 120px}
+.tool-top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.back{display:inline-flex;align-items:center;gap:6px;font:700 .78rem "Plus Jakarta Sans",system-ui;color:#4F46E5;text-decoration:none;padding:8px 0}
+.tool-top h1{flex:1;margin:0;font-size:1.2rem;letter-spacing:-.02em}
+.pill{font-size:.65rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:#EEF2FF;color:#4338CA;border-radius:999px;padding:4px 10px}
+.panel{background:#fff;border:1px solid #E2E8F0;border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 6px 18px rgba(15,23,42,.03)}
+.panel h2{margin:0 0 10px;font-size:.88rem;font-weight:800}
+.panel .hint{margin:0 0 12px;font-size:.76rem;color:#64748B;line-height:1.45}
+.btn{border:0;border-radius:12px;padding:10px 14px;font:800 .76rem "Plus Jakarta Sans",system-ui;cursor:pointer}
+.btn-primary{background:#4F46E5;color:#fff}
+.btn-ghost{background:#fff;color:#334155;border:1px solid #E2E8F0}
+.btn-soft{background:#EEF2FF;color:#4338CA}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+textarea,input[type=text],select{width:100%;border:1px solid #E2E8F0;border-radius:12px;padding:11px 12px;font:600 .85rem "Plus Jakarta Sans",system-ui;background:#fff}
+textarea{min-height:100px;resize:vertical;line-height:1.5}
+.workspace{background:#0F172A;color:#E2E8F0;border-radius:14px;padding:14px;min-height:140px;font-size:.84rem;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%) translateY(12px);background:#0F172A;color:#fff;padding:10px 14px;border-radius:12px;font:700 .76rem "Plus Jakarta Sans",system-ui;opacity:0;pointer-events:none;transition:.2s;z-index:90}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.seg{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.seg button{border:1px solid #E2E8F0;background:#fff;border-radius:10px;padding:8px 11px;font:700 .72rem "Plus Jakarta Sans",system-ui;cursor:pointer;color:#475569}
+.seg button.on{background:#4F46E5;border-color:#4F46E5;color:#fff}
+.code-ed{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.8rem;min-height:200px;background:#0B1220;color:#E2E8F0;border-radius:12px;border:1px solid #1E293B;padding:12px;width:100%;resize:vertical;line-height:1.5}
+.canvas-box{background:#F8FAFC;border:1px dashed #CBD5E1;border-radius:14px;min-height:260px;padding:14px;overflow:auto}
+.flow-node{display:block;max-width:280px;margin:0 auto 4px;background:#EEF2FF;border:1px solid #A5B4FC;border-radius:12px;padding:10px 14px;font-size:.78rem;font-weight:700;color:#312E81;text-align:center}
+/* decision diamond replaced below */
+.flow-branch{display:flex;gap:10px;justify-content:center;align-items:stretch;margin:8px 0;flex-wrap:wrap}
+    .flow-branch .arm{flex:1;min-width:120px;max-width:200px;text-align:center}
+    .flow-branch .arm .lbl{font-size:.68rem;font-weight:800;color:#4F46E5;margin-bottom:4px;text-transform:uppercase}
+    .flow-branch .arm .flow-node{margin:0 auto}
+    /* decision diamond replaced below */
+    .flow-arrow{text-align:center;color:#64748B;font-size:.8rem;margin:2px 0}
+.flow-diamond-wrap{display:flex;justify-content:center;margin:8px 0}
+    .flow-diamond{width:160px;min-height:80px;background:#FEF3C7;border:2px solid #F59E0B;
+      display:flex;align-items:center;justify-content:center;text-align:center;padding:12px;
+      font-weight:700;color:#92400E;font-size:.78rem;line-height:1.25;
+      transform:rotate(0deg);border-radius:12px}
+    
+    /* decision rule moved */
+    /* decision rule moved */
+    /* decision rule moved */
+
+    /* decision rule moved */
+/* decision rule moved */
+.flow-node.start-end{border-radius:999px;background:#EEF2FF;border-color:#4F46E5}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:720px){.grid-2{grid-template-columns:1fr}}
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.step{font-size:.68rem;font-weight:800;padding:5px 10px;border-radius:999px;background:#F1F5F9;color:#64748B}
+.step.on{background:#4F46E5;color:#fff}
+
+.flow-diamond-wrap{display:flex;justify-content:center;margin:8px 0}
+    .flow-diamond{width:160px;min-height:80px;background:#FEF3C7;border:2px solid #F59E0B;
+      display:flex;align-items:center;justify-content:center;text-align:center;padding:12px;
+      font-weight:700;color:#92400E;font-size:.78rem;line-height:1.25;
+      transform:rotate(0deg);border-radius:12px}
+    /* decision rule moved */
+/* decision rule moved */
+/* decision rule moved */
+.flow-node{transform:none !important;}
+
+
+/* Decision diamond — shape via clip-path, TEXT always horizontal */
+.flow-node.decision{
+  background:#FEF3C7 !important;
+  border:2px solid #F59E0B !important;
+  border-radius:0 !important;
+  clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  transform:none !important;
+  min-height:96px;
+  min-width:96px;
+  max-width:160px;
+  margin:12px auto !important;
+  padding:22px 16px !important;
+  display:flex !important;
+  align-items:center;
+  justify-content:center;
+  box-sizing:border-box;
+}
+.flow-node.decision .dtxt,
+.flow-node.decision span{
+  transform:none !important;
+  rotate:none !important;
+  writing-mode:horizontal-tb !important;
+  text-orientation:mixed !important;
+  display:block;
+  max-width:88px;
+  font-size:.72rem;
+  line-height:1.25;
+  text-align:center;
+  font-weight:800;
+  color:#92400E;
+  word-break:break-word;
+}
+.flow-node{transform:none !important;}
+.flow-node.loop-arm{border-style:dashed;border-color:#F59E0B;background:#FFFBEB}
+.loop-tag{margin-top:4px;font-size:.62rem;font-weight:800;letter-spacing:.02em;color:#B45309;text-transform:none}
+
+</style>
+</head>
+<body class="app-body">
+
+<main class="tool">
+  <div class="tool-top">
+    <a class="back" href="student-tools.html">← Tools</a>
+    <h1>Flowchart Maker</h1>
+    <span class="pill">Computer Science</span>
+  </div>
+  <div class="grid-2">
+    <div class="panel">
+      <h2>Describe the process</h2>
+      <p class="hint">Algorithm, decision tree, or system flow. Example: “Login validation with success and error paths.”</p>
+      <textarea id="desc" placeholder="Describe the process or algorithm..."></textarea>
+      <div class="actions">
+        <button type="button" class="btn btn-primary" id="btnGen">Generate flowchart</button>
+        <button type="button" class="btn btn-soft" id="btnRegen">Regenerate</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Flowchart canvas</h2>
+      <p class="hint">Edit node text below, then export as text or print to PDF from the browser.</p>
+      <div class="canvas-box" id="canvas"><p style="color:#64748B;font-size:.8rem;text-align:center">Flowchart nodes will appear here</p></div>
+      <div class="actions">
+        <button type="button" class="btn btn-ghost" id="btnAdd">Add node</button>
+        <button type="button" class="btn btn-ghost" id="btnDl">Download .txt</button>
+        <button type="button" class="btn btn-soft" id="btnPng">Download PNG</button>
+        <button type="button" class="btn btn-ghost" id="btnPrint">Export PDF</button>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Node editor</h2>
+    <p class="hint">One node per line. Prefix with [D] for decision, [P] for process, [S] start/end.</p>
+    <textarea id="nodes" class="code-ed" style="min-height:120px;color:#E2E8F0" placeholder="[S] Start&#10;[P] Read input&#10;[D] Valid?&#10;[P] Process&#10;[S] End"></textarea>
+    <div class="actions"><button type="button" class="btn btn-primary" id="btnRender">Update canvas</button></div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+<script src="../js/firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="../js/app-auth.js"></script>
+<script src="../js/media.js"></script>
+<script src="../js/shell.js"></script>
+<script src="../js/student-tools-core.js"></script>
+<script src="../js/auto-scroll.js"></script>
+<script>
+(function(){
+  "use strict";
+  if(!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+  var ST = window.CodexStudentTools;
+  var uid=null, profile=null;
+  function toast(m){ var t=document.getElementById("toast"); if(!t)return; t.textContent=m; t.classList.add("show"); clearTimeout(t._tm); t._tm=setTimeout(function(){t.classList.remove("show");},2400); }
+  window.__toolToast=toast; window.__toolUid=function(){return uid;}; window.__toolProfile=function(){return profile;};
+  async function boot(){
+    var r; try{ r=await CodexAuth.requireUser(); }catch(e){return;}
+    uid=r.user.uid; profile=Object.assign({}, r.profile||{});
+    try{ var pub=await firebase.firestore().collection("public_profiles").doc(uid).get(); if(pub.exists){ var pp=pub.data()||{}; if(pp.avatarKey)profile.avatarKey=pp.avatarKey; if(pp.photoURL)profile.photoURL=pp.photoURL; } }catch(e){}
+    var name=(profile.fullName||profile.displayName||r.user.email||"Student");
+    CodexShell.mountShell({page:"tools", title:'Flowchart Maker', user:Object.assign({fullName:name}, r.user), profile:profile});
+    ST.pushRecent(uid, {toolId:'flowchart', title:'Flowchart Maker', subtitle:"Opened", href:location.pathname.split("/").pop()});
+    if(typeof window.__toolReady==="function") window.__toolReady();
+  }
+  boot();
+})();
+</script>
+
+<script>
+window.__toolReady=function(){
+  var ST=CodexStudentTools, nodes=[];
+  // The DOM preview, the PNG export and the PDF export all read the SAME
+  // normalized block list (ST.normalizeFlow), so what the student sees on
+  // screen is exactly what prints/downloads — a decision always keeps its
+  // Yes/No fork instead of flattening into one straight list, and a branch
+  // whose text means "try again" gets a visible loop-back marker instead of
+  // dead-ending.
+  function render(){
+    var box=document.getElementById("canvas");
+    if(!nodes.length){
+      box.innerHTML='<p style="color:#64748B;font-size:.8rem;text-align:center">No nodes</p>'; return;
+    }
+    var blocks = ST.normalizeFlow(nodes);
+    var html="";
+    blocks.forEach(function(b, idx){
+      if(b.kind==="decision"){
+        html += '<div class="flow-node decision"><span class="dtxt">'+ST.esc(b.text)+'</span></div>';
+        html += '<div class="flow-branch">';
+        html += '<div class="arm"><div class="lbl">Yes</div><div class="flow-node'+(b.yes.loop?' loop-arm':'')+'">'+ST.esc(b.yes.text)+(b.yes.loop?'<div class="loop-tag">\u21BA loops back</div>':'')+'</div></div>';
+        html += '<div class="arm"><div class="lbl">No</div><div class="flow-node'+(b.no.loop?' loop-arm':'')+'">'+ST.esc(b.no.text)+(b.no.loop?'<div class="loop-tag">\u21BA loops back</div>':'')+'</div></div>';
+        html += '</div>';
+        if(idx<blocks.length-1) html += '<div class="flow-arrow">↓</div>';
+        return;
+      }
+      var cls = "flow-node"+(b.kind==="start"?" start":"");
+      html += '<div class="'+cls+'" data-i="'+idx+'">'+ST.esc(b.text)+'</div>';
+      if(idx<blocks.length-1) html += '<div class="flow-arrow">↓</div>';
+    });
+    box.innerHTML = html || '<div class="empty">Add steps or generate with AI</div>';
+  }
+  function syncEditor(){
+    document.getElementById("nodes").value = nodes.map(function(n){
+      var p = n.type==="decision"?"[D] ": n.type==="yes"?"[Y] ": n.type==="no"?"[N] ": n.type==="start"?"[S] ": "[P] ";
+      return p+n.text;
+    }).join("\n");
+  }
+  function parseEditor(){
+    nodes=[];
+    document.getElementById("nodes").value.split("\n").forEach(function(line){
+      line=line.trim(); if(!line) return;
+      var type="process", text=line;
+      if(/^\[D\]/i.test(line)){ type="decision"; text=line.replace(/^\[D\]\s*/i,""); }
+      else if(/^\[Y\]/i.test(line)){ type="yes"; text=line.replace(/^\[Y\]\s*/i,""); }
+      else if(/^\[N\]/i.test(line)){ type="no"; text=line.replace(/^\[N\]\s*/i,""); }
+      else if(/^\[S\]/i.test(line)){ type="start"; text=line.replace(/^\[S\]\s*/i,""); }
+      else { type="process"; text=line.replace(/^\[P\]\s*/i,""); }
+      nodes.push({type:type, text:text});
+    });
+    render();
+    try { document.getElementById("canvas").scrollIntoView({behavior:"smooth",block:"nearest"}); } catch(e) {}
+  }
+  async function gen(){
+    var d=document.getElementById("desc").value.trim();
+    if(!d){ __toolToast("Describe the process first"); return; }
+    document.getElementById("canvas").innerHTML='<p style="color:#64748B;text-align:center">Generating…</p>';
+    try{
+      var reply=await ST.callToolAI({ uid:__toolUid(), 
+        tool:"flowchart",
+        message:"Create a flowchart for:\n"+d+"\n\nReturn ONLY lines, no markdown:\n[S] Start\n[P] step\n[D] decision question?\n[Y] what happens if yes\n[N] what happens if no\n[P] continue\n[S] End\nEvery [D] MUST be followed by [Y] and [N] on the next lines.",
+        system:"You build academic flowcharts for Nigerian university students, with the discipline of someone who actually teaches flowchart design (clear decision logic, no dead ends). Output ONLY lines: [S] start/end, [P] process, [D] decision question, then immediately [Y] action if YES and [N] action if NO — never skip either branch and never describe a yes/no outcome as a plain [P] step. Keep each line short (under ~55 characters) so it fits on a phone; break a long action into two [P] steps instead of one long line. If a NO (or YES) branch logically means the user tries again or returns to an earlier step, write it starting with 'Retry:' or 'Go back:' (e.g. '[N] Retry: re-enter username and password') so it is clearly a loop, not a dead end — do not just repeat the full earlier step text. Prefer 8-14 nodes for a typical process; only go longer if the process genuinely has that many distinct decisions. For calculations use correct BODMAS/order of operations — e.g. simple interest must be I = (P × R × T) ÷ 100, never multiply after dividing T by 100 incorrectly. Put each formula step in its own [P] node."
+      });
+      document.getElementById("nodes").value = reply.replace(/```/g,"").trim();
+      parseEditor();
+      try{ document.getElementById("canvas").scrollIntoView({behavior:"smooth",block:"nearest"}); }catch(e){}
+      ST.pushRecent(__toolUid(),{toolId:"flowchart",title:d.slice(0,48),subtitle:"Flowchart",href:"tool-flowchart.html"});
+    }catch(e){
+      __toolToast("Generate failed");
+      document.getElementById("canvas").innerHTML='<p style="color:#B91C1C;text-align:center">'+(e.message||"Error")+'</p>';
+    }
+  }
+  document.getElementById("btnGen").onclick=gen;
+  document.getElementById("btnRegen").onclick=gen;
+  document.getElementById("btnRender").onclick=parseEditor;
+  document.getElementById("btnAdd").onclick=function(){
+    nodes.push({type:"process",text:"New step"});
+    syncEditor(); render();
+  };
+  document.getElementById("btnDl").onclick=function(){
+    ST.downloadText("flowchart.txt", document.getElementById("nodes").value);
+    __toolToast("Downloaded");
+  };
+  document.getElementById("btnPng").onclick=function(){
+    if(!nodes.length){ __toolToast("Generate a flowchart first"); return; }
+    try{
+      var c = ST.flowchartToCanvas(nodes);
+      ST.downloadDataUrl("flowchart.png", c.toDataURL("image/png"));
+      __toolToast("PNG downloaded");
+    }catch(e){ __toolToast("PNG export failed"); console.error(e); }
+  };
+  document.getElementById("btnPrint").onclick=function(){
+    if(!nodes.length){ __toolToast("Generate a flowchart first"); return; }
+    // Same normalized blocks as the on-screen canvas, so the PDF keeps every
+    // Yes/No fork instead of flattening the whole chart into one straight list.
+    var blocks = ST.normalizeFlow(nodes);
+    var html = "";
+    blocks.forEach(function(b, idx){
+      if(b.kind==="decision"){
+        html += '<div class="flow-node decision">'+ST.esc(b.text)+'</div>';
+        html += '<div style="display:flex;gap:14px;justify-content:center;margin:8px 0;flex-wrap:wrap">' +
+          '<div style="text-align:center;max-width:220px"><div style="font:800 .68rem system-ui;color:#4F46E5;margin-bottom:4px">YES</div>' +
+          '<div class="flow-node'+(b.yes.loop?' loop-arm':'')+'">'+ST.esc(b.yes.text)+(b.yes.loop?'<div class="loop-tag">\u21BA loops back</div>':'')+'</div></div>' +
+          '<div style="text-align:center;max-width:220px"><div style="font:800 .68rem system-ui;color:#4F46E5;margin-bottom:4px">NO</div>' +
+          '<div class="flow-node'+(b.no.loop?' loop-arm':'')+'">'+ST.esc(b.no.text)+(b.no.loop?'<div class="loop-tag">\u21BA loops back</div>':'')+'</div></div>' +
+          '</div>';
+      } else {
+        html += '<div class="flow-node'+(b.kind==="start"?" start-end":"")+'">'+ST.esc(b.text)+'</div>';
+      }
+      if(idx<blocks.length-1) html += '<div class="flow-arrow">↓</div>';
+    });
+    ST.openPrintPdf("Flowchart", html);
+  };
+};
+</script>
+
+</body></html>

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script src="../js/theme-boot.js"></script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shared quiz · Codex Hub</title>
+<meta name="theme-color" content="#4F46E5">
+<link rel="icon" href="../assets/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#0F172A; --muted:#64748B; --line:#E2E8F0; --accent:#4F46E5; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:"Plus Jakarta Sans",system-ui,sans-serif; background:#F8FAFC; color:var(--ink); min-height:100dvh; }
+  .wrap { max-width:520px; margin:0 auto; padding:20px 16px 40px; }
+  .brand { display:flex; align-items:center; gap:10px; margin-bottom:20px; text-decoration:none; color:inherit; }
+  .brand img { width:36px; height:36px; border-radius:10px; }
+  .brand b { font-size:1rem; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:20px; padding:20px; box-shadow:0 10px 30px rgba(15,23,42,.06); }
+  h1 { margin:0 0 6px; font-size:1.25rem; }
+  .meta { color:var(--muted); font-size:.85rem; margin-bottom:16px; }
+  .opt { display:block; border:1.5px solid var(--line); border-radius:14px; padding:12px 14px; margin:8px 0; cursor:pointer; }
+  .opt:has(input:checked) { border-color:#818CF8; background:#EEF2FF; }
+  .nav { display:flex; gap:10px; margin-top:16px; }
+  .nav button { flex:1; height:48px; border:0; border-radius:14px; font-weight:800; font-family:inherit; cursor:pointer; }
+  .pri { background:linear-gradient(135deg,#4F46E5,#7C3AED); color:#fff; }
+  .sec { background:#F1F5F9; color:#334155; }
+  .start { text-align:center; }
+  .start .big { font-size:2rem; font-weight:800; color:var(--accent); margin:8px 0; }
+  .err { color:#DC2626; padding:20px; text-align:center; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="brand" href="../index.html"><img src="../assets/logo.png" alt=""><b>Codex Hub</b></a>
+    <div class="card" id="root"><p class="meta">Loading quiz…</p></div>
+  </div>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script>
+  (function () {
+    var id = new URLSearchParams(location.search).get("id");
+    var root = document.getElementById("root");
+    if (!id) { root.innerHTML = '<p class="err">Missing quiz link.</p>'; return; }
+    var db = firebase.firestore();
+    var quiz = [], title = "Shared quiz", idx = 0, answers = {};
+    function esc(s){return String(s||"").replace(/[&<>"']/g,function(m){return({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[m];});}
+    function paintStart() {
+      root.innerHTML = '<div class="start"><h1>'+esc(title)+'</h1><p class="meta">Shared practice on Codex Hub</p>'+
+        '<div class="big">'+quiz.length+'</div><p class="meta">questions · untimed practice</p>'+
+        '<button class="pri" style="width:100%;height:52px;border:0;border-radius:14px;font-weight:800;font-family:inherit;cursor:pointer;margin-top:12px" id="go">Start quiz</button></div>';
+      document.getElementById("go").onclick = function(){ idx=0; answers={}; paintQ(); };
+    }
+    function paintQ() {
+      var item = quiz[idx];
+      root.innerHTML = '<p class="meta">Question '+(idx+1)+' / '+quiz.length+'</p><h1 style="font-size:1.05rem">'+esc(item.q)+'</h1>'+
+        item.options.map(function(o,i){
+          var c = answers[idx]===i?' checked':'';
+          return '<label class="opt"><input type="radio" name="q" value="'+i+'"'+c+'> '+esc(o)+'</label>';
+        }).join('')+
+        '<div class="nav"><button class="sec" id="back"'+(idx===0?' disabled':'')+'>Back</button>'+
+        (idx<quiz.length-1?'<button class="pri" id="next">Next</button>':'<button class="pri" id="fin">Finish</button>')+'</div>';
+      root.querySelectorAll('input[name=q]').forEach(function(inp){ inp.onchange=function(){ answers[idx]=+inp.value; }; });
+      var b=document.getElementById("back"); if(b) b.onclick=function(){idx--;paintQ();};
+      var n=document.getElementById("next"); if(n) n.onclick=function(){var s=root.querySelector('input:checked');if(s)answers[idx]=+s.value;idx++;paintQ();};
+      var f=document.getElementById("fin"); if(f) f.onclick=function(){
+        var s=root.querySelector('input:checked');if(s)answers[idx]=+s.value;
+        var correct=0; quiz.forEach(function(it,i){ if(answers[i]===it.ans) correct++; });
+        var pct=Math.round(100*correct/quiz.length);
+        root.innerHTML='<div class="start"><h1>Score</h1><div class="big">'+correct+' / '+quiz.length+'</div><p class="meta">'+pct+'% · Practice on Codex Hub</p>'+
+          '<button class="pri" style="width:100%;height:48px;border:0;border-radius:14px;font-weight:800;margin-top:12px" id="retry">Retry</button>'+
+          '<a href="../index.html" style="display:block;text-align:center;margin-top:14px;color:var(--accent);font-weight:700">Open Codex Hub</a></div>';
+        document.getElementById("retry").onclick=paintStart;
+      };
+    }
+    db.collection("shared_quizzes").doc(id).get().then(function(snap){
+      if(!snap.exists){ root.innerHTML='<p class="err">This quiz link is invalid or was removed.</p>'; return; }
+      var d=snap.data()||{};
+      title=d.title||"Shared quiz";
+      quiz=Array.isArray(d.questions)?d.questions:[];
+      if(!quiz.length){ root.innerHTML='<p class="err">No questions in this quiz.</p>'; return; }
+      try{ db.collection("shared_quizzes").doc(id).update({views:firebase.firestore.FieldValue.increment(1)}); }catch(e){}
+      paintStart();
+    }).catch(function(err){ root.innerHTML='<p class="err">'+esc(err.message)+'</p>'; });
+  })();
+  </script>
+</body>
+</html>

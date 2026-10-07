@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="../js/theme-boot.js"></script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Study Lab · Codex Hub</title>
+  <meta name="theme-color" content="#6D28D9">
+  <link rel="icon" href="../assets/favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/shell.css">
+  <style>
+    :root {
+      --indigo: #4F46E5; --violet: #7C3AED; --ink: #0F172A;
+      --muted: #64748B; --line: #E8ECF4; --font: "Plus Jakarta Sans", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body.app-body { margin: 0; font-family: var(--font); background: #F1F5F9; color: var(--ink); }
+    .page { max-width: 960px; margin: 0 auto; padding: 12px 14px 32px; }
+
+    .head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .head a {
+      width: 40px; height: 40px; border-radius: 12px; background: #fff; border: 1px solid var(--line);
+      display: grid; place-items: center; text-decoration: none; color: var(--ink); font-weight: 700;
+    }
+    .head h1 { margin: 0; font-size: 1.2rem; font-weight: 800; flex: 1; }
+    .add-btn {
+      width: 44px; height: 44px; border-radius: 14px; border: 0;
+      background: linear-gradient(135deg, #4F46E5, #7C3AED); color: #fff;
+      font-size: 1.4rem; font-weight: 700; cursor: pointer;
+      box-shadow: 0 8px 20px rgba(79,70,229,.3);
+    }
+
+    .feature-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;
+    }
+    @media (min-width: 720px) {
+      .feature-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    .feat {
+      border-radius: 18px; padding: 16px 12px; color: #fff; min-height: 110px;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      position: relative; overflow: hidden;
+      transform: translateY(12px); opacity: 0;
+      animation: rise .5s cubic-bezier(.22,1,.36,1) forwards;
+    }
+    .feat:nth-child(1) { background: linear-gradient(145deg, #4F46E5, #6366F1); animation-delay: .05s; }
+    .feat:nth-child(2) { background: linear-gradient(145deg, #7C3AED, #A855F7); animation-delay: .12s; }
+    .feat:nth-child(3) { background: linear-gradient(145deg, #059669, #10B981); animation-delay: .18s; }
+    .feat:nth-child(4) { background: linear-gradient(145deg, #D97706, #F59E0B); animation-delay: .24s; }
+    @keyframes rise {
+      to { transform: none; opacity: 1; }
+    }
+    .feat b { font-size: .9rem; font-weight: 800; }
+    .feat span { font-size: .72rem; opacity: .9; margin-top: 4px; }
+    .feat svg { position: absolute; top: 12px; right: 12px; opacity: .35; }
+
+    .sec {
+      font-size: .68rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--muted); margin: 8px 0 10px;
+    }
+
+    .folders {
+      display: grid; gap: 12px;
+      grid-template-columns: repeat(2, 1fr);
+    }
+    @media (min-width: 600px) {
+      .folders { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (min-width: 900px) {
+      .folders { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    .folder {
+      background: #fff; border: 1px solid var(--line); border-radius: 16px;
+      padding: 12px; text-decoration: none; color: inherit;
+      box-shadow: 0 6px 16px rgba(15,23,42,.04);
+      transition: transform .2s, box-shadow .2s;
+      display: flex; flex-direction: column; gap: 6px;
+      min-height: 0; position: relative; overflow: hidden;
+    }
+    .folder:active { transform: scale(.98); }
+    .folder .icon-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; }
+    .folder .icon {
+      width: 40px; height: 34px; border-radius: 6px 6px 4px 4px;
+      background: linear-gradient(180deg, #60A5FA, #2563EB);
+      position: relative; flex-shrink: 0; margin-top: 4px;
+    }
+    .folder .icon::before {
+      content: ""; position: absolute; top: -5px; left: 0; width: 42%; height: 8px;
+      background: #3B82F6; border-radius: 3px 3px 0 0;
+    }
+    .folder:nth-child(3n+2) .icon { background: linear-gradient(180deg, #A78BFA, #7C3AED); }
+    .folder:nth-child(3n+2) .icon::before { background: #8B5CF6; }
+    .folder:nth-child(3n+3) .icon { background: linear-gradient(180deg, #34D399, #059669); }
+    .folder:nth-child(3n+3) .icon::before { background: #10B981; }
+    .folder .name {
+      font-size: .78rem; font-weight: 700; line-height: 1.3;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      word-break: break-word;
+    }
+    .folder .meta { font-size: .65rem; color: var(--muted); }
+    .folder .del {
+      width: 28px; height: 28px; border: 0; border-radius: 8px;
+      background: #FEF2F2; color: #DC2626; cursor: pointer;
+      display: grid; place-items: center; flex-shrink: 0;
+      font-size: .85rem; font-weight: 700; line-height: 1;
+    }
+    .folder .del:active { background: #FEE2E2; }
+
+    .empty {
+      grid-column: 1 / -1; text-align: center; padding: 36px 16px;
+      background: #fff; border: 1px dashed var(--line); border-radius: 18px; color: var(--muted);
+    }
+    .empty strong { display: block; color: var(--ink); margin-bottom: 6px; }
+
+    .modal-bg {
+      display: none; position: fixed; inset: 0; background: rgba(15,23,42,.55); z-index: 200;
+      align-items: flex-end; justify-content: center;
+    }
+    .modal-bg.show { display: flex; }
+    @media (min-width: 600px) {
+      .modal-bg { align-items: center; }
+    }
+    .modal {
+      background: #fff; width: 100%; max-width: 420px; border-radius: 20px 20px 0 0;
+      padding: 20px 20px 0; max-height: min(88vh, 640px);
+      display: flex; flex-direction: column;
+      box-shadow: 0 -12px 40px rgba(15,23,42,.2);
+    }
+    @media (min-width: 600px) {
+      .modal { border-radius: 20px; }
+    }
+    .modal-body { overflow-y: auto; flex: 1; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
+    .modal h2 { margin: 0 0 12px; font-size: 1.05rem; }
+    .modal label { display: block; font-size: .78rem; font-weight: 700; margin: 10px 0 6px; color: #0F172A; }
+    .modal input, .modal select {
+      width: 100%; height: 46px; border-radius: 12px; border: 1.5px solid var(--line);
+      padding: 0 12px; font: inherit; box-sizing: border-box; background: #fff; color: #0F172A;
+    }
+    .modal .actions {
+      display: flex; gap: 8px; padding: 14px 0 calc(14px + env(safe-area-inset-bottom));
+      border-top: 1px solid #F1F5F9; background: #fff; position: sticky; bottom: 0;
+    }
+    .modal .actions button {
+      flex: 1; height: 48px; border-radius: 12px; border: 0; font-weight: 800; cursor: pointer; font-family: inherit;
+    }
+    .modal .actions .pri { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: #fff; }
+    .modal .actions .ghost { background: #F1F5F9; color: #0F172A; }
+    #uploadInput { display: none; }
+    .hint { font-size: .75rem; color: var(--muted); margin-top: 8px; line-height: 1.4; }
+  
+    .slider-row {
+      display: flex; align-items: center; gap: 10px; margin: 4px 0 14px;
+    }
+    .slider-row span { font-size: .72rem; color: #94A3B8; font-weight: 700; width: 22px; }
+    .slider-row input[type=range] {
+      flex: 1; -webkit-appearance: none; appearance: none; height: 6px;
+      border-radius: 99px; background: linear-gradient(90deg, #C7D2FE, #A5B4FC);
+      outline: none;
+    }
+    .slider-row input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+      background: linear-gradient(135deg, #4F46E5, #7C3AED); border: 3px solid #fff;
+      box-shadow: 0 2px 8px rgba(79,70,229,.4); cursor: pointer;
+    }
+    .slider-row input[type=range]::-moz-range-thumb {
+      width: 22px; height: 22px; border-radius: 50%; border: 3px solid #fff;
+      background: linear-gradient(135deg, #4F46E5, #7C3AED); cursor: pointer;
+    }
+    label strong { color: #4F46E5; }
+    
+    .folder-card h3, .folder-card .name, .folders .title, .folders h3 {
+      max-width: 100%; overflow: hidden; text-overflow: ellipsis;
+      white-space: nowrap; word-break: break-all;
+    }
+    .folders { overflow-x: hidden; }
+    .folder-card { max-width: 100%; box-sizing: border-box; }
+    </style>
+</head>
+<body class="app-body" data-page="ai">
+  <div class="page">
+    <div class="head">
+      <a href="ai-lab.html" aria-label="Back">←</a>
+      <h1>Study Lab</h1>
+      <button type="button" class="add-btn" id="addBtn" aria-label="Upload document">+</button>
+    </div>
+
+    <div class="feature-grid" aria-hidden="true">
+      <div class="feat">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="4" y="5" width="16" height="14" rx="2"/></svg>
+        <b>Flashcards</b><span>Tap to reveal answers</span>
+      </div>
+      <div class="feat">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg>
+        <b>Quizzes</b><span>Self-check sets</span>
+      </div>
+      <div class="feat">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M5 5h9l5 5v9H5z"/></svg>
+        <b>Summaries</b><span>Read aloud ready</span>
+      </div>
+      <div class="feat">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M12 3l2 6h6l-5 4 2 6-5-3.5L7 19l2-6-5-4h6z"/></svg>
+        <b>AI tools</b><span>Per document</span>
+      </div>
+    </div>
+
+    <p class="sec">Your documents</p>
+    <div class="folders" id="folders">
+      <div class="empty"><strong>Loading…</strong></div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="modal">
+    <div class="modal">
+      <div class="modal-body">
+      <h2>Add course document</h2>
+      <label for="docTitle">Title</label>
+      <input id="docTitle" placeholder="e.g. PHY101 Mechanics notes">
+      <label for="docCourse">Course code (optional)</label>
+      <input id="docCourse" placeholder="PHY101">
+      <p id="planLimitHint" style="font-size:.72rem;color:#64748B;margin:0 0 8px;line-height:1.4">Plan limits apply to generation counts.</p>
+      <label for="flashCount">Flashcards to generate <strong id="flashVal">8</strong></label>
+      <div class="slider-row">
+        <span>5</span>
+        <input type="range" id="flashCount" min="5" max="10" step="1" value="8">
+        <span>40</span>
+      </div>
+      <label for="quizCount">Quiz questions <strong id="quizVal">5</strong></label>
+      <div class="slider-row">
+        <span>3</span>
+        <input type="range" id="quizCount" min="3" max="5" step="1" value="5">
+        <span>25</span>
+      </div>
+      <label>File (PDF, Word, PowerPoint, TXT)</label>
+      <button type="button" id="pickFile" style="width:100%;height:46px;border-radius:12px;border:1.5px dashed #C7D2FE;background:#EEF2FF;font-weight:700;cursor:pointer">Choose file</button>
+      <input type="file" id="uploadInput" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain">
+      <p class="hint" id="fileHint">Uploads go to Cloudinary; metadata is stored on your Firestore account.</p>
+      </div>
+      <div class="actions">
+        <button type="button" class="ghost" id="cancelModal">Cancel</button>
+        <button type="button" class="pri" id="saveDoc">Create &amp; open</button>
+      </div>
+    </div>
+  </div>
+
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/app-auth.js"></script>
+  <script src="../js/codex-quota.js"></script>
+  <script src="../js/media.js"></script>
+  <script src="../js/onboarding.js"></script>
+  <script src="../js/shell.js"></script>
+  <script>
+  (function () {
+    "use strict";
+    var user, db, profile, pendingFile = null;
+    
+    function todayKey() {
+      var d = new Date();
+      return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+    }
+        function getUploadUsage() {
+      var uid = user && user.uid;
+      var tier = (profile && (profile.subscriptionTier || profile.plan)) || "free";
+      if (window.CodexQuota) {
+        var u = CodexQuota.readUsage(uid, "lab");
+        return { date: u.date, count: u.used };
+      }
+      return { date: "", count: 0 };
+    }
+    function bumpUploadUsage() {
+      var uid = user && user.uid;
+      var tier = (profile && (profile.subscriptionTier || profile.plan)) || "free";
+      if (window.CodexQuota) return CodexQuota.spendUpload(uid, tier, db);
+      return null;
+    }
+    function canUploadDoc() {
+      var tier = (profile && (profile.subscriptionTier || profile.plan)) || "free";
+      var lim = planLimits(tier);
+      if (window.CodexQuota) {
+        if (!CodexQuota.canUpload(user && user.uid, tier)) {
+          alert(lim.label + " plan: " + lim.uploads + " Study Lab upload(s) per day used up. Come back tomorrow or upgrade.");
+          if (confirm("Open pricing?")) location.href = "pricing.html";
+          return false;
+        }
+        return true;
+      }
+      return true;
+    }
+
+    function planLimits(tier) {
+      if (window.CodexQuota) return CodexQuota.labLimits(tier);
+      tier = (tier || "free").toLowerCase();
+      if (tier.indexOf("pro") >= 0) return { flashMax: 40, quizMax: 35, flashDef: 20, quizDef: 15, docsMax: 80, uploads: 15, label: "Pro" };
+      if (tier.indexOf("regular") >= 0) return { flashMax: 25, quizMax: 20, flashDef: 15, quizDef: 12, docsMax: 40, uploads: 9, label: "Regular" };
+      return { flashMax: 15, quizMax: 10, flashDef: 10, quizDef: 8, docsMax: 12, uploads: 3, label: "Free" };
+    }
+    function applyPlanLimits(tier) {
+      var lim = planLimits(tier);
+      var fc = document.getElementById("flashCount");
+      var qc = document.getElementById("quizCount");
+      if (fc) {
+        fc.max = String(lim.flashMax);
+        if (parseInt(fc.value, 10) > lim.flashMax) fc.value = String(lim.flashMax);
+        var fv = document.getElementById("flashVal");
+        if (fv) fv.textContent = fc.value;
+      }
+      if (qc) {
+        qc.max = String(lim.quizMax);
+        if (parseInt(qc.value, 10) > lim.quizMax) qc.value = String(lim.quizMax);
+        var qv = document.getElementById("quizVal");
+        if (qv) qv.textContent = qc.value;
+      }
+      var hint = document.getElementById("planLimitHint");
+      if (hint) {
+        var leftUp = (window.CodexQuota && user) ? CodexQuota.remainingUploads(user.uid, (profile && (profile.subscriptionTier || profile.plan)) || "free") : lim.uploads;
+        hint.innerHTML = "<strong>" + lim.label + "</strong> plan · up to " + lim.flashMax + " flashcards · " + lim.quizMax + " quiz Qs · <span id=\"labInk\">📄 " + leftUp + "/" + lim.uploads + " uploads left today</span>. <a href=\"pricing.html\" style=\"color:#4F46E5;font-weight:700\">Upgrade</a>";
+      }
+      return lim;
+    }
+
+    function bindSliders() {
+      var fc = document.getElementById("flashCount");
+      var qc = document.getElementById("quizCount");
+      var fv = document.getElementById("flashVal");
+      var qv = document.getElementById("quizVal");
+      function clamp(el, valEl, kind) {
+        if (!el) return;
+        el.oninput = function () {
+          var lim = planLimits((profile && (profile.subscriptionTier || profile.plan)) || "free");
+          var max = kind === "flash" ? lim.flashMax : lim.quizMax;
+          if (parseInt(el.value, 10) > max) {
+            el.value = String(max);
+            if (!el._limitToast) {
+              el._limitToast = true;
+              setTimeout(function () { el._limitToast = false; }, 800);
+              var hint = document.getElementById("planLimitHint");
+              if (hint) {
+                hint.style.color = "#DC2626";
+                setTimeout(function () { hint.style.color = ""; }, 1200);
+              }
+            }
+          }
+          if (valEl) valEl.textContent = el.value;
+        };
+      }
+      if (fc && fv) { fv.textContent = fc.value; clamp(fc, fv, "flash"); }
+      if (qc && qv) { qv.textContent = qc.value; clamp(qc, qv, "quiz"); }
+    }
+    bindSliders();
+
+
+    CodexShell.mountShell({ page: "ai", title: "Study Lab", user: { fullName: "Student" } });
+
+    function escape(s) {
+      return String(s || "").replace(/[&<>"']/g, function (m) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[m];
+      });
+    }
+
+    function countArtifacts(d) {
+      var fc = 0, qz = 0;
+      try {
+        if (Array.isArray(d.flashcards)) fc = d.flashcards.length;
+        else if (d.outputs && d.outputs.flashcards) {
+          var a = typeof d.outputs.flashcards === "string" ? JSON.parse(d.outputs.flashcards) : d.outputs.flashcards;
+          if (Array.isArray(a)) fc = a.length;
+        }
+      } catch (e) {}
+      try {
+        if (Array.isArray(d.quiz)) qz = d.quiz.length;
+        else if (d.outputs && d.outputs.quiz) {
+          var b = typeof d.outputs.quiz === "string" ? JSON.parse(d.outputs.quiz) : d.outputs.quiz;
+          if (Array.isArray(b)) qz = b.length;
+        }
+      } catch (e) {}
+      return { fc: fc, qz: qz };
+    }
+    function renderFolders(docs) {
+      var el = document.getElementById("folders");
+      if (!docs.length) {
+        el.innerHTML = '<div class="empty"><strong>No documents yet</strong>Tap + to upload a PDF, Word, PowerPoint or notes file. Each upload becomes a folder with flashcards, quiz and summary tools.</div>';
+        return;
+      }
+      el.innerHTML = docs.map(function (d) {
+        var counts = countArtifacts(d);
+        var metaBits = [d.courseCode || d.detectedSubject || "Document"];
+        if (counts.fc) metaBits.push(counts.fc + " cards");
+        if (counts.qz) metaBits.push(counts.qz + " quiz");
+        return (
+          '<div class="folder" data-id="' + escape(d.id) + '">' +
+            '<div class="icon-row">' +
+              '<a href="study-lab-doc.html?id=' + encodeURIComponent(d.id) + '" style="flex:1;min-width:0;text-decoration:none;color:inherit">' +
+                '<div class="icon" aria-hidden="true"></div>' +
+              '</a>' +
+              '<button type="button" class="del" data-del="' + escape(d.id) + '" aria-label="Delete" title="Delete">×</button>' +
+            '</div>' +
+            '<a href="study-lab-doc.html?id=' + encodeURIComponent(d.id) + '" style="text-decoration:none;color:inherit">' +
+              '<div class="name">' + escape(d.title || d.fileName || d.name || "Untitled") + '</div>' +
+              '<div class="meta">' + escape(metaBits.join(" · ")) + '</div>' +
+            '</a>' +
+          '</div>'
+        );
+      }).join("");
+    }
+    document.getElementById("folders").addEventListener("click", function (e) {
+      var btn = e.target.closest("[data-del]");
+      if (!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      var id = btn.getAttribute("data-del");
+      if (!id) return;
+      if (!window.__codexConfirm) { if (!confirm("Delete this Study Lab document? This cannot be undone.")) return; } else if (!window.__codexConfirm("Delete document?", "Flashcards and quizzes for this file will be removed.")) return;
+      db.collection("study_lab_documents").doc(id).delete()
+        .then(function () { loadFolders(); })
+        .catch(function (err) { alert(err.message || "Could not delete"); });
+    });
+
+    function loadFolders() {
+      // Matches live Codex Hub collection + rules: study_lab_documents/{id} with uid field
+      db.collection("study_lab_documents")
+        .where("uid", "==", user.uid)
+        .orderBy("updatedAt", "desc")
+        .limit(40)
+        .get()
+        .then(function (snap) {
+          var docs = [];
+          snap.forEach(function (doc) {
+            var d = doc.data();
+            d.id = doc.id;
+            docs.push(d);
+          });
+          renderFolders(docs);
+        })
+        .catch(function (err) {
+          // Fallback without orderBy if composite index missing
+          db.collection("study_lab_documents").where("uid", "==", user.uid).limit(40).get()
+            .then(function (snap) {
+              var docs = [];
+              snap.forEach(function (doc) {
+                var d = doc.data();
+                d.id = doc.id;
+                docs.push(d);
+              });
+              docs.sort(function (a, b) {
+                var ta = a.updatedAt && a.updatedAt.toMillis ? a.updatedAt.toMillis() : 0;
+                var tb = b.updatedAt && b.updatedAt.toMillis ? b.updatedAt.toMillis() : 0;
+                return tb - ta;
+              });
+              renderFolders(docs);
+            })
+            .catch(function (err2) {
+              document.getElementById("folders").innerHTML =
+                '<div class="empty"><strong>Could not load folders</strong>' +
+                escape(err2.message || err.message || "Check study_lab_documents rules") + "</div>";
+            });
+        });
+    }
+
+
+    function readFileAsArrayBuffer(file) {
+      return new Promise(function (resolve, reject) {
+        var fr = new FileReader();
+        fr.onload = function () { resolve(fr.result); };
+        fr.onerror = reject;
+        fr.readAsArrayBuffer(file);
+      });
+    }
+    function readFileAsText(file) {
+      return new Promise(function (resolve, reject) {
+        var fr = new FileReader();
+        fr.onload = function () { resolve(fr.result); };
+        fr.onerror = reject;
+        fr.readAsText(file);
+      });
+    }
+    async function extractPdfText(file) {
+      try {
+        if (!window.pdfjsLib) return "";
+        if (pdfjsLib.GlobalWorkerOptions && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
+          pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+        }
+        var buf = await readFileAsArrayBuffer(file);
+        var pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+        var maxPages = Math.min(pdf.numPages || 1, 20);
+        var parts = [];
+        for (var pg = 1; pg <= maxPages; pg++) {
+          var page = await pdf.getPage(pg);
+          var tc = await page.getTextContent();
+          var line = (tc.items || []).map(function (it) { return it.str; }).join(" ");
+          if (line.trim()) parts.push(line.trim());
+        }
+        return parts.join("\n").slice(0, 50000);
+      } catch (err) {
+        console.warn("pdf extract", err);
+        return "";
+      }
+    }
+    async function extractDocxText(file) {
+      try {
+        if (!window.mammoth) return "";
+        var buf = await readFileAsArrayBuffer(file);
+        var result = await mammoth.extractRawText({ arrayBuffer: buf });
+        return String(result && result.value || "").slice(0, 50000);
+      } catch (err) {
+        console.warn("docx extract", err);
+        return "";
+      }
+    }
+    async function extractSourceText(file) {
+      if (!file) return "";
+      var name = file.name || "";
+      if (/\.pdf$/i.test(name) || (file.type && /pdf/i.test(file.type))) return extractPdfText(file);
+      if (/\.docx$/i.test(name) || (file.type && /wordprocessingml/i.test(file.type))) return extractDocxText(file);
+      if (/\.(txt|md|csv)$/i.test(name) || (file.type && /text\//i.test(file.type))) {
+        try { return String(await readFileAsText(file)).slice(0, 50000); } catch (e) { return ""; }
+      }
+      return "";
+    }
+
+    document.getElementById("addBtn").onclick = function () {
+      document.getElementById("modal").classList.add("show");
+    };
+    document.getElementById("cancelModal").onclick = function () {
+      document.getElementById("modal").classList.remove("show");
+    };
+    document.getElementById("pickFile").onclick = function () {
+      document.getElementById("uploadInput").click();
+    };
+    document.getElementById("uploadInput").onchange = function (e) {
+      pendingFile = e.target.files && e.target.files[0];
+      document.getElementById("fileHint").textContent = pendingFile
+        ? ("Selected: " + pendingFile.name)
+        : "Uploads go to Cloudinary; metadata is stored on your Firestore account.";
+      if (pendingFile && !document.getElementById("docTitle").value) {
+        document.getElementById("docTitle").value = pendingFile.name.replace(/\.[^.]+$/, "");
+      }
+    };
+
+    document.getElementById("saveDoc").onclick = function () {
+      if (!canUploadDoc()) return;
+      var title = document.getElementById("docTitle").value.trim();
+      var course = document.getElementById("docCourse").value.trim();
+      if (!title) { alert("Add a title for this folder."); return; }
+      var btn = document.getElementById("saveDoc");
+      btn.disabled = true;
+      btn.textContent = "Saving…";
+
+      function writeMeta(fileUrl, extractedText) {
+        var __lim = planLimits((profile && (profile.subscriptionTier || profile.plan)) || "free");
+        var flashN = Math.min(parseInt(document.getElementById("flashCount").value, 10) || __lim.flashDef, __lim.flashMax);
+        var quizN = Math.min(parseInt(document.getElementById("quizCount").value, 10) || __lim.quizDef, __lim.quizMax);
+        var payload = {
+          uid: user.uid,
+          title: title,
+          courseCode: course,
+          fileUrl: fileUrl || "",
+          fileName: pendingFile ? pendingFile.name : "",
+          fileCount: pendingFile ? 1 : 0,
+          targetFlashcards: flashN,
+          targetQuiz: quizN,
+          extractedText: (extractedText || "").slice(0, 45000),
+          hasExtractedText: !!(extractedText && extractedText.trim().length > 40),
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        return db.collection("study_lab_documents").add(payload);
+      }
+
+      var chain = Promise.resolve({ url: "", text: "" });
+      if (pendingFile) {
+        btn.textContent = "Reading file…";
+        chain = extractSourceText(pendingFile).then(function (text) {
+          if (window.CodexMedia) {
+            btn.textContent = "Uploading…";
+            return CodexMedia.uploadToCloudinary(pendingFile).then(function (up) {
+              return { url: (up && up.url) || "", text: text || "" };
+            }).catch(function () {
+              return { url: "", text: text || "" };
+            });
+          }
+          return { url: "", text: text || "" };
+        });
+      }
+
+      chain.then(function (pack) {
+        btn.textContent = "Saving…";
+        return writeMeta(pack.url, pack.text);
+      }).then(function (ref) {
+        bumpUploadUsage();
+        document.getElementById("modal").classList.remove("show");
+        document.getElementById("docTitle").value = "";
+        document.getElementById("docCourse").value = "";
+        pendingFile = null;
+        document.getElementById("uploadInput").value = "";
+        if (ref && ref.id) {
+          location.href = "study-lab-doc.html?id=" + encodeURIComponent(ref.id);
+          return;
+        }
+        loadFolders();
+      }).catch(function (err) {
+        alert(err.message || "Could not create folder");
+      }).finally(function () {
+        btn.disabled = false;
+        btn.textContent = "Create folder";
+      });
+    };
+
+    CodexAuth.requireUser().then(function (res) {
+      user = res.user;
+      db = res.db;
+      profile = res.profile || {};
+      var __tier = (profile.subscriptionTier || profile.plan || "free").toString().toLowerCase();
+      applyPlanLimits(__tier);
+      CodexShell.mountShell({
+        page: "ai",
+        title: "Study Lab",
+        profile: profile,
+        user: { fullName: profile.fullName || user.displayName }
+      });
+      loadFolders();
+    });
+  })();
+  </script>
+
+<script>try{if(window.CodexOnboarding)CodexOnboarding.auto("study-lab",700);}catch(e){}</script>
+</body>
+</html>

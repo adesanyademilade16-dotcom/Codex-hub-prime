@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="../js/theme-boot.js"></script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0F172A" />
+  <title>CBT · Codex Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" />
+  <style>
+    :root {
+      --blue: #2563EB; --purple: #7C3AED; --navy: #0F172A;
+      --bg: #F8FAFC; --surface: #FFFFFF; --line: #E2E8F0;
+      --muted: #64748B; --ok: #10B981; --bad: #EF4444; --warn: #F59E0B;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: var(--bg); color: var(--navy);
+      -webkit-tap-highlight-color: transparent;
+    }
+    button { font-family: inherit; cursor: pointer; }
+    .hidden { display: none !important; }
+
+    /* ── Top bar ── */
+    .top {
+      position: sticky; top: 0; z-index: 40;
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; background: #fff;
+      border-bottom: 1px solid var(--line);
+    }
+    .top .back {
+      width: 40px; height: 40px; border-radius: 12px;
+      border: 1.5px solid var(--line); background: #fff;
+      display: grid; place-items: center;
+    }
+    .top .meta { flex: 1; min-width: 0; }
+    .top .meta h1 {
+      font-size: .92rem; font-weight: 800; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .top .meta p { font-size: .68rem; color: var(--muted); font-weight: 600; }
+    .top .tools { display: flex; gap: 8px; align-items: center; }
+    .icon-btn {
+      width: 40px; height: 40px; border-radius: 12px;
+      border: 1.5px solid var(--line); background: #fff;
+      display: grid; place-items: center; color: var(--navy);
+    }
+    .timer-pill {
+      min-width: 72px; padding: 8px 12px; border-radius: 999px;
+      background: var(--navy); color: #fff;
+      font-weight: 800; font-size: .85rem; font-variant-numeric: tabular-nums;
+      text-align: center;
+    }
+    .timer-pill.warn { background: var(--warn); color: #111; }
+    .timer-pill.danger { background: var(--bad); }
+
+    /* ── Screens ── */
+    .screen { min-height: calc(100% - 62px); padding: 16px 14px 100px; }
+    @media (min-width: 900px) {
+      .screen { max-width: 1100px; margin: 0 auto; padding: 24px 20px 40px; }
+    }
+
+    /* Setup */
+    .setup-card {
+      background: #fff; border: 1px solid var(--line);
+      border-radius: 20px; padding: 20px; margin-bottom: 14px;
+      box-shadow: 0 4px 20px rgba(15,23,42,.04);
+    }
+    .setup-card h2 { font-size: 1.05rem; font-weight: 800; margin-bottom: 6px; }
+    .setup-card .sub { font-size: .8rem; color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
+    .mode-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .mode-btn {
+      border: 1.5px solid var(--line); background: #fff; border-radius: 14px;
+      padding: 14px 12px; text-align: left;
+    }
+    .mode-btn strong { display: block; font-size: .88rem; margin-bottom: 4px; }
+    .mode-btn span { font-size: .72rem; color: var(--muted); line-height: 1.35; }
+    .mode-btn.active {
+      border-color: var(--blue); background: #EFF6FF;
+      box-shadow: 0 0 0 3px rgba(37,99,235,.15);
+    }
+    .field { margin-bottom: 14px; }
+    .field label {
+      display: block; font-size: .72rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .04em; color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      border: 1.5px solid var(--line); background: #fff;
+      border-radius: 999px; padding: 8px 14px;
+      font-size: .78rem; font-weight: 700; color: var(--navy);
+    }
+    .chip.active { background: var(--navy); border-color: var(--navy); color: #fff; }
+    .chip:disabled { opacity: .35; pointer-events: none; }
+    select.topic-select {
+      width: 100%; padding: 12px 14px; border-radius: 12px;
+      border: 1.5px solid var(--line); background: #fff;
+      font: inherit; font-weight: 600; color: var(--navy);
+    }
+    .trials-note {
+      font-size: .78rem; color: var(--muted); margin: 12px 0 16px;
+      padding: 10px 12px; background: #F1F5F9; border-radius: 12px;
+    }
+    .trials-note b { color: var(--navy); }
+    .btn-start {
+      width: 100%; border: 0; border-radius: 14px; padding: 14px;
+      background: linear-gradient(135deg, #2563EB, #7C3AED);
+      color: #fff; font-weight: 800; font-size: .95rem;
+      box-shadow: 0 8px 24px rgba(37,99,235,.3);
+    }
+    .btn-start:disabled { opacity: .5; }
+    .btn-ghost {
+      width: 100%; margin-top: 10px; border: 1.5px solid var(--line);
+      background: #fff; border-radius: 14px; padding: 12px;
+      font-weight: 700; color: var(--navy);
+    }
+    .load-msg { text-align: center; padding: 40px 20px; color: var(--muted); }
+
+    /* Exam layout */
+    .exam-shell {
+      display: grid; gap: 16px;
+    }
+    @media (min-width: 900px) {
+      .exam-shell {
+        grid-template-columns: 1fr 280px;
+        align-items: start;
+      }
+    }
+    .q-card {
+      background: #fff; border: 1px solid var(--line);
+      border-radius: 20px; padding: 18px 16px 20px;
+      box-shadow: 0 4px 20px rgba(15,23,42,.04);
+    }
+    .q-num { font-size: .72rem; font-weight: 800; color: var(--blue); margin-bottom: 6px; }
+    .q-topic { font-size: .7rem; color: var(--muted); font-weight: 600; margin-bottom: 12px; }
+    .q-text {
+      font-size: 1rem; font-weight: 600; line-height: 1.7; margin-bottom: 18px;
+      word-wrap: break-word; overflow-wrap: anywhere;
+    }
+    /* Inline math stays in the sentence */
+    .q-text .math-inline,
+    .q-text mjx-container:not([display="true"]),
+    .opt .txt .math-inline,
+    .opt .txt mjx-container:not([display="true"]),
+    .rev-item .math-inline,
+    .rev-item mjx-container:not([display="true"]) {
+      display: inline !important;
+      margin: 0 2px !important;
+      vertical-align: middle;
+      max-width: 100%;
+    }
+    /* Long display formulas: centered + own horizontal scroll only */
+    .q-text .math-block,
+    .rev-item .math-block {
+      display: block; margin: 12px 0; text-align: center;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      max-width: 100%; padding: 6px 0;
+    }
+    .q-text mjx-container[display="true"],
+    .rev-item mjx-container[display="true"] {
+      display: block !important; margin: 12px 0 !important;
+      text-align: center; overflow-x: auto; max-width: 100%;
+    }
+    .q-img { max-width: 100%; border-radius: 12px; margin-bottom: 14px; }
+    .opts { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .opt {
+      display: flex; gap: 12px; align-items: center;
+      border: 1.5px solid var(--line); border-radius: 14px;
+      padding: 12px 14px; background: #fff; cursor: pointer;
+      transition: border-color .15s, background .15s;
+      min-height: 48px;
+    }
+    .opt:hover { border-color: #93C5FD; }
+    .opt.selected { border-color: var(--blue); background: #EFF6FF; }
+    .opt .letter {
+      flex-shrink: 0; width: 28px; height: 28px; border-radius: 8px;
+      background: #F1F5F9; display: grid; place-items: center;
+      font-weight: 800; font-size: .75rem;
+    }
+    .opt.selected .letter { background: var(--blue); color: #fff; }
+    .opt .txt {
+      flex: 1; font-size: .9rem; line-height: 1.5; min-width: 0;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+    }
+    .opt .txt mjx-container {
+      display: inline-block !important; margin: 0 2px !important;
+      vertical-align: middle; max-width: 100%;
+    }
+    .exam-nav {
+      display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap;
+    }
+    .exam-nav button {
+      flex: 1; min-width: 100px; padding: 12px;
+      border-radius: 12px; font-weight: 800; font-size: .85rem;
+      border: 1.5px solid var(--line); background: #fff;
+    }
+    .exam-nav .next {
+      background: var(--navy); color: #fff; border-color: var(--navy);
+    }
+    .exam-nav .mark { flex: 0 0 auto; padding: 12px 14px; }
+    .exam-nav .mark.on { background: var(--warn); border-color: var(--warn); color: #111; }
+
+    .side-panel {
+      background: #fff; border: 1px solid var(--line);
+      border-radius: 20px; padding: 16px;
+    }
+    .side-panel h3 {
+      font-size: .72rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: .05em; color: var(--muted); margin-bottom: 12px;
+    }
+    .nav-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
+    }
+    .nav-grid button {
+      aspect-ratio: 1; border-radius: 10px; border: 1.5px solid var(--line);
+      background: #fff; font-weight: 700; font-size: .75rem; color: var(--navy);
+    }
+    .nav-grid button.cur { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(37,99,235,.25); }
+    .nav-grid button.answered { background: var(--ok); border-color: var(--ok); color: #fff; }
+    .nav-grid button.marked { background: var(--warn); border-color: var(--warn); color: #111; }
+    .nav-grid button.answered.marked { background: linear-gradient(135deg, var(--ok), var(--warn)); border: 0; color: #fff; }
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px;
+      font-size: .68rem; color: var(--muted); font-weight: 600;
+    }
+    .legend i {
+      display: inline-block; width: 10px; height: 10px; border-radius: 3px;
+      margin-right: 4px; vertical-align: middle;
+    }
+    .submit-btn {
+      width: 100%; margin-top: 14px; padding: 12px; border: 0;
+      border-radius: 12px; background: var(--bad); color: #fff;
+      font-weight: 800;
+    }
+    .progress-thin {
+      height: 4px; background: #E2E8F0; border-radius: 4px; margin-bottom: 14px; overflow: hidden;
+    }
+    .progress-thin span {
+      display: block; height: 100%; background: linear-gradient(90deg, var(--blue), var(--purple));
+      border-radius: 4px; transition: width .3s;
+    }
+
+    /* Mobile question map — compact cells under question (desktop nav unchanged) */
+    .palette-card {
+      display: none;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 10px 10px 12px;
+      margin-top: 12px;
+    }
+    .palette-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+      padding: 0 2px;
+    }
+    .palette-card .palette-label {
+      font-size: .65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--muted);
+    }
+    .attempt-pill {
+      font-size: .72rem;
+      font-weight: 800;
+      color: var(--navy);
+      background: #F1F5F9;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-variant-numeric: tabular-nums;
+    }
+    .attempt-track {
+      height: 4px;
+      background: #E2E8F0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .attempt-track span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--blue), var(--purple));
+      border-radius: 4px;
+      transition: width .25s ease;
+    }
+    .palette {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 5px;
+    }
+    .palette button {
+      aspect-ratio: 1;
+      min-height: 0;
+      height: auto;
+      border-radius: 7px;
+      border: 1.5px solid var(--line);
+      background: #fff;
+      font-weight: 700;
+      font-size: .68rem;
+      color: var(--navy);
+      padding: 0;
+      line-height: 1;
+    }
+    .palette button.cur {
+      border-color: var(--blue);
+      color: var(--blue);
+      box-shadow: 0 0 0 1.5px rgba(37,99,235,.3);
+    }
+    .palette button.answered {
+      background: #FEF3C7;
+      border-color: #F59E0B;
+      color: #92400E;
+    }
+    .palette button.marked {
+      background: #DBEAFE;
+      border-color: #2563EB;
+      color: #1E40AF;
+    }
+    .palette button.answered.marked {
+      background: #D1FAE5;
+      border-color: #10B981;
+      color: #065F46;
+    }
+    .palette-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      margin-top: 10px;
+      font-size: .65rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .palette-legend i {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      margin-right: 4px;
+      vertical-align: middle;
+      border: 1px solid transparent;
+    }
+    @media (max-width: 360px) {
+      .palette { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; }
+      .palette button { font-size: .62rem; }
+    }
+    @media (min-width: 900px) {
+      .palette-card { display: none !important; }
+    }
+    @media (max-width: 899px) {
+      .side-panel.desktop-only { display: none; }
+      .palette-card { display: block; }
+    }
+
+    /* Calculator */
+    .calc {
+      position: fixed; z-index: 60;
+      width: 260px; border-radius: 18px;
+      background: #0F172A; color: #fff;
+      box-shadow: 0 20px 50px rgba(0,0,0,.35);
+      overflow: hidden; user-select: none;
+      display: none;
+    }
+    .calc.open { display: block; }
+    .calc-head {
+      padding: 10px 12px; display: flex; align-items: center;
+      justify-content: space-between; cursor: move;
+      background: #1E293B; font-weight: 700; font-size: .8rem;
+    }
+    .calc-head button {
+      border: 0; background: transparent; color: #94A3B8;
+      font-size: 1.1rem; line-height: 1; padding: 4px 8px;
+    }
+    .calc-display {
+      padding: 12px 14px; text-align: right;
+      font-size: 1.4rem; font-weight: 700; font-variant-numeric: tabular-nums;
+      min-height: 48px; word-break: break-all;
+    }
+    .calc-keys {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+      padding: 10px;
+    }
+    .calc-keys button {
+      border: 0; border-radius: 10px; padding: 12px 0;
+      background: #334155; color: #fff; font-weight: 700; font-size: .9rem;
+    }
+    .calc-keys button.op { background: #2563EB; }
+    .calc-keys button.eq { background: #7C3AED; }
+    .calc-keys button.span2 { grid-column: span 2; }
+
+    /* Results */
+    .result-hero {
+      background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 55%, #5B21B6 100%);
+      color: #fff; border-radius: 22px; padding: 22px 18px;
+      margin-bottom: 14px; position: relative; overflow: hidden;
+    }
+    .result-hero .pct {
+      font-size: 2.6rem; font-weight: 800; line-height: 1;
+    }
+    .result-hero .label { font-size: .85rem; opacity: .85; margin-top: 4px; }
+    .result-hero .user-row {
+      display: flex; align-items: center; gap: 10px; margin-top: 16px;
+    }
+    .result-hero .av {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(255,255,255,.2); display: grid; place-items: center;
+      font-weight: 800; overflow: hidden;
+    }
+    .result-hero .av img { width: 100%; height: 100%; object-fit: cover; }
+    .charts {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;
+    }
+    @media (max-width: 520px) { .charts { grid-template-columns: 1fr; } }
+    .chart-card {
+      background: #fff; border: 1px solid var(--line); border-radius: 18px;
+      padding: 16px;
+    }
+    .chart-card h3 { font-size: .75rem; font-weight: 800; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: .04em; }
+    .pie-wrap { display: flex; align-items: center; gap: 14px; }
+    .pie {
+      width: 100px; height: 100px; border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .pie-legend { font-size: .78rem; line-height: 1.7; font-weight: 600; }
+    .pie-legend span { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; }
+    .stat-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px;
+    }
+    @media (min-width: 700px) { .stat-grid { grid-template-columns: repeat(4, 1fr); } }
+    .stat-box {
+      background: #fff; border: 1px solid var(--line); border-radius: 14px;
+      padding: 12px; text-align: center;
+    }
+    .stat-box b { display: block; font-size: 1.15rem; font-weight: 800; }
+    .stat-box span { font-size: .68rem; color: var(--muted); font-weight: 600; }
+    .actions-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;
+    }
+    .actions-row button, .actions-row a {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px; border-radius: 14px; font-weight: 800; font-size: .82rem;
+      text-decoration: none; border: 1.5px solid var(--line); background: #fff; color: var(--navy);
+    }
+    .actions-row .primary {
+      background: linear-gradient(135deg, #2563EB, #7C3AED);
+      border: 0; color: #fff;
+    }
+    .review-list { display: flex; flex-direction: column; gap: 10px; }
+    .rev-item {
+      background: #fff; border: 1px solid var(--line); border-radius: 14px;
+      padding: 14px;
+    }
+    .rev-item.ok { border-left: 3px solid var(--ok); }
+    .rev-item.bad { border-left: 3px solid var(--bad); }
+    .rev-item .rq {
+      font-weight: 700; font-size: .88rem; margin-bottom: 8px; line-height: 1.55;
+      word-wrap: break-word; overflow-wrap: anywhere;
+    }
+    .rev-item .ra {
+      font-size: .78rem; color: var(--muted); line-height: 1.5;
+      word-wrap: break-word; overflow-wrap: anywhere;
+    }
+    .rev-item .ra b { color: var(--navy); font-weight: 700; }
+    .rev-item .exp {
+      margin-top: 8px; padding: 10px; background: #F8FAFC; border-radius: 10px;
+      font-size: .78rem; line-height: 1.5;
+      word-wrap: break-word; overflow-wrap: anywhere;
+    }
+    .rev-item .math-block {
+      background: #F8FAFC; border-radius: 10px; padding: 8px 10px;
+    }
+    .fab-nova {
+      position: fixed; right: 16px; bottom: 20px; z-index: 50;
+      border: 0; border-radius: 999px; padding: 14px 18px;
+      background: linear-gradient(135deg, #7C3AED, #2563EB);
+      color: #fff; font-weight: 800; font-size: .85rem;
+      box-shadow: 0 10px 30px rgba(124,58,237,.4);
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    /* Modal */
+    .modal-bg {
+      position: fixed; inset: 0; background: rgba(15,23,42,.45);
+      z-index: 80; display: none; align-items: flex-end; justify-content: center;
+    }
+    .modal-bg.open { display: flex; }
+    .modal {
+      background: #fff; border-radius: 20px 20px 0 0; padding: 22px 18px 28px;
+      width: 100%; max-width: 420px;
+    }
+    @media (min-width: 600px) {
+      .modal-bg { align-items: center; }
+      .modal { border-radius: 20px; }
+    }
+    .modal h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 8px; }
+    .modal p { font-size: .85rem; color: var(--muted); line-height: 1.5; margin-bottom: 16px; }
+    .modal .row { display: flex; gap: 10px; }
+    .modal .row button { flex: 1; padding: 12px; border-radius: 12px; font-weight: 800; border: 0; }
+    .modal .yes { background: var(--navy); color: #fff; }
+    .modal .no { background: #F1F5F9; color: var(--navy); }
+
+    .toast {
+      position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+      background: var(--navy); color: #fff; padding: 10px 16px;
+      border-radius: 999px; font-size: .8rem; font-weight: 700;
+      z-index: 90; display: none;
+    }
+    .toast.show { display: block; }
+  </style>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body data-page="cbt">
+  <header class="top" id="topBar">
+    <button type="button" class="back" id="btnBack" aria-label="Back">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="meta">
+      <h1 id="topTitle">CBT Setup</h1>
+      <p id="topSub">Choose mode and start</p>
+    </div>
+    <div class="tools">
+      <div class="timer-pill hidden" id="timerPill">25:00</div>
+      <button type="button" class="icon-btn hidden" id="btnCalc" aria-label="Calculator" title="Calculator">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h2M12 10h2M16 10h0M8 14h2M12 14h2M16 14h0M8 18h2M12 18h2M16 18h0"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- SETUP -->
+  <section class="screen" id="screenSetup">
+    <div class="load-msg" id="setupLoading">Loading course…</div>
+    <div id="setupBody" class="hidden">
+      <div class="setup-card">
+        <h2 id="setupCourseTitle">Course</h2>
+        <p class="sub" id="setupCourseSub"></p>
+
+        <div class="mode-row">
+          <button type="button" class="mode-btn active" data-mode="exam" id="modeExam">
+            <strong>Exam practice</strong>
+            <span>Mixed questions across topics — timed exam feel.</span>
+          </button>
+          <button type="button" class="mode-btn" data-mode="topic" id="modeTopic">
+            <strong>Topic practice</strong>
+            <span>Focus on one topic at a time.</span>
+          </button>
+        </div>
+
+        <div class="field hidden" id="topicField">
+          <label>Topic</label>
+          <select class="topic-select" id="topicSelect"></select>
+        </div>
+
+        <div class="field">
+          <label>Questions</label>
+          <div class="chip-row" id="countChips"></div>
+        </div>
+
+        <div class="field">
+          <label>Timer</label>
+          <div class="chip-row" id="timeChips"></div>
+        </div>
+
+        <div class="trials-note" id="trialsNote">Checking your practice allowance…</div>
+        <button type="button" class="btn-start" id="btnStart">Start practice</button>
+        <button type="button" class="btn-ghost" id="btnBackLib">Back to My Library</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXAM -->
+  <section class="screen hidden" id="screenExam">
+    <div class="exam-shell">
+      <div>
+        <div class="progress-thin"><span id="progBar" style="width:0%"></span></div>
+        <div class="q-card">
+          <div class="q-num" id="qNum">Question 1</div>
+          <div class="q-topic" id="qTopic"></div>
+          <div class="q-text" id="qText"></div>
+          <div id="qImgWrap"></div>
+          <ul class="opts" id="optsList"></ul>
+          <div class="exam-nav">
+            <button type="button" id="btnPrev">Previous</button>
+            <button type="button" class="mark" id="btnMark">Mark</button>
+            <button type="button" class="next" id="btnNext">Next</button>
+          </div>
+        </div>
+        <div class="palette-card" id="paletteCard">
+          <div class="palette-head">
+            <span class="palette-label">Question map</span>
+            <span class="attempt-pill" id="attemptPill">Attempted 0/0</span>
+          </div>
+          <div class="attempt-track"><span id="attemptBar"></span></div>
+          <div class="palette" id="mobileNav"></div>
+          <div class="palette-legend">
+            <span><i style="background:#FEF3C7;border-color:#F59E0B"></i>Answered</span>
+            <span><i style="background:#DBEAFE;border-color:#2563EB"></i>Marked</span>
+            <span><i style="background:#fff;border-color:#E2E8F0"></i>Open</span>
+          </div>
+        </div>
+      </div>
+      <aside class="side-panel desktop-only">
+        <h3>Question navigator</h3>
+        <div class="nav-grid" id="deskNav"></div>
+        <div class="legend">
+          <span><i style="background:#10B981"></i>Answered</span>
+          <span><i style="background:#F59E0B"></i>Marked</span>
+          <span><i style="background:#fff;border:1px solid #E2E8F0"></i>Open</span>
+        </div>
+        <button type="button" class="submit-btn" id="btnSubmitSide">Submit exam</button>
+      </aside>
+    </div>
+    <div style="margin-top:16px">
+      <button type="button" class="submit-btn" id="btnSubmitMob" style="display:none">Submit exam</button>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="screen hidden" id="screenResults">
+    <div class="result-hero">
+      <div class="pct" id="resPct">0%</div>
+      <div class="label" id="resLabel">Score</div>
+      <div class="user-row">
+        <div class="av" id="resAv">?</div>
+        <div>
+          <div style="font-weight:800" id="resName">Student</div>
+          <div style="font-size:.75rem;opacity:.8" id="resCourseLine"></div>
+        </div>
+      </div>
+    </div>
+    <div class="charts">
+      <div class="chart-card">
+        <h3>Breakdown</h3>
+        <div class="pie-wrap">
+          <div class="pie" id="pieChart"></div>
+          <div class="pie-legend" id="pieLegend"></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>By topic</h3>
+        <div id="topicBars" style="font-size:.78rem"></div>
+      </div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-box"><b id="stCorrect">0</b><span>Correct</span></div>
+      <div class="stat-box"><b id="stWrong">0</b><span>Wrong</span></div>
+      <div class="stat-box"><b id="stTime">—</b><span>Time used</span></div>
+      <div class="stat-box"><b id="stSpeed">—</b><span>Avg / Q</span></div>
+    </div>
+    <div class="actions-row">
+      <button type="button" class="primary" id="btnShare">Share result</button>
+      <button type="button" id="btnRetry">Practice again</button>
+      <a href="course-library.html?mode=cbt" id="btnLib">My Library</a>
+      <a href="home.html">Home</a>
+    </div>
+    <h3 style="font-size:.85rem;font-weight:800;margin-bottom:10px">Review</h3>
+    <div class="review-list" id="reviewList"></div>
+    <button type="button" class="fab-nova" id="btnAskNova">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z"/></svg>
+      Ask Nova
+    </button>
+  </section>
+
+  <!-- Calculator -->
+  <div class="calc" id="calc" style="left:20px;top:80px">
+    <div class="calc-head" id="calcDrag">
+      <span>Calculator</span>
+      <button type="button" id="calcClose" aria-label="Close">×</button>
+    </div>
+    <div class="calc-display" id="calcDisp">0</div>
+    <div class="calc-keys" id="calcKeys"></div>
+  </div>
+
+  <!-- Confirm submit -->
+  <div class="modal-bg" id="submitModal">
+    <div class="modal">
+      <h3>Submit exam?</h3>
+      <p id="submitModalText">You can still go back and change answers.</p>
+      <div class="row">
+        <button type="button" class="no" id="submitNo">Keep practising</button>
+        <button type="button" class="yes" id="submitYes">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trial / paywall -->
+  <div class="modal-bg" id="trialModal">
+    <div class="modal">
+      <h3>Free practice used up</h3>
+      <p>You’ve used all free CBT sessions on this account. Upgrade to Regular or Pro for unlimited practice — or ask an admin if your allowance should be higher.</p>
+      <div class="row">
+        <button type="button" class="no" id="trialClose">Not now</button>
+        <button type="button" class="yes" id="trialUpgrade">View plans</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/cbt.js"></script>
+  <script src="../js/onboarding.js"></script>
+
+<script>try{if(window.CodexOnboarding)CodexOnboarding.auto("cbt",700);}catch(e){}</script>
+</body>
+</html>

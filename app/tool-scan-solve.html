@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="../js/theme-boot.js"></script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Scan & Solve · Codex Hub</title>
+<meta name="theme-color" content="#4F46E5">
+<link rel="icon" href="../assets/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/shell.css">
+<script>
+window.MathJax = { tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] }, svg: { fontCache: 'global' } };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+body.app-body{background:#F5F7FB;font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:#0F172A}
+.tool{max-width:960px;margin:0 auto;padding:16px 14px 120px}
+.tool-top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.back{display:inline-flex;align-items:center;gap:6px;font:700 .78rem "Plus Jakarta Sans",system-ui;color:#4F46E5;text-decoration:none;padding:8px 0}
+.tool-top h1{flex:1;margin:0;font-size:1.2rem;letter-spacing:-.02em}
+.pill{font-size:.65rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:#EEF2FF;color:#4338CA;border-radius:999px;padding:4px 10px}
+.panel{background:#fff;border:1px solid #E2E8F0;border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 6px 18px rgba(15,23,42,.03)}
+.panel h2{margin:0 0 10px;font-size:.88rem;font-weight:800}
+.panel .hint{margin:0 0 12px;font-size:.76rem;color:#64748B;line-height:1.45}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.btn{border:0;border-radius:12px;padding:10px 14px;font:800 .76rem "Plus Jakarta Sans",system-ui;cursor:pointer}
+.btn-primary{background:#4F46E5;color:#fff}
+.btn-ghost{background:#fff;color:#334155;border:1px solid #E2E8F0}
+.btn-soft{background:#EEF2FF;color:#4338CA}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+textarea,input[type=text],select{width:100%;border:1px solid #E2E8F0;border-radius:12px;padding:11px 12px;font:600 .85rem "Plus Jakarta Sans",system-ui;background:#fff;color:#0F172A}
+textarea{min-height:110px;resize:vertical;line-height:1.5}
+textarea:focus,input:focus,select:focus{outline:none;border-color:#A5B4FC;box-shadow:0 0 0 3px rgba(79,70,229,.12)}
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.step{font-size:.68rem;font-weight:800;padding:5px 10px;border-radius:999px;background:#F1F5F9;color:#64748B}
+.step.on{background:#4F46E5;color:#fff}
+.step.done{background:#D1FAE5;color:#047857}
+.workspace{background:#0F172A;color:#E2E8F0;border-radius:14px;padding:14px;min-height:160px;font-size:.84rem;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.workspace:empty::before{content:attr(data-empty);color:#64748B}
+.workspace.md-ready{white-space:normal}
+.workspace .md-h{margin:14px 0 8px;font-weight:800;letter-spacing:-.02em;color:#A5B4FC}
+.workspace .md-h1{font-size:1.15rem}.workspace .md-h2{font-size:1.05rem}.workspace .md-h3{font-size:.95rem}
+.workspace .md-p{margin:0 0 10px;line-height:1.55}
+.workspace .md-ul,.workspace .md-ol{margin:0 0 12px;padding-left:1.25rem;line-height:1.5}
+.workspace .md-ul li,.workspace .md-ol li{margin:4px 0}
+.workspace strong{color:#FDE68A;font-weight:800}
+.workspace em{font-style:italic;color:#E2E8F0}
+.workspace code{background:#1E293B;padding:1px 6px;border-radius:6px;font-size:.8em}
+.workspace .md-code{background:#020617;border:1px solid #1E293B;border-radius:12px;padding:12px;overflow:auto;margin:10px 0}
+.workspace .md-code-lang{display:block;font-size:.65rem;color:#64748B;margin-bottom:6px;font-weight:700}
+.workspace .md-gap{height:8px}
+.workspace .md-hr{border:0;border-top:1px solid #334155;margin:12px 0}
+.workspace mjx-container{color:#E2E8F0}
+.workspace .md-table-wrap{overflow-x:auto;margin:10px 0;border-radius:12px;border:1px solid #334155}
+.workspace .md-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.workspace .md-table th{text-align:left;padding:8px 10px;background:#1E293B;color:#A5B4FC}
+.workspace .md-table td{padding:8px 10px;border-top:1px solid #334155}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%) translateY(12px);background:#0F172A;color:#fff;padding:10px 14px;border-radius:12px;font:700 .76rem "Plus Jakarta Sans",system-ui;opacity:0;pointer-events:none;transition:.2s;z-index:90;max-width:90vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.file-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.file-row input[type=file]{font-size:.75rem}
+.preview{max-width:100%;max-height:220px;border-radius:12px;margin-top:10px;border:1px solid #E2E8F0;display:none;object-fit:contain;background:#F8FAFC}
+.file-btn{display:inline-flex;align-items:center;gap:8px;border:1px dashed #A5B4FC;background:#EEF2FF;color:#4338CA;border-radius:12px;padding:11px 14px;font:800 .76rem "Plus Jakarta Sans",system-ui;cursor:pointer}
+.file-btn:active{transform:scale(.98)}
+.file-name{font-size:.72rem;color:#64748B;margin-top:6px}
+.tool{padding-bottom:120px}
+
+.seg{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.seg button{border:1px solid #E2E8F0;background:#fff;border-radius:10px;padding:8px 11px;font:700 .72rem "Plus Jakarta Sans",system-ui;cursor:pointer;color:#475569}
+.seg button.on{background:#4F46E5;border-color:#4F46E5;color:#fff}
+.code-ed{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.8rem;min-height:180px;background:#0B1220;color:#E2E8F0;border-radius:12px;border:1px solid #1E293B;padding:12px;width:100%;resize:vertical;line-height:1.5}
+.canvas-box{background:#F8FAFC;border:1px dashed #CBD5E1;border-radius:14px;min-height:280px;padding:12px;overflow:auto}
+.flow-node{display:inline-block;background:#EEF2FF;border:1px solid #A5B4FC;border-radius:12px;padding:10px 14px;margin:6px;font-size:.78rem;font-weight:700;color:#312E81;min-width:100px;text-align:center}
+.flow-arrow{text-align:center;color:#64748B;font-size:.75rem;margin:2px 0}
+.img-result{max-width:100%;border-radius:12px;margin-top:10px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:720px){.grid-2{grid-template-columns:1fr}}
+</style>
+</head>
+<body class="app-body">
+
+<main class="tool">
+  <div class="tool-top">
+    <a class="back" href="student-tools.html">← Tools</a>
+    <h1>Scan &amp; Solve</h1>
+    <span class="pill">Solve</span>
+  </div>
+  <div class="steps" id="steps">
+    <span class="step on" data-s="1">1 Question</span>
+    <span class="step" data-s="2">2 Analysis</span>
+    <span class="step" data-s="3">3 Working</span>
+    <span class="step" data-s="4">4 Answer</span>
+    <span class="step" data-s="5">5 Explain</span>
+  </div>
+  <div class="panel">
+    <h2>Your question</h2>
+    <p class="hint">Type a question, upload an image of the paper, or use the camera. Solutions are structured — not a single unexplained line.</p>
+    <textarea id="qText" placeholder="e.g. Solve 2x² − 5x − 3 = 0 and show working..."></textarea>
+    <div class="file-row" style="margin-top:10px">
+      <input type="file" id="qImg" accept="image/*" style="display:none">
+      <input type="file" id="qCam" accept="image/*" capture="environment" style="display:none">
+      <button type="button" class="file-btn" id="btnGallery" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 15l-5-5L5 19"/></svg>
+        Upload photo
+      </button>
+      <button type="button" class="file-btn" id="btnCam" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h3l2-2h6l2 2h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+        Camera
+      </button>
+    </div>
+    <div class="file-name" id="qFileName"></div>
+    <img id="qPreview" class="preview" alt="" style="display:none">
+    <div class="actions">
+      <button type="button" class="btn btn-primary" id="btnSolve">Solve</button>
+      <button type="button" class="btn btn-soft" id="btnExplain">Explain only</button>
+      <button type="button" class="btn btn-ghost" id="btnAlt">Try another method</button>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Solution workspace</h2>
+    <div class="workspace" id="out" data-empty="Your step-by-step solution will appear here."></div>
+    <div class="actions">
+      <button type="button" class="btn btn-ghost" id="btnCopy">Copy</button>
+      <button type="button" class="btn btn-ghost" id="btnDl">Download .txt</button>
+      <button type="button" class="btn btn-soft" id="btnPdf">Download PDF</button>
+      <button type="button" class="btn btn-soft" id="btnSaveRecent">Save to recent</button>
+    </div>
+  </div>
+</main>
+<div class="toast" id="toast"></div>
+
+<script src="../js/firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="../js/app-auth.js"></script>
+<script src="../js/media.js"></script>
+<script src="../js/shell.js"></script>
+<script src="../js/codex-md.js"></script>
+<script src="../js/student-tools-core.js"></script>
+<script src="../js/auto-scroll.js"></script>
+
+<script>
+(function(){
+  "use strict";
+  if(!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+  var ST = window.CodexStudentTools;
+  var uid = null, profile = null;
+  function toast(m){
+    var t=document.getElementById("toast");
+    if(!t) return;
+    t.textContent=m; t.classList.add("show");
+    clearTimeout(t._tm); t._tm=setTimeout(function(){t.classList.remove("show");},2400);
+  }
+  window.__toolToast = toast;
+  window.__toolUid = function(){ return uid; };
+  window.__toolProfile = function(){ return profile; };
+  async function boot(){
+    var r; try{ r = await CodexAuth.requireUser(); }catch(e){ return; }
+    uid = r.user.uid;
+    profile = Object.assign({}, r.profile||{});
+    try{
+      var pub = await firebase.firestore().collection("public_profiles").doc(uid).get();
+      if(pub.exists){
+        var pp = pub.data()||{};
+        if(pp.avatarKey) profile.avatarKey = pp.avatarKey;
+        if(pp.photoURL) profile.photoURL = pp.photoURL;
+      }
+    }catch(e){}
+    var name = (profile.fullName||profile.displayName||r.user.email||"Student");
+    CodexShell.mountShell({ page:"tools", title:'Scan & Solve', user: Object.assign({fullName:name}, r.user), profile: profile });
+    ST.pushRecent(uid, { toolId: 'scan-solve', title: 'Scan & Solve', subtitle: "Opened", href: location.pathname.split("/").pop() });
+    if(typeof window.__toolReady === "function") window.__toolReady();
+  }
+  boot();
+})();
+</script>
+
+<script>
+window.__toolReady = function(){
+  var ST = CodexStudentTools, imgB64 = null, lastOut = "";
+  function setSteps(n){
+    document.querySelectorAll("#steps .step").forEach(function(s){
+      var v = +s.getAttribute("data-s");
+      s.classList.toggle("on", v === n);
+      s.classList.toggle("done", v < n);
+    });
+  }
+  function fileToB64(file){
+    return new Promise(function(res,rej){
+      var r = new FileReader();
+      r.onload = function(){ res(String(r.result||"")); };
+      r.onerror = rej; r.readAsDataURL(file);
+    });
+  }
+  document.getElementById("btnCam").onclick = function(){ document.getElementById("qCam").click(); };
+  var btnGal = document.getElementById("btnGallery");
+  if (btnGal) btnGal.onclick = function(){ document.getElementById("qImg").click(); };
+  function onImg(file){
+    if(!file) return;
+    fileToB64(file).then(function(d){
+      imgB64 = d;
+      var p = document.getElementById("qPreview");
+      p.onload = function(){ p.style.display = "block"; };
+      p.onerror = function(){ p.style.display = "none"; imgB64 = null; __toolToast("Could not load that image"); };
+      p.src = d;
+      var fn = document.getElementById("qFileName");
+      if (fn) fn.textContent = file.name || "Photo attached";
+    });
+  }
+  document.getElementById("qImg").onchange = function(){ onImg(this.files&&this.files[0]); };
+  document.getElementById("qCam").onchange = function(){ onImg(this.files&&this.files[0]); };
+
+  async function run(mode){
+    var q = document.getElementById("qText").value.trim();
+    if(!q && !imgB64){ __toolToast("Add a question or image first."); return; }
+    var out = document.getElementById("out");
+    out.textContent = "Working... (photos are compressed before upload)";
+    setSteps(2);
+    if (ST.scrollToResult) ST.scrollToResult(out);
+    var sys = "You are Scan & Solve on Codex Hub, a Nigerian university academic solver. If an image is attached, OCR/read the question from the image — do not claim you cannot see images. NEVER give only a final answer. Structure every response as:\n## Analysis\n(what the question asks, knowns, unknowns)\n## Working\n(clear step-by-step method)\n## Answer\n(final result clearly boxed in text)\n## Explanation\n(why this method works, common mistakes)\nIf mode is explain-only, expand explanation. If mode is alternative, use a different valid method. Be precise with maths/science notation in plain text.";
+    var msg = (mode==="explain"?"Explain in depth:\n":mode==="alt"?"Solve using an alternative method:\n":"Solve step by step:\n") + (q||"(see attached image)");
+    try{
+      var reply = await ST.callToolAI({ message: msg, system: sys, tool: "scan-solve", mode: mode, imageBase64: imgB64, profile: __toolProfile(), uid: __toolUid() });
+      lastOut = reply; out.classList.add("md-ready"); if (window.CodexMd) CodexMd.setHtml(out, reply); else out.textContent = reply; setSteps(5);
+      if (ST.scrollToResult) ST.scrollToResult(out);
+      ST.pushRecent(__toolUid(), { toolId:"scan-solve", title: (q||"Image question").slice(0,48), subtitle:"Solved", href:"tool-scan-solve.html" });
+    }catch(e){
+      out.textContent = "Could not reach the solver.\n" + (e.message||"Try again on a live HTTPS host.");
+      if (ST.scrollToResult) ST.scrollToResult(out);
+      __toolToast("Solve failed");
+    }
+  }
+  document.getElementById("btnSolve").onclick = function(){ run("solve"); };
+  document.getElementById("btnExplain").onclick = function(){ run("explain"); };
+  document.getElementById("btnAlt").onclick = function(){ run("alt"); };
+  document.getElementById("btnCopy").onclick = function(){
+    if(!lastOut) return;
+    if(navigator.clipboard) navigator.clipboard.writeText(lastOut).then(function(){ __toolToast("Copied"); });
+  };
+  document.getElementById("btnDl").onclick = function(){
+    if(!lastOut) return;
+    ST.downloadText("scan-solve.txt", lastOut);
+    __toolToast("Downloaded");
+  };
+  document.getElementById("btnPdf").onclick = function(){
+    if(!lastOut){ __toolToast("Solve something first"); return; }
+    ST.openPrintPdf("Scan & Solve", "<pre>"+ST.esc(lastOut)+"</pre>");
+  };
+  document.getElementById("btnSaveRecent").onclick = function(){
+    var q = document.getElementById("qText").value.trim()||"Saved solution";
+    ST.pushRecent(__toolUid(), { toolId:"scan-solve", title:q.slice(0,48), subtitle:"Saved", href:"tool-scan-solve.html" });
+    __toolToast("Saved to recent");
+  };
+};
+</script>
+</body></html>

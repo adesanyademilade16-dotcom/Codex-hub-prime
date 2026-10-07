@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script src="../js/theme-boot.js"></script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contribute resource — Codex Hub</title>
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/shell.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/resources.css">
+</head>
+<body class="shell-body res-section" data-page="resources">
+<div id="shellRoot"></div>
+<header class="res-topbar">
+  <button class="res-back" type="button" data-res-back aria-label="Go back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <div class="res-top-title"><strong>Contribute Resource</strong><span>Submit for Codex review</span></div>
+  <a class="res-top-link" href="resources.html">Library</a>
+</header>
+<script>
+(function(){
+  var b=document.querySelector('[data-res-back]');
+  if(!b)return;
+  b.addEventListener('click',function(){
+    try { if(document.referrer && document.referrer.indexOf(location.origin)===0 && history.length>1){ history.back(); return; } } catch(e){}
+    location.href='home.html';
+  });
+})();
+</script>
+
+<main class="res-page">
+  <div class="res-hero">
+    <div>
+      <h1>Contribute a resource</h1>
+      <p>Upload PDF, DOC, or DOCX. After automatic checks, Codex reviews it. Approved contributions grant <strong>+3 download credits</strong>.</p>
+    </div>
+  </div>
+  <form class="res-form" id="form">
+    <div class="res-drop" id="drop" tabindex="0" role="button" aria-label="Choose file">
+      <strong>Tap to choose a file</strong>
+      PDF, DOC, or DOCX · max 25 MB
+      <input type="file" id="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden>
+    </div>
+    <p class="res-status" id="fileMeta"></p>
+    <label for="title">Title</label>
+    <input id="title" required maxlength="160" placeholder="e.g. GST 112 Lecture notes — Week 1–4">
+    <label for="description">Description</label>
+    <textarea id="description" maxlength="2000" placeholder="What does this resource cover?"></textarea>
+    <label for="courseCode">Course code</label>
+    <input id="courseCode" required maxlength="24" placeholder="e.g. GST112" style="text-transform:uppercase">
+    <label for="courseTitle">Course title</label>
+    <input id="courseTitle" maxlength="120" placeholder="e.g. Use of English">
+    <label for="category">Category</label>
+    <select id="category"></select>
+    <label for="level">Level</label>
+    <select id="level">
+      <option value="100">100</option>
+      <option value="200">200</option>
+      <option value="300">300</option>
+      <option value="400">400</option>
+      <option value="500">500</option>
+    </select>
+    <label for="semester">Semester</label>
+    <select id="semester">
+      <option value="1st">1st</option>
+      <option value="2nd">2nd</option>
+    </select>
+    <div class="res-progress" id="progWrap" hidden><i id="prog"></i></div>
+    <p class="res-status" id="status"></p>
+    <button type="submit" class="res-btn res-btn-primary" id="submit" style="width:100%;margin-top:12px">
+      Submit for review
+    </button>
+  </form>
+</main>
+<nav class="res-tabbar" aria-label="Resources navigation">
+  <a href="resources.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19a2 2 0 01-2-2V7a2 2 0 012-2h6l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H4z"/></svg>
+    Library
+  </a>
+  <a href="my-resources.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12a4 4 0 100-8 4 4 0 000 8z"/><path d="M4 20a8 8 0 0116 0"/></svg>
+    Contributions
+  </a>
+  <a class="active" href="resource-upload.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+    Upload
+  </a>
+</nav>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/app-auth.js"></script>
+<script src="../js/media.js"></script>
+<script src="../js/shell.js"></script>
+<script src="../js/resources-core.js"></script>
+<script>
+(function () {
+  var file = null;
+  var profile = {};
+  var cat = document.getElementById("category");
+  cat.innerHTML = CodexResources.CATEGORIES.map(function (c) {
+    return '<option value="' + c + '">' + c + "</option>";
+  }).join("");
+
+  var drop = document.getElementById("drop");
+  var input = document.getElementById("file");
+  drop.onclick = function () { input.click(); };
+  drop.ondragover = function (e) { e.preventDefault(); drop.classList.add("drag"); };
+  drop.ondragleave = function () { drop.classList.remove("drag"); };
+  drop.ondrop = function (e) {
+    e.preventDefault();
+    drop.classList.remove("drag");
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+  };
+  input.onchange = function () {
+    if (input.files && input.files[0]) setFile(input.files[0]);
+  };
+
+  function setFile(f) {
+    var ext = CodexResources.fileExt(f.name);
+    if (!CodexResources.ALLOWED_EXT[ext]) {
+      document.getElementById("fileMeta").textContent = "Only PDF, DOC, and DOCX are allowed.";
+      document.getElementById("fileMeta").className = "res-status err";
+      file = null;
+      return;
+    }
+    if (f.size > CodexResources.MAX_BYTES) {
+      document.getElementById("fileMeta").textContent = "File must be under 25 MB.";
+      document.getElementById("fileMeta").className = "res-status err";
+      file = null;
+      return;
+    }
+    file = f;
+    document.getElementById("fileMeta").className = "res-status ok";
+    document.getElementById("fileMeta").textContent =
+      f.name + " · " + CodexResources.formatBytes(f.size);
+    if (!document.getElementById("title").value) {
+      document.getElementById("title").value = f.name.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ");
+    }
+  }
+
+  function setProg(pct) {
+    document.getElementById("progWrap").hidden = false;
+    document.getElementById("prog").style.width = Math.max(0, Math.min(100, pct)) + "%";
+  }
+
+  document.getElementById("form").onsubmit = async function (e) {
+    e.preventDefault();
+    var status = document.getElementById("status");
+    var btn = document.getElementById("submit");
+    if (!file) {
+      status.className = "res-status err";
+      status.textContent = "Choose a file first.";
+      return;
+    }
+    btn.disabled = true;
+    status.className = "res-status";
+    status.textContent = "Uploading file…";
+    setProg(12);
+    try {
+      var up = await CodexResources.uploadResourceFile(file);
+      setProg(45);
+      status.textContent = "Generating preview…";
+      var pageCount = 0;
+      var thumbnailUrl = "";
+      var previewStatus = "failed";
+      var validation = {
+        fileValid: true,
+        readable: true,
+        previewGenerated: false,
+        pageCount: 0,
+        overall: "pass"
+      };
+      var ext = CodexResources.fileExt(file.name);
+      if (ext === "pdf") {
+        try {
+          var thumb = await CodexResources.renderPdfThumbnail(file, { scale: 1.1 });
+          pageCount = thumb.pageCount || 0;
+          validation.pageCount = pageCount;
+          validation.readable = pageCount > 0;
+          if (thumb.blob) {
+            setProg(70);
+            var tUp = await CodexResources.uploadThumbnailBlob(thumb.blob);
+            thumbnailUrl = tUp.url;
+            previewStatus = "ready";
+            validation.previewGenerated = true;
+          }
+        } catch (pe) {
+          console.warn("preview", pe);
+          validation.previewGenerated = false;
+          previewStatus = "failed";
+        }
+      }
+      setProg(88);
+      status.textContent = "Saving for review…";
+      var id = await CodexResources.createPendingResource({
+        title: document.getElementById("title").value,
+        description: document.getElementById("description").value,
+        courseCode: document.getElementById("courseCode").value,
+        courseTitle: document.getElementById("courseTitle").value,
+        category: document.getElementById("category").value,
+        level: document.getElementById("level").value,
+        semester: document.getElementById("semester").value,
+        faculty: profile.faculty || "",
+        department: profile.department || ""
+      }, {
+        fileType: ext,
+        mimeType: file.type || "",
+        fileSize: file.size,
+        pageCount: pageCount,
+        fileUrl: up.url,
+        publicId: up.publicId,
+        thumbnailUrl: thumbnailUrl,
+        previewStatus: previewStatus
+      }, validation);
+      setProg(100);
+      status.className = "res-status ok";
+      status.textContent = "Submitted. Your resource is pending Codex review. You will receive +3 download credits if approved.";
+      setTimeout(function () {
+        location.href = "my-resources.html";
+      }, 1200);
+    } catch (err) {
+      console.error(err);
+      status.className = "res-status err";
+      status.textContent = err.message || "Upload failed";
+      btn.disabled = false;
+    }
+  };
+
+  CodexAuth.requireUser().then(function (ctx) {
+    if (window.CodexShell) CodexShell.mountShell({ page: "resources" });
+    profile = ctx.profile || {};
+    if (profile.level) {
+      var lv = String(profile.level).replace(/\D/g, "").slice(0, 3);
+      if (lv && document.getElementById("level").querySelector('option[value="' + lv + '"]')) {
+        document.getElementById("level").value = lv;
+      }
+    }
+  });
+})();
+</script>
+</body>
+</html>

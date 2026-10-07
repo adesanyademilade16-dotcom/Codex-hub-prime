@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="../js/theme-boot.js"></script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Document · Study Lab</title>
+  <meta name="theme-color" content="#6D28D9">
+  <link rel="icon" href="../assets/favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/shell.css">
+  <style>
+    :root {
+      --indigo: #4F46E5; --violet: #7C3AED; --ink: #0F172A;
+      --muted: #64748B; --line: #E8ECF4; --font: "Plus Jakarta Sans", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body.app-body { margin: 0; font-family: var(--font); background: #F1F5F9; color: var(--ink); }
+    .page { max-width: 720px; margin: 0 auto; padding: 12px 14px 32px; }
+    .head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .head a {
+      width: 40px; height: 40px; border-radius: 12px; background: #fff; border: 1px solid var(--line);
+      display: grid; place-items: center; text-decoration: none; color: var(--ink); font-weight: 700;
+    }
+    .head h1 { margin: 0; font-size: 1.05rem; font-weight: 800; flex: 1; line-height: 1.25; }
+    .meta { color: var(--muted); font-size: .8rem; margin: 0 0 16px; }
+
+    .tabs {
+      display: flex; gap: 6px; overflow-x: auto; margin-bottom: 14px; padding-bottom: 2px;
+    }
+    .tabs button {
+      border: 0; background: #fff; border: 1px solid var(--line); border-radius: 999px;
+      padding: 8px 14px; font-weight: 700; font-size: .78rem; color: var(--muted);
+      cursor: pointer; white-space: nowrap; font-family: inherit;
+    }
+    .tabs button.on {
+      background: linear-gradient(135deg, #4F46E5, #7C3AED); color: #fff; border-color: transparent;
+    }
+
+    .panel { display: none; }
+    .panel.on { display: block; }
+
+    /* Flashcards */
+    .fc-stage {
+      perspective: 1000px; margin: 0 auto 14px; max-width: 400px; width: 100%;
+    }
+    .fc {
+      height: min(52vh, 320px); min-height: 200px; border-radius: 20px; position: relative;
+      transform-style: preserve-3d; transition: transform .5s cubic-bezier(.22,1,.36,1);
+      cursor: pointer; box-shadow: 0 12px 32px rgba(79,70,229,.15);
+      width: 100%;
+    }
+    .fc.flipped { transform: rotateY(180deg); }
+    .fc .face {
+      position: absolute; inset: 0; backface-visibility: hidden; border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      padding: 18px 16px; text-align: center;
+      font-size: clamp(0.85rem, 2.8vw, 1.05rem); font-weight: 700; line-height: 1.45;
+      overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch;
+      word-break: break-word; overflow-wrap: anywhere; box-sizing: border-box;
+    }
+    .fc .front { background: linear-gradient(145deg, #4F46E5, #7C3AED); color: #fff; }
+    .fc .back {
+      background: #fff; color: var(--ink); border: 1px solid var(--line);
+      transform: rotateY(180deg); font-weight: 600;
+      font-size: clamp(0.8rem, 2.6vw, 0.95rem);
+    }
+    /* Long titles never blow the mobile layout */
+    .head h1, #title {
+      max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      font-size: clamp(0.95rem, 4vw, 1.15rem);
+    }
+    .meta {
+      max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      font-size: 0.78rem;
+    }
+    .page { overflow-x: hidden; max-width: 100vw; }
+    .q-card p, .q-card label {
+      word-break: break-word; overflow-wrap: anywhere;
+    }
+    .fc-nav { display: flex; gap: 8px; justify-content: center; margin-bottom: 8px; }
+    .fc-nav button {
+      border: 0; border-radius: 12px; padding: 10px 16px; font-weight: 700;
+      background: #fff; border: 1px solid var(--line); cursor: pointer; font-family: inherit;
+    }
+    .fc-count { text-align: center; font-size: .8rem; color: var(--muted); margin-bottom: 12px; }
+
+    /* Quiz */
+    .q-card {
+      background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-bottom: 10px;
+    }
+    .q-card p { margin: 0 0 12px; font-weight: 600; }
+    .q-card label {
+      display: flex; gap: 10px; align-items: flex-start; padding: 10px; border-radius: 12px;
+      border: 1px solid var(--line); margin-bottom: 8px; cursor: pointer; font-size: .88rem;
+    }
+    .q-card label:has(input:checked) { border-color: #818CF8; background: #EEF2FF; }
+    .quiz-nav {
+      display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px; margin-top: 16px;
+      align-items: center;
+    }
+    .quiz-nav button {
+      border: 0; border-radius: 14px; padding: 12px 16px; font-weight: 800;
+      font-family: inherit; cursor: pointer; font-size: .85rem;
+    }
+    .quiz-nav .primary {
+      flex: 1; min-width: 120px;
+      background: linear-gradient(135deg, #4F46E5, #7C3AED);
+      color: #fff; box-shadow: 0 8px 20px rgba(79,70,229,.28);
+    }
+    .quiz-nav .secondary {
+      background: #F1F5F9; color: #334155; min-width: 88px;
+    }
+    .quiz-nav .secondary:disabled { opacity: .4; }
+    .quiz-nav .ghost-btn {
+      background: #fff; color: #4F46E5; border: 1.5px solid #C7D2FE; width: 100%;
+    }
+    .quiz-start {
+      text-align: center; padding: 24px 12px; background: #fff;
+      border: 1px solid var(--line); border-radius: 18px;
+    }
+    .quiz-start .stat {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0 20px;
+    }
+    .quiz-start .stat div {
+      background: #F8FAFC; border-radius: 14px; padding: 14px 10px;
+    }
+    .quiz-start .stat b { display: block; font-size: 1.4rem; color: #4F46E5; }
+    .quiz-start .stat span { font-size: .72rem; color: #64748B; font-weight: 600; }
+    .score-card {
+      text-align: center; padding: 28px 16px; background: #fff;
+      border-radius: 20px; border: 1px solid var(--line);
+    }
+    .score-card .pct { font-size: 2.4rem; font-weight: 800; color: #4F46E5; margin: 8px 0; }
+    .share-modal {
+      display: none; position: fixed; inset: 0; z-index: 120;
+      background: rgba(15,23,42,.5); align-items: flex-end; justify-content: center;
+    }
+    .share-modal.show { display: flex; }
+    .share-box {
+      width: min(420px, 100%); background: #fff; border-radius: 20px 20px 0 0;
+      padding: 20px; padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    }
+    .share-box h3 { margin: 0 0 10px; }
+    .share-box input {
+      width: 100%; height: 46px; border-radius: 12px; border: 1.5px solid #E2E8F0;
+      padding: 0 12px; font: inherit; margin-bottom: 10px;
+    }
+    .share-box .row { display: flex; gap: 8px; }
+    .share-box .row button { flex: 1; height: 46px; border: 0; border-radius: 12px; font-weight: 800; cursor: pointer; font-family: inherit; }
+    .wa { background: #25D366; color: #fff; }
+    .cp { background: #EEF2FF; color: #3730A3; }
+    .page-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 12px; gap: 8px;
+    }
+    .page-nav button {
+      border: 0; border-radius: 12px; padding: 10px 14px; font-weight: 700;
+      background: #EEF2FF; color: #4338CA; cursor: pointer; font-family: inherit;
+    }
+    .note-sheet.flip-in { animation: pageFlip .35s ease; }
+    @keyframes pageFlip {
+      from { transform: rotateY(-8deg); opacity: .5; }
+      to { transform: none; opacity: 1; }
+    }
+
+    /* Summary */
+    .sum-card {
+      background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 18px;
+      line-height: 1.6; font-size: .92rem; color: #334155;
+    }
+    .sum-tools { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .sum-tools button {
+      border: 0; border-radius: 12px; padding: 10px 14px; font-weight: 700; cursor: pointer;
+      font-family: inherit; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .sum-tools .speak {
+      background: linear-gradient(135deg, #4F46E5, #7C3AED); color: #fff;
+    }
+    .sum-tools .ghost { background: #F1F5F9; color: var(--ink); }
+
+    .empty {
+      text-align: center; padding: 28px 16px; background: #fff; border-radius: 16px;
+      border: 1px dashed var(--line); color: var(--muted); font-size: .9rem; line-height: 1.5;
+    }
+    .empty strong { display: block; color: var(--ink); margin-bottom: 6px; }
+    .gen {
+      margin-top: 12px; width: 100%; height: 48px; border: 0; border-radius: 14px;
+      background: linear-gradient(135deg, #4F46E5, #7C3AED); color: #fff;
+      font-weight: 800; cursor: pointer; font-family: inherit;
+    }
+    .gen:disabled { opacity: .6; }
+      .note-sheet, .summary-paper {
+      background: repeating-linear-gradient(
+        transparent, transparent 31px, #BFDBFE 31px, #BFDBFE 32px
+      ), linear-gradient(90deg, transparent 0, transparent 28px, #FCA5A5 28px, #FCA5A5 30px, transparent 30px) !important;
+      background-color: #F8FAFC !important;
+      line-height: 32px !important;
+      padding: 16px 14px 20px 36px !important;
+    }
+    .note-sheet {
+      background-color: #F7FBFC;
+      background-image:
+        linear-gradient(#3f87a6 1px, transparent 1px),
+        linear-gradient(to right, transparent 0, transparent 39px, #c73030 39px, #c73030 40px, transparent 40px);
+      background-size: 100% 28px, 100% 100%;
+      background-position: 0 12px, 0 0;
+      border: 1px solid #D6E4EA;
+      border-radius: 12px;
+      padding: 18px 16px 20px 48px;
+      min-height: 200px;
+      color: #0F172A;
+      font-size: .92rem;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.6);
+    }
+    .note-sheet h2, .note-sheet h3, .note-sheet h4 { font-weight: 800; }
+    .note-sheet strong { color: #1E3A8A; }
+    .tool-bar {
+      display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; justify-content: center;
+    }
+    .tool-btn {
+      width: 52px; height: 52px; border-radius: 16px; border: 0;
+      display: grid; place-items: center; cursor: pointer;
+      background: #EEF2FF; color: #4338CA;
+      box-shadow: 0 4px 12px rgba(79,70,229,.12);
+      transition: transform .18s cubic-bezier(.22,1,.36,1), background .2s, box-shadow .2s;
+    }
+    .tool-btn:active { transform: scale(.92); }
+    .tool-btn.nova { background: linear-gradient(145deg,#4F46E5,#7C3AED); color:#fff; box-shadow:0 8px 20px rgba(79,70,229,.35); }
+    .tool-btn.dl { background: #ECFDF5; color: #047857; }
+    .tool-btn.share { background: #EFF6FF; color: #1D4ED8; }
+    .tool-btn.speak { background: #FEF3C7; color: #B45309; }
+    .tool-btn.copy { background: #F1F5F9; color: #334155; }
+    .tool-btn svg { width: 22px; height: 22px; }
+    .tool-label {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-size: .65rem; font-weight: 700; color: #64748B;
+    }
+    .note-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .note-actions button{border:0;border-radius:12px;padding:10px 14px;font-weight:700;font-family:inherit;cursor:pointer;font-size:.8rem;background:#EEF2FF;color:#3730A3}
+    .note-actions button.dl{background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff}
+    
+    .overlay-sheet {
+      position: fixed; inset: 0; z-index: 200; background: rgba(15,23,42,.55);
+      display: flex; align-items: flex-end; justify-content: center;
+      padding: 16px; backdrop-filter: blur(6px);
+    }
+    .overlay-sheet[hidden] { display: none !important; }
+    .sheet-card {
+      width: min(420px, 100%); background: #fff; border-radius: 22px 22px 18px 18px;
+      padding: 20px 18px 16px; box-shadow: 0 -8px 40px rgba(15,23,42,.2);
+    }
+    .sheet-card h3 { margin: 0 0 4px; font-size: 1.1rem; color: #0F172A; }
+    .sheet-lead { margin: 0 0 14px; font-size: .82rem; color: #64748B; line-height: 1.45; }
+    .sheet-btns { display: grid; gap: 8px; }
+    .sheet-btn {
+      display: flex; align-items: center; gap: 12px; height: 50px; padding: 0 14px;
+      border-radius: 14px; border: 1.5px solid #E2E8F0; background: #F8FAFC;
+      color: #0F172A; font-weight: 700; font-size: .9rem; font-family: inherit; cursor: pointer;
+    }
+    .sheet-btn.primary { background: linear-gradient(135deg,#22C55E,#16A34A); color: #fff; border-color: transparent; }
+    .sheet-btn.ghost-green {
+      background: #ECFDF5; color: #15803D; border-color: #A7F3D0; justify-content: center;
+    }
+    .sheet-btn svg { flex-shrink: 0; }
+    .toast-dl {
+      position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%);
+      background: #0F172A; color: #fff; padding: 12px 18px; border-radius: 14px;
+      font-size: .85rem; font-weight: 600; z-index: 300; box-shadow: 0 8px 24px rgba(0,0,0,.25);
+    }
+    
+    .quiz-topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px; font-size: .75rem; font-weight: 700; color: #64748B;
+    }
+    .quiz-timer {
+      font-variant-numeric: tabular-nums; font-size: .95rem;
+      color: #4F46E5; background: #EEF2FF; padding: 6px 12px; border-radius: 999px;
+    }
+    
+    /* Notebook paper for summary */
+    .summary-paper {
+      background: repeating-linear-gradient(
+        transparent,
+        transparent 31px,
+        #BFDBFE 31px,
+        #BFDBFE 32px
+      ), linear-gradient(90deg, transparent 0, transparent 28px, #FCA5A5 28px, #FCA5A5 30px, transparent 30px);
+      background-color: #F8FAFC;
+      border-radius: 16px;
+      padding: 20px 16px 20px 36px;
+      line-height: 32px;
+      color: #0F172A;
+      font-size: 0.95rem;
+      min-height: 280px;
+      box-shadow: inset 0 0 0 1px #E2E8F0;
+    }
+    .summary-paper h3, .summary-paper strong {
+      color: #1E3A8A;
+      font-weight: 800;
+    }
+    .summary-paper p { margin: 0 0 0.25em; }
+</style>
+</head>
+<body class="app-body" data-page="ai">
+  <div class="page">
+    <div class="head">
+      <a href="study-lab.html" aria-label="Back">←</a>
+      <h1 id="title">Document</h1>
+    </div>
+    <p class="meta" id="meta"></p>
+
+    <div class="tabs" role="tablist">
+      <button type="button" class="on" data-tab="cards">Flashcards</button>
+      <button type="button" data-tab="quiz">Quiz</button>
+      <button type="button" data-tab="summary">Summary</button>
+      <button type="button" data-tab="file">Source</button>
+    </div>
+
+    <div class="panel on" id="panel-cards">
+      <div id="cardsBox"></div>
+    </div>
+    <div class="panel" id="panel-quiz">
+      <div id="quizBox"></div>
+    </div>
+    <div class="panel" id="panel-summary">
+      <div id="sumBox"></div>
+    </div>
+    <div class="panel" id="panel-file">
+      <div id="fileBox"></div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/app-auth.js"></script>
+  <script src="../js/codex-quota.js"></script>
+  <script src="../js/shell.js"></script>
+  <script src="../js/auto-scroll.js"></script>
+  <script>
+  (function () {
+    "use strict";
+    var params = new URLSearchParams(location.search);
+    var docId = params.get("id");
+    var user, db, profile = {}, docData = null;
+    var cardIndex = 0;
+    var cards = [];
+
+    function formatNotes(raw) {
+      var s = escape(String(raw || ""));
+      // headings
+      s = s.replace(/^### (.+)$/gm, '<h4 style="margin:14px 0 6px;font-size:1rem;color:#1E3A8A">$1</h4>');
+      s = s.replace(/^## (.+)$/gm, '<h3 style="margin:16px 0 8px;font-size:1.1rem;color:#1E3A8A">$1</h3>');
+      s = s.replace(/^# (.+)$/gm, '<h2 style="margin:18px 0 10px;font-size:1.2rem;color:#0F172A">$1</h2>');
+      // bold + italic
+      s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+      s = s.replace(/(^|\s)\*([^*]+)\*(?=\s|$)/g, "$1<em>$2</em>");
+      // bullet lines
+      s = s.replace(/^\s*[-*] (.+)$/gm, '<div style="padding-left:12px;margin:4px 0">• $1</div>');
+      s = s.replace(/^\s*\d+\. (.+)$/gm, '<div style="padding-left:12px;margin:4px 0">$1</div>');
+      // paragraphs
+      s = s.replace(/\n\n/g, "</p><p style=\"margin:8px 0;line-height:1.55\">");
+      s = s.replace(/\n/g, "<br>");
+      return '<p style="margin:0;line-height:1.55">' + s + "</p>";
+    }
+    function escape(s) {
+      return String(s || "").replace(/[&<>"']/g, function (m) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[m];
+      });
+    }
+
+    document.querySelectorAll(".tabs button").forEach(function (btn) {
+      btn.onclick = function () {
+        document.querySelectorAll(".tabs button").forEach(function (b) { b.classList.remove("on"); });
+        document.querySelectorAll(".panel").forEach(function (p) { p.classList.remove("on"); });
+        btn.classList.add("on");
+        document.getElementById("panel-" + btn.getAttribute("data-tab")).classList.add("on");
+      };
+    });
+
+    
+    var NOVA_API = "https://codex-backend-new.onrender.com/chat";
+    function sourceBlob(doc) {
+      var t = (doc && (doc.extractedText || doc.sourceText || doc.textContent || "")) || "";
+      return String(t).trim().slice(0, 28000);
+    }
+    function parseJsonBlock(raw) {
+      var s = String(raw || "").trim();
+      var fence = s.match(/```(?:json)?\s*([\s\S]*?)```/i);
+      if (fence) s = fence[1].trim();
+      var a0 = s.indexOf("[");
+      var a1 = s.lastIndexOf("]");
+      if (a0 >= 0 && a1 > a0) {
+        try { return JSON.parse(s.slice(a0, a1 + 1)); } catch (e) {}
+      }
+      var o0 = s.indexOf("{");
+      var o1 = s.lastIndexOf("}");
+      if (o0 >= 0 && o1 > o0) {
+        try { return JSON.parse(s.slice(o0, o1 + 1)); } catch (e) {}
+      }
+      return null;
+    }
+    function callStudyAI(userPrompt, systemExtra) {
+      var system =
+        "You are Nova Study Lab for Codex Hub (Nigerian university students). " +
+        "Follow the user format exactly. Prefer content grounded in the provided SOURCE TEXT. " +
+        "If SOURCE TEXT is thin, still produce useful study material from the title/topic, and note that source text was limited. " +
+        (systemExtra || "");
+      return fetch(NOVA_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system: system,
+          messages: [{ role: "user", content: userPrompt }]
+        })
+      }).then(function (r) {
+        if (!r.ok) throw new Error("AI HTTP " + r.status);
+        return r.json();
+      }).then(function (data) {
+        var c = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+        if (!c && data && data.reply) c = data.reply;
+        if (!c) throw new Error("Empty AI reply");
+        return c;
+      });
+    }
+
+    function renderCards() {
+      var box = document.getElementById("cardsBox");
+      if (!cards.length) {
+        box.innerHTML =
+          '<div class="empty"><strong>No flashcards yet</strong>Generate a starter set from this document title. Uses the text extracted from your upload + the Nova AI backend.</div>' +
+          '<button type="button" class="gen" id="genCards">Generate cards with AI</button>';
+        document.getElementById("genCards").onclick = function () {
+          var topic = docData.title || docData.fileName || "this topic";
+          var __lim = window.CodexQuota ? CodexQuota.labLimits((profile && (profile.subscriptionTier || profile.plan)) || "free") : { flashMax: 15 };
+          var n = Math.min(Math.max(docData.targetFlashcards || __lim.flashDef || 8, 4), __lim.flashMax || 15);
+          var src = sourceBlob(docData);
+          var btn = document.getElementById("genCards");
+          if (btn) { btn.disabled = true; btn.textContent = "Generating with AI…"; }
+          var prompt =
+            "Create " + n + " flashcards for university revision on: " + topic + ".\n" +
+            (src
+              ? "SOURCE TEXT from the student's document (use this heavily):\n" + src + "\n\n"
+              : "No extracted document text was available — use the topic title and standard syllabus knowledge for " + topic + ".\n\n") +
+            "Return ONLY a JSON array of objects with keys q and a. No markdown outside JSON. " +
+            "Each q is a clear question; each a is a concise accurate answer from the source when possible.";
+          callStudyAI(prompt, "Output valid JSON array only.")
+            .then(function (raw) {
+              var parsed = parseJsonBlock(raw);
+              var list = Array.isArray(parsed) ? parsed : (parsed && parsed.cards) || [];
+              cards = list.map(function (item, i) {
+                return {
+                  q: String((item && (item.q || item.question)) || ("Key idea " + (i + 1) + " — " + topic)).slice(0, 400),
+                  a: String((item && (item.a || item.answer)) || "").slice(0, 800)
+                };
+              }).filter(function (c) { return c.q && c.a; });
+              if (!cards.length) throw new Error("Could not parse flashcards");
+              docData.flashcards = cards;
+              saveArtifacts();
+              renderCards();
+            })
+            .catch(function (err) {
+              console.warn(err);
+              alert((err && err.message) || "Could not generate flashcards. Check connection / backend.");
+              if (btn) { btn.disabled = false; btn.textContent = "Generate cards with AI"; }
+            });
+        };
+        return;
+      }
+      var c = cards[cardIndex];
+      box.innerHTML =
+        '<div class="fc-count">' + (cardIndex + 1) + " / " + cards.length + " · tap card to flip</div>" +
+        '<div class="fc-stage"><div class="fc" id="fc">' +
+          '<div class="face front">' + escape(c.q) + "</div>" +
+          '<div class="face back">' + escape(c.a) + "</div>" +
+        "</div></div>" +
+        '<div class="fc-nav">' +
+          '<button type="button" id="prevC">Previous</button>' +
+          '<button type="button" id="flipC">Flip</button>' +
+          '<button type="button" id="nextC">Next</button>' +
+        "</div>" +
+        '<button type="button" id="askCard" style="display:none;width:100%;margin-top:10px;height:48px;border:0;border-radius:14px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;font-weight:800;font-family:inherit;cursor:pointer">Ask Nova about this answer</button>';
+      var fc = document.getElementById("fc");
+      var askCard = document.getElementById("askCard");
+      function flip() {
+        fc.classList.toggle("flipped");
+        if (askCard) askCard.style.display = fc.classList.contains("flipped") ? "block" : "none";
+      }
+      document.getElementById("flipC").onclick = flip;
+      fc.onclick = flip;
+      document.getElementById("prevC").onclick = function () {
+        cardIndex = (cardIndex - 1 + cards.length) % cards.length;
+        renderCards();
+      };
+      document.getElementById("nextC").onclick = function () {
+        cardIndex = (cardIndex + 1) % cards.length;
+        renderCards();
+      };
+      if (askCard) askCard.onclick = function () {
+        var card = cards[cardIndex];
+        var prompt = "Explain this flashcard more clearly for a university student.\n\nQuestion: " + (card.q || "") + "\nAnswer: " + (card.a || "") + "\n\nUse simple steps and one example.";
+        try { sessionStorage.setItem("nova_prefill", prompt); } catch (e) {}
+        location.href = "nova.html";
+      };
+    }
+
+    function renderQuiz() {
+      var box = document.getElementById("quizBox");
+      var quiz = loadQuiz(docData || {});
+      if (!quiz.length) {
+        box.innerHTML =
+          '<div class="empty"><strong>No quiz yet</strong>Create a self-check quiz from your document content.</div>' +
+          '<button type="button" class="gen" id="genQuiz">Create quiz with AI</button>';
+        document.getElementById("genQuiz").onclick = function () {
+          var topic = docData.title || docData.fileName || "this material";
+          var __limQ = window.CodexQuota ? CodexQuota.labLimits((profile && (profile.subscriptionTier || profile.plan)) || "free") : { quizMax: 10 };
+          var n = Math.min(Math.max(docData.targetQuiz || __limQ.quizDef || 5, 3), __limQ.quizMax || 10);
+          var src = sourceBlob(docData);
+          var btn = document.getElementById("genQuiz");
+          if (btn) { btn.disabled = true; btn.textContent = "Generating quiz…"; }
+          var prompt =
+            "Create a " + n + "-question multiple-choice quiz for university students on: " + topic + ".\n" +
+            (src
+              ? "SOURCE TEXT:\n" + src + "\n\n"
+              : "No source text — use standard knowledge for the topic.\n\n") +
+            "Return ONLY a JSON array. Each item: {\"q\": question, \"options\": [A,B,C,D], \"ans\": indexOfCorrect (0-3)}. " +
+            "Questions must test understanding of the source, not generic study tips.";
+          callStudyAI(prompt, "JSON array only.")
+            .then(function (raw) {
+              var parsed = parseJsonBlock(raw);
+              var list = Array.isArray(parsed) ? parsed : (parsed && parsed.quiz) || [];
+              var quiz = list.map(function (item) {
+                var opts = (item && item.options) || [];
+                if (!Array.isArray(opts) || opts.length < 2) return null;
+                var ans = typeof item.ans === "number" ? item.ans : (typeof item.correct === "number" ? item.correct : 0);
+                return {
+                  q: String(item.q || item.question || "").slice(0, 500),
+                  options: opts.map(function (o) { return String(o).slice(0, 200); }).slice(0, 6),
+                  ans: Math.max(0, Math.min(ans, opts.length - 1))
+                };
+              }).filter(function (x) { return x && x.q && x.options && x.options.length >= 2; });
+              if (!quiz.length) throw new Error("Could not parse quiz");
+              docData.quiz = quiz;
+              saveArtifacts();
+              renderQuiz();
+            })
+            .catch(function (err) {
+              console.warn(err);
+              alert((err && err.message) || "Quiz generation failed.");
+              if (btn) { btn.disabled = false; btn.textContent = "Create quiz with AI"; }
+            });
+        };
+        return;
+      }
+      var qIndex = 0, answers = {}, started = false, sharedId = null, quizDeadline = 0, quizTimerId = null;
+      var mins = Math.max(3, Math.ceil(quiz.length * 0.6));
+      function openShareModal(url, msg) {
+        var modal = document.getElementById("shareModal");
+        if (!modal) {
+          modal = document.createElement("div");
+          modal.id = "shareModal";
+          modal.className = "share-modal";
+          modal.innerHTML = '<div class="share-box"><h3>Share quiz</h3><input id="shareLinkInput" readonly><div class="row"><button type="button" class="cp" id="shareCopy">Copy link</button><button type="button" class="wa" id="shareWa">WhatsApp</button></div><button type="button" class="secondary" id="shareClose" style="width:100%;margin-top:10px;height:44px;border:0;border-radius:12px;font-weight:700;background:#F1F5F9;cursor:pointer">Close</button></div>';
+          document.body.appendChild(modal);
+        }
+        modal.classList.add("show");
+        var inp = document.getElementById("shareLinkInput");
+        inp.value = url;
+        document.getElementById("shareCopy").onclick = function () {
+          if (navigator.clipboard) navigator.clipboard.writeText(url);
+          inp.select();
+        };
+        document.getElementById("shareWa").onclick = function () {
+          window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank");
+        };
+        document.getElementById("shareClose").onclick = function () { modal.classList.remove("show"); };
+      }
+      function shareQuizLink() {
+        if (!user) { alert("Sign in to share quizzes."); return; }
+        var title = (docData.title || docData.fileName || "Study quiz");
+        var payload = {
+          title: title,
+          questions: quiz,
+          uid: user.uid,
+          ownerUid: user.uid,
+          sourceDocId: docId || null,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          views: 0
+        };
+        var done = function (id) {
+          sharedId = id;
+          var origin = location.origin && location.origin.indexOf("file:") === 0 ? "https://codex-hub.app" : (location.origin || "");
+          var path = location.pathname.replace(/study-lab-doc\\.html.*/, "shared_quiz.html");
+          if (path.indexOf("shared_quiz") === -1) path = "/app/shared_quiz.html";
+          var url = (origin || "") + path + "?id=" + id;
+          if (location.protocol === "file:") url = "shared_quiz.html?id=" + id;
+          var msg = "📚 Quiz on \"" + title + "\" from Codex Hub (" + quiz.length + " questions)\\n" + url;
+          openShareModal(url, msg);
+          if (navigator.share) {
+            navigator.share({ title: title, text: msg, url: url }).catch(function () {});
+          }
+        };
+        if (sharedId) { done(sharedId); return; }
+        db.collection("shared_quizzes").add(payload).then(function (ref) { done(ref.id); })
+          .catch(function (err) { alert(err.message || "Could not create share link"); });
+      }
+      function paintStart() {
+        box.innerHTML =
+          '<div class="quiz-start">' +
+            '<h2 style="margin:0 0 6px;font-size:1.15rem">Ready to practice?</h2>' +
+            '<p style="margin:0;color:#64748B;font-size:.88rem">' + escape(docData.title || docData.fileName || "Document") + '</p>' +
+            '<div class="stat"><div><b>' + quiz.length + '</b><span>Questions</span></div>' +
+            '<div><b>~' + mins + ' min</b><span>Suggested time</span></div></div>' +
+            '<button type="button" class="gen" id="startQuiz">Start quiz</button>' +
+            '<button type="button" class="ghost-btn" id="shareQuizStart" style="margin-top:10px;width:100%;height:44px;border-radius:12px;border:1.5px solid #C7D2FE;background:#fff;color:#4F46E5;font-weight:800;cursor:pointer">Share quiz link</button>' +
+          '</div>';
+        document.getElementById("startQuiz").onclick = function () {
+          started = true; qIndex = 0; answers = {};
+          quizDeadline = Date.now() + mins * 60 * 1000;
+          if (quizTimerId) clearInterval(quizTimerId);
+          quizTimerId = setInterval(function () {
+            var left = Math.max(0, quizDeadline - Date.now());
+            var el = document.getElementById("quizTimer");
+            if (el) {
+              var m = Math.floor(left / 60000), s = Math.floor((left % 60000) / 1000);
+              el.textContent = (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+              if (left <= 60000) el.style.color = "#DC2626";
+            }
+            if (left <= 0) {
+              clearInterval(quizTimerId); quizTimerId = null;
+              // auto-finish
+              try { document.getElementById("finishQuiz") && document.getElementById("finishQuiz").click(); } catch (e) {}
+            }
+          }, 250);
+          paintQ();
+        };
+        document.getElementById("shareQuizStart").onclick = shareQuizLink;
+      }
+      function paintQ() {
+        var item = quiz[qIndex];
+        var leftMs = Math.max(0, quizDeadline - Date.now());
+        var tm = Math.floor(leftMs / 60000), ts = Math.floor((leftMs % 60000) / 1000);
+        var tStr = (tm < 10 ? "0" : "") + tm + ":" + (ts < 10 ? "0" : "") + ts;
+        box.innerHTML =
+          '<div class="quiz-topbar"><span>Question ' + (qIndex + 1) + ' / ' + quiz.length + '</span>' +
+            '<span class="quiz-timer" id="quizTimer">' + tStr + '</span></div>' +
+          '<div class="q-card"><p>' + escape(item.q) + '</p>' +
+          item.options.map(function (opt, oi) {
+            var checked = answers[qIndex] === oi ? " checked" : "";
+            return '<label><input type="radio" name="qcur" value="' + oi + '"' + checked + '> ' + escape(opt) + '</label>';
+          }).join("") + '</div>' +
+          '<div class="quiz-nav">' +
+            '<button type="button" class="secondary" id="prevQ"' + (qIndex === 0 ? " disabled" : "") + '>Back</button>' +
+            (qIndex < quiz.length - 1
+              ? '<button type="button" class="primary" id="nextQ">Next</button>'
+              : '<button type="button" class="primary" id="checkQuiz">See score</button>') +
+            '<button type="button" class="ghost-btn" id="shareQuiz">Share quiz</button>' +
+            '<button type="button" class="ghost-btn" id="askNovaQuiz">Ask Nova</button>' +
+          '</div>';
+        box.querySelectorAll('input[name="qcur"]').forEach(function (inp) {
+          inp.onchange = function () { answers[qIndex] = +inp.value; };
+        });
+        var prev = document.getElementById("prevQ");
+        if (prev) prev.onclick = function () { qIndex--; paintQ(); };
+        var next = document.getElementById("nextQ");
+        if (next) next.onclick = function () {
+          var sel = box.querySelector('input[name="qcur"]:checked');
+          if (sel) answers[qIndex] = +sel.value;
+          qIndex++;
+          paintQ();
+        };
+        var chk = document.getElementById("checkQuiz");
+        if (chk) chk.onclick = function () {
+          var sel = box.querySelector('input[name="qcur"]:checked');
+          if (sel) answers[qIndex] = +sel.value;
+          var correct = 0;
+          quiz.forEach(function (it, qi) { if (answers[qi] === it.ans) correct++; });
+          if (quizTimerId) { clearInterval(quizTimerId); quizTimerId = null; }
+          var pct = Math.round(100 * correct / quiz.length);
+          box.innerHTML =
+            '<div class="score-card">' +
+              '<p style="margin:0;font-weight:700;color:#64748B">Your score</p>' +
+              '<div class="pct">' + correct + ' / ' + quiz.length + '</div>' +
+              '<p style="margin:0 0 8px;font-size:1.1rem;font-weight:800;color:#0F172A">' + pct + '%</p>' +
+              '<p style="color:#64748B;font-size:.88rem">Review weak options, then retry or ask Nova.</p>' +
+              '<button type="button" class="gen" id="retryQuiz">Retry quiz</button>' +
+              '<button type="button" class="ghost-btn" id="shareQuiz2" style="margin-top:10px;width:100%;height:46px;border-radius:12px;border:1.5px solid #C7D2FE;background:#fff;color:#4F46E5;font-weight:800;cursor:pointer">Share score</button>' +
+              '<button type="button" class="ghost-btn" id="askNovaScore" style="margin-top:8px;width:100%;height:46px;border-radius:12px;border:0;background:#EEF2FF;color:#4338CA;font-weight:800;cursor:pointer">Ask Nova to explain</button>' +
+            '</div>';
+          document.getElementById("retryQuiz").onclick = function () { qIndex = 0; answers = {}; paintQ(); };
+          document.getElementById("shareQuiz2").onclick = function () {
+            var title = docData.title || "Quiz";
+            var msg = "I scored " + correct + "/" + quiz.length + " (" + pct + "%) on \"" + title + "\" in Codex Hub Study Lab!";
+            if (navigator.share) navigator.share({ title: "Quiz score", text: msg }).catch(function () {});
+            else if (navigator.clipboard) navigator.clipboard.writeText(msg);
+          };
+          document.getElementById("askNovaScore").onclick = function () {
+            var lines = quiz.map(function (it, i) {
+              return (i + 1) + ". " + it.q + "\\nOptions: " + (it.options || []).join(" | ");
+            }).join("\\n\\n");
+            try { sessionStorage.setItem("nova_prefill", "I scored " + correct + "/" + quiz.length + " on this quiz. Explain the correct answers simply:\\n\\n" + lines.slice(0, 3500)); } catch (e) {}
+            location.href = "nova.html";
+          };
+        };
+        var sh = document.getElementById("shareQuiz");
+        if (sh) sh.onclick = shareQuizLink;
+        var an = document.getElementById("askNovaQuiz");
+        if (an) an.onclick = function () {
+          var lines = quiz.map(function (it, i) { return (i + 1) + ". " + it.q; }).join("\\n");
+          try { sessionStorage.setItem("nova_prefill", "Help me understand this quiz:\\n\\n" + lines.slice(0, 3500)); } catch (e) {}
+          location.href = "nova.html";
+        };
+      }
+      paintStart();
+    }
+
+    function iconBtn(cls, id, svg, label) {
+      return '<div class="tool-label"><button type="button" class="tool-btn ' + cls + '" id="' + id + '" aria-label="' + label + '">' + svg + '</button><span>' + label + '</span></div>';
+    }
+    var ICO = {
+      copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>',
+      share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>',
+      dl: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h1a4 4 0 010 8h-1"/><path d="M6 10H5a4 4 0 000 8h1"/><path d="M12 2v14"/><path d="M8 12l4 4 4-4"/><path d="M4 20h16"/></svg>',
+      mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a3 3 0 013 3v6a3 3 0 11-6 0V6a3 3 0 013-3z"/><path d="M19 11a7 7 0 01-14 0M12 18v3"/></svg>',
+      nova: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="4"/><path d="M6 20c1.5-3 10.5-3 12 0"/><circle cx="10" cy="9" r="1" fill="currentColor"/><circle cx="14" cy="9" r="1" fill="currentColor"/></svg>'
+    };
+    function notePages(text) {
+      var parts = String(text || "").split(/\n\n+/);
+      var pages = [], buf = "";
+      parts.forEach(function (p) {
+        if ((buf + "\n\n" + p).length > 900 && buf) { pages.push(buf); buf = p; }
+        else buf = buf ? buf + "\n\n" + p : p;
+      });
+      if (buf) pages.push(buf);
+      return pages.length ? pages : [text || ""];
+    }
+    var notePageIdx = 0;
+    function bindNoteActions(text) {
+      var pages = notePages(text);
+      notePageIdx = 0;
+      function paintPage() {
+        var sheet = document.getElementById("sumText");
+        if (!sheet) return;
+        sheet.classList.remove("flip-in");
+        void sheet.offsetWidth;
+        sheet.classList.add("flip-in");
+        sheet.innerHTML = formatNotes(pages[notePageIdx] || "");
+        var nav = document.getElementById("pageNav");
+        if (nav) {
+          nav.style.display = pages.length > 1 ? "flex" : "none";
+          var lab = document.getElementById("pageLab");
+          if (lab) lab.textContent = "Page " + (notePageIdx + 1) + " / " + pages.length;
+        }
+      }
+      var copy = document.getElementById("noteCopy");
+      var share = document.getElementById("noteShare");
+      var dl = document.getElementById("noteDl");
+      var sp = document.getElementById("noteSpeak");
+      var ask = document.getElementById("noteNova");
+      if (copy) copy.onclick = function () {
+        if (navigator.clipboard) navigator.clipboard.writeText(text);
+        copy.style.transform = "scale(1.12)";
+        setTimeout(function () { copy.style.transform = ""; }, 180);
+      };
+      if (share) share.onclick = function () {
+        var title = (docData && docData.title) || "Codex notes";
+        var snippet = text.slice(0, 1500);
+        var sheet = document.getElementById("notesShareSheet");
+        if (!sheet) {
+          // fallback
+          window.open("https://wa.me/?text=" + encodeURIComponent("📝 " + title + "\n\n" + snippet), "_blank");
+          return;
+        }
+        sheet.hidden = false;
+        function close() { sheet.hidden = true; }
+        document.getElementById("nsCancel").onclick = close;
+        sheet.onclick = function (e) { if (e.target === sheet) close(); };
+        document.getElementById("nsWa").onclick = function () {
+          window.open("https://wa.me/?text=" + encodeURIComponent("📝 " + title + " — Codex Hub\n\n" + snippet), "_blank");
+          close();
+        };
+        document.getElementById("nsSys").onclick = function () {
+          if (navigator.share) {
+            navigator.share({ title: title, text: snippet }).catch(function () {});
+          } else {
+            window.open("https://wa.me/?text=" + encodeURIComponent(snippet), "_blank");
+          }
+          close();
+        };
+        document.getElementById("nsCopy").onclick = function () {
+          if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () {
+            alert("Notes copied");
+          });
+          close();
+        };
+        document.getElementById("nsDl").onclick = function () {
+          doDownloadNotes();
+          close();
+        };
+      };
+      function doDownloadNotes() {
+        try {
+          var title = (docData && (docData.title || docData.fileName)) || "Codex notes";
+          var safe = String(title).replace(/[^\w\-]+/g, "_").slice(0, 40) || "notes";
+          var style = "body{font-family:Georgia,serif;max-width:720px;margin:24px auto;padding:20px;line-height:1.65;color:#0F172A;background:#F8FAFC}"
+            + "h1{font-family:system-ui,sans-serif;color:#4F46E5;font-size:1.25rem;word-break:break-word;overflow-wrap:anywhere;line-height:1.3}"
+            + ".meta{color:#64748B;font-size:.85rem;margin-bottom:20px}"
+            + ".sheet{background:#fff;border-radius:16px;padding:20px;border:1px solid #E2E8F0}";
+          var html = "<!doctype html><html><head><meta charset=utf-8>"
+            + "<meta name=viewport content=\"width=device-width,initial-scale=1\">"
+            + "<title>" + escape(title) + "</title><style>" + style + "</style></head><body>"
+            + "<h1>" + escape(title) + "</h1>"
+            + "<p class=meta>Exported from Codex Hub Study Lab</p>"
+            + "<div class=sheet>" + formatNotes(text) + "</div></body></html>";
+          var blob = new Blob([html], { type: "text/html;charset=utf-8" });
+          var fileName = safe + "_notes.html";
+          var file = new File([blob], fileName, { type: "text/html" });
+          function anchorDl() {
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement("a");
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 800);
+          }
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            navigator.share({ files: [file], title: title, text: "Codex Hub notes" }).catch(anchorDl);
+          } else {
+            anchorDl();
+          }
+          var toast = document.createElement("div");
+          toast.className = "toast-dl";
+          toast.textContent = "Notes ready — use the share sheet or check Downloads";
+          document.body.appendChild(toast);
+          setTimeout(function () { toast.remove(); }, 3200);
+        } catch (err) {
+          alert("Download failed: " + (err.message || err));
+        }
+      }
+      if (dl) dl.onclick = doDownloadNotes;
+      if (sp) sp.onclick = function () {
+        try {
+          if (typeof window.SpeechSynthesisUtterance === "undefined" || !window.speechSynthesis) {
+            alert("Read-aloud is not available in this browser. Try Chrome or open via https.");
+            return;
+          }
+          if (speechSynthesis.speaking) { speechSynthesis.cancel(); return; }
+          var u = new SpeechSynthesisUtterance(pages[notePageIdx] || text);
+          u.rate = 0.95;
+          speechSynthesis.speak(u);
+        } catch (err) {
+          alert("Could not start read-aloud.");
+        }
+      };
+      if (ask) ask.onclick = function () {
+        try { sessionStorage.setItem("nova_prefill", "Explain these Study Lab notes in simple steps:\n\n" + text.slice(0, 3500)); } catch (e) {}
+        location.href = "nova.html";
+      };
+      var prev = document.getElementById("pagePrev");
+      var next = document.getElementById("pageNext");
+      if (prev) prev.onclick = function () { notePageIdx = (notePageIdx - 1 + pages.length) % pages.length; paintPage(); };
+      if (next) next.onclick = function () { notePageIdx = (notePageIdx + 1) % pages.length; paintPage(); };
+      paintPage();
+    }
+    function renderSummary() {
+      var box = document.getElementById("sumBox");
+      var sum = loadSummary(docData || "");
+      if (!sum) {
+        box.innerHTML =
+          '<div class="empty"><strong>No summary yet</strong>Generate a short outline from the document title. Deep PDF summarisation uses your existing Study Lab pipeline when wired.</div>' +
+          '<button type="button" class="gen" id="genSum">Generate summary with AI</button>';
+        document.getElementById("genSum").onclick = function () {
+          var topic = docData.title || docData.fileName || "Document";
+          var src = sourceBlob(docData);
+          var btn = document.getElementById("genSum");
+          if (btn) { btn.disabled = true; btn.textContent = "Writing summary…"; }
+          var prompt =
+            "Write a clear study summary/notes for university students on: " + topic + ".\n" +
+            (src
+              ? "SOURCE TEXT (base the summary on this):\n" + src + "\n\n"
+              : "No source text extracted — produce a structured syllabus-style outline for the topic.\n\n") +
+            "Use headings and bullet points. Include: core ideas, key terms with short definitions, " +
+            "important formulas/facts if any, common mistakes, and a short revision checklist. " +
+            "Plain text/markdown only — no JSON.";
+          callStudyAI(prompt, "Write complete study notes, not placeholders.")
+            .then(function (raw) {
+              var text = String(raw || "").trim();
+              if (text.length < 40) throw new Error("Summary too short");
+              docData.summary = text;
+              saveArtifacts();
+              renderSummary();
+            })
+            .catch(function (err) {
+              console.warn(err);
+              alert((err && err.message) || "Summary generation failed.");
+              if (btn) { btn.disabled = false; btn.textContent = "Generate summary with AI"; }
+            });
+        };
+        return;
+      }
+      box.innerHTML =
+        '<div class="note-sheet summary-paper" id="sumText"></div>' +
+        '<div class="page-nav" id="pageNav" style="display:none">' +
+          '<button type="button" id="pagePrev">← Prev page</button>' +
+          '<span id="pageLab" style="font-size:.75rem;font-weight:700;color:#64748B"></span>' +
+          '<button type="button" id="pageNext">Next page →</button></div>' +
+        '<div class="tool-bar">' +
+          iconBtn("copy","noteCopy",ICO.copy,"Copy") +
+          iconBtn("share","noteShare",ICO.share,"Share") +
+          iconBtn("dl","noteDl",ICO.dl,"Download") +
+          iconBtn("speak","noteSpeak",ICO.mic,"Read") +
+          iconBtn("nova","noteNova",ICO.nova,"Ask Nova") +
+        "</div>";
+      bindNoteActions(sum);
+    }
+
+    function renderFile() {
+      var box = document.getElementById("fileBox");
+      if (!docData) return;
+      box.innerHTML =
+        '<div class="q-card">' +
+          "<p><strong>" + escape(docData.fileName || docData.title || "File") + "</strong></p>" +
+          (docData.fileUrl
+            ? '<p><a href="' + escape(docData.fileUrl) + '" target="_blank" rel="noopener" style="color:#4F46E5;font-weight:700">Open source file →</a></p>'
+            : "<p style=\"color:#64748B\">No file URL stored for this folder.</p>") +
+        "</div>";
+    }
+
+    function saveArtifacts() {
+      if (!docId || !user) return;
+      var quizArr = docData.quiz || loadQuiz(docData) || [];
+      var sumText = docData.summary || loadSummary(docData) || "";
+      db.collection("study_lab_documents").doc(docId).set({
+        flashcards: cards,
+        quiz: quizArr,
+        summary: sumText,
+        outputs: {
+          flashcards: JSON.stringify(cards),
+          quiz: JSON.stringify(quizArr),
+          summary: sumText
+        },
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true }).catch(function (err) { console.warn(err); });
+    }
+
+
+    function parseMaybeJson(val) {
+      if (val == null) return null;
+      if (typeof val === "string") {
+        try { return JSON.parse(val); } catch (e) { return null; }
+      }
+      return val;
+    }
+    function loadFlashcards(data) {
+      var raw = null;
+      if (Array.isArray(data.flashcards)) raw = data.flashcards;
+      else if (Array.isArray(data.cards)) raw = data.cards;
+      else if (data.outputs) {
+        raw = parseMaybeJson(data.outputs.flashcards);
+      }
+      if (!Array.isArray(raw)) return [];
+      return raw.map(function (c) {
+        if (typeof c === "string") return { q: c, a: "" };
+        return {
+          q: c.q || c.front || c.question || c.prompt || "",
+          a: c.a || c.back || c.answer || c.response || ""
+        };
+      }).filter(function (c) { return c.q; });
+    }
+    function loadQuiz(data) {
+      var raw = null;
+      if (Array.isArray(data.quiz)) raw = data.quiz;
+      else if (Array.isArray(data.questions)) raw = data.questions;
+      else if (data.outputs) {
+        raw = parseMaybeJson(data.outputs.quiz);
+      }
+      if (!Array.isArray(raw)) return [];
+      return raw.map(function (item) {
+        var q = item.q || item.question || "";
+        var options = item.options || item.choices || [];
+        if (!Array.isArray(options)) options = [];
+        options = options.map(function (o) { return String(o).replace(/^[A-D][\.\)]\s*/i, "").trim(); });
+        var ans = item.ans;
+        if (ans == null && item.answer != null) {
+          var answerStr = String(item.answer).replace(/^[A-D][\.\)]\s*/i, "").trim();
+          ans = options.findIndex(function (o) {
+            return o.toLowerCase() === answerStr.toLowerCase();
+          });
+          if (ans < 0) ans = 0;
+        }
+        if (typeof ans !== "number") ans = 0;
+        return { q: q, options: options, ans: ans };
+      }).filter(function (item) { return item.q && item.options.length; });
+    }
+    function loadSummary(data) {
+      if (data.summary) return data.summary;
+      if (data.outputs) {
+        if (data.outputs.summary) return data.outputs.summary;
+        if (data.outputs.notes) return data.outputs.notes;
+        if (Array.isArray(data.outputs.keyPoints)) {
+          return data.outputs.keyPoints.map(function (k, i) { return (i + 1) + ". " + k; }).join("\n");
+        }
+      }
+      return "";
+    }
+
+    function paint() {
+      (function () {
+        var rawT = docData.title || docData.fileName || "Document";
+        var tEl = document.getElementById("title");
+        tEl.textContent = rawT;
+        tEl.title = rawT; // full name on long-press / hover
+      })();
+      document.getElementById("meta").textContent =
+        [docData.courseCode || docData.detectedSubject, docData.fileName].filter(Boolean).join(" · ") || "Study Lab folder";
+      cards = loadFlashcards(docData);
+      cardIndex = 0;
+      renderCards();
+      renderQuiz();
+      renderSummary();
+      renderFile();
+    }
+
+    CodexShell.mountShell({ page: "ai", title: "Study Lab", user: { fullName: "Student" } });
+    CodexAuth.requireUser().then(function (res) {
+      user = res.user;
+      db = res.db;
+      profile = res.profile || {};
+      CodexShell.mountShell({
+        page: "ai",
+        title: "Study Lab",
+        profile: profile,
+        user: { fullName: profile.fullName || profile.displayName || user.displayName }
+      });
+      if (!docId) {
+        location.href = "study-lab.html";
+        return;
+      }
+      db.collection("study_lab_documents").doc(docId).get()
+        .then(function (snap) {
+          if (!snap.exists) {
+            document.getElementById("title").textContent = "Not found";
+            return;
+          }
+          docData = snap.data() || {};
+          docData.id = snap.id;
+          if (docData.uid && docData.uid !== user.uid) {
+            document.getElementById("title").textContent = "Not found";
+            return;
+          }
+          paint();
+        })
+        .catch(function (err) {
+          document.getElementById("meta").textContent = err.message || "Load failed";
+        });
+    });
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="../js/theme-boot.js"></script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Home · Codex Hub</title>
+  <meta name="theme-color" content="#4F46E5">
+  <link rel="icon" href="../assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/shell.css">
+  <style>
+    :root {
+      --indigo: #4F46E5; --violet: #7C3AED; --ink: #0F172A;
+      --muted: #64748B; --line: #E8ECF4; --card: #fff;
+      --font: "Plus Jakarta Sans", system-ui, sans-serif;
+      --ease: cubic-bezier(.22, 1, .36, 1);
+    }
+    * { box-sizing: border-box; }
+    body.app-body { margin: 0; font-family: var(--font); }
+
+    /* —— Mobile layout —— */
+    .home-m {
+      width: 100%; max-width: 560px; margin: 0 auto;
+      padding: 12px 14px 28px;
+    }
+    .home-d { display: none; }
+
+    .welcome {
+      position: relative; overflow: hidden;
+      border-radius: 20px; padding: 18px 16px;
+      color: #fff;
+      background: linear-gradient(135deg, #312E81 0%, #4F46E5 42%, #7C3AED 100%);
+      box-shadow: 0 14px 32px rgba(79,70,229,.28);
+    }
+    /* geometric triangles */
+    .welcome .tri {
+      position: absolute; pointer-events: none; z-index: 0;
+      width: 0; height: 0; border-style: solid; opacity: .35;
+    }
+    .welcome .tri.t1 {
+      right: -10px; top: -16px;
+      border-width: 0 70px 90px 70px;
+      border-color: transparent transparent rgba(165,243,252,.35) transparent;
+      transform: rotate(18deg);
+    }
+    .welcome .tri.t2 {
+      left: -24px; bottom: -20px;
+      border-width: 80px 55px 0 55px;
+      border-color: rgba(196,181,253,.4) transparent transparent transparent;
+      transform: rotate(-8deg);
+    }
+    .welcome .tri.t3 {
+      right: 28%; bottom: -30px;
+      border-width: 0 40px 60px 40px;
+      border-color: transparent transparent rgba(255,255,255,.18) transparent;
+      transform: rotate(32deg);
+    }
+    /* floating bubbles */
+    .welcome .bubbles { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+    .welcome .bubble {
+      position: absolute; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.55), rgba(255,255,255,.08));
+      animation: floatUp linear infinite;
+    }
+    .welcome .bubble:nth-child(1) { width: 10px; height: 10px; left: 12%; animation-duration: 7s; animation-delay: 0s; }
+    .welcome .bubble:nth-child(2) { width: 16px; height: 16px; left: 28%; animation-duration: 9s; animation-delay: 1.2s; }
+    .welcome .bubble:nth-child(3) { width: 8px; height: 8px; left: 48%; animation-duration: 6s; animation-delay: .4s; }
+    .welcome .bubble:nth-child(4) { width: 14px; height: 14px; left: 62%; animation-duration: 8s; animation-delay: 2s; }
+    .welcome .bubble:nth-child(5) { width: 11px; height: 11px; left: 78%; animation-duration: 10s; animation-delay: .8s; }
+    .welcome .bubble:nth-child(6) { width: 7px; height: 7px; left: 88%; animation-duration: 7.5s; animation-delay: 1.6s; }
+    @keyframes floatUp {
+      0% { transform: translateY(110%) scale(.6); opacity: 0; }
+      15% { opacity: .7; }
+      100% { transform: translateY(-30%) scale(1.1); opacity: 0; }
+    }
+    .welcome::after { display: none; }
+    .w-top { position: relative; z-index: 1; display: flex; justify-content: space-between; gap: 10px; }
+    .w-hello { font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #C4B5FD; }
+    .welcome h1 { font-size: 1.35rem; font-weight: 800; margin: 4px 0 4px; letter-spacing: -.02em; }
+    .w-meta { font-size: .78rem; color: #E0E7FF; }
+    .plan-pill {
+      align-self: flex-start; padding: 5px 11px; border-radius: 999px;
+      font-size: .65rem; font-weight: 800;
+      background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.3);
+    }
+    .sem-row {
+      position: relative; z-index: 1; margin-top: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .sem-row label { font-size: .72rem; font-weight: 700; color: #C4B5FD; }
+    .sem-toggle { display: inline-flex; background: rgba(0,0,0,.2); border-radius: 999px; padding: 3px; }
+    .sem-toggle button {
+      border: 0; background: transparent; color: #E0E7FF;
+      font: 700 .75rem var(--font); padding: 6px 14px; border-radius: 999px; cursor: pointer;
+    }
+    .sem-toggle button.on { background: #fff; color: #3730A3; }
+
+    .stats-row {
+
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px;
+    }
+    .stat {
+      background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+      padding: 12px 8px; text-align: center;
+    }
+    .stat b { display: block; font-size: 1.1rem; font-weight: 800; color: var(--indigo); }
+    .stat span { font-size: .65rem; color: var(--muted); font-weight: 700; }
+
+    .sec {
+      display: flex; align-items: center; justify-content: space-between;
+      margin: 18px 0 10px;
+    }
+    .sec h2 {
+      font-size: .68rem; font-weight: 800; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--muted); margin: 0;
+    }
+    .sec a { font-size: .78rem; font-weight: 700; color: var(--indigo); text-decoration: none; }
+
+    /* Quick access — early on mobile */
+    .qa-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .qa {
+      position: relative; border-radius: 16px; padding: 14px 12px; min-height: 96px;
+      text-decoration: none; color: inherit; border: 1px solid transparent;
+      transition: transform .25s var(--ease);
+    }
+    .qa:active { transform: scale(.98); }
+    .qa .ico {
+      width: 38px; height: 38px; border-radius: 12px;
+      display: grid; place-items: center; margin-bottom: 8px;
+      background: rgba(255,255,255,.75);
+    }
+    .qa .ico svg { width: 18px; height: 18px; }
+    .qa h3 { font-size: .86rem; font-weight: 800; margin: 0 0 2px; }
+    .qa p { font-size: .68rem; color: var(--muted); margin: 0; }
+    .qa .arrow { position: absolute; right: 12px; top: 14px; color: var(--muted); }
+    .qa.c1 { background: #EEF2FF; } .qa.c1 .ico { color: #4F46E5; }
+    .qa.c2 { background: #F5F3FF; } .qa.c2 .ico { color: #7C3AED; }
+    .qa.c3 { background: #ECFDF5; } .qa.c3 .ico { color: #059669; }
+    .qa.c4 { background: #FEF3C7; } .qa.c4 .ico { color: #D97706; }
+    .qa.c5 { background: #DBEAFE; } .qa.c5 .ico { color: #2563EB; }
+    .qa.c6 { background: #FCE7F3; } .qa.c6 .ico { color: #DB2777; }
+
+    /* Shine cards */
+    .rail {
+      display: flex; gap: 12px; overflow-x: auto; padding: 2px 2px 10px;
+      scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+    }
+    .rail::-webkit-scrollbar { height: 0; }
+    .p-card {
+      position: relative; flex: 0 0 min(250px, 80vw);
+      scroll-snap-align: start;
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: 18px; padding: 14px; overflow: hidden;
+      text-decoration: none; color: inherit;
+      box-shadow: 0 6px 18px rgba(15,23,42,.05);
+    }
+    .p-card .shine {
+      pointer-events: none; position: absolute; inset: 0;
+      background: linear-gradient(
+        115deg,
+        transparent 0%,
+        transparent 40%,
+        rgba(255,255,255,.0) 42%,
+        rgba(255,255,255,.65) 50%,
+        rgba(255,255,255,.0) 58%,
+        transparent 60%,
+        transparent 100%
+      );
+      transform: translateX(-120%);
+      animation: beam 3.2s ease-in-out infinite;
+    }
+    .p-card:nth-child(2) .shine { animation-delay: .7s; }
+    .p-card:nth-child(3) .shine { animation-delay: 1.4s; }
+    @keyframes beam {
+      0%, 55% { transform: translateX(-120%); }
+      75% { transform: translateX(120%); }
+      100% { transform: translateX(120%); }
+    }
+    .p-card .badge {
+      position: absolute; top: 12px; right: 12px; z-index: 2;
+      font-size: .6rem; font-weight: 800; padding: 3px 8px; border-radius: 999px;
+      background: #D1FAE5; color: #065F46;
+    }
+    .p-card .thumb {
+      height: 72px; border-radius: 12px; margin-bottom: 10px;
+      background: linear-gradient(135deg, #EEF2FF, #EDE9FE);
+      display: grid; place-items: center; color: var(--indigo);
+    }
+    .p-card .thumb svg { width: 26px; height: 26px; }
+    .p-card .code { font-size: .66rem; font-weight: 800; color: var(--indigo); }
+    .p-card h3 { font-size: .92rem; font-weight: 800; margin: 4px 0; }
+    .p-card p { font-size: .76rem; color: var(--muted); line-height: 1.4; margin: 0 0 8px; }
+    .p-card .go { font-size: .76rem; font-weight: 800; color: var(--violet); }
+
+    .remind-box {
+      background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 16px;
+      padding: 14px; display: flex; gap: 12px; align-items: flex-start;
+    }
+    .remind-box .ico {
+      width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
+      background: #FEF3C7; display: grid; place-items: center; color: #B45309;
+    }
+    .remind-box h3 { font-size: .9rem; margin: 0 0 2px; font-weight: 800; }
+    .remind-box p { font-size: .75rem; color: var(--muted); margin: 0; }
+
+    .quote {
+      margin-top: 16px; padding: 14px 16px; border-radius: 16px;
+      background: linear-gradient(135deg, #F5F3FF, #EEF2FF);
+      border: 1px solid #DDD6FE;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .quote .qi {
+      width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+      background: #fff; display: grid; place-items: center; color: var(--violet);
+      font-size: 1.1rem; font-weight: 800;
+    }
+    .quote .ql { font-size: .62rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--violet); }
+    .quote p { font-size: .86rem; margin: 4px 0 0; line-height: 1.45; }
+
+    /* —— Desktop layout (≥960px) —— */
+    @media (min-width: 960px) {
+      .home-m { display: none; }
+
+      /* Single-column stack — every row full width, no empty side gutter */
+      .home-d {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 20px 28px 40px;
+      }
+
+      /* 1 · Welcome — long banner */
+      .d-welcome {
+        position: relative;
+        overflow: hidden;
+        border-radius: 22px;
+        padding: 28px 32px;
+        color: #fff;
+        background: linear-gradient(115deg, #1e1b4b 0%, #312E81 28%, #4F46E5 62%, #7C3AED 100%);
+        min-height: 150px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 24px;
+        box-shadow: 0 16px 36px rgba(79, 70, 229, .22);
+      }
+      .d-welcome .tri {
+        position: absolute; pointer-events: none; z-index: 0;
+        width: 0; height: 0; border-style: solid; opacity: .28;
+      }
+      .d-welcome .tri.t1 {
+        right: 22%; top: -24px;
+        border-width: 0 100px 120px 100px;
+        border-color: transparent transparent rgba(165, 243, 252, .35) transparent;
+      }
+      .d-welcome .tri.t2 {
+        right: -30px; bottom: -50px;
+        border-width: 120px 80px 0 80px;
+        border-color: rgba(196, 181, 253, .4) transparent transparent transparent;
+      }
+      .d-welcome .bubbles { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+      .d-welcome .bubble {
+        position: absolute; border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.55), rgba(255,255,255,.06));
+        animation: floatUp linear infinite;
+      }
+      .d-welcome .bubble:nth-child(1) { width: 12px; height: 12px; left: 42%; animation-duration: 8s; }
+      .d-welcome .bubble:nth-child(2) { width: 18px; height: 18px; left: 58%; animation-duration: 10s; animation-delay: 1s; }
+      .d-welcome .bubble:nth-child(3) { width: 9px; height: 9px; left: 72%; animation-duration: 7s; animation-delay: .5s; }
+      .d-welcome .bubble:nth-child(4) { width: 14px; height: 14px; left: 84%; animation-duration: 9s; animation-delay: 1.8s; }
+      .d-welcome > div, .d-welcome .plan, .d-welcome .illus { position: relative; z-index: 1; }
+      .d-welcome .eyebrow {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: .72rem; font-weight: 700; letter-spacing: .08em;
+        text-transform: uppercase; opacity: .85; margin-bottom: 6px;
+      }
+      .d-welcome h1 {
+        font-size: clamp(1.5rem, 2.1vw, 1.95rem);
+        font-weight: 800; margin: 0 0 8px; letter-spacing: -.03em; line-height: 1.15;
+      }
+      .d-welcome .meta { opacity: .92; font-size: .9rem; max-width: 48ch; line-height: 1.45; }
+      .d-welcome .plan {
+        position: absolute; top: 16px; right: 18px;
+        padding: 7px 14px; border-radius: 999px; font-size: .72rem; font-weight: 800;
+        background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.28);
+        backdrop-filter: blur(8px);
+      }
+      .d-welcome .illus {
+        width: 100px; height: 100px; border-radius: 26px;
+        background: rgba(255,255,255,.14);
+        border: 1px solid rgba(255,255,255,.22);
+        display: grid; place-items: center;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, .18);
+      }
+      .d-welcome .illus svg { width: 48px; height: 48px; color: #fff; opacity: .95; }
+      .d-welcome-stats {
+        display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px;
+      }
+      .d-welcome-stats span {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 6px 12px; border-radius: 12px;
+        background: rgba(255,255,255,.14);
+        border: 1px solid rgba(255,255,255,.2);
+        font-size: .78rem; font-weight: 700;
+      }
+      .d-welcome-stats b { font-weight: 800; }
+
+      /* 2 · Quote — full width, slim */
+      .d-quote-bar {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 22px;
+        border-radius: 16px;
+        background: linear-gradient(100deg, #EEF2FF 0%, #F5F3FF 55%, #FDF4FF 100%);
+        border: 1px solid #E0E7FF;
+        min-height: 56px;
+      }
+      .d-quote-bar .mark {
+        flex-shrink: 0;
+        width: 36px; height: 36px; border-radius: 12px;
+        background: #fff;
+        display: grid; place-items: center;
+        font-size: 1.35rem; font-weight: 800; color: #818CF8;
+        box-shadow: 0 2px 8px rgba(99, 102, 241, .12);
+      }
+      .d-quote-bar .ql {
+        flex-shrink: 0;
+        font-size: .65rem; font-weight: 800; letter-spacing: .12em;
+        text-transform: uppercase; color: #6366F1;
+        padding-right: 12px;
+        border-right: 1px solid #C7D2FE;
+      }
+      .d-quote-bar p {
+        margin: 0;
+        flex: 1;
+        font-size: .92rem;
+        line-height: 1.4;
+        color: #312E81;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      @media (max-width: 1100px) {
+        .d-quote-bar p { white-space: normal; }
+      }
+
+      /* Section labels */
+      .d-sec-label {
+        display: flex; align-items: center; justify-content: space-between;
+        margin: 2px 0 0;
+      }
+      .d-sec-label h2 {
+        margin: 0;
+        font-size: .72rem; font-weight: 800; letter-spacing: .1em;
+        text-transform: uppercase; color: #64748B;
+      }
+      .d-sec-label a {
+        font-size: .78rem; font-weight: 700; color: #4F46E5; text-decoration: none;
+      }
+      .d-sec-label a:hover { text-decoration: underline; }
+
+      /* 3 · Quick access — horizontal scroll row of square-ish cards */
+      .d-scroll-row {
+        display: flex;
+        gap: 14px;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        touch-action: pan-x;
+        min-width: 0;
+        overflow-y: hidden;
+        padding: 4px 2px 10px;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: #C7D2FE transparent;
+      }
+      .d-scroll-row::-webkit-scrollbar { height: 6px; }
+      .d-scroll-row::-webkit-scrollbar-thumb {
+        background: #C7D2FE; border-radius: 999px;
+      }
+
+      /* Continue study: horizontal rail only (page still scrolls vertically) */
+      .d-quick-start .d-card {
+        overflow: visible;
+      }
+      #dContinueRail {
+        display: flex;
+        gap: 12px;
+        margin-top: 4px;
+        margin-left: -4px;
+        margin-right: -4px;
+        padding: 4px 4px 12px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        overscroll-behavior-x: contain;
+        touch-action: pan-x;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        scrollbar-width: thin;
+        scrollbar-color: #C7D2FE transparent;
+      }
+      #dContinueRail::-webkit-scrollbar { height: 6px; }
+      #dContinueRail::-webkit-scrollbar-thumb {
+        background: #C7D2FE; border-radius: 999px;
+      }
+      
+      .d-continue-block { margin-bottom: 8px; min-width: 0; max-width: 100%; overflow: hidden; }
+      .d-continue-block .d-sec-label {
+        display: flex; align-items: center; justify-content: space-between;
+      }
+      .d-continue-block .d-sec-label h2 { margin: 0; font-size: .95rem; font-weight: 800; }
+      .d-continue-block .d-sec-label a { font-size: .78rem; font-weight: 700; color: #4F46E5; text-decoration: none; }
+      #dContinueRail .p-card, #dContinueRail .d-qa-card {
+        flex: 0 0 160px; width: 160px; min-width: 160px; max-width: 160px;
+      }
+
+      #dContinueRail .p-card {
+        flex: 0 0 200px;
+        width: 200px;
+        min-width: 200px;
+        max-width: 200px;
+        scroll-snap-align: start;
+      }
+      .d-scroll-row .d-rec-card {
+        flex: 0 0 220px;
+        width: 220px;
+      }
+
+      .d-qa-card {
+        flex: 0 0 auto;
+        width: 148px;
+        min-height: 132px;
+        scroll-snap-align: start;
+        display: flex; flex-direction: column; align-items: flex-start;
+        gap: 10px;
+        padding: 18px 16px 16px;
+        border-radius: 18px;
+        background: #fff;
+        border: 1px solid #E8ECF4;
+        text-decoration: none; color: inherit;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, .04);
+        transition: transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s, border-color .2s;
+      }
+      .d-qa-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(79, 70, 229, .1);
+        border-color: #C7D2FE;
+      }
+      .d-qa-card .ico {
+        width: 44px; height: 44px; border-radius: 14px;
+        display: grid; place-items: center;
+      }
+      .d-qa-card:nth-child(1) .ico { background: #EEF2FF; color: #4F46E5; }
+      .d-qa-card:nth-child(2) .ico { background: #F5F3FF; color: #7C3AED; }
+      .d-qa-card:nth-child(3) .ico { background: #ECFDF5; color: #059669; }
+      .d-qa-card:nth-child(4) .ico { background: #FFF7ED; color: #EA580C; }
+      .d-qa-card:nth-child(5) .ico { background: #FDF2F8; color: #DB2777; }
+      .d-qa-card h3 {
+        margin: 0; font-size: .95rem; font-weight: 800; color: #0F172A; letter-spacing: -.02em;
+      }
+      .d-qa-card p {
+        margin: 0; font-size: .75rem; color: #64748B; line-height: 1.35; font-weight: 500;
+      }
+
+      /* Shared card chrome */
+      .d-card {
+        position: relative;
+        background: #fff;
+        border: 1px solid #E8ECF4;
+        border-radius: 20px;
+        padding: 20px 22px;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, .04);
+      }
+      .d-card h2 {
+        margin: 0 0 14px;
+        font-size: .95rem;
+        font-weight: 800;
+        color: #0F172A;
+        letter-spacing: -.01em;
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      }
+      .d-card h2 a {
+        font-size: .78rem; font-weight: 700; color: #4F46E5; text-decoration: none;
+        white-space: nowrap;
+      }
+      .d-card h2 a:hover { text-decoration: underline; }
+
+      /* 4 · Quick start: Continue + Stats side by side */
+      .d-quick-start {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 16px;
+      }
+      .cont-row {
+        display: flex; gap: 16px; align-items: flex-start;
+      }
+      .cont-thumb {
+        width: 72px; height: 72px; border-radius: 16px; flex-shrink: 0;
+        background: linear-gradient(145deg, #EEF2FF, #F5F3FF);
+        display: grid; place-items: center; color: #4F46E5;
+      }
+      .cont-row h3 { margin: 0 0 4px; font-size: 1.05rem; font-weight: 800; color: #0F172A; }
+      .cont-row p { margin: 0 0 10px; font-size: .82rem; color: #64748B; }
+      .prog {
+        height: 8px; border-radius: 999px; background: #EEF2FF; overflow: hidden; margin-bottom: 12px;
+      }
+      .prog i {
+        display: block; height: 100%; border-radius: 999px;
+        background: linear-gradient(90deg, #4F46E5, #7C3AED);
+      }
+      .btn-cont {
+        display: inline-flex; align-items: center;
+        padding: 10px 16px; border-radius: 12px;
+        background: linear-gradient(135deg, #4F46E5, #7C3AED);
+        color: #fff; font-size: .82rem; font-weight: 800; text-decoration: none;
+        box-shadow: 0 8px 18px rgba(79, 70, 229, .25);
+      }
+      .btn-cont:hover { filter: brightness(1.05); }
+
+      .prog-grid {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+      }
+      .prog-grid div {
+        text-align: center; padding: 16px 8px; border-radius: 14px;
+        background: #F8FAFC; border: 1px solid #EEF2F7;
+      }
+      .prog-grid b {
+        display: block; font-size: 1.4rem; font-weight: 800; color: #4F46E5; letter-spacing: -.02em;
+      }
+      .prog-grid span {
+        font-size: .68rem; color: #64748B; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+      }
+
+      /* 5 · Recommended practice — horizontal scroll of course cards */
+      .d-rec-card {
+        flex: 0 0 auto;
+        width: 220px;
+        min-height: 148px;
+        scroll-snap-align: start;
+        position: relative; overflow: hidden;
+        display: flex; flex-direction: column; gap: 6px;
+        padding: 18px;
+        border-radius: 18px;
+        background: linear-gradient(160deg, #F8FAFF 0%, #F5F3FF 100%);
+        border: 1px solid #E0E7FF;
+        text-decoration: none; color: inherit;
+        transition: transform .2s, box-shadow .2s;
+      }
+      .d-rec-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px rgba(79, 70, 229, .12);
+      }
+      .d-rec-card .shine {
+        position: absolute; inset: 0;
+        background: linear-gradient(120deg, transparent 40%, rgba(255,255,255,.65) 50%, transparent 60%);
+        opacity: 0; transition: opacity .3s;
+        pointer-events: none;
+      }
+      .d-rec-card:hover .shine { opacity: 1; }
+      .d-rec-card .code {
+        margin: 0; font-size: .65rem; font-weight: 800; letter-spacing: .1em;
+        color: #7C3AED; text-transform: uppercase;
+      }
+      .d-rec-card h3 { margin: 0; font-size: 1rem; font-weight: 800; color: #0F172A; }
+      .d-rec-card p { margin: 0; font-size: .8rem; color: #64748B; line-height: 1.4; flex: 1; }
+      .d-rec-card .go {
+        margin-top: 8px; font-size: .82rem; font-weight: 800; color: #4F46E5;
+      }
+
+      /* 6 · Bottom trio: plan | reminders | activity */
+      .d-bottom-trio {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+      .d-bottom-trio .d-card {
+        min-height: 180px;
+      }
+      .plan-item {
+        display: flex; align-items: center; gap: 12px;
+        padding: 10px 0; border-bottom: 1px solid #F1F5F9;
+      }
+      .plan-item:last-child { border-bottom: 0; }
+      .plan-item .dot {
+        width: 10px; height: 10px; border-radius: 50%;
+        background: #4F46E5; flex-shrink: 0;
+      }
+      .plan-item .t { flex: 1; min-width: 0; }
+      .plan-item .t b { display: block; font-size: .88rem; font-weight: 800; color: #0F172A; }
+      .plan-item .t span { font-size: .75rem; color: #64748B; }
+      .plan-item .time { font-size: .75rem; font-weight: 700; color: #94A3B8; }
+
+      .act-item {
+        display: flex; align-items: flex-start; gap: 10px;
+        padding: 10px 0; border-bottom: 1px solid #F1F5F9;
+        font-size: .85rem; color: #334155;
+      }
+      .act-item:last-child { border-bottom: 0; }
+      .act-item span:first-child {
+        width: 22px; height: 22px; border-radius: 8px;
+        background: #ECFDF5; color: #059669;
+        display: grid; place-items: center; font-size: .75rem; flex-shrink: 0;
+      }
+
+      /* Hide old two-column leftovers if any remain */
+      .d-main, .d-side { display: contents; }
+
+      @media (min-width: 1280px) {
+        .home-d { padding: 24px 32px 44px; gap: 20px; }
+        .d-qa-card { width: 160px; min-height: 140px; }
+        .d-rec-card { width: 240px; min-height: 156px; }
+        .d-welcome { min-height: 160px; padding: 30px 36px; }
+      }
+
+      @media (max-width: 1100px) {
+        .d-quick-start { grid-template-columns: 1fr; }
+        .d-bottom-trio { grid-template-columns: 1fr; }
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .shine { animation: none !important; }
+    }
+  
+    .stat.streak-hot b, .stat-fire b {
+      position: relative; display: inline-block;
+    }
+    .streak-fire {
+      display: inline-flex; align-items: center; justify-content: center; gap: 2px;
+      font-variant-numeric: tabular-nums;
+    }
+    .streak-fire .flame {
+      display: inline-block; font-size: 1.05em; line-height: 1;
+      animation: flame-flicker 0.9s ease-in-out infinite alternate;
+      filter: drop-shadow(0 0 4px rgba(251, 146, 60, 0.85));
+      transform-origin: center bottom;
+    }
+    .streak-fire .flame.delay { animation-delay: 0.25s; font-size: 0.85em; opacity: 0.9; }
+    @keyframes flame-flicker {
+      0% { transform: scale(1) translateY(0) rotate(-4deg); }
+      50% { transform: scale(1.12) translateY(-2px) rotate(3deg); }
+      100% { transform: scale(1.05) translateY(-1px) rotate(-2deg); }
+    }
+    html.theme-dark .stat.streak-hot {
+      border-color: rgba(251, 146, 60, 0.45);
+      box-shadow: 0 0 16px rgba(249, 115, 22, 0.2);
+    }
+
+  
+    .codex-ann-popup {
+      position: fixed; left: 12px; right: 12px; top: 0; z-index: 12000;
+      transform: translateY(-120%); opacity: 0;
+      transition: transform .45s cubic-bezier(.22,1,.36,1), opacity .35s ease;
+      pointer-events: none;
+    }
+    .codex-ann-popup.show { transform: translateY(12px); opacity: 1; pointer-events: auto; }
+    .codex-ann-card {
+      background: #fff; border-radius: 18px; overflow: hidden;
+      box-shadow: 0 18px 50px rgba(15,23,42,.22); border: 1px solid #E2E8F0;
+      max-width: 420px; margin: 0 auto;
+    }
+    html.theme-dark .codex-ann-card { background: #1E293B; border-color: #334155; color: #F1F5F9; }
+    .codex-ann-card img { width: 100%; max-height: 160px; object-fit: cover; display: block; background: #EEF2FF; }
+    .codex-ann-body { padding: 14px 16px 16px; }
+    .codex-ann-body h3 { margin: 0 0 6px; font-size: 1rem; font-weight: 800; }
+    .codex-ann-body p { margin: 0 0 12px; font-size: .85rem; color: #64748B; line-height: 1.45; }
+    html.theme-dark .codex-ann-body p { color: #94A3B8; }
+    .codex-ann-actions { display: flex; gap: 8px; justify-content: flex-end; }
+    .codex-ann-actions button {
+      border: 0; border-radius: 999px; padding: 8px 14px; font-weight: 700; font-size: .8rem; cursor: pointer;
+      font-family: inherit;
+    }
+    .codex-ann-actions .ghost { background: #F1F5F9; color: #334155; }
+    .codex-ann-actions .pri { background: linear-gradient(135deg,#4F46E5,#7C3AED); color: #fff; }
+
+  </style>
+
+<style id="dark-override">
+html.theme-dark body.app-body { background: #0F172A !important; color: #F1F5F9 !important; }
+html.theme-dark .card, html.theme-dark .welcome, html.theme-dark .tile,
+html.theme-dark .quick-card, html.theme-dark .section-card {
+  background: #1E293B !important; border-color: #334155 !important; color: #F1F5F9 !important;
+}
+html.theme-dark .card h2, html.theme-dark .card strong, html.theme-dark .welcome h1 { color: #F8FAFC !important; }
+html.theme-dark .muted, html.theme-dark .sub { color: #94A3B8 !important; }
+</style>
+
+</head>
+<body class="app-body" data-page="home">
+  <!-- ===== MOBILE ===== -->
+  <div class="home-m" id="homeM">
+    <section class="welcome">
+      <span class="tri t1" aria-hidden="true"></span>
+      <span class="tri t2" aria-hidden="true"></span>
+      <span class="tri t3" aria-hidden="true"></span>
+      <div class="bubbles" aria-hidden="true">
+        <span class="bubble"></span><span class="bubble"></span><span class="bubble"></span>
+        <span class="bubble"></span><span class="bubble"></span><span class="bubble"></span>
+      </div>
+      <div class="w-top">
+        <div>
+          <p class="w-hello">Welcome back</p>
+          <h1 id="mName">Student</h1>
+          <p class="w-meta" id="mMeta">…</p>
+        </div>
+        <div class="plan-pill" id="mPlan">FREE PLAN</div>
+      </div>
+      <div class="sem-row">
+        <label>Semester</label>
+        <div class="sem-toggle" role="group" aria-label="Semester">
+          <button type="button" id="sem1" class="on" data-sem="1st">1st</button>
+          <button type="button" id="sem2" data-sem="2nd">2nd</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="stats-row" id="mStatsRow">
+      <div class="stat"><b id="mStreak">0</b><span>Day streak</span></div>
+      <div class="stat"><b id="mLevel">—</b><span>Level</span></div>
+      <div class="stat"><b id="mRank">—</b><span>Rank</span></div>
+      <div class="stat" id="mTrialsStat"><b id="mTrials">—</b><span>CBT left</span></div>
+    </div>
+
+    <div class="sec"><h2>Quick access</h2></div>
+    <div class="qa-grid">
+      <a class="qa c0" href="course-library.html"><span class="arrow">›</span><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div><h3>Course library</h3><p>Browse &amp; add courses</p></a>
+      <a class="qa c1" href="course-library.html?mode=cbt"><span class="arrow">›</span><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="14" rx="2"/></svg></div><h3>CBT Exam</h3><p>Exam-style practice</p></a>
+      <a class="qa c2" href="course-library.html?mode=notes"><span class="arrow">›</span><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h9l3 3v13H6z"/></svg></div><h3>Notes</h3><p>Read by topic</p></a>
+      <a class="qa c3" href="resources.html"><span class="arrow">›</span><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h7l4 4v14H7z"/></svg></div><h3>Study Resources</h3><p>Past Qs &amp; files</p></a>
+      <a class="qa c4" href="student-tools.html"><span class="arrow">›</span><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 7l3 3-8 8H6v-3z"/></svg></div><h3>Tools</h3><p>Solve · create · code</p></a>
+      <a class="qa c5" href="stats.html"><span class="arrow">›</span><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 19V9M12 19V5M18 19v-7"/></svg></div><h3>Stats</h3><p>Your progress</p></a>
+      <a class="qa c6" href="ai-lab.html"><span class="arrow">›</span><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l1.4 5.2L18 9.6l-4.6 1.4L12 16l-1.4-5-4.6-1.4 4.6-1.4z"/></svg></div><h3>Nova AI</h3><p>Ask anything</p></a>
+    </div>
+
+    <div class="sec"><h2>Continue studying</h2><a href="course-library.html?mode=notes">All notes</a></div>
+    <div class="rail" id="continueRail">
+      <a class="p-card" href="course-library.html?mode=notes">
+        <span class="shine" aria-hidden="true"></span>
+        <div class="thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 5h9l5 5v9H5z"/></svg></div>
+        <p class="code">NOTES</p>
+        <h3>No active note yet</h3>
+        <p>Open a course note — it will show here to resume fast.</p>
+        <span class="go">Browse notes →</span>
+      </a>
+      <a class="p-card" href="course-library.html?mode=cbt">
+        <span class="shine" aria-hidden="true"></span>
+        <span class="badge">PRACTICE</span>
+        <div class="thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="14" rx="2"/></svg></div>
+        <p class="code">CBT</p>
+        <h3>Resume a session</h3>
+        <p>Jump back into exam-style practice.</p>
+        <span class="go">Open CBT →</span>
+      </a>
+    </div>
+
+    <div class="sec"><h2>Reminders</h2><a href="todo.html">Study Planner</a></div>
+    <a class="remind-box" id="remindBox" href="todo.html" style="display:flex;text-decoration:none;color:inherit;cursor:pointer">
+      <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6h11M9 12h11M9 18h11"/></svg></div>
+      <div>
+        <h3>No open tasks</h3>
+        <p>Tap here to open Study Planner and build a plan.</p>
+      </div>
+    </a>
+
+    <div class="sec"><h2>Practice these</h2><a href="course-library.html">Library</a> · <a href="course-library.html?mode=cbt">CBT</a></div>
+    <div class="rail" id="practiceRail">
+      <a class="p-card" href="course-library.html?mode=cbt">
+        <span class="shine" aria-hidden="true"></span>
+        <div class="thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 19V9M12 19V5M18 19v-7"/></svg></div>
+        <p class="code">SUGGESTED</p>
+        <h3>Build your map</h3>
+        <p>After a few CBT sessions, weak courses scroll here.</p>
+        <span class="go">Start practice →</span>
+      </a>
+    </div>
+
+    <article class="quote">
+      <div class="qi">“</div>
+      <div>
+        <div class="ql">Quote of the day</div>
+        <p id="mQuote">When you fail you learn from the mistakes you made — and it motivates you to work even harder.</p>
+      </div>
+    </article>
+  </div>
+
+  <!-- ===== DESKTOP ===== -->
+    <div class="home-d" id="homeD">
+
+    <!-- 1 · Welcome -->
+    <section class="d-welcome">
+      <span class="tri t1" aria-hidden="true"></span>
+      <span class="tri t2" aria-hidden="true"></span>
+      <div class="bubbles" aria-hidden="true">
+        <span class="bubble"></span><span class="bubble"></span>
+        <span class="bubble"></span><span class="bubble"></span>
+      </div>
+      <div class="plan" id="dPlan">FREE PLAN</div>
+      <div>
+        <div class="eyebrow">Welcome back</div>
+        <h1 id="dName">Good morning, Student</h1>
+        <p class="meta" id="dMeta">Your study hub is ready — pick up where you left off.</p>
+        <div class="d-welcome-stats" id="dWelcomeStats">
+          <span><b id="dWelStreak">0</b> day streak</span>
+          <span id="dTrialsWrap"><b id="dTrials">—</b> CBT left</span>
+          <span><b id="dWelLevel">—</b> level</span>
+          <span><b id="dWelRank">—</b> rank</span>
+        </div>
+      </div>
+      <div class="illus" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          <path d="M8 7h8M8 11h6"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- 2 · Quote of the day (slim full-width) -->
+    <div class="d-quote-bar">
+      <div class="mark" aria-hidden="true">“</div>
+      <div class="ql">Quote of the day</div>
+      <p id="dQuote">When you fail you learn from the mistakes you made — and it motivates you to work even harder.</p>
+    </div>
+
+    <!-- 3 · Quick access (horizontal scroll) -->
+    <div>
+      <div class="d-sec-label"><h2>Quick access</h2></div>
+      <div class="d-scroll-row" id="dQaScroll">
+        <a class="d-qa-card" href="course-library.html?mode=cbt">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="14" rx="2"/></svg></div>
+          <h3>Start CBT</h3><p>Exam-style practice</p>
+        </a>
+        <a class="d-qa-card" href="course-library.html?mode=notes">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h9l3 3v13H6z"/></svg></div>
+          <h3>Notes</h3><p>Read by topic</p>
+        </a>
+        <a class="d-qa-card" href="resources.html">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h7l4 4v14H7z"/></svg></div>
+          <h3>Study Resources</h3><p>Past Qs &amp; files</p>
+        </a>
+        <a class="d-qa-card" href="student-tools.html">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 7l3 3-8 8H6v-3z"/></svg></div>
+          <h3>Tools</h3><p>Solve · create · code</p>
+        </a>
+        <a class="d-qa-card" href="ai-lab.html">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l1.4 5.2L18 9.6l-4.6 1.4L12 16l-1.4-5-4.6-1.4 4.6-1.4z"/></svg></div>
+          <h3>Nova AI</h3><p>Ask anything</p>
+        </a>
+        <a class="d-qa-card" href="leaderboard.html">
+          <div class="ico" style="background:#FEF3C7;color:#B45309"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM5 4H3v2a3 3 0 0 0 3 3M19 4h2v2a3 3 0 0 1-3 0"/></svg></div>
+          <h3>Leaderboard</h3><p>See your rank</p>
+        </a>
+        <a class="d-qa-card" href="stats.html">
+          <div class="ico" style="background:#E0F2FE;color:#0284C7"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5M10 19V9M16 19v-6M22 19V7"/></svg></div>
+          <h3>Statistics</h3><p>Scores &amp; trends</p>
+        </a>
+      </div>
+    </div>
+
+    <!-- 4 · Quick start: Continue study + Stats -->
+    <div>
+      <div class="d-sec-label"><h2>Your quick start</h2></div>
+      <div class="d-quick-start">
+        <div class="d-continue-block">
+          <div class="d-sec-label" style="margin-bottom:10px">
+            <h2>Continue your study</h2>
+            <a href="course-library.html?mode=notes">View all →</a>
+          </div>
+          <div class="d-scroll-row" id="dContinueRail">
+            <a class="d-qa-card" href="course-library.html?mode=notes" id="dContPlaceholder">
+              <div class="ico" style="background:#EEF2FF;color:#4F46E5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h9l3 3v13H6z"/></svg></div>
+              <h3 id="dContTitle">No active note yet</h3>
+              <p id="dContSub">Open a course to resume</p>
+            </a>
+          </div>
+        </div>
+        <div class="d-card">
+          <h2>Your progress <a href="stats.html">View stats →</a></h2>
+          <div class="prog-grid">
+            <div><b id="dStreak">0</b><span>Day streak</span></div>
+            <div><b id="dAcc">—</b><span>Avg. accuracy</span></div>
+            <div><b id="dRank">—</b><span>Rank</span></div>
+          </div>
+          <div class="prog-grid" style="margin-top:10px">
+            <div><b id="dStreak2">0</b><span>Sessions</span></div>
+            <div><b id="dLevel">—</b><span>Level</span></div>
+            <div><b id="dRank2">—</b><span>XP</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5 · Recommended practice only -->
+    <div>
+      <div class="d-sec-label">
+        <h2>Recommended practice</h2>
+        <a href="course-library.html?mode=cbt">View all →</a>
+      </div>
+      <div class="d-scroll-row" id="dRec">
+        <a class="d-rec-card" href="course-library.html?mode=cbt">
+          <span class="shine" aria-hidden="true"></span>
+          <p class="code">SUGGESTED</p>
+          <h3>Build your map</h3>
+          <p>Weak courses appear here after CBT history</p>
+          <span class="go">Practice →</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 6 · Study plan · Reminders · Recent activity -->
+    <div class="d-bottom-trio">
+      <a class="d-card" href="todo.html" style="display:block;text-decoration:none;color:inherit;cursor:pointer">
+        <h2>Today’s study plan <span style="font-size:.8rem;font-weight:700;color:#4F46E5">Open planner →</span></h2>
+        <div id="dPlanList">
+          <div class="plan-item"><span class="dot"></span><div class="t"><b>Build your study plan</b><span>Add tasks in Study Planner</span></div><span class="time">—</span></div>
+        </div>
+      </a>
+      <a class="d-card" href="todo.html" style="display:block;text-decoration:none;color:inherit;cursor:pointer">
+        <h2>Reminders <span style="font-size:.8rem;font-weight:700;color:#4F46E5">Open planner →</span></h2>
+        <div id="dRemind">
+          <p style="margin:0;font-size:.85rem;color:#64748B">No open tasks. Tap to open Study Planner.</p>
+        </div>
+      </a>
+      <div class="d-card">
+        <h2>Recent activity <a href="#">View all →</a></h2>
+        <div id="dActivity">
+          <div class="act-item"><span>✓</span><span>Sign in to track activity</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+<div class="codex-ann-popup" id="codexAnnPopup" aria-live="polite" hidden>
+    <div class="codex-ann-card">
+      <img id="codexAnnImg" alt="" hidden />
+      <div class="codex-ann-body">
+        <h3 id="codexAnnTitle">Announcement</h3>
+        <p id="codexAnnMsg"></p>
+        <div class="codex-ann-actions">
+          <button type="button" class="ghost" id="codexAnnDismiss">Dismiss</button>
+          <button type="button" class="pri" id="codexAnnOpen">View</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/app-auth.js"></script>
+  <script src="../js/media.js"></script>
+  <script src="../js/rank.js"></script>
+  <script src="../js/onboarding.js"></script>
+  <script src="../js/shell.js"></script>
+  <script>
+  (function () {
+    "use strict";
+    var QUOTES = [
+      "When you fail you learn from the mistakes you made — and it motivates you to work even harder.",
+      "Small consistent practice beats last-minute panic.",
+      "Your weak topics are your study map.",
+      "One focused hour beats five distracted ones.",
+      "Read. Practice. Ask Nova. Repeat."
+    ];
+    var quote = QUOTES[new Date().getDate() % QUOTES.length];
+
+    /* 1) Shell immediately — no wait for Firebase */
+    CodexShell.mountShell({ page: "home", title: "Home", user: { fullName: "Student" } });
+
+    function setSemester(sem, persist) {
+      document.getElementById("sem1").classList.toggle("on", sem.indexOf("1") === 0);
+      document.getElementById("sem2").classList.toggle("on", sem.indexOf("2") === 0);
+      localStorage.setItem("selectedSemester", sem);
+      if (persist && window.CodexAuth && CodexAuth.auth && CodexAuth.auth.currentUser) {
+        try {
+          CodexAuth.db.collection("users").doc(CodexAuth.auth.currentUser.uid).set({
+            semester: sem,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+        } catch (e) {}
+      }
+    }
+    document.getElementById("sem1").onclick = function () { setSemester("1st", true); };
+    document.getElementById("sem2").onclick = function () { setSemester("2nd", true); };
+
+    document.getElementById("mQuote").textContent = quote;
+    document.getElementById("dQuote").textContent = quote;
+
+    function escape(s) {
+      return String(s).replace(/[&<>"']/g, function (m) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[m];
+      });
+    }
+
+    /* 2) Auth in background — redirect if needed, then fill data */
+    
+    function dayKey(d) {
+      d = d || new Date();
+      return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    }
+    function yesterdayKey() {
+      var d = new Date();
+      d.setDate(d.getDate() - 1);
+      return dayKey(d);
+    }
+    /** Normalize Firestore Timestamp | Date | string → YYYY-M-D local day key */
+    function toDayKey(val) {
+      if (val == null || val === "") return "";
+      try {
+        if (typeof val === "string") {
+          // already "2026-10-06" or ISO
+          if (/^\d{4}-\d{1,2}-\d{1,2}/.test(val)) {
+            var p = val.slice(0, 10).split("-");
+            return p[0] + "-" + String(Number(p[1])).padStart(2, "0") + "-" + String(Number(p[2])).padStart(2, "0");
+          }
+          var ds = new Date(val);
+          if (!isNaN(ds.getTime())) return dayKey(ds);
+          return val;
+        }
+        if (val && typeof val.toDate === "function") return dayKey(val.toDate());
+        if (val instanceof Date) return dayKey(val);
+        if (typeof val.seconds === "number") return dayKey(new Date(val.seconds * 1000));
+      } catch (e) {}
+      return "";
+    }
+    /** Bump day streak once per calendar day when user opens Home */
+    async function touchDailyStreak(uid, profile) {
+      var today = dayKey();
+      var last = toDayKey(profile.lastStreakDate || profile.lastActiveDate || "");
+      var streak = Number(profile.dayStreak != null ? profile.dayStreak : profile.streak) || 0;
+      if (last === today) {
+        return streak > 0 ? streak : 1;
+      }
+      if (last === yesterdayKey()) streak = Math.max(1, streak) + 1;
+      else streak = 1;
+      try {
+        await firebase.firestore().collection("users").doc(uid).set({
+          dayStreak: streak,
+          streak: streak,
+          lastStreakDate: today,
+          lastActiveDate: today,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+      } catch (e) {
+        console.warn("streak write", e);
+        // Still show computed streak locally even if offline write fails
+      }
+      profile.dayStreak = streak;
+      profile.streak = streak;
+      profile.lastStreakDate = today;
+      return streak;
+    }
+    function paintStreakEl(el, streak) {
+      if (!el) return;
+      var n = Number(streak) || 0;
+      var parent = el.closest ? el.closest(".stat") : null;
+      if (n >= 1) {
+        el.innerHTML = '<span class="streak-fire"><span class="flame" aria-hidden="true">🔥</span><span>' + n + '</span></span>';
+        if (parent) parent.classList.add("streak-hot");
+      } else {
+        el.textContent = "0";
+        if (parent) parent.classList.remove("streak-hot");
+      }
+    }
+    async function loadCbtCap(profile, planLabel) {
+      var used = Number(profile.cbtTrialsUsed) || 0;
+      var bonus = Number(profile.cbtTrialsBonus) || 0;
+      var personal = Number(profile.cbtTrialsLimit) || 0;
+      var free = 3, reg = 30, pro = 999;
+      try {
+        var snap = await firebase.firestore().collection("system").doc("limits").get();
+        if (snap.exists) {
+          var lim = snap.data() || {};
+          if (Number(lim.cbtTrialsFree) >= 0) free = Number(lim.cbtTrialsFree);
+          if (Number(lim.cbtTrialsRegular) > 0) reg = Number(lim.cbtTrialsRegular);
+          if (Number(lim.cbtTrialsPro) > 0) pro = Number(lim.cbtTrialsPro);
+        }
+      } catch (e) {}
+      var base = free;
+      if (planLabel === "PRO") base = pro;
+      else if (planLabel === "REGULAR") base = reg;
+      var limit = Math.max(base, personal) + bonus;
+      return { used: used, limit: limit, left: Math.max(0, limit - used) };
+    }
+
+    
+    async function showAdminAnnouncementPopup(uid) {
+      try {
+        var pop = document.getElementById("codexAnnPopup");
+        if (!pop || !uid) return;
+        var now = Date.now();
+        var snap = await firebase.firestore().collection("announcements")
+          .where("status", "==", "active").limit(20).get();
+        var reads = await firebase.firestore().collection("announcement_reads").doc(uid).get();
+        var states = reads.exists ? ((reads.data() || {}).states || {}) : {};
+        var best = null;
+        snap.forEach(function (d) {
+          var a = Object.assign({ id: d.id }, d.data() || {});
+          if (states[d.id]) return; // already seen/dismissed
+          var start = a.startAt && a.startAt.toMillis ? a.startAt.toMillis() : 0;
+          var expiry = a.expiresAt && a.expiresAt.toMillis ? a.expiresAt.toMillis() : 0;
+          if (start && start > now) return;
+          if (expiry && now >= expiry) return;
+          // Prefer vital / high priority / pinned
+          var score = (a.priority === "high" || a.vital || a.pinned) ? 2 : 1;
+          if (a.imageUrl || a.image) score += 1;
+          if (!best || score > best._score) {
+            a._score = score;
+            best = a;
+          }
+        });
+        if (!best) return;
+        // Only auto-popup vital/high OR if never shown session
+        if (!(best.priority === "high" || best.vital || best.pinned || best.forcePopup)) {
+          // still show once for normal admin posts if image present
+          if (!best.imageUrl && !best.image) return;
+        }
+        document.getElementById("codexAnnTitle").textContent = best.title || "Announcement";
+        document.getElementById("codexAnnMsg").textContent = best.body || best.message || best.summary || "";
+        var img = document.getElementById("codexAnnImg");
+        var src = best.imageUrl || best.image || "";
+        if (src) { img.src = src; img.hidden = false; }
+        else { img.hidden = true; img.removeAttribute("src"); }
+        function dismiss() {
+          pop.classList.remove("show");
+          setTimeout(function () { pop.hidden = true; }, 400);
+          try {
+            var patch = {};
+            patch["states." + best.id] = true;
+            firebase.firestore().collection("announcement_reads").doc(uid).set(patch, { merge: true });
+          } catch (e) {}
+        }
+        document.getElementById("codexAnnDismiss").onclick = dismiss;
+        document.getElementById("codexAnnOpen").onclick = function () {
+          dismiss();
+          location.href = "announcements.html";
+        };
+        pop.hidden = false;
+        requestAnimationFrame(function () { pop.classList.add("show"); });
+      } catch (e) { console.warn("ann popup", e); }
+    }
+
+    CodexAuth.requireUser().then(async function (res) {
+      var user = res.user;
+      var profile = res.profile;
+      var first = (profile.fullName || user.displayName || "Student").trim().split(/\s+/)[0];
+      var full = profile.fullName || user.displayName || "Student";
+      var meta = [profile.level, profile.department, profile.semester || localStorage.getItem("selectedSemester") || "1st"]
+        .filter(Boolean).join(" · ");
+      var hour = new Date().getHours();
+      var greet = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+      var tier = (profile.subscriptionTier || profile.plan || "free").toString().toLowerCase();
+      var planLabel = tier.indexOf("pro") >= 0 ? "PRO" : tier.indexOf("regular") >= 0 ? "REGULAR" : "FREE PLAN";
+      var subline = (profile.semester || localStorage.getItem("selectedSemester") || "1st") +
+        (profile.department ? " · " + profile.department : "");
+
+      try { if (window.CodexOnboarding) CodexOnboarding.auto("home", 800); } catch (eW) {}
+      CodexShell.mountShell({
+        page: "home",
+        title: "Home",
+        profile: profile,
+        user: { fullName: full, subline: subline }
+      });
+      setTimeout(function () { showAdminAnnouncementPopup(user.uid); }, 900);
+
+      document.getElementById("mName").textContent = first;
+      document.getElementById("mMeta").textContent = meta || user.email || "";
+      document.getElementById("mPlan").textContent = planLabel;
+      document.getElementById("mLevel").textContent = profile.level || "—";
+      var streakVal = await touchDailyStreak(user.uid, profile);
+      paintStreakEl(document.getElementById("mStreak"), streakVal);
+      paintStreakEl(document.getElementById("dStreak"), streakVal);
+      paintStreakEl(document.getElementById("dStreak2"), streakVal);
+      paintStreakEl(document.getElementById("dWelStreak"), streakVal);
+      document.getElementById("mRank").textContent = profile.rank || profile.publicRank || "—";
+      try {
+        if (window.CodexRank && user && user.uid) {
+          CodexRank.loadAndPaint(user.uid, ["#mRank", "#dRank", "#dRank2"]);
+        }
+      } catch (eR) {}
+      // CBT remaining from Admin → Configuration (not fake infinity for Regular)
+      await (async function () {
+        var cap = await loadCbtCap(profile, planLabel);
+        var el = document.getElementById("mTrials");
+        var st = document.getElementById("mTrialsStat");
+        var showInf = planLabel === "PRO" && cap.limit >= 999;
+        if (el) {
+          el.textContent = showInf ? "∞" : String(cap.left);
+          if (st) {
+            var sp = st.querySelector("span");
+            if (sp) sp.textContent = showInf ? "CBT" : "CBT left";
+          }
+        }
+        var dEl = document.getElementById("dTrials");
+        if (dEl) dEl.textContent = showInf ? "∞" : String(cap.left);
+      })();
+
+      document.getElementById("dName").textContent = greet + ", " + first + ".";
+      document.getElementById("dMeta").textContent = meta || user.email || "";
+      document.getElementById("dPlan").textContent = planLabel;
+      /* dStreak set via paintStreakEl */
+      /* dStreak2 set via paintStreakEl */
+      document.getElementById("dLevel").textContent = profile.level || "—";
+      document.getElementById("dRank").textContent = profile.rank || profile.publicRank || "—";
+      document.getElementById("dRank2").textContent = profile.rank || profile.publicRank || "—";
+      document.getElementById("dAcc").textContent = profile.avgAccuracy ? profile.avgAccuracy + "%" : "—";
+
+      var savedSem = profile.semester || localStorage.getItem("selectedSemester") || "1st";
+      setSemester(savedSem.indexOf("2") === 0 ? "2nd" : "1st");
+
+      try {
+        var cont = JSON.parse(localStorage.getItem("codex_continue_note") || "null");
+        if (cont && cont.title) {
+          document.getElementById("continueRail").insertAdjacentHTML("afterbegin",
+            '<a class="p-card" href="course-library.html?mode=notes">' +
+            '<span class="shine" aria-hidden="true"></span><span class="badge">IN PROGRESS</span>' +
+            '<div class="thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 5h9l5 5v9H5z"/></svg></div>' +
+            '<p class="code">' + escape(cont.courseCode || "NOTE") + '</p>' +
+            '<h3>' + escape(cont.title) + '</h3>' +
+            '<p>' + escape(cont.topic || "Resume reading") + '</p>' +
+            '<span class="go">Continue →</span></a>');
+          document.getElementById("dContTitle").textContent = cont.title;
+          document.getElementById("dContSub").textContent = cont.topic || cont.courseCode || "";
+          document.getElementById("dContProg").style.width = (cont.progress || 45) + "%";
+        }
+      } catch (e) {}
+
+      try {
+        var planSnap = await firebase.firestore().collection("study_plans").where("uid", "==", user.uid).limit(10).get();
+        var plans = planSnap.docs.map(function(d){ return d.data() || {}; }).sort(function(a,b){
+          var am=a.updatedAt&&a.updatedAt.toMillis?a.updatedAt.toMillis():0, bm=b.updatedAt&&b.updatedAt.toMillis?b.updatedAt.toMillis():0;
+          return bm-am;
+        });
+        var todos = [];
+        if (plans.length) {
+          plans.forEach(function(p){ (p.tasks || []).forEach(function(t){ if(!t.done) todos.push({title:t.title,due:t.dueAt||"",duration:t.duration}); }); });
+        }
+        todos = todos.slice(0,5);
+        if (todos.length) {
+          var dueTxt = todos[0].due ? (todos[0].due.toMillis ? new Date(todos[0].due.toMillis()).toLocaleString(undefined,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : new Date(todos[0].due).toLocaleString(undefined,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})) : (todos.length + ' open task' + (todos.length>1?'s':''));
+          var rb = document.getElementById("remindBox");
+          if (rb) {
+            rb.setAttribute("href", "todo.html");
+            rb.innerHTML =
+              '<div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6h11M9 12h11M9 18h11"/></svg></div>' +
+              '<div><h3>' + escape(todos[0].title || "Task") + '</h3><p>' + escape(dueTxt) + ' · Open planner</p></div>';
+          }
+          var dr = document.getElementById("dRemind");
+          if (dr) {
+            dr.innerHTML = todos.map(function (t) {
+              return '<div class="plan-item"><span class="dot"></span><div class="t"><b>' + escape(t.title || "Task") + '</b><span>' + escape(t.due ? (t.due.toMillis ? new Date(t.due.toMillis()).toLocaleString(undefined,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : new Date(t.due).toLocaleString(undefined,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})) : '') + '</span></div></div>';
+            }).join("");
+          }
+        }
+        var dpl = document.getElementById("dPlanList");
+        if (dpl && plans.length) {
+          var top = plans[0];
+          var pts = (top.tasks || []).slice(0, 5);
+          if (pts.length) {
+            dpl.innerHTML = pts.map(function (t) {
+              var mark = t.done ? "✓ " : "";
+              return '<div class="plan-item"><span class="dot"></span><div class="t"><b>' + escape(mark + (t.title || "Task")) + '</b><span>' + escape(top.name || "Plan") + '</span></div><span class="time">' + escape(t.duration ? (t.duration + "m") : "—") + '</span></div>';
+            }).join("");
+          }
+        }
+      } catch (e) {}
+
+      // Continue studying + weak courses from Firestore (not localStorage)
+      try {
+        await loadContinueAndPractice(user.uid, escape);
+      } catch (e) {
+        console.warn("continue/practice", e);
+      }
+    });
+  })();
+
+  async function loadContinueAndPractice(uid, escape) {
+    var db = firebase.firestore();
+    var noteCard = null;
+    var noteCardsHtml = "";
+    var cbtCard = null;
+    var weakList = [];
+
+    function readingCard(code, topic) {
+      return (
+        '<a class="p-card" href="notes.html?code=' + encodeURIComponent(code) +
+        (topic ? '&topic=' + encodeURIComponent(topic) : '') + '">' +
+        '<span class="shine" aria-hidden="true"></span>' +
+        '<div class="thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h9l3 3v13H6z"/></svg></div>' +
+        '<p class="code">NOTES</p>' +
+        '<h3>' + escape(code) + '</h3>' +
+        '<p>' + escape(topic || "Notes") + '</p>' +
+        '<span class="go">Continue reading →</span></a>'
+      );
+    }
+
+    function collectReadingDocs(docs) {
+      docs.sort(function (a, b) {
+        var ta = a.updatedAt && a.updatedAt.toMillis ? a.updatedAt.toMillis() : 0;
+        var tb = b.updatedAt && b.updatedAt.toMillis ? b.updatedAt.toMillis() : 0;
+        return tb - ta;
+      });
+      var seen = {};
+      var cards = [];
+      docs.forEach(function (rdoc) {
+        var code = rdoc.code || rdoc._id;
+        if (!code || seen[code]) return;
+        seen[code] = true;
+        var topic = rdoc.topic || "Notes";
+        var card = readingCard(code, topic);
+        if (!noteCard) noteCard = card;
+        cards.push(card);
+      });
+      noteCardsHtml = cards.join("");
+    }
+
+    // Reading progress (multi-course for horizontal rails)
+    try {
+      var rSnap = await db.collection("users").doc(uid).collection("reading")
+        .orderBy("updatedAt", "desc").limit(8).get();
+      if (!rSnap.empty) {
+        collectReadingDocs(rSnap.docs.map(function (d) {
+          var x = d.data() || {};
+          x._id = d.id;
+          return x;
+        }));
+      }
+    } catch (e) {
+      try {
+        var rSnap2 = await db.collection("users").doc(uid).collection("reading").limit(8).get();
+        if (!rSnap2.empty) {
+          collectReadingDocs(rSnap2.docs.map(function (d) {
+            var x = d.data() || {};
+            x._id = d.id;
+            return x;
+          }));
+        }
+      } catch (e2) {
+        console.warn("reading", e2);
+      }
+    }
+
+    // Last CBT from stats.history
+    try {
+      var sSnap = await db.collection("stats").doc(uid).get();
+      if (sSnap.exists) {
+        var hist = (sSnap.data() || {}).history || [];
+        if (hist.length) {
+          var last = hist[hist.length - 1];
+          var lastCode = last.code || last.subject || "";
+          var pct = (typeof last.percentage === "number")
+            ? Math.round(last.percentage)
+            : (last.totalQuestions ? Math.round((last.score / last.totalQuestions) * 100) : 0);
+          if (lastCode) {
+            cbtCard =
+              '<a class="p-card" href="cbt.html?code=' + encodeURIComponent(lastCode) + '">' +
+              '<span class="shine" aria-hidden="true"></span>' +
+              '<span class="badge">PRACTICE</span>' +
+              '<div class="thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="14" rx="2"/></svg></div>' +
+              '<p class="code">CBT</p>' +
+              '<h3>' + escape(lastCode) + '</h3>' +
+              '<p>Last score ' + pct + '% · Resume practice</p>' +
+              '<span class="go">Open CBT →</span></a>';
+          }
+
+          // Weak courses: low % from recent history
+          var byCode = {};
+          hist.forEach(function (h) {
+            var c = h.code || h.subject;
+            if (!c || !h.totalQuestions) return;
+            var p = (typeof h.percentage === "number")
+              ? h.percentage
+              : (h.score / h.totalQuestions) * 100;
+            if (!byCode[c]) byCode[c] = { code: c, scores: [], title: h.title || c };
+            byCode[c].scores.push(p);
+          });
+          Object.keys(byCode).forEach(function (c) {
+            var arr = byCode[c].scores;
+            var avg = arr.reduce(function (a, b) { return a + b; }, 0) / arr.length;
+            if (avg < 70) {
+              weakList.push({
+                code: c,
+                title: byCode[c].title,
+                reason: "Avg " + Math.round(avg) + "% — keep practicing",
+                avg: avg
+              });
+            }
+          });
+          weakList.sort(function (a, b) { return a.avg - b.avg; });
+        }
+      }
+    } catch (e) {
+      console.warn("stats", e);
+    }
+
+    // Profile weakCourses array
+    try {
+      var uSnap = await db.collection("users").doc(uid).get();
+      var wc = (uSnap.data() || {}).weakCourses;
+      if (Array.isArray(wc)) {
+        wc.forEach(function (c) {
+          if (!weakList.some(function (w) { return w.code === c; })) {
+            weakList.push({ code: c, title: c, reason: "Flagged from past CBT", avg: 0 });
+          }
+        });
+      }
+    } catch (e) {}
+
+    var rail = document.getElementById("continueRail");
+    if (rail) {
+      var html = "";
+      if (noteCardsHtml) html += noteCardsHtml;
+      else if (noteCard) html += noteCard;
+      if (cbtCard) html += cbtCard;
+      if (!html) {
+        html =
+          '<a class="p-card" href="course-library.html?mode=notes">' +
+          '<span class="shine" aria-hidden="true"></span>' +
+          '<div class="thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h9l3 3v13H6z"/></svg></div>' +
+          '<p class="code">NOTES</p>' +
+          '<h3>Start reading</h3>' +
+          '<p>Open a course note — it will show here to resume fast.</p>' +
+          '<span class="go">Browse notes →</span></a>' +
+          '<a class="p-card" href="course-library.html?mode=cbt">' +
+          '<span class="shine" aria-hidden="true"></span>' +
+          '<span class="badge">PRACTICE</span>' +
+          '<div class="thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="14" rx="2"/></svg></div>' +
+          '<p class="code">CBT</p>' +
+          '<h3>Start a session</h3>' +
+          '<p>Complete a CBT and resume will appear here.</p>' +
+          '<span class="go">Open CBT →</span></a>';
+      }
+      rail.innerHTML = html;
+    }
+
+    // Desktop "Continue your study" panel (dContTitle / dContSub / btn)
+    try {
+      var dTitle = document.getElementById("dContTitle");
+      var dSub = document.getElementById("dContSub");
+      var dBtn = document.querySelector(".d-quick-start .btn-cont");
+      var dProg = document.getElementById("dContProg");
+      if (noteCard && dTitle) {
+        // Parse from last reading we already resolved
+        var tmp = document.createElement("div");
+        tmp.innerHTML = noteCard;
+        var a = tmp.querySelector("a");
+        var h3 = tmp.querySelector("h3");
+        var p = tmp.querySelector("p:not(.code)");
+        dTitle.textContent = (h3 && h3.textContent) || "Continue notes";
+        if (dSub) dSub.textContent = (p && p.textContent) || "Resume where you left off";
+        if (dBtn && a) {
+          dBtn.href = a.getAttribute("href") || "course-library.html?mode=notes";
+          dBtn.textContent = "Continue reading →";
+        }
+        if (dProg) dProg.style.width = "55%";
+      } else if (cbtCard && dTitle) {
+        var tmp2 = document.createElement("div");
+        tmp2.innerHTML = cbtCard;
+        var a2 = tmp2.querySelector("a");
+        var h32 = tmp2.querySelector("h3");
+        var p2 = tmp2.querySelectorAll("p");
+        dTitle.textContent = (h32 && h32.textContent) || "Resume CBT";
+        if (dSub) dSub.textContent = (p2[1] && p2[1].textContent) || "Jump back into practice";
+        if (dBtn && a2) {
+          dBtn.href = a2.getAttribute("href") || "course-library.html?mode=cbt";
+          dBtn.textContent = "Open CBT →";
+        }
+        if (dProg) dProg.style.width = "35%";
+      }
+    } catch (e) { console.warn("dCont", e); }
+    // Desktop horizontal continue rail (notes + CBT)
+    try {
+      var dRail = document.getElementById("dContinueRail");
+      if (dRail) {
+        var pieces = "";
+        if (noteCardsHtml) pieces += noteCardsHtml;
+        else if (noteCard) pieces += noteCard;
+        if (cbtCard) pieces += cbtCard;
+        if (pieces) dRail.innerHTML = pieces;
+      }
+    } catch (e) {}
+
+
+    var practice = document.getElementById("practiceRail");
+    if (practice && weakList.length) {
+      practice.innerHTML = weakList.slice(0, 8).map(function (c) {
+        return '<a class="p-card" href="cbt.html?code=' + encodeURIComponent(c.code) + '">' +
+          '<span class="shine" aria-hidden="true"></span>' +
+          '<div class="thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 19V9M12 19V5M18 19v-7"/></svg></div>' +
+          '<p class="code">' + escape(c.code) + '</p>' +
+          '<h3>' + escape(c.title || c.code) + '</h3>' +
+          '<p>' + escape(c.reason || "Needs improvement") + '</p>' +
+          '<span class="go">Practice →</span></a>';
+      }).join("");
+    }
+
+    var dRec = document.getElementById("dRec");
+    if (dRec && weakList.length) {
+      dRec.innerHTML = weakList.slice(0, 8).map(function (c) {
+        return '<a class="d-rec-card" href="cbt.html?code=' + encodeURIComponent(c.code) + '">' +
+          '<span class="shine" aria-hidden="true"></span>' +
+          '<p class="code">' + escape(c.code) + '</p>' +
+          '<h3>' + escape(c.title || c.code) + '</h3>' +
+          '<p>' + escape(c.reason || "Needs improvement") + '</p>' +
+          '<span class="go">Practice →</span></a>';
+      }).join("");
+    }
+  }
+
+  
+    function syncDesktopWelcomeStats() {
+      function copy(from, to) {
+        var a = document.getElementById(from);
+        var b = document.getElementById(to);
+        if (a && b) b.textContent = a.textContent;
+      }
+      copy("dStreak", "dWelStreak");
+      copy("dLevel", "dWelLevel");
+      copy("dRank", "dWelRank");
+      copy("dRank2", "dWelRank");
+    }
+    setInterval(syncDesktopWelcomeStats, 1500);
+    setTimeout(syncDesktopWelcomeStats, 600);
+
+  </script>
+</body>
+</html>

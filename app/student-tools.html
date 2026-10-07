@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="../js/theme-boot.js"></script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Student Tools · Codex Hub</title>
+<meta name="theme-color" content="#4F46E5">
+<link rel="icon" href="../assets/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/shell.css">
+<style>
+body.app-body{background:#F5F7FB;font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:#0F172A}
+.st-wrap{max-width:1100px;margin:0 auto;padding:18px 14px 110px}
+.st-hero{
+  background:linear-gradient(135deg,#1E1B4B 0%,#4F46E5 48%,#7C3AED 100%);
+  color:#fff;border-radius:22px;padding:22px 20px;margin-bottom:16px;
+  box-shadow:0 18px 42px rgba(79,70,229,.2);position:relative;overflow:hidden
+}
+.st-hero::after{
+  content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;
+  border-radius:50%;background:rgba(255,255,255,.08);pointer-events:none
+}
+.st-hero .eyebrow{font-size:.68rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#C7D2FE}
+.st-hero h1{font-size:clamp(1.35rem,3.5vw,1.85rem);margin:8px 0 6px;letter-spacing:-.03em;font-weight:800}
+.st-hero p{margin:0;max-width:52ch;color:#E0E7FF;font-size:.84rem;line-height:1.55}
+
+.st-search-row{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 10px}
+.st-search{
+  flex:1;min-width:200px;display:flex;align-items:center;gap:8px;
+  background:#fff;border:1px solid #E2E8F0;border-radius:14px;padding:10px 12px
+}
+.st-search svg{flex-shrink:0;color:#64748B}
+.st-search input{
+  border:0;outline:none;width:100%;font:600 .85rem "Plus Jakarta Sans",system-ui;background:transparent;color:#0F172A
+}
+.st-cats{
+  display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:16px;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none
+}
+.st-cats::-webkit-scrollbar{display:none}
+.st-cat{
+  flex:0 0 auto;border:1px solid #E2E8F0;background:#fff;color:#475569;
+  border-radius:999px;padding:8px 14px;font:700 .75rem "Plus Jakarta Sans",system-ui;cursor:pointer
+}
+.st-cat.active{background:#4F46E5;border-color:#4F46E5;color:#fff}
+
+.st-quick{margin-bottom:18px}
+.st-sec-title{font-size:.9rem;font-weight:800;margin:0 0 10px;color:#0F172A}
+.st-quick-grid{
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px
+}
+.st-q{
+  display:flex;flex-direction:column;gap:4px;padding:14px 12px;
+  background:#fff;border:1px solid #E2E8F0;border-radius:16px;text-decoration:none;color:inherit;
+  box-shadow:0 4px 14px rgba(15,23,42,.03);transition:transform .15s,box-shadow .15s
+}
+.st-q:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(15,23,42,.06)}
+.st-q .qi{
+  width:36px;height:36px;border-radius:11px;display:grid;place-items:center;margin-bottom:4px
+}
+.st-q strong{font-size:.78rem;font-weight:800}
+.st-q span{font-size:.68rem;color:#64748B;line-height:1.35}
+
+.st-featured{
+  display:grid;grid-template-columns:1.15fr .85fr;gap:14px;margin-bottom:18px
+}
+.st-feat-main{
+  background:linear-gradient(145deg,#EEF2FF,#fff 40%,#F5F3FF);
+  border:1px solid #E0E7FF;border-radius:20px;padding:20px;position:relative;overflow:hidden
+}
+.st-feat-main .tag{
+  display:inline-block;font-size:.65rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+  color:#4338CA;background:#EEF2FF;border-radius:999px;padding:4px 10px;margin-bottom:10px
+}
+.st-feat-main h2{font-size:1.25rem;margin:0 0 8px;letter-spacing:-.02em}
+.st-feat-main p{margin:0 0 14px;color:#475569;font-size:.84rem;line-height:1.5;max-width:42ch}
+.st-feat-actions{display:flex;flex-wrap:wrap;gap:8px}
+.btn{
+  border:0;border-radius:12px;padding:11px 16px;font:800 .78rem "Plus Jakarta Sans",system-ui;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px
+}
+.btn-primary{background:#4F46E5;color:#fff}
+.btn-ghost{background:#fff;color:#334155;border:1px solid #E2E8F0}
+.st-feat-side{
+  background:#0F172A;color:#fff;border-radius:20px;padding:18px;display:flex;flex-direction:column;justify-content:space-between
+}
+.st-feat-side h3{margin:0 0 6px;font-size:1rem}
+.st-feat-side p{margin:0;color:#94A3B8;font-size:.78rem;line-height:1.45}
+.st-feat-side a{margin-top:14px;align-self:flex-start}
+
+.st-grid{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:20px
+}
+.st-card{
+  background:#fff;border:1px solid #E2E8F0;border-radius:18px;padding:16px;
+  display:flex;flex-direction:column;gap:8px;text-decoration:none;color:inherit;
+  box-shadow:0 6px 18px rgba(15,23,42,.035);transition:transform .15s,box-shadow .15s;min-height:168px
+}
+.st-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(15,23,42,.07)}
+.st-card .ico{
+  width:42px;height:42px;border-radius:12px;display:grid;place-items:center
+}
+.st-card h3{margin:0;font-size:.95rem;font-weight:800}
+.st-card p{margin:0;font-size:.78rem;color:#64748B;line-height:1.45;flex:1}
+.st-card .meta{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.chip{
+  font-size:.62rem;font-weight:700;color:#475569;background:#F1F5F9;
+  border-radius:999px;padding:3px 8px
+}
+.chip.cat{background:#EEF2FF;color:#4338CA}
+.st-card .go{font-size:.75rem;font-weight:800;color:#4F46E5;margin-top:2px}
+
+.st-recent{margin-top:4px}
+.st-recent-rail{
+  display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none
+}
+.st-recent-rail::-webkit-scrollbar{display:none}
+.st-recent-item{
+  flex:0 0 min(240px,78vw);background:#fff;border:1px solid #E2E8F0;border-radius:14px;
+  padding:12px 14px;text-decoration:none;color:inherit
+}
+.st-recent-item strong{display:block;font-size:.82rem;margin-bottom:2px}
+.st-recent-item span{font-size:.7rem;color:#64748B}
+.st-empty{padding:16px;background:#fff;border:1px dashed #CBD5E1;border-radius:14px;color:#64748B;font-size:.8rem}
+
+.c-solve{background:#DBEAFE;color:#1D4ED8}
+.c-create{background:#D1FAE5;color:#047857}
+.c-cs{background:#EDE9FE;color:#6D28D9}
+.c-acad{background:#FEF3C7;color:#B45309}
+.c-eng{background:#FFEDD5;color:#C2410C}
+
+@media(max-width:900px){
+  .st-quick-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .st-featured{grid-template-columns:1fr}
+  .st-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:560px){
+  .st-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .st-grid{grid-template-columns:1fr 1fr}
+  .st-card{min-height:0;padding:13px}
+  .st-card h3{font-size:.86rem}
+}
+</style>
+
+<style id="dark-override">
+html.theme-dark body.app-body { background: #0F172A !important; color: #F1F5F9 !important; }
+html.theme-dark .tool-card, html.theme-dark .card, html.theme-dark .grid > a,
+html.theme-dark .grid > div, html.theme-dark .tile {
+  background: #1E293B !important; border-color: #334155 !important; color: #F1F5F9 !important;
+}
+html.theme-dark .tool-card strong, html.theme-dark .tool-card h3,
+html.theme-dark .tile strong { color: #F8FAFC !important; }
+html.theme-dark .tool-card span, html.theme-dark .tool-card p,
+html.theme-dark .muted { color: #94A3B8 !important; }
+html.theme-dark .search-bar, html.theme-dark input {
+  background: #0B1220 !important; border-color: #334155 !important; color: #F1F5F9 !important;
+}
+html.theme-dark .chip { background: #1E293B !important; color: #E2E8F0 !important; }
+html.theme-dark .chip.active { background: linear-gradient(135deg,#6366F1,#8B5CF6) !important; color: #fff !important; }
+</style>
+
+</head>
+<body class="app-body">
+<main class="st-wrap">
+  <section class="st-hero">
+    <div class="eyebrow">Student Tools</div>
+    <h1>Tools built around the work students actually do</h1>
+    <p>Solve questions, create academic visuals, build flowcharts, write code and structure academic work with purpose-built tools — not another generic chatbot.</p>
+  </section>
+
+  <div class="st-search-row">
+    <label class="st-search" aria-label="Search tools">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>
+      <input type="search" id="toolSearch" placeholder="Search tools..." autocomplete="off">
+    </label>
+  </div>
+
+  <div class="st-cats" id="toolCats" role="tablist" aria-label="Tool categories">
+    <button type="button" class="st-cat active" data-cat="All">All</button>
+    <button type="button" class="st-cat" data-cat="Solve">Solve</button>
+    <button type="button" class="st-cat" data-cat="Create">Create</button>
+    <button type="button" class="st-cat" data-cat="Computer Science">Computer Science</button>
+    <button type="button" class="st-cat" data-cat="Science">Science</button>
+    <button type="button" class="st-cat" data-cat="Academic">Academic</button>
+    <button type="button" class="st-cat" data-cat="Engineering & Architecture">Engineering &amp; Architecture</button>
+  </div>
+
+  <section class="st-quick">
+    <h2 class="st-sec-title">What do you need to do?</h2>
+    <div class="st-quick-grid">
+      <a class="st-q" href="tool-scan-solve.html"><div class="qi c-solve"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7V5a1 1 0 011-1h2M20 7V5a1 1 0 00-1-1h-2M4 17v2a1 1 0 001 1h2M20 17v2a1 1 0 01-1 1h-2M8 12h8"/></svg></div><strong>Solve something</strong><span>I have a question</span></a>
+      <a class="st-q" href="tool-diagram.html"><div class="qi c-create"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/><path d="M13 7h3v3M11 17H8v-3"/></svg></div><strong>Create something</strong><span>Diagram or visual</span></a>
+      <a class="st-q" href="tool-flowchart.html"><div class="qi c-cs"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="3" width="8" height="5" rx="1"/><rect x="8" y="16" width="8" height="5" rx="1"/><path d="M12 8v8M9 12h6"/></svg></div><strong>Build something</strong><span>Flowchart or code</span></a>
+      <a class="st-q" href="tool-assignment.html"><div class="qi c-acad"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h9l3 3v13H6z"/><path d="M9 12h6M9 16h4"/></svg></div><strong>Write something</strong><span>Structure academic work</span></a>
+      <a class="st-q" href="https://archiguide.lovable.app/" target="_blank" rel="noopener"><div class="qi c-eng"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"/></svg></div><strong>Design something</strong><span>Architecture help</span></a>
+    </div>
+  </section>
+
+  <section class="st-featured">
+    <div class="st-feat-main">
+      <span class="tag">Featured · Solve</span>
+      <h2>Scan &amp; Solve</h2>
+      <p>Upload a photo of a question, drop a document, or type it in. Work through analysis, working, answer and explanation — not just a bare result.</p>
+      <div class="st-feat-actions">
+        <a class="btn btn-primary" href="tool-scan-solve.html">Open Scan &amp; Solve →</a>
+        <a class="btn btn-ghost" href="tool-diagram.html">Try Diagram Maker</a>
+      </div>
+    </div>
+    <div class="st-feat-side">
+      <div>
+        <h3>Solve. Create. Build.</h3>
+        <p>Your academic toolbox for the work that happens outside the textbook — specialised instruments, not five copies of Nova.</p>
+      </div>
+      <a class="btn btn-primary" href="tool-code.html">Open Code Assistant</a>
+    </div>
+  </section>
+
+  <h2 class="st-sec-title">All tools</h2>
+  <div class="st-grid" id="toolsGrid"></div>
+
+  <section class="st-recent">
+    <h2 class="st-sec-title">Recently used</h2>
+    <div class="st-recent-rail" id="recentRail">
+      <div class="st-empty">Your recent tools will appear here after you open one.</div>
+    </div>
+  </section>
+</main>
+
+<script src="../js/firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="../js/app-auth.js"></script>
+<script src="../js/media.js"></script>
+<script src="../js/onboarding.js"></script>
+  <script src="../js/shell.js"></script>
+<script src="../js/student-tools-core.js"></script>
+<script>
+(function () {
+  "use strict";
+  if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+  var ST = window.CodexStudentTools;
+  var uid = null;
+  var activeCat = "All";
+  var q = "";
+
+  var ICONS = {
+    "scan-solve": { cls: "c-solve", svg: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7V5a1 1 0 011-1h2M20 7V5a1 1 0 00-1-1h-2M4 17v2a1 1 0 001 1h2M20 17v2a1 1 0 01-1 1h-2M8 12h8"/></svg>' },
+    diagram: { cls: "c-create", svg: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/><path d="M13 7h3v3M11 17H8v-3"/></svg>' },
+    flowchart: { cls: "c-cs", svg: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="3" width="8" height="5" rx="1"/><rect x="8" y="16" width="8" height="5" rx="1"/><path d="M12 8v8"/></svg>' },
+    code: { cls: "c-cs", svg: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg>' },
+    assignment: { cls: "c-acad", svg: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h9l3 3v13H6z"/><path d="M9 12h6M9 16h4"/></svg>' },
+    archiguide: { cls: "c-eng", svg: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V10l7-5 7 5v11"/></svg>' }
+  };
+
+  function matches(tool) {
+    var catOk = activeCat === "All" ||
+      tool.category === activeCat ||
+      (activeCat === "Science" && (tool.id === "diagram" || tool.id === "scan-solve")) ||
+      (activeCat === "Create" && (tool.id === "diagram" || tool.id === "flowchart"));
+    if (!catOk) return false;
+    if (!q) return true;
+    var hay = (tool.name + " " + tool.desc + " " + tool.category + " " + (tool.tags || []).join(" ")).toLowerCase();
+    return hay.indexOf(q) !== -1;
+  }
+
+  function renderGrid() {
+    var grid = document.getElementById("toolsGrid");
+    var tools = Object.keys(ST.TOOLS).map(function (k) { return ST.TOOLS[k]; }).filter(matches);
+    if (!tools.length) {
+      grid.innerHTML = '<div class="st-empty" style="grid-column:1/-1">No tools match that search.</div>';
+      return;
+    }
+    grid.innerHTML = tools.map(function (t) {
+      var ic = ICONS[t.id] || ICONS.code;
+      var href = t.external ? t.href : t.href;
+      var extra = t.external ? ' target="_blank" rel="noopener"' : "";
+      return '<a class="st-card" href="' + href + '"' + extra + ' data-tool="' + t.id + '">' +
+        '<div class="ico ' + ic.cls + '">' + ic.svg + '</div>' +
+        "<h3>" + ST.esc(t.name) + "</h3>" +
+        "<p>" + ST.esc(t.desc) + "</p>" +
+        '<div class="meta"><span class="chip cat">' + ST.esc(t.category) + "</span>" +
+        (t.tags || []).map(function (x) { return '<span class="chip">' + ST.esc(x) + "</span>"; }).join("") +
+        "</div>" +
+        '<span class="go">' + (t.external ? "Open ArchiGuide ↗" : "Open tool →") + "</span></a>";
+    }).join("");
+  }
+
+  function renderRecent() {
+    var rail = document.getElementById("recentRail");
+    var list = ST.getRecent(uid);
+    if (!list.length) {
+      rail.innerHTML = '<div class="st-empty">Your recent tools will appear here after you open one.</div>';
+      return;
+    }
+    rail.innerHTML = list.map(function (r) {
+      var tool = ST.TOOLS[r.toolId];
+      var ext = tool && tool.external;
+      return '<a class="st-recent-item" href="' + ST.esc(r.href) + '"' + (ext ? ' target="_blank" rel="noopener"' : "") + ">" +
+        "<strong>" + ST.esc(r.title) + "</strong>" +
+        "<span>" + ST.esc(r.subtitle || (tool && tool.name) || "Recently used") + "</span></a>";
+    }).join("");
+  }
+
+  document.getElementById("toolCats").onclick = function (e) {
+    var b = e.target.closest(".st-cat");
+    if (!b) return;
+    activeCat = b.getAttribute("data-cat");
+    document.querySelectorAll(".st-cat").forEach(function (x) { x.classList.toggle("active", x === b); });
+    renderGrid();
+  };
+  document.getElementById("toolSearch").oninput = function () {
+    q = this.value.trim().toLowerCase();
+    renderGrid();
+  };
+  document.getElementById("toolsGrid").addEventListener("click", function (e) {
+    var a = e.target.closest("[data-tool]");
+    if (!a) return;
+    var id = a.getAttribute("data-tool");
+    var t = ST.TOOLS[id];
+    if (t) ST.pushRecent(uid, { toolId: id, title: t.name, subtitle: t.category, href: t.href });
+  });
+
+  async function boot() {
+    var r;
+    try { r = await CodexAuth.requireUser(); } catch (e) { return; }
+    uid = r.user.uid;
+    var shellProfile = Object.assign({}, r.profile || {});
+    try {
+      var pub = await firebase.firestore().collection("public_profiles").doc(uid).get();
+      if (pub.exists) {
+        var pp = pub.data() || {};
+        if (pp.avatarKey) shellProfile.avatarKey = pp.avatarKey;
+        if (pp.photoURL) shellProfile.photoURL = pp.photoURL;
+      }
+    } catch (e) {}
+    CodexShell.mountShell({
+      page: "tools",
+      title: "Student Tools",
+      user: Object.assign({ fullName: (r.profile && (r.profile.fullName || r.profile.displayName)) || r.user.email }, r.user),
+      profile: shellProfile
+    });
+    renderGrid();
+    renderRecent();
+  }
+  boot();
+})();
+</script>
+
+<script>try{if(window.CodexOnboarding)CodexOnboarding.auto("student-tools",700);}catch(e){}</script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script src="../js/theme-boot.js"></script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My contributions — Codex Hub</title>
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/shell.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/resources.css">
+</head>
+<body class="shell-body res-section" data-page="resources">
+<div id="shellRoot"></div>
+<header class="res-topbar">
+  <button class="res-back" type="button" data-res-back aria-label="Go back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <div class="res-top-title"><strong>My Contributions</strong><span>Your uploads &amp; credits</span></div>
+  <a class="res-top-upload" href="resource-upload.html" aria-label="Contribute a resource"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg><span>Contribute</span></a>
+</header>
+<script>
+(function(){
+  var b=document.querySelector('[data-res-back]');
+  if(!b)return;
+  b.addEventListener('click',function(){
+    try { if(document.referrer && document.referrer.indexOf(location.origin)===0 && history.length>1){ history.back(); return; } } catch(e){}
+    location.href='home.html';
+  });
+})();
+</script>
+
+<main class="res-page">
+  <div class="res-hero">
+    <div>
+      <h1>My contributions</h1>
+      <p>Track uploads and download credits. Viewing resources never spends credits.</p>
+    </div>
+    <div class="res-credits">
+      <span id="ico"></span>
+      <span><span id="credits">—</span> download credits</span>
+    </div>
+  </div>
+  <p style="margin:0 0 14px">
+    <a class="res-btn res-btn-primary" href="resource-upload.html">Contribute another</a>
+  </p>
+  <div id="list" class="res-contrib-list"></div>
+  <div id="empty" class="res-empty" hidden></div>
+</main>
+<nav class="res-tabbar" aria-label="Resources navigation">
+  <a href="resources.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19a2 2 0 01-2-2V7a2 2 0 012-2h6l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H4z"/></svg>
+    Library
+  </a>
+  <a class="active" href="my-resources.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12a4 4 0 100-8 4 4 0 000 8z"/><path d="M4 20a8 8 0 0116 0"/></svg>
+    Contributions
+  </a>
+  <a href="resource-upload.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+    Upload
+  </a>
+</nav>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/app-auth.js"></script>
+<script src="../js/media.js"></script>
+<script src="../js/shell.js"></script>
+<script src="../js/resources-core.js"></script>
+<script>
+(function () {
+  document.getElementById("ico").innerHTML = CodexResources.ICONS.credit;
+  function pill(status) {
+    var s = status || "pending";
+    return '<span class="res-pill ' + s + '">' + s.replace(/_/g, " ") + "</span>";
+  }
+  CodexAuth.requireUser().then(async function (ctx) {
+    if (window.CodexShell) CodexShell.mountShell({ page: "resources" });
+    try {
+      document.getElementById("credits").textContent = String(await CodexResources.getUserCredits(ctx.user.uid));
+    } catch (e) {
+      document.getElementById("credits").textContent = "0";
+    }
+    try {
+      var items = await CodexResources.listMyContributions();
+      var list = document.getElementById("list");
+      if (!items.length) {
+        document.getElementById("empty").hidden = false;
+        document.getElementById("empty").innerHTML =
+          CodexResources.ICONS.empty +
+          "<h3>No contributions yet</h3><p>Upload a useful PDF for your course. Approved files earn +3 download credits.</p>" +
+          '<a class="res-btn res-btn-primary" href="resource-upload.html">Contribute</a>';
+        return;
+      }
+      list.innerHTML = items.map(function (r) {
+        return '<div class="res-contrib-item"><div><h3>' + CodexResources.escapeHtml(r.title) + "</h3>" +
+          '<div class="res-card-meta">' + CodexResources.escapeHtml(r.courseCode || "") +
+          (r.creditsAwarded ? " · +" + r.creditsAwarded + " credits earned" : "") +
+          (r.reviewMessage ? " · " + CodexResources.escapeHtml(r.reviewMessage) : "") +
+          "</div></div>" + pill(r.status) + "</div>";
+      }).join("");
+    } catch (err) {
+      document.getElementById("empty").hidden = false;
+      document.getElementById("empty").innerHTML =
+        "<h3>Could not load contributions</h3><p>" + CodexResources.escapeHtml(err.message) + "</p>";
+    }
+  });
+})();
+</script>
+</body>
+</html>
