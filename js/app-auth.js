@@ -16,6 +16,7 @@
   }
   var auth = w.firebase.auth();
   var db = w.firebase.firestore();
+  try { auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); } catch (ePer) {}
 
   function isPasswordUser(user) {
     if (!user) return false;
@@ -28,9 +29,10 @@
     return false;
   }
 
-  function needsEmailVerification(user) {
+  function needsEmailVerification(user, profile) {
     if (!user) return false;
     if (user.emailVerified) return false;
+    if (profile && profile.emailVerifiedApp) return false;
     // Google / OAuth always OK
     var providers = user.providerData || [];
     var hasGoogle = providers.some(function (p) { return p && p.providerId === "google.com"; });
@@ -40,9 +42,10 @@
   }
 
   function verifyPageUrl() {
-    // works from /app/* and root
-    var path = (location.pathname || "").replace(/\\/g, "/");
-    if (path.indexOf("/app/") >= 0) return "../verify-email.html";
+    var path = (location.pathname || "").replace(/\/g, "/");
+    // From /app/* use app/verify-email.html (same folder as home.html)
+    if (path.indexOf("/app/") >= 0) return "verify-email.html";
+    // From login/signup at project root
     return "verify-email.html";
   }
 
@@ -56,15 +59,17 @@
         }
         // Soft-reload verification status
         user.reload().then(function () {
-          if (!opts.allowUnverified && needsEmailVerification(auth.currentUser || user)) {
-            location.href = verifyPageUrl();
-            return;
-          }
           return db.collection("users").doc(user.uid).get()
             .then(function (snap) {
               var profile = snap.exists
                 ? snap.data()
                 : { fullName: user.displayName || "Student" };
+              if (!opts.allowUnverified && needsEmailVerification(auth.currentUser || user, profile)) {
+                var vp = verifyPageUrl();
+                // from /app/ pages verify-email is same folder; from root too
+                location.href = vp;
+                return;
+              }
               if (!opts.skipFaculty && (!profile.faculty || !profile.department || !profile.level)) {
                 location.href = location.pathname.indexOf("/app/") >= 0 ? "../chooseFaculty.html" : "chooseFaculty.html";
                 return;
@@ -95,6 +100,12 @@
     });
   }
 
+    try {
+    var p = location.pathname || "";
+    if (p.indexOf("/app/") >= 0 && p.indexOf("login") < 0) {
+      localStorage.setItem("codex_last_route", location.pathname + location.search);
+    }
+  } catch (eR) {}
   w.CodexAuth = {
     auth: auth,
     db: db,
