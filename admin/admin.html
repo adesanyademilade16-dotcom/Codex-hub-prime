@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Admin Command Center · Codex Hub</title>
+  <meta name="theme-color" content="#0F172A">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" href="../assets/favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <!-- Auth / deny gate -->
+  <div class="gate" id="gate">
+    <div class="gate-card">
+      <img src="../assets/logo.png" alt="Codex Hub" onerror="this.style.display='none'">
+      <h1 id="gateTitle">Admin Command Center</h1>
+      <p id="gateMsg">Checking administrator access…</p>
+      <button type="button" class="btn" id="gateAction">Continue</button>
+    </div>
+  </div>
+
+  <div class="app hidden" id="appShell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="logo-row">
+          <img src="../assets/logo.png" alt="" onerror="this.style.display='none'">
+          <div>
+            <strong>Codex Hub</strong>
+            <small>Admin Command Center</small>
+          </div>
+        </div>
+      </div>
+      <nav class="nav" id="adminNav" aria-label="Admin"></nav>
+      </aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <header class="topbar">
+      <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="search" id="globalSearch" placeholder="Search students, email, username…" autocomplete="off">
+      </div>
+      <div class="top-actions">
+        <button type="button" class="icon-btn" title="Alerts" id="btnAlerts" aria-label="Alerts">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 106 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+        </button>
+        <div class="admin-chip">
+          <div id="adminAvatar" class="av">A</div>
+          <div class="meta">
+            <b id="adminName">Admin</b>
+            <span id="adminRole">ADMIN</span>
+          </div>
+        </div>
+        <button type="button" class="btn btn-sm" id="btnLogout">Sign out</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="workspace" id="workspace">
+        <div class="ws-header">
+          <div>
+            <h1 id="wsTitle">Dashboard</h1>
+            <p>Loading command center…</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Student detail drawer -->
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawer-hd">
+      <h2 id="drawerTitle">Student</h2>
+      <button type="button" class="icon-btn" id="btnCloseDrawer" aria-label="Close">✕</button>
+    </div>
+    <div class="drawer-bd" id="drawerBody"></div>
+    <div class="drawer-ft" id="drawerFooter"></div>
+  </aside>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-hd" id="modalTitle">Modal</div>
+      <div class="modal-bd" id="modalBody"></div>
+      <div class="modal-ft" id="modalFooter"></div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
+  <script>
+    if (window.FIREBASE_CONFIG && !firebase.apps.length) {
+      firebase.initializeApp(window.FIREBASE_CONFIG);
+    }
+  </script>
+  <script src="admin.js"></script>
+</body>
+</html>

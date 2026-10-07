@@ -1,0 +1,118 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Announcements · Codex Hub Admin</title><link rel="stylesheet" href="../css/tokens.css"><style>.top .brand{flex:1;min-width:0}.top .brand b{display:block;font-size:.95rem;line-height:1.25}.top .brand span{font-size:.72rem;opacity:.75}.top a.back{flex-shrink:0;font-size:.78rem;font-weight:700;color:#C7D2FE;text-decoration:none;white-space:nowrap;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.08)}body{margin:0;background:#F5F7FB;color:#0F172A;font-family:"Plus Jakarta Sans",system-ui,sans-serif}.top{position:sticky;top:0;z-index:20;background:#0F172A;color:#fff;padding:14px 16px;display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:10px;display:flex;align-items:center;justify-content:space-between}.top a{color:#E0E7FF;text-decoration:none;font-weight:700;font-size:.78rem}.wrap{max-width:1180px;margin:auto;padding:18px 14px 50px}.head{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:15px}.head h1{margin:3px 0;font-size:1.45rem}.head p{margin:0;color:#64748B;font-size:.78rem}.btn{border:0;border-radius:11px;padding:10px 13px;font:800 .74rem system-ui;cursor:pointer}.primary{background:#4F46E5;color:#fff}.ghost{background:#fff;border:1px solid #E2E8F0;color:#334155}.danger{background:#FEF2F2;color:#B91C1C}.form{display:none;background:#fff;border:1px solid #E2E8F0;border-radius:18px;padding:16px;margin-bottom:15px}.form.open{display:block}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}.field label{display:block;font-size:.67rem;font-weight:800;color:#64748B;margin-bottom:5px}.field input,.field textarea,.field select{width:100%;box-sizing:border-box;border:1px solid #DDE3EC;border-radius:10px;padding:10px 11px;font:500 .78rem system-ui;background:#fff}.field textarea{min-height:100px;resize:vertical}.hint{font-size:.62rem;color:#94A3B8;margin:5px 0}.upload{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.preview{display:none;width:100%;max-height:210px;object-fit:cover;border-radius:12px;margin-top:8px}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{background:#fff;border:1px solid #E2E8F0;border-radius:16px;overflow:hidden}.card img{width:100%;height:150px;object-fit:cover;background:#EEF2FF}.body{padding:13px}.body h3{font-size:.85rem;margin:0 0 5px}.body p{font-size:.72rem;color:#64748B;line-height:1.45;margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}.tag{padding:4px 7px;border-radius:999px;background:#F1F5F9;color:#64748B;font-size:.6rem;font-weight:800}.active{background:#ECFDF5;color:#047857}.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}.empty{padding:40px;text-align:center;color:#94A3B8;grid-column:1/-1}.status{font-size:.72rem;margin-top:8px;color:#64748B}@media(max-width:720px){.grid,.cards{grid-template-columns:1fr}.head{align-items:flex-start}.full{grid-column:auto}}</style>
+<style id="ann-fix-fix">
+  .page, main, .wrap { max-width: 100%; overflow-x: hidden; box-sizing: border-box; }
+  .top, .header, .page-header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 12px; }
+  .top h1, .header h1 { font-size: 1.05rem; margin: 0; flex: 1; min-width: 0; }
+  .card, .ann-card, article { max-width: 100%; overflow-wrap: anywhere; word-break: break-word; }
+  img { max-width: 100%; height: auto; }
+  a { word-break: break-all; }
+</style>
+
+<style id="ann-responsive">
+html,body{overflow-x:hidden;max-width:100vw}
+.page,.wrap,.layout,.grid,#list,#grid{max-width:100%;box-sizing:border-box}
+.header,.topbar,header{flex-wrap:wrap;gap:8px}
+.header h1,.topbar h1{font-size:1.1rem;word-break:break-word}
+.form-card,form,.card{max-width:100%;overflow-x:hidden}
+input,textarea,select,button{max-width:100%;box-sizing:border-box}
+img{max-width:100%;height:auto}
+.list-item,.ann{max-width:100%;overflow:hidden}
+@media(max-width:600px){
+  .layout{display:block!important}
+  .sidebar{display:none}
+  .header{padding:10px 12px}
+}
+</style>
+</head><body><div class="top"><div class="brand"><b>Codex Hub · Announcements</b><span>Admin tools</span></div><a class="back" href="admin.html">← Admin dashboard</a></div><main class="wrap"><header class="head"><div><div style="font-size:.64rem;font-weight:800;letter-spacing:.12em;color:#6366F1;text-transform:uppercase">Communication</div><h1>Announcement Manager</h1><p>Create image-led updates with descriptions, CTAs, priority and scheduling.</p></div><button class="btn primary" id="newBtn">+ New announcement</button></header><section class="form" id="form"><div class="grid"><div class="field"><label>Title</label><input id="title" maxlength="120" placeholder="e.g. New study resources are available"></div><div class="field"><label>Type</label><select id="type"><option>General</option><option>Feature update</option><option>Study resources</option><option>Community</option><option>Maintenance</option><option>Event</option></select></div><div class="field full"><label>Description</label><textarea id="desc" maxlength="1400" placeholder="Tell students what they need to know..."></textarea></div><div class="field full"><label>Announcement image</label><div class="upload"><input id="imageUrl" placeholder="https://..." style="flex:1;min-width:220px"><button class="btn ghost" id="pickImage" type="button">Upload image</button><input id="imageFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden></div><div class="hint">Images are uploaded to the Codex Hub Cloudinary image pipeline. You can also paste an HTTPS image URL.</div><div class="status" id="uploadStatus"></div><img class="preview" id="preview" alt="Announcement preview"></div><div class="field"><label>CTA text</label><input id="ctaText" maxlength="40" placeholder="View resources"></div><div class="field"><label>CTA destination</label><input id="ctaUrl" placeholder="resources.html or https://..."></div><div class="field"><label>Priority</label><input id="priority" type="number" value="0" min="-100" max="100"></div><div class="field"><label>Audience</label><select id="audience"><option value="all">Everyone</option></select></div><div class="field"><label>Starts</label><input id="startAt" type="datetime-local"></div><div class="field"><label>Expires</label><input id="expiresAt" type="datetime-local"></div></div><label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:.72rem;font-weight:800"><input id="important" type="checkbox"> Mark as important</label><label style="display:flex;gap:8px;align-items:center;margin-top:9px;font-size:.72rem;font-weight:800"><input id="draft" type="checkbox"> Save as inactive draft</label><div class="actions"><button class="btn ghost" id="cancel" type="button">Cancel</button><button class="btn primary" id="save" type="button">Save announcement</button></div><div class="status" id="saveStatus"></div></section><section class="cards" id="list"><div class="empty">Loading announcements…</div></section></main>
+<script src="../js/firebase-config.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="../js/app-auth.js"></script><script src="../js/media.js"></script><script src="../js/resources-core.js"></script><script>
+(function () {
+  "use strict";
+  if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+  var db = firebase.firestore();
+  var editing = null;
+  var items = [];
+  function $(id){ return document.getElementById(id); }
+  function esc(v){ var d=document.createElement("div"); d.textContent=v==null?"":String(v); return d.innerHTML; }
+  function ms(v){ if(!v) return 0; if(v.toMillis) return v.toMillis(); return Number(v)||0; }
+  function validUrl(v){ var s=String(v||"").trim(); return !s || /^https:\/\//i.test(s) || /^[A-Za-z0-9_./-]+\.html(?:[?#].*)?$/i.test(s); }
+  function reset(){
+    editing=null;
+    ["title","desc","imageUrl","ctaText","ctaUrl","startAt","expiresAt"].forEach(function(id){ $(id).value=""; });
+    $("priority").value=0; $("important").checked=false; $("draft").checked=false; $("type").value="General";
+    $("form").classList.remove("open"); $("saveStatus").textContent=""; $("preview").style.display="none"; $("uploadStatus").textContent="";
+  }
+  function formData(){
+    return {
+      title:$("title").value.trim(), description:$("desc").value.trim(), imageUrl:$("imageUrl").value.trim()||null,
+      ctaText:$("ctaText").value.trim()||null, ctaUrl:$("ctaUrl").value.trim()||null, type:$("type").value,
+      priority:Math.max(-100,Math.min(100,Number($("priority").value)||0)), audience:"all", important:$("important").checked,
+      status:$("draft").checked?"inactive":"active", startAt:$("startAt").value?new Date($("startAt").value):null,
+      expiresAt:$("expiresAt").value?new Date($("expiresAt").value):null, updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    };
+  }
+  async function load(){
+    var snap=await db.collection("announcements").limit(100).get();
+    items=snap.docs.map(function(d){return Object.assign({id:d.id},d.data()||{});});
+    items.sort(function(a,b){return ms(b.createdAt)-ms(a.createdAt);});
+    render();
+  }
+  function render(){
+    var list=$("list");
+    if(!items.length){list.innerHTML='<div class="empty">No announcements yet.</div>';return;}
+    list.innerHTML=items.map(function(a){
+      return '<article class="card">'+(a.imageUrl?'<img src="'+esc(a.imageUrl)+'" alt="">':'')+
+        '<div class="body"><div class="meta"><span class="tag '+(a.status==="active"?"active":"")+'">'+esc(a.status||"inactive")+'</span>'+
+        '<span class="tag">'+esc(a.type||"General")+'</span>'+(a.important?'<span class="tag">Important</span>':'')+'</div>'+
+        '<h3>'+esc(a.title||"Untitled")+'</h3><p>'+esc(a.description||"")+'</p><div class="actions">'+
+        '<button class="btn ghost" data-edit="'+esc(a.id)+'">Edit</button>'+
+        '<button class="btn '+(a.status==="active"?"danger":"primary")+'" data-toggle="'+esc(a.id)+'">'+(a.status==="active"?"Deactivate":"Activate")+'</button>'+
+        '<button class="btn danger" data-delete="'+esc(a.id)+'">Delete</button></div></div></article>';
+    }).join("");
+    list.querySelectorAll("[data-edit]").forEach(function(b){b.onclick=function(){edit(b.dataset.edit);};});
+    list.querySelectorAll("[data-toggle]").forEach(function(b){b.onclick=function(){toggle(b.dataset.toggle);};});
+    list.querySelectorAll("[data-delete]").forEach(function(b){b.onclick=function(){remove(b.dataset.delete);};});
+  }
+  function edit(id){
+    var a=items.find(function(x){return x.id===id;}); if(!a)return; editing=id; $("form").classList.add("open");
+    $("title").value=a.title||""; $("desc").value=a.description||""; $("imageUrl").value=a.imageUrl||""; $("ctaText").value=a.ctaText||""; $("ctaUrl").value=a.ctaUrl||"";
+    $("type").value=a.type||"General"; $("priority").value=a.priority||0; $("important").checked=!!a.important; $("draft").checked=a.status!=="active";
+    if(a.imageUrl){$("preview").src=a.imageUrl;$("preview").style.display="block";}
+  }
+  async function toggle(id){ var a=items.find(function(x){return x.id===id;}); if(!a)return; await db.collection("announcements").doc(id).update({status:a.status==="active"?"inactive":"active",updatedAt:firebase.firestore.FieldValue.serverTimestamp()}); await load(); }
+  async function remove(id){ if(!confirm("Delete this announcement?"))return; await db.collection("announcements").doc(id).delete(); await load(); }
+  $("newBtn").onclick=function(){reset();$("form").classList.add("open");$("title").focus();};
+  $("cancel").onclick=reset;
+  $("imageUrl").oninput=function(){var v=this.value.trim();if(v){$("preview").src=v;$("preview").style.display="block";}};
+  $("pickImage").onclick=function(){$("imageFile").click();};
+  $("imageFile").onchange=async function(){
+    var f=this.files&&this.files[0]; if(!f)return; $("uploadStatus").textContent="Uploading image…";
+    try{var up=await CodexMedia.uploadToCloudinary(f,{folder:"codex_hub/announcements"});$("imageUrl").value=up.url;$("preview").src=up.url;$("preview").style.display="block";$("uploadStatus").textContent="Image ready.";}
+    catch(e){$("uploadStatus").textContent=e.message||"Upload failed";}
+  };
+  $("save").onclick=async function(){
+    var u=firebase.auth().currentUser;
+    var allow=false;if(u&&CodexResources&&CodexResources.isAdminEmail&&CodexResources.isAdminEmail(u.email))allow=true;if(!allow&&u){try{var ad2=await db.collection("admins").doc(u.uid).get();if(ad2.exists&&ad2.data()&&ad2.data().active!==false)allow=true;}catch(e){}}if(!allow){alert("Admin only.");return;}
+    var d=formData();
+    if(!d.title){$("saveStatus").textContent="Add a title.";return;}
+    if(!validUrl(d.ctaUrl)){$("saveStatus").textContent="CTA destination must be HTTPS or an internal .html route.";return;}
+    $("saveStatus").textContent="Saving…";
+    try{
+      if(editing) await db.collection("announcements").doc(editing).set(d,{merge:true});
+      else {d.createdAt=firebase.firestore.FieldValue.serverTimestamp();d.createdBy=u.uid;d.createdByEmail=u.email||"";await db.collection("announcements").add(d);}
+      reset(); await load();
+    }catch(e){$("saveStatus").textContent=e.message||"Save failed";}
+  };
+  firebase.auth().onAuthStateChanged(async function(u){
+    var okAdmin=false;
+    if(u&&CodexResources&&CodexResources.isAdminEmail&&CodexResources.isAdminEmail(u.email)) okAdmin=true;
+    if(!okAdmin&&u){
+      try{
+        var ad=await db.collection("admins").doc(u.uid).get();
+        if(ad.exists&&ad.data()&&ad.data().active!==false) okAdmin=true;
+      }catch(e){}
+    }
+    if(!okAdmin){document.body.innerHTML='<div style="padding:40px;font-family:system-ui">Admin only. <a href="admin.html">Back</a></div>';return;}
+    try{await load();}catch(e){$("list").innerHTML='<div class="empty">Could not load announcements: '+esc(e.message||e)+'</div>';}
+  });
+})();
+</script></body></html>
