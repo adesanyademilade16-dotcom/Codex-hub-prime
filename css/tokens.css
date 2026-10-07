@@ -1,0 +1,67 @@
+:root {
+  --blue: #2563EB;
+  --blue-600: #1D4ED8;
+  --blue-50: #EFF6FF;
+  --purple: #7C3AED;
+  --purple-50: #F5F3FF;
+  --navy: #0F172A;
+  --bg: #F8FAFC;
+  --surface: #FFFFFF;
+  --border: #E2E8F0;
+  --muted: #64748B;
+  --text: #0F172A;
+  --success: #059669;
+  --danger: #DC2626;
+  --warning: #D97706;
+
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.08);
+  --ease: 180ms ease;
+  --tap: 44px;
+  --max: 1120px;
+  --font: "DM Sans", system-ui, sans-serif;
+  --display: "Syne", "DM Sans", system-ui, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+html, body { min-height: 100%; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Global dark theme tokens */
+html.theme-dark {
+  color-scheme: dark;
+  --bg: #0F172A;
+  --surface: #1E293B;
+  --border: #334155;
+  --muted: #94A3B8;
+  --text: #F1F5F9;
+  --navy: #F1F5F9;
+  --blue-50: #312E81;
+  --purple-50: #312E81;
+}
+html.theme-dark body {
+  background: var(--bg);
+  color: var(--text);
+}
