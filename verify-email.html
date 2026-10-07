@@ -61,8 +61,10 @@
     <h1>Verify your email</h1>
     <p>We sent a link to <span class="email" id="email">your inbox</span>. You can open the link <strong>or</strong> enter the 6-digit code (if you received one).</p>
     <div class="tip">
-      <strong>Check Spam / Promotions.</strong> Gmail often files verification there.
-      Prefer the official link when possible — it is the most reliable.
+      <strong>Check Spam / Promotions.</strong> Open the link in the email.
+      You will land on a Firebase page that confirms your email, then tap
+      <strong>Continue</strong> to return here. After that, press
+      <strong>I've verified — continue</strong> (or it may open automatically).
     </div>
     <div class="tabs">
       <button type="button" class="on" data-tab="link">Email link</button>
@@ -111,12 +113,14 @@
     statusEl.className = kind || "";
   }
 
-  // If user opened an old-style link that landed here with oobCode, apply it
   var params = new URLSearchParams(location.search);
+  // Link with oobCode on our domain → apply code
   if (params.get("mode") === "verifyEmail" && params.get("oobCode")) {
     location.replace("auth-action.html" + location.search);
     return;
   }
+  // Returned from Firebase "Continue" button
+  var fromContinue = params.get("verified") === "1";
 
   // Tabs
   document.querySelectorAll(".tabs button").forEach(function (b) {
@@ -167,29 +171,41 @@
       return;
     }
 
-    document.getElementById("btnCheck").onclick = function () {
-      setStatus("Checking…");
-      user.reload().then(function () {
+    function checkVerified(auto) {
+      setStatus(auto ? "Welcome back — confirming…" : "Checking…");
+      return user.reload().then(function () {
         if (auth.currentUser.emailVerified) {
           setStatus("Verified — opening Codex Hub…", "ok");
           location.href = "app/home.html";
-        } else {
-          setStatus("Not verified yet. Open the link in your email (check Spam), then try again.", "err");
+          return true;
         }
+        if (!auto) {
+          setStatus("Not verified yet. Open the email link (Firebase page → Continue), then try again.", "err");
+        } else {
+          setStatus("If you just verified, wait a second and tap I've verified — continue.", "err");
+        }
+        return false;
       }).catch(function (e) {
         setStatus(e.message || "Could not check status.", "err");
+        return false;
       });
-    };
+    }
+    document.getElementById("btnCheck").onclick = function () { checkVerified(false); };
+    if (fromContinue) {
+      setTimeout(function () { checkVerified(true); }, 400);
+    }
 
     document.getElementById("btnResend").onclick = function () {
       setStatus("Sending…");
       // Continue URL → auth-action on live host
-      var action = {
-        url: location.origin + "/auth-action.html",
-        handleCodeInApp: false
-      };
-      user.sendEmailVerification(action).then(function () {
-        setStatus("Verification email sent. Check inbox and Spam.", "ok");
+      var continueUrl = (function () {
+        var o = (location.origin || "").replace(/\/$/, "");
+        if (/vercel\.app|github\.io|localhost|127\.0\.0\.1/i.test(o))
+          return o + "/verify-email.html?verified=1";
+        return "https://codex-hub-prime.vercel.app/verify-email.html?verified=1";
+      })();
+      user.sendEmailVerification({ url: continueUrl, handleCodeInApp: false }).then(function () {
+        setStatus("Email sent. Open the link → Firebase will confirm → tap Continue → then I've verified here.", "ok");
       }).catch(function (e) {
         setStatus(e.message || "Could not resend.", "err");
       });

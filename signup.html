@@ -555,18 +555,34 @@
       btn.disabled = true;
       btn.textContent = "Creating your account…";
       var username = cleanUsername(el("username").value);
+      
+  function codexVerificationContinueUrl() {
+    var o = (location.origin || "").replace(/\/$/, "");
+    // After Firebase default page verifies, "Continue" lands here
+    if (/vercel\.app|github\.io|localhost|127\.0\.0\.1/i.test(o)) {
+      return o + "/verify-email.html?verified=1";
+    }
+    return "https://codex-hub-prime.vercel.app/verify-email.html?verified=1";
+  }
+  function codexSendVerification(user) {
+    var settings = {
+      url: codexVerificationContinueUrl(),
+      handleCodeInApp: false
+    };
+    return user.sendEmailVerification(settings);
+  }
+
       auth.createUserWithEmailAndPassword(el("email").value.trim().toLowerCase(), el("password").value)
         .then(function (cred) {
           return claimUsername(cred.user.uid, username).then(function () {
             return cred.user.updateProfile({ displayName: el("fullName").value.trim() }).then(function () {
               return createProfile(cred.user, { authProvider: "email" }).then(function () {
                 try {
-                  var actionCodeSettings = {
-                    url: (location.origin || "") + "/auth-action.html",
-                    handleCodeInApp: false
-                  };
-                  cred.user.sendEmailVerification(actionCodeSettings);
-                } catch (e) { try { cred.user.sendEmailVerification(); } catch (e2) {} }
+                  codexSendVerification(cred.user);
+                } catch (e) {
+                  try { cred.user.sendEmailVerification({ url: codexVerificationContinueUrl(), handleCodeInApp: false }); }
+                  catch (e2) { try { cred.user.sendEmailVerification(); } catch (e3) {} }
+                }
                 alertMsg("Account created. Check your email (and Spam) to verify before logging in.", true);
                 setTimeout(function () { location.href = "verify-email.html"; }, 900);
               });

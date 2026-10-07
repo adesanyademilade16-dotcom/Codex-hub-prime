@@ -355,7 +355,12 @@
       }
       // Email/password accounts must verify before entering the app (Google is trusted)
       if (user && !user.emailVerified && isPasswordUser(user)) {
-        try { user.sendEmailVerification(); } catch (eV) {}
+        try {
+          user.sendEmailVerification({
+            url: (location.origin || "https://codex-hub-prime.vercel.app") + "/verify-email.html?verified=1",
+            handleCodeInApp: false
+          });
+        } catch (eV) { try { user.sendEmailVerification(); } catch (e2) {} }
         showStatus("Verify your email first. Check inbox and Spam.", "error");
         location.href = "verify-email.html";
         return Promise.resolve();
