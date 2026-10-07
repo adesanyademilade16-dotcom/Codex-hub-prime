@@ -4,11 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Verify email · Codex Hub</title>
-  <script src="js/theme-boot.js"></script>
   <style>
-    :root {
-      --navy: #0F172A; --blue: #4F46E5; --muted: #64748B; --line: #E2E8F0; --bg: #F8FAFC;
-    }
+    :root { --navy:#0F172A; --muted:#64748B; --line:#E2E8F0; --bg:#F8FAFC; --indigo:#4F46E5; }
     * { box-sizing: border-box; }
     body {
       margin: 0; min-height: 100dvh; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
@@ -19,8 +16,11 @@
       width: 100%; max-width: 420px; background: #fff; border: 1px solid var(--line);
       border-radius: 20px; padding: 28px 22px; box-shadow: 0 12px 40px rgba(15,23,42,.08);
     }
-    .logo { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg,#4F46E5,#7C3AED);
-      display: grid; place-items: center; color: #fff; font-weight: 900; margin-bottom: 16px; }
+    .logo {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: linear-gradient(135deg,#4F46E5,#7C3AED);
+      display: grid; place-items: center; color: #fff; font-weight: 900; margin-bottom: 16px;
+    }
     h1 { font-size: 1.35rem; margin: 0 0 8px; font-weight: 800; }
     p { margin: 0 0 12px; color: var(--muted); line-height: 1.55; font-size: .92rem; }
     .email { font-weight: 700; color: var(--navy); word-break: break-all; }
@@ -28,15 +28,28 @@
       background: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 12px;
       padding: 12px 14px; font-size: .82rem; color: #3730A3; margin: 14px 0 18px; line-height: 1.5;
     }
+    .tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+    .tabs button {
+      flex: 1; padding: 10px; border-radius: 10px; border: 1.5px solid var(--line);
+      background: #fff; font-weight: 700; cursor: pointer; font-family: inherit; font-size: .82rem;
+    }
+    .tabs button.on { border-color: var(--indigo); background: #EEF2FF; color: #3730A3; }
+    .pane { display: none; }
+    .pane.on { display: block; }
+    .otp-row { display: flex; gap: 8px; justify-content: center; margin: 12px 0 16px; }
+    .otp-row input {
+      width: 44px; height: 52px; text-align: center; font-size: 1.25rem; font-weight: 800;
+      border: 1.5px solid var(--line); border-radius: 12px; font-family: inherit;
+    }
+    .otp-row input:focus { outline: 2px solid #A5B4FC; border-color: var(--indigo); }
     .actions { display: grid; gap: 10px; }
-    button, a.btn {
+    button.act {
       appearance: none; border: 0; border-radius: 12px; padding: 13px 16px;
-      font-weight: 800; font-size: .9rem; cursor: pointer; text-align: center; text-decoration: none;
-      font-family: inherit;
+      font-weight: 800; font-size: .9rem; cursor: pointer; font-family: inherit;
     }
     .pri { background: linear-gradient(135deg,#4F46E5,#7C3AED); color: #fff; }
-    .ghost { background: #fff; border: 1.5px solid var(--line) !important; color: var(--navy); }
-    .danger { background: #FEF2F2; color: #B91C1C; border: 1.5px solid #FECACA !important; }
+    .ghost { background: #fff; border: 1.5px solid var(--line); color: var(--navy); }
+    .danger { background: #FEF2F2; color: #B91C1C; border: 1.5px solid #FECACA; }
     #status { min-height: 1.2em; font-size: .82rem; margin-top: 12px; color: var(--muted); }
     #status.ok { color: #047857; }
     #status.err { color: #B91C1C; }
@@ -46,79 +59,186 @@
   <div class="card">
     <div class="logo">CX</div>
     <h1>Verify your email</h1>
-    <p>We sent a link to <span class="email" id="email">your inbox</span>. Open it to activate your Codex Hub account.</p>
+    <p>We sent a link to <span class="email" id="email">your inbox</span>. You can open the link <strong>or</strong> enter the 6-digit code (if you received one).</p>
     <div class="tip">
-      <strong>Check Spam / Promotions.</strong> Gmail and some schools put the mail there.
-      After you tap the link, return here and press <strong>I’ve verified — continue</strong>.
+      <strong>Check Spam / Promotions.</strong> Gmail often files verification there.
+      Prefer the official link when possible — it is the most reliable.
     </div>
-    <div class="actions">
-      <button type="button" class="pri" id="btnContinue">I’ve verified — continue</button>
-      <button type="button" class="ghost" id="btnResend">Resend verification email</button>
-      <button type="button" class="danger" id="btnSignOut">Sign out</button>
+    <div class="tabs">
+      <button type="button" class="on" data-tab="link">Email link</button>
+      <button type="button" data-tab="code">6-digit code</button>
+    </div>
+    <div class="pane on" id="pane-link">
+      <div class="actions">
+        <button type="button" class="act pri" id="btnCheck">I've verified — continue</button>
+        <button type="button" class="act ghost" id="btnResend">Resend verification email</button>
+      </div>
+    </div>
+    <div class="pane" id="pane-code">
+      <p style="font-size:.85rem;margin-bottom:4px">Enter the 6-digit code (valid about 3 minutes).</p>
+      <div class="otp-row" id="otpRow">
+        <input inputmode="numeric" maxlength="1" aria-label="Digit 1" />
+        <input inputmode="numeric" maxlength="1" aria-label="Digit 2" />
+        <input inputmode="numeric" maxlength="1" aria-label="Digit 3" />
+        <input inputmode="numeric" maxlength="1" aria-label="Digit 4" />
+        <input inputmode="numeric" maxlength="1" aria-label="Digit 5" />
+        <input inputmode="numeric" maxlength="1" aria-label="Digit 6" />
+      </div>
+      <div class="actions">
+        <button type="button" class="act pri" id="btnOtp">Confirm code</button>
+        <button type="button" class="act ghost" id="btnOtpResend">Resend code</button>
+      </div>
+      <p style="font-size:.78rem;color:#64748B;margin-top:10px">Codes are sent when email OTP is enabled on the server. Until then, use the <strong>email link</strong> tab.</p>
+    </div>
+    <div class="actions" style="margin-top:12px">
+      <button type="button" class="act danger" id="btnOut">Sign out</button>
     </div>
     <div id="status"></div>
   </div>
-
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-  <script src="js/firebase-config.js"></script>
+  <script src="../js/firebase-config.js"></script>
   <script>
-  (function () {
-    if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
-    var auth = firebase.auth();
-    var status = document.getElementById("status");
-    function setStatus(msg, kind) {
-      status.textContent = msg || "";
-      status.className = kind || "";
-    }
-    function isPasswordUser(user) {
-      var ps = (user && user.providerData) || [];
-      return ps.some(function (p) { return p && p.providerId === "password"; });
-    }
-    function routeUser(user) {
-      return firebase.firestore().collection("users").doc(user.uid).get().then(function (snap) {
-        var p = snap.exists ? snap.data() : {};
-        if (!p.faculty || !p.department || !p.level) location.href = "chooseFaculty.html";
-        else location.href = "app/home.html";
-      }).catch(function () { location.href = "app/home.html"; });
-    }
-    auth.onAuthStateChanged(function (user) {
-      if (!user) { location.href = "login.html"; return; }
-      document.getElementById("email").textContent = user.email || "your inbox";
-      // Google-only users shouldn't land here
-      var hasGoogle = (user.providerData || []).some(function (p) { return p && p.providerId === "google.com"; });
-      if (user.emailVerified || (hasGoogle && !isPasswordUser(user))) {
-        routeUser(user);
+(function () {
+  if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+  if (typeof CodexFirebaseReady === "function") try { CodexFirebaseReady(); } catch (e) {}
+  var auth = firebase.auth();
+  var db = firebase.firestore();
+  var statusEl = document.getElementById("status");
+  function setStatus(t, kind) {
+    statusEl.textContent = t || "";
+    statusEl.className = kind || "";
+  }
+
+  // If user opened an old-style link that landed here with oobCode, apply it
+  var params = new URLSearchParams(location.search);
+  if (params.get("mode") === "verifyEmail" && params.get("oobCode")) {
+    location.replace("../auth-action.html" + location.search);
+    return;
+  }
+
+  // Tabs
+  document.querySelectorAll(".tabs button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll(".tabs button").forEach(function (x) { x.classList.remove("on"); });
+      document.querySelectorAll(".pane").forEach(function (x) { x.classList.remove("on"); });
+      b.classList.add("on");
+      document.getElementById("pane-" + b.getAttribute("data-tab")).classList.add("on");
+    });
+  });
+
+  // OTP inputs
+  var inputs = [].slice.call(document.querySelectorAll("#otpRow input"));
+  inputs.forEach(function (inp, i) {
+    inp.addEventListener("input", function () {
+      inp.value = inp.value.replace(/\D/g, "").slice(0, 1);
+      if (inp.value && i < inputs.length - 1) inputs[i + 1].focus();
+    });
+    inp.addEventListener("keydown", function (e) {
+      if (e.key === "Backspace" && !inp.value && i > 0) inputs[i - 1].focus();
+    });
+    inp.addEventListener("paste", function (e) {
+      var t = (e.clipboardData || window.clipboardData).getData("text") || "";
+      var digits = t.replace(/\D/g, "").slice(0, 6).split("");
+      if (digits.length) {
+        e.preventDefault();
+        digits.forEach(function (d, j) { if (inputs[j]) inputs[j].value = d; });
+        inputs[Math.min(digits.length, 5)].focus();
       }
     });
-    document.getElementById("btnContinue").onclick = function () {
-      var user = auth.currentUser;
-      if (!user) return;
+  });
+  function readOtp() {
+    return inputs.map(function (i) { return i.value; }).join("");
+  }
+
+  auth.onAuthStateChanged(function (user) {
+    if (!user) {
+      location.href = "../login.html";
+      return;
+    }
+    document.getElementById("email").textContent = user.email || "your inbox";
+    // Google users skip
+    var providers = user.providerData || [];
+    var hasPass = providers.some(function (p) { return p && p.providerId === "password"; });
+    var hasGoogle = providers.some(function (p) { return p && p.providerId === "google.com"; });
+    if (user.emailVerified || (hasGoogle && !hasPass)) {
+      location.href = "home.html";
+      return;
+    }
+
+    document.getElementById("btnCheck").onclick = function () {
       setStatus("Checking…");
       user.reload().then(function () {
         if (auth.currentUser.emailVerified) {
           setStatus("Verified — opening Codex Hub…", "ok");
-          routeUser(auth.currentUser);
+          location.href = "home.html";
         } else {
           setStatus("Not verified yet. Open the link in your email (check Spam), then try again.", "err");
         }
-      }).catch(function (e) { setStatus(e.message || "Could not refresh status.", "err"); });
-    };
-    document.getElementById("btnResend").onclick = function () {
-      var user = auth.currentUser;
-      if (!user) return;
-      setStatus("Sending…");
-      user.sendEmailVerification().then(function () {
-        setStatus("Email sent. Check inbox and Spam.", "ok");
       }).catch(function (e) {
-        setStatus(e.message || "Could not resend. Wait a minute and try again.", "err");
+        setStatus(e.message || "Could not check status.", "err");
       });
     };
-    document.getElementById("btnSignOut").onclick = function () {
-      auth.signOut().then(function () { location.href = "login.html"; });
+
+    document.getElementById("btnResend").onclick = function () {
+      setStatus("Sending…");
+      // Continue URL → auth-action on live host
+      var action = {
+        url: location.origin + "/auth-action.html",
+        handleCodeInApp: false
+      };
+      user.sendEmailVerification(action).then(function () {
+        setStatus("Verification email sent. Check inbox and Spam.", "ok");
+      }).catch(function (e) {
+        setStatus(e.message || "Could not resend.", "err");
+      });
     };
-  })();
+
+    document.getElementById("btnOtp").onclick = function () {
+      var code = readOtp();
+      if (code.length !== 6) {
+        setStatus("Enter all 6 digits.", "err");
+        return;
+      }
+      setStatus("Checking code…");
+      db.collection("email_otps").doc(user.uid).get().then(function (snap) {
+        if (!snap.exists) {
+          setStatus("No code on file. Use the email link, or resend code after OTP email is enabled.", "err");
+          return;
+        }
+        var d = snap.data() || {};
+        var exp = d.expiresAt && d.expiresAt.toDate ? d.expiresAt.toDate().getTime() : Number(d.expiresAtMs || 0);
+        if (exp && Date.now() > exp) {
+          setStatus("Code expired. Request a new one.", "err");
+          return;
+        }
+        if (String(d.code) !== code) {
+          setStatus("Wrong code. Try again.", "err");
+          return;
+        }
+        // Mark verified in profile (app gate accepts this until Firebase Admin is wired)
+        return db.collection("users").doc(user.uid).set({
+          emailVerifiedApp: true,
+          emailVerifiedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true }).then(function () {
+          setStatus("Code accepted — opening Codex Hub…", "ok");
+          location.href = "home.html";
+        });
+      }).catch(function (e) {
+        setStatus(e.message || "Could not verify code.", "err");
+      });
+    };
+
+    document.getElementById("btnOtpResend").onclick = function () {
+      setStatus("OTP email needs Resend/SendGrid on the backend. Use the verification link for now.", "err");
+    };
+
+    document.getElementById("btnOut").onclick = function () {
+      auth.signOut().then(function () { location.href = "../login.html"; });
+    };
+  });
+})();
   </script>
 </body>
 </html>

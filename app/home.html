@@ -699,8 +699,40 @@ html.theme-dark .card h2, html.theme-dark .card strong, html.theme-dark .welcome
 html.theme-dark .muted, html.theme-dark .sub { color: #94A3B8 !important; }
 </style>
 
+  <script src="../js/splash.js"></script>
 </head>
 <body class="app-body" data-page="home">
+
+  <div id="codex-install-banner" class="codex-install-banner" hidden>
+    <div class="cib-text"><strong>Install Codex Hub</strong><span>Add to your home screen for the full app feel — offline-ready and one tap away.</span></div>
+    <button type="button" class="btn-install-app" id="btnInstallAppHome">Install</button>
+    <button type="button" id="cibDismiss" aria-label="Dismiss">×</button>
+  </div>
+  <style>
+    .codex-install-banner{position:fixed;left:12px;right:12px;bottom:calc(72px + env(safe-area-inset-bottom));z-index:80;
+      background:#0F172A;color:#fff;border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:10px;
+      box-shadow:0 12px 40px rgba(15,23,42,.35);font-size:.82rem}
+    .codex-install-banner .cib-text{flex:1;display:flex;flex-direction:column;gap:2px}
+    .codex-install-banner strong{font-size:.88rem}
+    .codex-install-banner span{opacity:.8;font-size:.75rem;line-height:1.35}
+    .codex-install-banner button.btn-install-app{background:#818CF8;color:#fff;border:0;border-radius:10px;padding:8px 12px;font-weight:800;font-size:.78rem;cursor:pointer;white-space:nowrap}
+    .codex-install-banner #cibDismiss{background:transparent;border:0;color:#94A3B8;font-size:1.2rem;cursor:pointer;padding:4px 6px}
+  </style>
+  <script>
+  (function(){
+    try {
+      if (localStorage.getItem("codex_install_dismissed")) return;
+      var standalone = window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
+      if (standalone) return;
+      var b = document.getElementById("codex-install-banner");
+      if (!b) return;
+      b.hidden = false;
+      var d = document.getElementById("cibDismiss");
+      if (d) d.onclick = function(){ b.hidden = true; localStorage.setItem("codex_install_dismissed","1"); };
+    } catch(e){}
+  })();
+  </script>
+
   <!-- ===== MOBILE ===== -->
   <div class="home-m" id="homeM">
     <section class="welcome">
@@ -1538,5 +1570,6 @@ html.theme-dark .muted, html.theme-dark .sub { color: #94A3B8 !important; }
     setTimeout(syncDesktopWelcomeStats, 600);
 
   </script>
+  <script src="../js/pwa-install.js"></script>
 </body>
 </html>
