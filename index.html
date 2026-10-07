@@ -367,6 +367,18 @@
       .hero-stage { min-height: 440px; }
     }
   </style>
+
+  <script>
+  /* Firebase email links land here with ?mode=verifyEmail&oobCode=… — must apply the code */
+  (function () {
+    try {
+      var q = location.search || "";
+      if (/[?&]mode=verifyEmail/i.test(q) && /[?&]oobCode=/.test(q)) {
+        location.replace("auth-action.html" + q);
+      }
+    } catch (e) {}
+  })();
+  </script>
 </head>
 <body>
   <div class="nav-backdrop" id="navBackdrop"></div>
@@ -566,13 +578,13 @@
           </article>
           <article class="plan featured reveal">
             <p class="eyebrow">Regular</p>
-            <div class="price">₦4,000</div>
+            <div class="price">₦2,000</div>
             <ul><li>Expanded CBT</li><li>Notes &amp; resources</li><li>Productivity tools</li></ul>
             <a class="btn btn-primary" href="signup.html" style="width:100%">Get Regular</a>
           </article>
           <article class="plan reveal">
             <p class="eyebrow">Pro</p>
-            <div class="price">₦9,000</div>
+            <div class="price">₦5,000</div>
             <ul><li>Full toolkit</li><li>Deeper AI access</li><li>Priority experience</li></ul>
             <a class="btn btn-ghost" href="signup.html" style="width:100%">Go Pro</a>
           </article>

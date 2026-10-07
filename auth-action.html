@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Confirming email · Codex Hub</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100dvh; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: #F8FAFC; color: #0F172A;
+      display: flex; align-items: center; justify-content: center; padding: 24px 16px;
+    }
+    .card {
+      width: 100%; max-width: 420px; background: #fff; border: 1px solid #E2E8F0;
+      border-radius: 20px; padding: 28px 22px; box-shadow: 0 12px 40px rgba(15,23,42,.08);
+      text-align: center;
+    }
+    .logo {
+      width: 48px; height: 48px; border-radius: 14px; margin: 0 auto 16px;
+      background: linear-gradient(135deg,#4F46E5,#7C3AED);
+      display: grid; place-items: center; color: #fff; font-weight: 900;
+    }
+    h1 { font-size: 1.3rem; margin: 0 0 8px; font-weight: 800; }
+    p { margin: 0 0 12px; color: #64748B; line-height: 1.55; font-size: .92rem; }
+    .spin {
+      width: 36px; height: 36px; margin: 16px auto;
+      border: 3px solid #E2E8F0; border-top-color: #4F46E5; border-radius: 50%;
+      animation: s .7s linear infinite;
+    }
+    @keyframes s { to { transform: rotate(360deg); } }
+    a.btn, button {
+      display: inline-flex; align-items: center; justify-content: center;
+      margin-top: 12px; padding: 12px 18px; border-radius: 12px; border: 0;
+      background: linear-gradient(135deg,#4F46E5,#7C3AED); color: #fff;
+      font-weight: 800; text-decoration: none; cursor: pointer; font-family: inherit;
+    }
+    .err { color: #B91C1C; }
+    .ok { color: #047857; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">CX</div>
+    <h1 id="title">Confirming your email…</h1>
+    <div class="spin" id="spin"></div>
+    <p id="msg">Please wait a moment.</p>
+    <a class="btn" id="go" href="login.html" hidden>Continue to sign in</a>
+  </div>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script>
+(function () {
+  if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+  var auth = firebase.auth();
+  var params = new URLSearchParams(location.search);
+  var mode = params.get("mode");
+  var code = params.get("oobCode");
+  var title = document.getElementById("title");
+  var msg = document.getElementById("msg");
+  var spin = document.getElementById("spin");
+  var go = document.getElementById("go");
+
+  function done(ok, text, href) {
+    spin.hidden = true;
+    title.textContent = ok ? "Email verified" : "Could not verify";
+    msg.textContent = text;
+    msg.className = ok ? "ok" : "err";
+    go.hidden = false;
+    if (href) go.href = href;
+  }
+
+  if (mode === "verifyEmail" && code) {
+    auth.applyActionCode(code)
+      .then(function () {
+        // If user is already signed in, reload so emailVerified flips
+        var u = auth.currentUser;
+        if (u) {
+          return u.reload().then(function () {
+            done(true, "Your email is confirmed. You can open Codex Hub now.", "app/home.html");
+            setTimeout(function () { location.href = "app/home.html"; }, 1200);
+          });
+        }
+        done(true, "Your email is confirmed. Sign in to continue.", "login.html");
+        setTimeout(function () { location.href = "login.html"; }, 1500);
+      })
+      .catch(function (err) {
+        var m = (err && err.message) || "This link is invalid or has expired.";
+        if (err && err.code === "auth/invalid-action-code") {
+          m = "This link is invalid or already used. Request a new verification email from the app.";
+        }
+        done(false, m, "verify-email.html");
+      });
+    return;
+  }
+
+  if (mode === "resetPassword" && code) {
+    title.textContent = "Password reset";
+    msg.textContent = "Open the password reset page to set a new password.";
+    spin.hidden = true;
+    go.hidden = false;
+    go.href = "login.html?mode=resetPassword&oobCode=" + encodeURIComponent(code);
+    go.textContent = "Continue";
+    return;
+  }
+
+  done(false, "No verification code found in this link. Open the link from your email, or request a new one.", "verify-email.html");
+})();
+  </script>
+</body>
+</html>

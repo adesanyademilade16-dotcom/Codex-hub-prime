@@ -560,7 +560,13 @@
           return claimUsername(cred.user.uid, username).then(function () {
             return cred.user.updateProfile({ displayName: el("fullName").value.trim() }).then(function () {
               return createProfile(cred.user, { authProvider: "email" }).then(function () {
-                try { cred.user.sendEmailVerification(); } catch (e) {}
+                try {
+                  var actionCodeSettings = {
+                    url: (location.origin || "") + "/auth-action.html",
+                    handleCodeInApp: false
+                  };
+                  cred.user.sendEmailVerification(actionCodeSettings);
+                } catch (e) { try { cred.user.sendEmailVerification(); } catch (e2) {} }
                 alertMsg("Account created. Check your email (and Spam) to verify before logging in.", true);
                 setTimeout(function () { location.href = "verify-email.html"; }, 900);
               });
