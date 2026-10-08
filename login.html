@@ -324,7 +324,8 @@
   
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="js/firestore-boot.js"></script>
+<script src="js/auth-retry.js"></script>
   <script>
   (function () {
     "use strict";
@@ -386,22 +387,18 @@
       if (!email || !password) { showStatus("Enter email and password."); return; }
       loginBtn.disabled = true;
       loginBtn.textContent = "Signing in…";
-      auth.signInWithEmailAndPassword(email, password)
-        .then(function (cred) { return routeAfterLogin(cred.user); })
+      var retryTimer = setTimeout(function () {
+        showStatus("Connection is slow — retrying…", "info");
+      }, 1200);
+      // Was showing "can't reach server" on the FIRST failed attempt with no
+      // retry at all — most of those are transient (works again a second or
+      // two later), so retry quietly first and only show an error if it's
+      // still failing after a few tries.
+      CodexAuthRetry.run(function () { return auth.signInWithEmailAndPassword(email, password); })
+        .then(function (cred) { clearTimeout(retryTimer); return routeAfterLogin(cred.user); })
         .catch(function (err) {
-          var map = {
-            "auth/invalid-credential": "Wrong email or password.",
-            "auth/user-not-found": "No account with that email.",
-            "auth/wrong-password": "Wrong password.",
-            "auth/too-many-requests": "Too many attempts. Try again later.",
-            "auth/invalid-email": "That email looks invalid.",
-            "auth/network-request-failed": "Can't reach Google login servers right now (common on some networks). Check data, try again in 20s, or switch network/Wi‑Fi. Your account data is safe — nothing was deleted."
-          };
-          var msg = map[err.code] || err.message || "Could not sign in.";
-          if (/network|unavailable|timeout|offline|Failed to fetch/i.test(String(err.code || "") + String(err.message || ""))) {
-            msg = map["auth/network-request-failed"];
-          }
-          showStatus(msg);
+          clearTimeout(retryTimer);
+          showStatus(CodexAuthRetry.friendlyMessage(err, "Could not sign in."));
           loginBtn.disabled = false;
           loginBtn.textContent = "Try again";
         });
@@ -411,15 +408,16 @@
       clearStatus();
       googleBtn.disabled = true;
       var provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider)
-        .then(function (cred) { return routeAfterLogin(cred.user); })
+      var retryTimer2 = setTimeout(function () {
+        showStatus("Connection is slow — retrying…", "info");
+      }, 1200);
+      CodexAuthRetry.run(function () { return auth.signInWithPopup(provider); })
+        .then(function (cred) { clearTimeout(retryTimer2); return routeAfterLogin(cred.user); })
         .catch(function (err) {
+          clearTimeout(retryTimer2);
           if (err.code !== "auth/popup-closed-by-user") {
-          var gmsg = err.message || "Google sign-in failed.";
-          if (err.code === "auth/network-request-failed" || /network|timeout|fetch/i.test(gmsg))
-            gmsg = "Can't reach Google right now. Try again or switch network — your data is not deleted.";
-          showStatus(gmsg);
-        }
+            showStatus(CodexAuthRetry.friendlyMessage(err, "Google sign-in failed."));
+          }
           googleBtn.disabled = false;
         });
     });

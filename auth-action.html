@@ -49,6 +49,7 @@
   </div>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="js/auth-retry.js"></script>
   <script src="js/firebase-config.js"></script>
   <script>
 (function () {
@@ -72,7 +73,7 @@
   }
 
   if (mode === "verifyEmail" && code) {
-    auth.applyActionCode(code)
+    CodexAuthRetry.run(function () { return auth.applyActionCode(code); })
       .then(function () {
         // If user is already signed in, reload so emailVerified flips
         var u = auth.currentUser;
@@ -86,7 +87,7 @@
         setTimeout(function () { location.href = "login.html"; }, 1500);
       })
       .catch(function (err) {
-        var m = (err && err.message) || "This link is invalid or has expired.";
+        var m = CodexAuthRetry.friendlyMessage(err, "This link is invalid or has expired.");
         if (err && err.code === "auth/invalid-action-code") {
           m = "This link is invalid or already used. Request a new verification email from the app.";
         }
