@@ -6,6 +6,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Shared quiz · Codex Hub</title>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Codex Hub">
+<meta property="og:title" content="Codex Hub — Shared quiz">
+<meta property="og:description" content="Try this study quiz on Codex Hub — CBT practice for university students.">
+<meta property="og:image" content="https://codex-hub-prime.vercel.app/assets/og-image.png">
+<meta property="og:url" content="https://codex-hub-prime.vercel.app/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Codex Hub — Shared quiz">
+<meta name="twitter:image" content="https://codex-hub-prime.vercel.app/assets/og-image.png">
 <meta name="theme-color" content="#4F46E5">
 <link rel="icon" href="../assets/favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -42,6 +51,11 @@
   <script>
   (function () {
     var id = new URLSearchParams(location.search).get("id");
+    if (!id) {
+      var parts = (location.pathname || "").split("/").filter(Boolean);
+      var qi = parts.indexOf("q");
+      if (qi >= 0 && parts[qi + 1]) id = decodeURIComponent(parts[qi + 1]);
+    }
     var root = document.getElementById("root");
     if (!id) { root.innerHTML = '<p class="err">Missing quiz link.</p>'; return; }
     var db = firebase.firestore();
