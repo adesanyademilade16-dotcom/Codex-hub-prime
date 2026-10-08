@@ -575,8 +575,13 @@
           inp.select();
         };
         document.getElementById("shareWa").onclick = function () {
-          window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank");
+          var u = (document.getElementById("shareLinkInput") && document.getElementById("shareLinkInput").value) || url || "";
+          u = String(u).trim();
+          // Real newlines via fromCharCode — never "\n" text
+          var text = ["Codex Hub quiz", "", u].join(String.fromCharCode(10));
+          window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
         };
+
         document.getElementById("shareClose").onclick = function () { modal.classList.remove("show"); };
       }
       function shareQuizLink() {
@@ -593,12 +598,12 @@
         };
         var done = function (id) {
           sharedId = id;
-          var origin = "https://codex-hub-prime.vercel.app"; // hard-locked official host
+          var origin = location.origin && location.origin.indexOf("file:") === 0 ? "https://codex-hub.app" : (location.origin || "");
           var path = location.pathname.replace(/study-lab-doc\\.html.*/, "shared_quiz.html");
           if (path.indexOf("shared_quiz") === -1) path = "/app/shared_quiz.html";
           var url = "https://codex-hub-prime.vercel.app/q/" + encodeURIComponent(id);
           if (location.protocol === "file:") url = "shared_quiz.html?id=" + id;
-          var msg = "📚 Quiz on \"" + title + "\" from Codex Hub (" + quiz.length + " questions)\\n" + url;
+          var msg = ["📚 Codex Hub quiz (" + quiz.length + " questions)", "", "Open link:", "https://codex-hub-prime.vercel.app/q/" + id].join(String.fromCharCode(10));
           openShareModal(url, msg);
           if (navigator.share) {
             navigator.share({ title: title, text: msg, url: url }).catch(function () {});
@@ -701,8 +706,8 @@
           document.getElementById("askNovaScore").onclick = function () {
             var lines = quiz.map(function (it, i) {
               return (i + 1) + ". " + it.q + "\\nOptions: " + (it.options || []).join(" | ");
-            }).join("\\n\\n");
-            try { sessionStorage.setItem("nova_prefill", "I scored " + correct + "/" + quiz.length + " on this quiz. Explain the correct answers simply:\\n\\n" + lines.slice(0, 3500)); } catch (e) {}
+            }).join("\n\n");
+            try { sessionStorage.setItem("nova_prefill", "I scored " + correct + "/" + quiz.length + " on this quiz. Explain the correct answers simply:\n\n" + lines.slice(0, 3500)); } catch (e) {}
             location.href = "nova.html";
           };
         };
@@ -710,8 +715,8 @@
         if (sh) sh.onclick = shareQuizLink;
         var an = document.getElementById("askNovaQuiz");
         if (an) an.onclick = function () {
-          var lines = quiz.map(function (it, i) { return (i + 1) + ". " + it.q; }).join("\\n");
-          try { sessionStorage.setItem("nova_prefill", "Help me understand this quiz:\\n\\n" + lines.slice(0, 3500)); } catch (e) {}
+          var lines = quiz.map(function (it, i) { return (i + 1) + ". " + it.q; }).join("\n");
+          try { sessionStorage.setItem("nova_prefill", "Help me understand this quiz:\n\n" + lines.slice(0, 3500)); } catch (e) {}
           location.href = "nova.html";
         };
       }
