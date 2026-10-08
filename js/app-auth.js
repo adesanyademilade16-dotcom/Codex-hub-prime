@@ -74,7 +74,7 @@
                 location.href = location.pathname.indexOf("/app/") >= 0 ? "../chooseFaculty.html" : "chooseFaculty.html";
                 return;
               }
-              resolve({ user: auth.currentUser || user, profile: profile, auth: auth, db: db });
+              resolve({ user: auth.currentUser || user, profile: (function(p,u){ try{ if(window.CodexSpeed) CodexSpeed.saveProfile(p,u);}catch(e){} return p; })(profile, user), auth: auth, db: db });
             });
         }).catch(function (err) {
           console.error(err);
@@ -85,7 +85,7 @@
           db.collection("users").doc(user.uid).get()
             .then(function (snap) {
               var profile = snap.exists ? snap.data() : { fullName: user.displayName || "Student" };
-              resolve({ user: user, profile: profile, auth: auth, db: db });
+              resolve({ user: user, profile: (function(p,u){ try{ if(window.CodexSpeed) CodexSpeed.saveProfile(p,u);}catch(e){} return p; })(profile, user), auth: auth, db: db });
             })
             .catch(function () {
               resolve({
