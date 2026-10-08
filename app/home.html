@@ -721,15 +721,33 @@ html.theme-dark .muted, html.theme-dark .sub { color: #94A3B8 !important; }
   <script>
   (function(){
     try {
-      if (localStorage.getItem("codex_install_dismissed")) return;
-      var standalone = window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
-      if (standalone) return;
       var b = document.getElementById("codex-install-banner");
       if (!b) return;
+      function hide() {
+        b.hidden = true;
+        b.style.display = "none";
+        try { localStorage.setItem("codex_install_dismissed", "1"); } catch (e) {}
+      }
+      if (localStorage.getItem("codex_install_dismissed") === "1") { hide(); return; }
+      var standalone = window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
+      if (standalone || window.navigator.standalone) { hide(); return; }
       b.hidden = false;
+      b.style.display = "flex";
       var d = document.getElementById("cibDismiss");
-      if (d) d.onclick = function(){ b.hidden = true; localStorage.setItem("codex_install_dismissed","1"); };
-    } catch(e){}
+      if (d) {
+        d.style.minWidth = "44px";
+        d.style.minHeight = "44px";
+        d.addEventListener("click", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          hide();
+        }, true);
+        d.addEventListener("touchend", function (e) {
+          e.preventDefault();
+          hide();
+        }, true);
+      }
+    } catch (e) {}
   })();
   </script>
 
@@ -998,6 +1016,7 @@ html.theme-dark .muted, html.theme-dark .sub { color: #94A3B8 !important; }
   <script src="../js/media.js"></script>
   <script src="../js/rank.js"></script>
   <script src="../js/onboarding.js"></script>
+  <script src="../js/codex-speed.js"></script>
   <script src="../js/shell.js"></script>
   <script>
   (function () {
@@ -1210,6 +1229,13 @@ html.theme-dark .muted, html.theme-dark .sub { color: #94A3B8 !important; }
       });
       setTimeout(function () { showAdminAnnouncementPopup(user.uid); }, 900);
 
+      try {
+        if (window.CodexSpeed) {
+          CodexSpeed.saveProfile(profile, user);
+          CodexSpeed.clearSkeleton();
+          CodexSpeed.prefetchAppPages();
+        }
+      } catch (eSp) {}
       document.getElementById("mName").textContent = first;
       document.getElementById("mMeta").textContent = meta || user.email || "";
       document.getElementById("mPlan").textContent = planLabel;
