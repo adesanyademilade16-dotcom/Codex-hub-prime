@@ -61,10 +61,6 @@
     var p = name.split(/\s+/);
     return ((p[0] && p[0][0]) || "?") + ((p[1] && p[1][0]) || "");
   }
-  function displayNameOf(card) {
-    if (!card) return "Student";
-    return card.username || card.userName || card.handle || card.fullName || card.displayName || "Student";
-  }
   function escapeHtml(s) {
     return String(s || "").replace(/[&<>"']/g, function (c) {
       return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
@@ -211,7 +207,7 @@
               '" data-photo="' + escapeAttr(c.card.photoURL || "") +
               '" data-sub="' + escapeAttr(c.card.university || (isG ? "Group" : "")) + '">' +
               '<div class="av">' + avHtml(c.card) + '</div>' +
-              '<div class="meta"><div class="top"><span class="name">' + escapeHtml(displayNameOf(c.card)) +
+              '<div class="meta"><div class="top"><span class="name">' + escapeHtml(c.card.fullName) +
               (c.muted ? " 🔇" : "") + '</span><span class="time">' + escapeHtml(timeLabel(c.updatedAt)) +
               '</span></div><div class="preview">' +
               (function () {
@@ -261,7 +257,7 @@
           html += reqs.map(function (r) {
             return (
               '<div class="row-item" style="cursor:default"><div class="av">' + avHtml(r.card) + '</div>' +
-              '<div class="meta"><div class="top"><span class="name">' + escapeHtml(displayNameOf(r.card)) + '</span></div>' +
+              '<div class="meta"><div class="top"><span class="name">' + escapeHtml(r.card.fullName) + '</span></div>' +
               '<div class="preview">' + escapeHtml([r.card.university, r.card.department].filter(Boolean).join(" · ") || "Codex student") +
               '</div></div><div class="person-actions">' +
               '<button type="button" class="pill-btn primary" data-accept="' + escapeAttr(r.id) + '">Accept</button>' +
@@ -274,7 +270,7 @@
           html += gReqs.map(function (r) {
             return (
               '<div class="row-item" style="cursor:default"><div class="av">' + avHtml(r.card) + '</div>' +
-              '<div class="meta"><div class="top"><span class="name">' + escapeHtml(displayNameOf(r.card)) + '</span></div>' +
+              '<div class="meta"><div class="top"><span class="name">' + escapeHtml(r.card.fullName) + '</span></div>' +
               '<div class="preview">Wants to join · ' + escapeHtml(r.groupName) + '</div></div>' +
               '<div class="person-actions">' +
               '<button type="button" class="pill-btn primary" data-accept-gjoin="' + escapeAttr(r.groupId) + '" data-from="' + escapeAttr(r.from) + '">Accept</button>' +
@@ -372,7 +368,7 @@
     }
     return (
       '<div class="row-item" style="cursor:default"><div class="av">' + avHtml(p) + '</div>' +
-      '<div class="meta"><div class="top"><span class="name">' + escapeHtml(displayNameOf(p)) + '</span></div>' +
+      '<div class="meta"><div class="top"><span class="name">' + escapeHtml(p.fullName) + '</span></div>' +
       '<div class="preview">' + escapeHtml(sub) + '</div>' +
       (p.incomplete ? '<span class="tag warn">Legacy profile</span>' : '') +
       '</div><div class="person-actions">' + actions + '</div></div>'
@@ -529,7 +525,7 @@
     if (state.unsubTyping) { try { state.unsubTyping(); } catch (e) {} state.unsubTyping = null; }
     if (state.unsubPresence) { try { state.unsubPresence(); } catch (e) {} state.unsubPresence = null; }
 
-    $("threadName").textContent = displayNameOf(card) || "Chat";
+    $("threadName").textContent = (card && card.fullName) || "Chat";
     var subBits = [];
     if (card && card.isGroup) {
       $("threadSub").textContent = "Group · loading…";
@@ -951,7 +947,7 @@
         return (
           '<label class="invite-row">' +
             '<div class="av" style="width:40px;height:40px">' + avHtml(p) + '</div>' +
-            '<div class="meta"><div class="name">' + escapeHtml(displayNameOf(p)) + '</div>' +
+            '<div class="meta"><div class="name">' + escapeHtml(p.fullName) + '</div>' +
             '<div class="preview">' + escapeHtml(p.university || "") + '</div></div>' +
             '<input type="checkbox" data-inv="' + escapeAttr(p.uid) + '">' +
           '</label>'
@@ -1767,6 +1763,7 @@
   };
 
   // boot
+  try { if (window.refreshChatBadge) refreshChatBadge(); } catch (eB) {}
   CodexShell.mountShell({ page: "chats", title: "Chats", user: { fullName: "Student" } });
   CodexAuth.requireUser().then(async function (res) {
     state.me = res.user;
