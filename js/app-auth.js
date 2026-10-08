@@ -42,7 +42,7 @@
   }
 
   function verifyPageUrl() {
-    var path = (location.pathname || "").replace(/\/g, "/");
+    var path = (location.pathname || "").replace(/\\/g, "/");
     // From /app/* use app/verify-email.html (same folder as home.html)
     if (path.indexOf("/app/") >= 0) return "verify-email.html";
     // From login/signup at project root
