@@ -13,6 +13,12 @@ html.theme-dark .metric .val, html.theme-dark h1, html.theme-dark h2 { color: #F
 html.theme-dark .metric span, html.theme-dark .label, html.theme-dark .muted { color: #94A3B8 !important; }
 </style>
 
+
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
 <body class="app-body"><div id="shell-root"></div><main class="wrap"><header class="head"><div class="eyebrow">Your learning data</div><h1>Study stats</h1><p>See your CBT performance, strongest courses, weak areas and recent activity.</p></header><section class="hero"><div class="hero-copy"><strong>Overall accuracy</strong><b id="overall">—</b><span id="heroSub">Complete CBT sessions to build your profile.</span></div><div class="ring" id="ring" data-pct="—" style="--pct:0deg"></div></section><section class="kpis"><div class="kpi"><b id="sessions">0</b><span>Sessions</span></div><div class="kpi"><b id="questions">0</b><span>Questions</span></div><div class="kpi"><b id="best">—</b><span>Best score</span></div><div class="kpi"><b id="courses">0</b><span>Courses</span></div></section><div class="grid"><section class="card"><h2>Course performance</h2><div class="bars" id="bars"><div class="empty">Your course breakdown will appear here.</div></div></section><section class="card"><h2>Study guidance</h2><div class="insight" id="insight">Complete more CBT sessions and Nova can use your real results to guide your study plan.</div></section><section class="card"><h2>Recent attempts</h2><div class="hist" id="history"><div class="empty">No attempts yet.</div></div></section><section class="card"><h2>Weak areas</h2><div class="insight" id="weak">No weak course identified yet.</div></section></div></main>
 <script src="../js/firebase-config.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="../js/firestore-boot.js"></script><script src="../js/app-auth.js"></script><script src="../js/onboarding.js"></script>
