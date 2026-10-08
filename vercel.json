@@ -1,0 +1,22 @@
+{
+  "rewrites": [
+    { "source": "/q/:id", "destination": "/app/shared_quiz.html?id=:id" },
+    { "source": "/q", "destination": "/app/shared_quiz.html" },
+    { "source": "/home", "destination": "/app/home.html" },
+    { "source": "/profile", "destination": "/app/profile.html" },
+    { "source": "/chats", "destination": "/app/chats.html" },
+    { "source": "/nova", "destination": "/app/nova.html" },
+    { "source": "/cbt", "destination": "/app/cbt.html" },
+    { "source": "/ranks", "destination": "/app/leaderboard.html" },
+    { "source": "/settings", "destination": "/app/settings.html" },
+    { "source": "/library", "destination": "/app/course-library.html" },
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/signup", "destination": "/signup.html" }
+  ],
+  "headers": [
+    {
+      "source": "/assets/og-image.png",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }]
+    }
+  ]
+}
