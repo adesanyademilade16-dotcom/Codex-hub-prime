@@ -12,7 +12,6 @@
       --text: #0f172a;
       --muted: #64748b;
       --line: #E2E8F0;
-      --card: #ffffff;
     }
     * { box-sizing: border-box; }
     html, body { margin: 0; min-height: 100%; }
@@ -28,7 +27,7 @@
     }
     .card {
       width: min(400px, 100%);
-      background: var(--card);
+      background: #fff;
       border: 1px solid var(--line);
       border-radius: 20px;
       padding: 28px 22px 24px;
@@ -41,92 +40,48 @@
       gap: 10px;
       margin-bottom: 16px;
       font-weight: 800;
-      font-size: 1rem;
     }
     .brand .logo {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
+      width: 36px; height: 36px; border-radius: 10px;
       background: linear-gradient(135deg, var(--indigo), var(--indigo2));
-      color: #fff;
-      display: grid;
-      place-items: center;
-      font-size: 13px;
-      font-weight: 800;
-      flex-shrink: 0;
+      color: #fff; display: grid; place-items: center;
+      font-size: 13px; font-weight: 800; flex-shrink: 0;
     }
-    h1 {
-      font-size: 1.2rem;
-      margin: 0 0 8px;
-      line-height: 1.3;
-    }
+    h1 { font-size: 1.2rem; margin: 0 0 8px; }
     .hint {
-      margin: 0 0 18px;
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.45;
-      word-break: break-word;
+      margin: 0 0 18px; color: var(--muted);
+      font-size: 0.9rem; line-height: 1.45; word-break: break-word;
     }
     .code-row {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      width: 100%;
-      margin: 0 0 18px;
-      padding: 0;
+      display: flex; gap: 8px; justify-content: center;
+      width: 100%; margin: 0 0 18px;
     }
     .code-row input {
-      flex: 1 1 0;
-      min-width: 0;
-      max-width: 48px;
-      height: 50px;
-      text-align: center;
-      font-size: 1.25rem;
-      font-weight: 800;
-      border: 1.5px solid var(--line);
-      border-radius: 12px;
-      background: #F8FAFC;
-      color: var(--text);
-      -webkit-appearance: none;
-      appearance: none;
+      flex: 1 1 0; min-width: 0; max-width: 48px; height: 50px;
+      text-align: center; font-size: 1.25rem; font-weight: 800;
+      border: 1.5px solid var(--line); border-radius: 12px;
+      background: #F8FAFC; color: var(--text);
+      -webkit-appearance: none; appearance: none;
     }
     .code-row input:focus {
-      outline: 2px solid #C7D2FE;
-      border-color: var(--indigo);
-      background: #fff;
+      outline: 2px solid #C7D2FE; border-color: var(--indigo); background: #fff;
     }
     button.pri {
-      width: 100%;
-      height: 48px;
-      border: 0;
-      border-radius: 14px;
-      font-weight: 800;
-      cursor: pointer;
+      width: 100%; height: 48px; border: 0; border-radius: 14px;
+      font-weight: 800; cursor: pointer;
       background: linear-gradient(135deg, var(--indigo), var(--indigo2));
-      color: #fff;
-      font-size: 1rem;
+      color: #fff; font-size: 1rem;
     }
-    button.pri:disabled { opacity: 0.55; cursor: not-allowed; }
+    button.pri:disabled, button.ghost:disabled { opacity: 0.55; cursor: not-allowed; }
     button.ghost {
-      width: 100%;
-      margin-top: 10px;
-      height: 44px;
-      border: 0;
-      border-radius: 12px;
-      background: #F1F5F9;
-      font-weight: 700;
-      cursor: pointer;
-      color: #334155;
+      width: 100%; margin-top: 10px; height: 44px; border: 0;
+      border-radius: 12px; background: #F1F5F9; font-weight: 700;
+      cursor: pointer; color: #334155;
     }
-    .msg {
-      min-height: 1.25em;
-      font-size: 0.88rem;
-      margin-top: 12px;
-      text-align: center;
-      line-height: 1.4;
-    }
+    .msg { min-height: 1.25em; font-size: 0.88rem; margin-top: 12px; text-align: center; line-height: 1.4; }
     .msg.err { color: #DC2626; }
     .msg.ok { color: #059669; }
+    .msg.info { color: #475569; }
   </style>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -136,8 +91,8 @@
   <div class="card">
     <div class="brand"><div class="logo">CX</div> Codex Hub</div>
     <h1>Verify your email</h1>
-    <p class="hint" id="hint">We sent a 6-digit code to your inbox (check Spam). Enter it below. Expires in 3 minutes.</p>
-    <div class="code-row" id="digits" aria-label="Verification code">
+    <p class="hint" id="hint">Enter the 6-digit code from your email. Check Spam. Code expires in 3 minutes.</p>
+    <div class="code-row" id="digits">
       <input inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Digit 1" />
       <input inputmode="numeric" maxlength="1" aria-label="Digit 2" />
       <input inputmode="numeric" maxlength="1" aria-label="Digit 3" />
@@ -156,10 +111,11 @@
       var msg = document.getElementById("msg");
       var btnVerify = document.getElementById("btnVerify");
       var btnResend = document.getElementById("btnResend");
+      var sending = false;
 
-      function setMsg(t, ok) {
+      function setMsg(t, kind) {
         msg.textContent = t || "";
-        msg.className = "msg " + (ok ? "ok" : t ? "err" : "");
+        msg.className = "msg " + (kind || (t ? "err" : ""));
       }
       function codeValue() {
         return inputs.map(function (i) { return (i.value || "").replace(/\D/g, ""); }).join("");
@@ -183,104 +139,159 @@
         });
       });
 
+      function withTimeout(promise, ms, label) {
+        return new Promise(function (resolve, reject) {
+          var done = false;
+          var timer = setTimeout(function () {
+            if (done) return;
+            done = true;
+            reject(new Error((label || "Request") + " timed out. Check network / VPN and try Resend."));
+          }, ms);
+          promise.then(function (v) {
+            if (done) return;
+            done = true;
+            clearTimeout(timer);
+            resolve(v);
+          }, function (e) {
+            if (done) return;
+            done = true;
+            clearTimeout(timer);
+            reject(e);
+          });
+        });
+      }
+
+      /** Prefer cached token — force refresh often hangs when Google Auth is blocked. */
       function authHeaders() {
         var user = firebase.auth().currentUser;
-        if (!user) return Promise.reject(new Error("Not signed in"));
-        return user.getIdToken(true).then(function (tok) {
-          return {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + tok
-          };
+        if (!user) return Promise.reject(new Error("Not signed in. Open Login, then return here."));
+        return withTimeout(user.getIdToken(false), 12000, "Auth token")
+          .catch(function () {
+            return withTimeout(user.getIdToken(true), 15000, "Auth refresh");
+          })
+          .then(function (tok) {
+            if (!tok) throw new Error("Could not get auth token");
+            return {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + tok
+            };
+          });
+      }
+
+      function fetchJson(url, options, ms) {
+        var ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+        var opts = Object.assign({}, options || {});
+        if (ctrl) opts.signal = ctrl.signal;
+        var p = fetch(url, opts).then(function (r) {
+          return r.json().then(function (j) {
+            return { r: r, j: j };
+          }).catch(function () {
+            return { r: r, j: {} };
+          });
+        });
+        return withTimeout(p, ms || 45000, "Server").catch(function (e) {
+          if (ctrl) try { ctrl.abort(); } catch (_) {}
+          throw e;
         });
       }
 
       function sendCode() {
-        setMsg("Sending code…");
+        if (sending) return;
+        sending = true;
+        setMsg("Sending code… (may take up to 45s if server was asleep)", "info");
         btnResend.disabled = true;
         return authHeaders()
           .then(function (h) {
-            return fetch(BACKEND + "/auth/send-verify-code", {
+            return fetchJson(BACKEND + "/auth/send-verify-code", {
               method: "POST",
               headers: h,
               body: "{}"
-            });
-          })
-          .then(function (r) {
-            return r.json().then(function (j) {
-              return { r: r, j: j };
-            });
+            }, 45000);
           })
           .then(function (x) {
+            sending = false;
             btnResend.disabled = false;
             if (x.j && x.j.alreadyVerified) {
-              setMsg("Already verified. Redirecting…", true);
+              setMsg("Already verified. Redirecting…", "ok");
               setTimeout(function () { location.href = "app/home.html"; }, 600);
               return;
             }
-            if (!x.r.ok) throw new Error((x.j && x.j.error) || "Could not send code");
-            setMsg("Code sent from Codex Hub. Check inbox / Spam.", true);
+            if (!x.r.ok) {
+              throw new Error((x.j && x.j.error) || ("Send failed (" + x.r.status + ")"));
+            }
+            setMsg("Code sent from Codex Hub (codexhub16@gmail.com). Check inbox / Spam.", "ok");
           })
           .catch(function (e) {
+            sending = false;
             btnResend.disabled = false;
-            setMsg(e.message || "Could not send code");
+            var m = (e && e.message) || "Could not send code";
+            if (/Failed to fetch|NetworkError|abort/i.test(m)) {
+              m = "Network error reaching server. Wait 30s (Render wake-up) or use VPN, then Resend.";
+            }
+            if (/Auth/i.test(m) || /token/i.test(m)) {
+              m = m + " If Google login is blocked on your network, turn on VPN once, open this page, then Resend.";
+            }
+            setMsg(m, "err");
           });
       }
 
       function checkCode() {
         var c = codeValue();
-        if (c.length !== 6) {
-          setMsg("Enter all 6 digits");
-          return;
-        }
-        setMsg("Checking…");
+        if (c.length !== 6) { setMsg("Enter all 6 digits", "err"); return; }
+        setMsg("Checking…", "info");
         btnVerify.disabled = true;
         authHeaders()
           .then(function (h) {
-            return fetch(BACKEND + "/auth/check-verify-code", {
+            return fetchJson(BACKEND + "/auth/check-verify-code", {
               method: "POST",
               headers: h,
               body: JSON.stringify({ code: c })
-            });
-          })
-          .then(function (r) {
-            return r.json().then(function (j) {
-              return { r: r, j: j };
-            });
+            }, 30000);
           })
           .then(function (x) {
             btnVerify.disabled = false;
             if (!x.r.ok) throw new Error((x.j && x.j.error) || "Wrong code");
-            setMsg("Verified! Opening Codex Hub…", true);
+            setMsg("Verified! Opening Codex Hub…", "ok");
             var user = firebase.auth().currentUser;
-            return (user ? user.reload() : Promise.resolve()).then(function () {
+            return (user ? user.reload().catch(function () {}) : Promise.resolve()).then(function () {
               location.href = "chooseFaculty.html";
             });
           })
           .catch(function (e) {
             btnVerify.disabled = false;
-            setMsg(e.message || "Verification failed");
+            setMsg((e && e.message) || "Verification failed", "err");
           });
       }
 
       btnVerify.addEventListener("click", checkCode);
-      btnResend.addEventListener("click", sendCode);
+      btnResend.addEventListener("click", function () { sendCode(); });
 
+      var authReady = false;
       firebase.auth().onAuthStateChanged(function (user) {
+        if (authReady) return;
+        authReady = true;
         if (!user) {
-          setMsg("Please sign in first");
-          setTimeout(function () { location.href = "login.html"; }, 1000);
+          setMsg("Please sign in first", "err");
+          setTimeout(function () { location.href = "login.html"; }, 1200);
           return;
         }
         if (user.emailVerified) {
-          setMsg("Already verified.", true);
+          setMsg("Already verified.", "ok");
           setTimeout(function () { location.href = "app/home.html"; }, 500);
           return;
         }
         document.getElementById("hint").textContent =
-          "We sent a 6-digit code to " + (user.email || "your email") +
-          ". Check Spam if you do not see it. Code expires in 3 minutes.";
+          "We will send a 6-digit code to " + (user.email || "your email") +
+          ". From: Codex Hub / codexhub16@gmail.com. Check Spam.";
         sendCode();
       });
+
+      // If Firebase Auth never resolves (offline / blocked), unblock UI
+      setTimeout(function () {
+        if (!authReady) {
+          setMsg("Auth is slow or blocked on this network. Turn on VPN, reload, or open Login again.", "err");
+        }
+      }, 20000);
     })();
   </script>
 </body>
