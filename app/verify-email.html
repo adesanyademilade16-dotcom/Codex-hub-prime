@@ -2,266 +2,151 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Verify email · Codex Hub</title>
   <style>
-    :root { --navy:#0F172A; --muted:#64748B; --line:#E2E8F0; --bg:#F8FAFC; --indigo:#4F46E5; }
+    :root { --indigo:#4F46E5; --bg:#F8FAFC; --text:#0f172a; --muted:#64748b; --line:#E2E8F0; }
     * { box-sizing: border-box; }
-    body {
-      margin: 0; min-height: 100dvh; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      background: var(--bg); color: var(--navy);
-      display: flex; align-items: center; justify-content: center; padding: 24px 16px;
-    }
-    .card {
-      width: 100%; max-width: 420px; background: #fff; border: 1px solid var(--line);
-      border-radius: 20px; padding: 28px 22px; box-shadow: 0 12px 40px rgba(15,23,42,.08);
-    }
-    .logo {
-      width: 44px; height: 44px; border-radius: 12px;
-      background: linear-gradient(135deg,#4F46E5,#7C3AED);
-      display: grid; place-items: center; color: #fff; font-weight: 900; margin-bottom: 16px;
-    }
-    h1 { font-size: 1.35rem; margin: 0 0 8px; font-weight: 800; }
-    p { margin: 0 0 12px; color: var(--muted); line-height: 1.55; font-size: .92rem; }
-    .email { font-weight: 700; color: var(--navy); word-break: break-all; }
-    .tip {
-      background: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 12px;
-      padding: 12px 14px; font-size: .82rem; color: #3730A3; margin: 14px 0 18px; line-height: 1.5;
-    }
-    .tabs { display: flex; gap: 8px; margin-bottom: 14px; }
-    .tabs button {
-      flex: 1; padding: 10px; border-radius: 10px; border: 1.5px solid var(--line);
-      background: #fff; font-weight: 700; cursor: pointer; font-family: inherit; font-size: .82rem;
-    }
-    .tabs button.on { border-color: var(--indigo); background: #EEF2FF; color: #3730A3; }
-    .pane { display: none; }
-    .pane.on { display: block; }
-    .otp-row { display: flex; gap: 8px; justify-content: center; margin: 12px 0 16px; }
-    .otp-row input {
-      width: 44px; height: 52px; text-align: center; font-size: 1.25rem; font-weight: 800;
-      border: 1.5px solid var(--line); border-radius: 12px; font-family: inherit;
-    }
-    .otp-row input:focus { outline: 2px solid #A5B4FC; border-color: var(--indigo); }
-    .actions { display: grid; gap: 10px; }
-    button.act {
-      appearance: none; border: 0; border-radius: 12px; padding: 13px 16px;
-      font-weight: 800; font-size: .9rem; cursor: pointer; font-family: inherit;
-    }
-    .pri { background: linear-gradient(135deg,#4F46E5,#7C3AED); color: #fff; }
-    .ghost { background: #fff; border: 1.5px solid var(--line); color: var(--navy); }
-    .danger { background: #FEF2F2; color: #B91C1C; border: 1.5px solid #FECACA; }
-    #status { min-height: 1.2em; font-size: .82rem; margin-top: 12px; color: var(--muted); }
-    #status.ok { color: #047857; }
-    #status.err { color: #B91C1C; }
+    body { margin:0; min-height:100vh; font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(165deg, #EEF2FF 0%, var(--bg) 45%, #fff 100%); color: var(--text);
+      display:flex; align-items:center; justify-content:center; padding:24px; }
+    .card { width:min(420px,100%); background:#fff; border:1px solid var(--line); border-radius:20px;
+      padding:28px 24px; box-shadow:0 20px 50px rgba(15,23,42,.08); }
+    .brand { display:flex; align-items:center; gap:10px; margin-bottom:18px; font-weight:800; }
+    .brand span { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#4F46E5,#7C3AED);
+      color:#fff; display:grid; place-items:center; font-size:14px; }
+    h1 { font-size:1.25rem; margin:0 0 6px; }
+    p { margin:0 0 14px; color:var(--muted); font-size:.92rem; line-height:1.45; }
+    .code-row { display:flex; gap:8px; justify-content:center; margin:18px 0; }
+    .code-row input { width:44px; height:52px; text-align:center; font-size:1.35rem; font-weight:800;
+      border:1.5px solid var(--line); border-radius:12px; }
+    .code-row input:focus { outline:2px solid #C7D2FE; border-color:var(--indigo); }
+    button.pri { width:100%; height:48px; border:0; border-radius:14px; font-weight:800; cursor:pointer;
+      background:linear-gradient(135deg,#4F46E5,#7C3AED); color:#fff; font-size:1rem; }
+    button.pri:disabled { opacity:.55; cursor:not-allowed; }
+    button.ghost { width:100%; margin-top:10px; height:44px; border:0; border-radius:12px; background:#F1F5F9;
+      font-weight:700; cursor:pointer; color:#334155; }
+    .msg { min-height:1.2em; font-size:.88rem; margin-top:10px; text-align:center; }
+    .msg.err { color:#DC2626; }
+    .msg.ok { color:#059669; }
   </style>
-
-  <!-- Vercel Speed Insights -->
-  <script>
-    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-  </script>
-  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
 </head>
 <body>
   <div class="card">
-    <div class="logo">CX</div>
+    <div class="brand"><span>CX</span> Codex Hub</div>
     <h1>Verify your email</h1>
-    <p>We sent a link to <span class="email" id="email">your inbox</span>. You can open the link <strong>or</strong> enter the 6-digit code (if you received one).</p>
-    <div class="tip">
-      <strong>Check Spam / Promotions.</strong> Open the link in the email.
-      You will land on a Firebase page that confirms your email, then tap
-      <strong>Continue</strong> to return here. After that, press
-      <strong>I've verified — continue</strong> (or it may open automatically).
+    <p id="hint">We sent a 6-digit code to your inbox (check Spam). Enter it below. Code expires in 3 minutes.</p>
+    <div class="code-row" id="digits">
+      <input inputmode="numeric" maxlength="1" aria-label="Digit 1" />
+      <input inputmode="numeric" maxlength="1" aria-label="Digit 2" />
+      <input inputmode="numeric" maxlength="1" aria-label="Digit 3" />
+      <input inputmode="numeric" maxlength="1" aria-label="Digit 4" />
+      <input inputmode="numeric" maxlength="1" aria-label="Digit 5" />
+      <input inputmode="numeric" maxlength="1" aria-label="Digit 6" />
     </div>
-    <div class="tabs">
-      <button type="button" class="on" data-tab="link">Email link</button>
-      <button type="button" data-tab="code">6-digit code</button>
-    </div>
-    <div class="pane on" id="pane-link">
-      <div class="actions">
-        <button type="button" class="act pri" id="btnCheck">I've verified — continue</button>
-        <button type="button" class="act ghost" id="btnResend">Resend verification email</button>
-      </div>
-    </div>
-    <div class="pane" id="pane-code">
-      <p style="font-size:.85rem;margin-bottom:4px">Enter the 6-digit code (valid about 3 minutes).</p>
-      <div class="otp-row" id="otpRow">
-        <input inputmode="numeric" maxlength="1" aria-label="Digit 1" />
-        <input inputmode="numeric" maxlength="1" aria-label="Digit 2" />
-        <input inputmode="numeric" maxlength="1" aria-label="Digit 3" />
-        <input inputmode="numeric" maxlength="1" aria-label="Digit 4" />
-        <input inputmode="numeric" maxlength="1" aria-label="Digit 5" />
-        <input inputmode="numeric" maxlength="1" aria-label="Digit 6" />
-      </div>
-      <div class="actions">
-        <button type="button" class="act pri" id="btnOtp">Confirm code</button>
-        <button type="button" class="act ghost" id="btnOtpResend">Resend code</button>
-      </div>
-      <p style="font-size:.78rem;color:#64748B;margin-top:10px">Codes are sent when email OTP is enabled on the server. Until then, use the <strong>email link</strong> tab.</p>
-    </div>
-    <div class="actions" style="margin-top:12px">
-      <button type="button" class="act danger" id="btnOut">Sign out</button>
-    </div>
-    <div id="status"></div>
+    <button class="pri" type="button" id="btnVerify">Verify</button>
+    <button class="ghost" type="button" id="btnResend">Resend code</button>
+    <p class="msg" id="msg"></p>
   </div>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="../js/firestore-boot.js"></script>
-<script src="../js/auth-retry.js"></script>
-  <script src="../js/firebase-config.js"></script>
   <script>
-(function () {
-  if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
-  if (typeof CodexFirebaseReady === "function") try { CodexFirebaseReady(); } catch (e) {}
-  var auth = firebase.auth();
-  var db = firebase.firestore();
-  var statusEl = document.getElementById("status");
-  function setStatus(t, kind) {
-    statusEl.textContent = t || "";
-    statusEl.className = kind || "";
-  }
-
-  var params = new URLSearchParams(location.search);
-  // Link with oobCode on our domain → apply code
-  if (params.get("mode") === "verifyEmail" && params.get("oobCode")) {
-    location.replace("../auth-action.html" + location.search);
-    return;
-  }
-  // Returned from Firebase "Continue" button
-  var fromContinue = params.get("verified") === "1";
-
-  // Tabs
-  document.querySelectorAll(".tabs button").forEach(function (b) {
-    b.addEventListener("click", function () {
-      document.querySelectorAll(".tabs button").forEach(function (x) { x.classList.remove("on"); });
-      document.querySelectorAll(".pane").forEach(function (x) { x.classList.remove("on"); });
-      b.classList.add("on");
-      document.getElementById("pane-" + b.getAttribute("data-tab")).classList.add("on");
-    });
-  });
-
-  // OTP inputs
-  var inputs = [].slice.call(document.querySelectorAll("#otpRow input"));
-  inputs.forEach(function (inp, i) {
-    inp.addEventListener("input", function () {
-      inp.value = inp.value.replace(/\D/g, "").slice(0, 1);
-      if (inp.value && i < inputs.length - 1) inputs[i + 1].focus();
-    });
-    inp.addEventListener("keydown", function (e) {
-      if (e.key === "Backspace" && !inp.value && i > 0) inputs[i - 1].focus();
-    });
-    inp.addEventListener("paste", function (e) {
-      var t = (e.clipboardData || window.clipboardData).getData("text") || "";
-      var digits = t.replace(/\D/g, "").slice(0, 6).split("");
-      if (digits.length) {
-        e.preventDefault();
-        digits.forEach(function (d, j) { if (inputs[j]) inputs[j].value = d; });
-        inputs[Math.min(digits.length, 5)].focus();
+    (function () {
+      var BACKEND = "https://codex-backend-new.onrender.com";
+      var inputs = [].slice.call(document.querySelectorAll("#digits input"));
+      var msg = document.getElementById("msg");
+      function setMsg(t, ok) {
+        msg.textContent = t || "";
+        msg.className = "msg " + (ok ? "ok" : t ? "err" : "");
       }
-    });
-  });
-  function readOtp() {
-    return inputs.map(function (i) { return i.value; }).join("");
-  }
-
-  auth.onAuthStateChanged(function (user) {
-    if (!user) {
-      location.href = "../login.html";
-      return;
-    }
-    document.getElementById("email").textContent = user.email || "your inbox";
-    // Google users skip
-    var providers = user.providerData || [];
-    var hasPass = providers.some(function (p) { return p && p.providerId === "password"; });
-    var hasGoogle = providers.some(function (p) { return p && p.providerId === "google.com"; });
-    if (user.emailVerified || (hasGoogle && !hasPass)) {
-      location.href = "home.html";
-      return;
-    }
-
-    function checkVerified(auto) {
-      setStatus(auto ? "Welcome back — confirming…" : "Checking…");
-      return user.reload().then(function () {
-        if (auth.currentUser.emailVerified) {
-          setStatus("Verified — opening Codex Hub…", "ok");
-          location.href = "home.html";
-          return true;
-        }
-        if (!auto) {
-          setStatus("Not verified yet. Open the email link (Firebase page → Continue), then try again.", "err");
-        } else {
-          setStatus("If you just verified, wait a second and tap I've verified — continue.", "err");
-        }
-        return false;
-      }).catch(function (e) {
-        setStatus(e.message || "Could not check status.", "err");
-        return false;
-      });
-    }
-    document.getElementById("btnCheck").onclick = function () { checkVerified(false); };
-    if (fromContinue) {
-      setTimeout(function () { checkVerified(true); }, 400);
-    }
-
-    document.getElementById("btnResend").onclick = function () {
-      setStatus("Sending…");
-      // Continue URL → auth-action on live host
-      var continueUrl = (function () {
-        var o = (location.origin || "").replace(/\/$/, "");
-        if (/vercel\.app|github\.io|localhost|127\.0\.0\.1/i.test(o))
-          return o.replace(/\/app$/, "") + "/verify-email.html?verified=1";
-        return "https://codex-hub-prime.vercel.app/verify-email.html?verified=1";
-      })();
-      CodexAuthRetry.run(function () { return user.sendEmailVerification({ url: continueUrl, handleCodeInApp: false }); }).then(function () {
-        setStatus("Email sent. Open the link → Firebase will confirm → tap Continue → then I've verified here.", "ok");
-      }).catch(function (e) {
-        setStatus(CodexAuthRetry.friendlyMessage(e, "Could not resend."), "err");
-      });
-    };
-
-    document.getElementById("btnOtp").onclick = function () {
-      var code = readOtp();
-      if (code.length !== 6) {
-        setStatus("Enter all 6 digits.", "err");
-        return;
+      function codeValue() {
+        return inputs.map(function (i) { return i.value; }).join("");
       }
-      setStatus("Checking code…");
-      db.collection("email_otps").doc(user.uid).get().then(function (snap) {
-        if (!snap.exists) {
-          setStatus("No code on file. Use the email link, or resend code after OTP email is enabled.", "err");
-          return;
-        }
-        var d = snap.data() || {};
-        var exp = d.expiresAt && d.expiresAt.toDate ? d.expiresAt.toDate().getTime() : Number(d.expiresAtMs || 0);
-        if (exp && Date.now() > exp) {
-          setStatus("Code expired. Request a new one.", "err");
-          return;
-        }
-        if (String(d.code) !== code) {
-          setStatus("Wrong code. Try again.", "err");
-          return;
-        }
-        // Mark verified in profile (app gate accepts this until Firebase Admin is wired)
-        return db.collection("users").doc(user.uid).set({
-          emailVerifiedApp: true,
-          emailVerifiedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true }).then(function () {
-          setStatus("Code accepted — opening Codex Hub…", "ok");
-          location.href = "home.html";
+      inputs.forEach(function (inp, idx) {
+        inp.addEventListener("input", function () {
+          inp.value = inp.value.replace(/\D/g, "").slice(0, 1);
+          if (inp.value && idx < inputs.length - 1) inputs[idx + 1].focus();
         });
-      }).catch(function (e) {
-        setStatus(e.message || "Could not verify code.", "err");
+        inp.addEventListener("keydown", function (e) {
+          if (e.key === "Backspace" && !inp.value && idx > 0) inputs[idx - 1].focus();
+        });
+        inp.addEventListener("paste", function (e) {
+          var p = (e.clipboardData || window.clipboardData).getData("text").replace(/\D/g, "").slice(0, 6);
+          if (p.length > 1) {
+            e.preventDefault();
+            for (var i = 0; i < 6; i++) inputs[i].value = p[i] || "";
+            inputs[Math.min(p.length, 5)].focus();
+          }
+        });
       });
-    };
 
-    document.getElementById("btnOtpResend").onclick = function () {
-      setStatus("OTP email needs Resend/SendGrid on the backend. Use the verification link for now.", "err");
-    };
+      function authHeaders() {
+        return firebase.auth().currentUser.getIdToken().then(function (tok) {
+          return { "Content-Type": "application/json", Authorization: "Bearer " + tok };
+        });
+      }
 
-    document.getElementById("btnOut").onclick = function () {
-      auth.signOut().then(function () { location.href = "../login.html"; });
-    };
-  });
-})();
+      function sendCode() {
+        setMsg("Sending…");
+        return authHeaders().then(function (h) {
+          return fetch(BACKEND + "/auth/send-verify-code", { method: "POST", headers: h, body: "{}" });
+        }).then(function (r) { return r.json().then(function (j) { return { r: r, j: j }; }); })
+          .then(function (x) {
+            if (x.j.alreadyVerified) {
+              setMsg("Already verified. Redirecting…", true);
+              location.href = "app/home.html";
+              return;
+            }
+            if (!x.r.ok) throw new Error(x.j.error || "Send failed");
+            setMsg("Code sent. Check inbox / Spam.", true);
+          })
+          .catch(function (e) { setMsg(e.message || "Could not send"); });
+      }
+
+      function checkCode() {
+        var c = codeValue();
+        if (c.length !== 6) { setMsg("Enter all 6 digits"); return; }
+        setMsg("Checking…");
+        document.getElementById("btnVerify").disabled = true;
+        authHeaders().then(function (h) {
+          return fetch(BACKEND + "/auth/check-verify-code", {
+            method: "POST", headers: h, body: JSON.stringify({ code: c })
+          });
+        }).then(function (r) { return r.json().then(function (j) { return { r: r, j: j }; }); })
+          .then(function (x) {
+            document.getElementById("btnVerify").disabled = false;
+            if (!x.r.ok) throw new Error(x.j.error || "Wrong code");
+            setMsg("Verified! Opening Codex Hub…", true);
+            return firebase.auth().currentUser.reload().then(function () {
+              location.href = "chooseFaculty.html";
+            });
+          })
+          .catch(function (e) {
+            document.getElementById("btnVerify").disabled = false;
+            setMsg(e.message || "Failed");
+          });
+      }
+
+      document.getElementById("btnVerify").onclick = checkCode;
+      document.getElementById("btnResend").onclick = sendCode;
+
+      firebase.auth().onAuthStateChanged(function (user) {
+        if (!user) {
+          setMsg("Please sign in first");
+          setTimeout(function () { location.href = "login.html"; }, 1200);
+          return;
+        }
+        if (user.emailVerified) {
+          setMsg("Already verified.", true);
+          location.href = "app/home.html";
+          return;
+        }
+        document.getElementById("hint").textContent =
+          "We sent a 6-digit code to " + (user.email || "your email") + ". Check Spam if needed.";
+        sendCode();
+      });
+    })();
   </script>
 </body>
 </html>
