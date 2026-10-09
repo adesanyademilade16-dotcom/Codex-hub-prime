@@ -2,33 +2,53 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Verify email · Codex Hub</title>
   <style>
-    :root { --indigo:#4F46E5; --bg:#F8FAFC; --text:#0f172a; --muted:#64748b; --line:#E2E8F0; }
+    :root { --indigo:#4F46E5; --indigo2:#7C3AED; --bg:#F1F5F9; --text:#0f172a; --muted:#64748b; --line:#E2E8F0; }
     * { box-sizing: border-box; }
-    body { margin:0; min-height:100vh; font-family: system-ui, -apple-system, sans-serif;
-      background: linear-gradient(165deg, #EEF2FF 0%, var(--bg) 45%, #fff 100%); color: var(--text);
-      display:flex; align-items:center; justify-content:center; padding:24px; }
-    .card { width:min(420px,100%); background:#fff; border:1px solid var(--line); border-radius:20px;
-      padding:28px 24px; box-shadow:0 20px 50px rgba(15,23,42,.08); }
-    .brand { display:flex; align-items:center; gap:10px; margin-bottom:18px; font-weight:800; }
-    .brand span { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#4F46E5,#7C3AED);
-      color:#fff; display:grid; place-items:center; font-size:14px; }
-    h1 { font-size:1.25rem; margin:0 0 6px; }
-    p { margin:0 0 14px; color:var(--muted); font-size:.92rem; line-height:1.45; }
-    .code-row { display:flex; gap:8px; justify-content:center; margin:18px 0; }
-    .code-row input { width:44px; height:52px; text-align:center; font-size:1.35rem; font-weight:800;
-      border:1.5px solid var(--line); border-radius:12px; }
-    .code-row input:focus { outline:2px solid #C7D2FE; border-color:var(--indigo); }
-    button.pri { width:100%; height:48px; border:0; border-radius:14px; font-weight:800; cursor:pointer;
-      background:linear-gradient(135deg,#4F46E5,#7C3AED); color:#fff; font-size:1rem; }
-    button.pri:disabled { opacity:.55; cursor:not-allowed; }
-    button.ghost { width:100%; margin-top:10px; height:44px; border:0; border-radius:12px; background:#F1F5F9;
-      font-weight:700; cursor:pointer; color:#334155; }
-    .msg { min-height:1.2em; font-size:.88rem; margin-top:10px; text-align:center; }
-    .msg.err { color:#DC2626; }
-    .msg.ok { color:#059669; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(165deg, #EEF2FF 0%, var(--bg) 50%, #fff 100%);
+      color: var(--text); display: flex; align-items: center; justify-content: center;
+      padding: 20px 16px; min-height: 100dvh;
+    }
+    .card {
+      width: min(400px, 100%); background: #fff; border: 1px solid var(--line);
+      border-radius: 20px; padding: 28px 22px 24px;
+      box-shadow: 0 18px 48px rgba(15,23,42,.1); overflow: hidden;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; font-weight: 800; }
+    .brand .logo {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--indigo), var(--indigo2));
+      color: #fff; display: grid; place-items: center; font-size: 13px; font-weight: 800;
+    }
+    h1 { font-size: 1.2rem; margin: 0 0 8px; }
+    .hint { margin: 0 0 18px; color: var(--muted); font-size: .9rem; line-height: 1.45; word-break: break-word; }
+    .code-row { display: flex; gap: 8px; justify-content: center; width: 100%; margin: 0 0 18px; }
+    .code-row input {
+      flex: 1 1 0; min-width: 0; max-width: 48px; height: 50px; text-align: center;
+      font-size: 1.25rem; font-weight: 800; border: 1.5px solid var(--line); border-radius: 12px;
+      background: #F8FAFC; -webkit-appearance: none;
+    }
+    .code-row input:focus { outline: 2px solid #C7D2FE; border-color: var(--indigo); }
+    button.pri {
+      width: 100%; height: 48px; border: 0; border-radius: 14px; font-weight: 800; cursor: pointer;
+      background: linear-gradient(135deg, var(--indigo), var(--indigo2)); color: #fff; font-size: 1rem;
+    }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    button.ghost {
+      width: 100%; margin-top: 10px; height: 44px; border: 0; border-radius: 12px;
+      background: #F1F5F9; font-weight: 700; cursor: pointer; color: #334155;
+    }
+    .msg { min-height: 1.25em; font-size: .88rem; margin-top: 12px; text-align: center; line-height: 1.4; }
+    .msg.err { color: #DC2626; }
+    .msg.ok { color: #059669; }
+    .msg.info { color: #475569; }
+    .alt { margin-top: 14px; font-size: .8rem; color: var(--muted); text-align: center; line-height: 1.4; }
+    .alt a { color: var(--indigo); font-weight: 700; }
   </style>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -36,11 +56,11 @@
 </head>
 <body>
   <div class="card">
-    <div class="brand"><span>CX</span> Codex Hub</div>
+    <div class="brand"><div class="logo">CX</div> Codex Hub</div>
     <h1>Verify your email</h1>
-    <p id="hint">We sent a 6-digit code to your inbox (check Spam). Enter it below. Code expires in 3 minutes.</p>
+    <p class="hint" id="hint">We email a 6-digit code (not a Firebase link). Check Spam.</p>
     <div class="code-row" id="digits">
-      <input inputmode="numeric" maxlength="1" aria-label="Digit 1" />
+      <input inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Digit 1" />
       <input inputmode="numeric" maxlength="1" aria-label="Digit 2" />
       <input inputmode="numeric" maxlength="1" aria-label="Digit 3" />
       <input inputmode="numeric" maxlength="1" aria-label="Digit 4" />
@@ -50,29 +70,34 @@
     <button class="pri" type="button" id="btnVerify">Verify</button>
     <button class="ghost" type="button" id="btnResend">Resend code</button>
     <p class="msg" id="msg"></p>
+    <p class="alt"><a href="login.html">Back to login</a> · Use VPN if your network blocks Google</p>
   </div>
   <script>
     (function () {
       var BACKEND = "https://codex-backend-new.onrender.com";
       var inputs = [].slice.call(document.querySelectorAll("#digits input"));
       var msg = document.getElementById("msg");
-      function setMsg(t, ok) {
+      var btnVerify = document.getElementById("btnVerify");
+      var btnResend = document.getElementById("btnResend");
+      var runId = 0; // each Resend cancels previous "logical" run
+
+      function setMsg(t, kind) {
         msg.textContent = t || "";
-        msg.className = "msg " + (ok ? "ok" : t ? "err" : "");
+        msg.className = "msg " + (kind || (t ? "err" : ""));
       }
       function codeValue() {
-        return inputs.map(function (i) { return i.value; }).join("");
+        return inputs.map(function (i) { return (i.value || "").replace(/\D/g, ""); }).join("");
       }
       inputs.forEach(function (inp, idx) {
         inp.addEventListener("input", function () {
-          inp.value = inp.value.replace(/\D/g, "").slice(0, 1);
+          inp.value = (inp.value || "").replace(/\D/g, "").slice(0, 1);
           if (inp.value && idx < inputs.length - 1) inputs[idx + 1].focus();
         });
         inp.addEventListener("keydown", function (e) {
           if (e.key === "Backspace" && !inp.value && idx > 0) inputs[idx - 1].focus();
         });
         inp.addEventListener("paste", function (e) {
-          var p = (e.clipboardData || window.clipboardData).getData("text").replace(/\D/g, "").slice(0, 6);
+          var p = ((e.clipboardData || window.clipboardData).getData("text") || "").replace(/\D/g, "").slice(0, 6);
           if (p.length > 1) {
             e.preventDefault();
             for (var i = 0; i < 6; i++) inputs[i].value = p[i] || "";
@@ -81,71 +106,181 @@
         });
       });
 
-      function authHeaders() {
-        return firebase.auth().currentUser.getIdToken().then(function (tok) {
-          return { "Content-Type": "application/json", Authorization: "Bearer " + tok };
+      function raceTimeout(ms, label) {
+        return new Promise(function (_, reject) {
+          setTimeout(function () {
+            reject(new Error(label || "Timed out"));
+          }, ms);
+        });
+      }
+
+      function getTokenFast() {
+        var user = firebase.auth().currentUser;
+        if (!user) {
+          return Promise.reject(new Error("Not signed in. Open Login, sign in, then come back."));
+        }
+        // Race: cached token vs hard 8s wall — never hang forever
+        var tokenPromise = Promise.resolve()
+          .then(function () { return user.getIdToken(false); })
+          .then(function (tok) {
+            if (tok && String(tok).length > 40) return String(tok);
+            return user.getIdToken(true);
+          })
+          .then(function (tok) {
+            if (!tok || String(tok).length < 40) {
+              throw new Error("No session token. Log in again with VPN, then Resend.");
+            }
+            return String(tok);
+          });
+        return Promise.race([
+          tokenPromise,
+          raceTimeout(8000, "Auth token timed out (8s). Turn on VPN → Login → Resend.")
+        ]);
+      }
+
+      function post(path, extraBody, myRun) {
+        return getTokenFast().then(function (tok) {
+          if (myRun !== runId) return Promise.reject(new Error("cancelled"));
+          var body = Object.assign({ idToken: tok }, extraBody || {});
+          return Promise.race([
+            fetch(BACKEND + path, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + tok
+              },
+              body: JSON.stringify(body)
+            }).then(function (r) {
+              return r.text().then(function (text) {
+                var j = {};
+                try { j = text ? JSON.parse(text) : {}; } catch (e) {}
+                return { r: r, j: j };
+              });
+            }),
+            raceTimeout(35000, "Server timed out. Wait and Resend (Render may be waking).")
+          ]);
         });
       }
 
       function sendCode() {
-        setMsg("Sending…");
-        return authHeaders().then(function (h) {
-          return fetch(BACKEND + "/auth/send-verify-code", { method: "POST", headers: h, body: "{}" });
-        }).then(function (r) { return r.json().then(function (j) { return { r: r, j: j }; }); })
+        runId += 1;
+        var myRun = runId;
+        btnResend.disabled = true;
+        setMsg("Sending… getting session", "info");
+        var stepTimer = setInterval(function () {
+          if (myRun !== runId) { clearInterval(stepTimer); return; }
+        }, 1000);
+
+        getTokenFast()
+          .then(function (tok) {
+            if (myRun !== runId) return null;
+            setMsg("Sending… talking to Codex server", "info");
+            var body = { idToken: tok };
+            return Promise.race([
+              fetch(BACKEND + "/auth/send-verify-code", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: "Bearer " + tok
+                },
+                body: JSON.stringify(body)
+              }).then(function (r) {
+                return r.text().then(function (text) {
+                  var j = {};
+                  try { j = text ? JSON.parse(text) : {}; } catch (e) {}
+                  return { r: r, j: j };
+                });
+              }),
+              raceTimeout(35000, "Server timed out after 35s. Resend again in a moment.")
+            ]);
+          })
           .then(function (x) {
-            if (x.j.alreadyVerified) {
-              setMsg("Already verified. Redirecting…", true);
-              location.href = "app/home.html";
+            clearInterval(stepTimer);
+            if (myRun !== runId) return;
+            btnResend.disabled = false;
+            if (!x) return;
+            if (x.j && x.j.alreadyVerified) {
+              setMsg("Already verified. Redirecting…", "ok");
+              setTimeout(function () { location.href = "app/home.html"; }, 400);
               return;
             }
-            if (!x.r.ok) throw new Error(x.j.error || "Send failed");
-            setMsg("Code sent. Check inbox / Spam.", true);
+            if (!x.r.ok) {
+              throw new Error((x.j && x.j.error) || ("Send failed (" + x.r.status + ")"));
+            }
+            setMsg("Code sent from codexhub16@gmail.com — check Inbox & Spam.", "ok");
           })
-          .catch(function (e) { setMsg(e.message || "Could not send"); });
+          .catch(function (e) {
+            clearInterval(stepTimer);
+            if (myRun !== runId) return;
+            btnResend.disabled = false;
+            if (e && e.message === "cancelled") return;
+            var m = (e && e.message) || "Could not send";
+            if (/Failed to fetch|NetworkError/i.test(m)) {
+              m = "Network error. Use VPN, wait 20s, Resend.";
+            }
+            setMsg(m, "err");
+          });
       }
 
       function checkCode() {
         var c = codeValue();
-        if (c.length !== 6) { setMsg("Enter all 6 digits"); return; }
-        setMsg("Checking…");
-        document.getElementById("btnVerify").disabled = true;
-        authHeaders().then(function (h) {
-          return fetch(BACKEND + "/auth/check-verify-code", {
-            method: "POST", headers: h, body: JSON.stringify({ code: c })
-          });
-        }).then(function (r) { return r.json().then(function (j) { return { r: r, j: j }; }); })
+        if (c.length !== 6) { setMsg("Enter all 6 digits", "err"); return; }
+        runId += 1;
+        var myRun = runId;
+        setMsg("Checking…", "info");
+        btnVerify.disabled = true;
+        post("/auth/check-verify-code", { code: c }, myRun)
           .then(function (x) {
-            document.getElementById("btnVerify").disabled = false;
-            if (!x.r.ok) throw new Error(x.j.error || "Wrong code");
-            setMsg("Verified! Opening Codex Hub…", true);
-            return firebase.auth().currentUser.reload().then(function () {
+            if (myRun !== runId) return;
+            btnVerify.disabled = false;
+            if (!x.r.ok) throw new Error((x.j && x.j.error) || "Wrong code");
+            setMsg("Verified!", "ok");
+            var user = firebase.auth().currentUser;
+            return (user ? user.reload().catch(function () {}) : Promise.resolve()).then(function () {
               location.href = "chooseFaculty.html";
             });
           })
           .catch(function (e) {
-            document.getElementById("btnVerify").disabled = false;
-            setMsg(e.message || "Failed");
+            if (myRun !== runId) return;
+            btnVerify.disabled = false;
+            if (e && e.message === "cancelled") return;
+            setMsg((e && e.message) || "Failed", "err");
           });
       }
 
-      document.getElementById("btnVerify").onclick = checkCode;
-      document.getElementById("btnResend").onclick = sendCode;
+      btnVerify.onclick = checkCode;
+      btnResend.onclick = function () {
+        // Always allow Resend — cancels previous attempt
+        sendCode();
+      };
 
-      firebase.auth().onAuthStateChanged(function (user) {
+      var authReady = false;
+      function onUser(user) {
+        if (authReady) return;
+        authReady = true;
         if (!user) {
-          setMsg("Please sign in first");
-          setTimeout(function () { location.href = "login.html"; }, 1200);
+          setMsg("Not signed in — go to Login first.", "err");
           return;
         }
         if (user.emailVerified) {
-          setMsg("Already verified.", true);
-          location.href = "app/home.html";
+          setMsg("Already verified.", "ok");
+          setTimeout(function () { location.href = "app/home.html"; }, 400);
           return;
         }
         document.getElementById("hint").textContent =
-          "We sent a 6-digit code to " + (user.email || "your email") + ". Check Spam if needed.";
+          "Code will go to " + (user.email || "your email") + " from codexhub16@gmail.com.";
         sendCode();
-      });
+      }
+
+      firebase.auth().onAuthStateChanged(onUser);
+
+      // Failsafe: if Auth never answers
+      setTimeout(function () {
+        if (!authReady) {
+          setMsg("Firebase Auth not responding. Turn on VPN → open Login → then this page.", "err");
+          btnResend.disabled = false;
+        }
+      }, 12000);
     })();
   </script>
 </body>
