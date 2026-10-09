@@ -9,7 +9,7 @@
     * { box-sizing: border-box; }
     html, body { margin: 0; min-height: 100%; }
     body {
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      font-family: system-ui, -apple-system, sans-serif;
       background: linear-gradient(165deg, #EEF2FF 0%, var(--bg) 50%, #fff 100%);
       color: var(--text); display: flex; align-items: center; justify-content: center;
       padding: 20px 16px; min-height: 100dvh;
@@ -31,14 +31,14 @@
     .code-row input {
       flex: 1 1 0; min-width: 0; max-width: 48px; height: 50px; text-align: center;
       font-size: 1.25rem; font-weight: 800; border: 1.5px solid var(--line); border-radius: 12px;
-      background: #F8FAFC; -webkit-appearance: none; appearance: none;
+      background: #F8FAFC; -webkit-appearance: none;
     }
-    .code-row input:focus { outline: 2px solid #C7D2FE; border-color: var(--indigo); background: #fff; }
+    .code-row input:focus { outline: 2px solid #C7D2FE; border-color: var(--indigo); }
     button.pri {
       width: 100%; height: 48px; border: 0; border-radius: 14px; font-weight: 800; cursor: pointer;
       background: linear-gradient(135deg, var(--indigo), var(--indigo2)); color: #fff; font-size: 1rem;
     }
-    button.pri:disabled, button.ghost:disabled { opacity: .55; cursor: not-allowed; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
     button.ghost {
       width: 100%; margin-top: 10px; height: 44px; border: 0; border-radius: 12px;
       background: #F1F5F9; font-weight: 700; cursor: pointer; color: #334155;
@@ -47,6 +47,8 @@
     .msg.err { color: #DC2626; }
     .msg.ok { color: #059669; }
     .msg.info { color: #475569; }
+    .alt { margin-top: 14px; font-size: .8rem; color: var(--muted); text-align: center; line-height: 1.4; }
+    .alt a { color: var(--indigo); font-weight: 700; }
   </style>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -56,7 +58,7 @@
   <div class="card">
     <div class="brand"><div class="logo">CX</div> Codex Hub</div>
     <h1>Verify your email</h1>
-    <p class="hint" id="hint">Enter the 6-digit code from your email. Check Spam. Code expires in 3 minutes.</p>
+    <p class="hint" id="hint">We email a 6-digit code (not a Firebase link). Check Spam.</p>
     <div class="code-row" id="digits">
       <input inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Digit 1" />
       <input inputmode="numeric" maxlength="1" aria-label="Digit 2" />
@@ -68,6 +70,7 @@
     <button class="pri" type="button" id="btnVerify">Verify</button>
     <button class="ghost" type="button" id="btnResend">Resend code</button>
     <p class="msg" id="msg"></p>
+    <p class="alt"><a href="login.html">Back to login</a> · Use VPN if your network blocks Google</p>
   </div>
   <script>
     (function () {
@@ -76,7 +79,7 @@
       var msg = document.getElementById("msg");
       var btnVerify = document.getElementById("btnVerify");
       var btnResend = document.getElementById("btnResend");
-      var sending = false;
+      var runId = 0; // each Resend cancels previous "logical" run
 
       function setMsg(t, kind) {
         msg.textContent = t || "";
@@ -103,91 +106,117 @@
         });
       });
 
-      function withTimeout(promise, ms, label) {
-        return new Promise(function (resolve, reject) {
-          var done = false;
-          var timer = setTimeout(function () {
-            if (done) return;
-            done = true;
-            reject(new Error((label || "Request") + " timed out. Use VPN if needed, then Resend."));
+      function raceTimeout(ms, label) {
+        return new Promise(function (_, reject) {
+          setTimeout(function () {
+            reject(new Error(label || "Timed out"));
           }, ms);
-          promise.then(function (v) {
-            if (done) return; done = true; clearTimeout(timer); resolve(v);
-          }, function (e) {
-            if (done) return; done = true; clearTimeout(timer); reject(e);
-          });
         });
       }
 
-      function getToken() {
+      function getTokenFast() {
         var user = firebase.auth().currentUser;
-        if (!user) return Promise.reject(new Error("Not signed in. Go to Login, sign in, then open this page again."));
-        // Cached first — avoids hanging on Google when network blocks identitytoolkit
-        return withTimeout(user.getIdToken(false), 10000, "Auth token")
+        if (!user) {
+          return Promise.reject(new Error("Not signed in. Open Login, sign in, then come back."));
+        }
+        // Race: cached token vs hard 8s wall — never hang forever
+        var tokenPromise = Promise.resolve()
+          .then(function () { return user.getIdToken(false); })
           .then(function (tok) {
-            if (tok && String(tok).length > 20) return String(tok);
-            return withTimeout(user.getIdToken(true), 12000, "Auth refresh");
+            if (tok && String(tok).length > 40) return String(tok);
+            return user.getIdToken(true);
           })
           .then(function (tok) {
-            if (!tok || String(tok).length < 20) {
-              throw new Error("Could not read session. Log in again (VPN helps), then Resend.");
+            if (!tok || String(tok).length < 40) {
+              throw new Error("No session token. Log in again with VPN, then Resend.");
             }
             return String(tok);
           });
+        return Promise.race([
+          tokenPromise,
+          raceTimeout(8000, "Auth token timed out (8s). Turn on VPN → Login → Resend.")
+        ]);
       }
 
-      function api(path, bodyObj, ms) {
-        return getToken().then(function (tok) {
-          var body = Object.assign({ idToken: tok }, bodyObj || {});
-          var ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
-          var opts = {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer " + tok
-            },
-            body: JSON.stringify(body)
-          };
-          if (ctrl) opts.signal = ctrl.signal;
-          var p = fetch(BACKEND + path, opts).then(function (r) {
-            return r.text().then(function (text) {
-              var j = {};
-              try { j = text ? JSON.parse(text) : {}; } catch (_) {}
-              return { r: r, j: j };
-            });
-          });
-          return withTimeout(p, ms || 45000, "Server").catch(function (e) {
-            if (ctrl) try { ctrl.abort(); } catch (_) {}
-            throw e;
-          });
+      function post(path, extraBody, myRun) {
+        return getTokenFast().then(function (tok) {
+          if (myRun !== runId) return Promise.reject(new Error("cancelled"));
+          var body = Object.assign({ idToken: tok }, extraBody || {});
+          return Promise.race([
+            fetch(BACKEND + path, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + tok
+              },
+              body: JSON.stringify(body)
+            }).then(function (r) {
+              return r.text().then(function (text) {
+                var j = {};
+                try { j = text ? JSON.parse(text) : {}; } catch (e) {}
+                return { r: r, j: j };
+              });
+            }),
+            raceTimeout(35000, "Server timed out. Wait and Resend (Render may be waking).")
+          ]);
         });
       }
 
       function sendCode() {
-        if (sending) return;
-        sending = true;
-        setMsg("Sending code…", "info");
+        runId += 1;
+        var myRun = runId;
         btnResend.disabled = true;
-        api("/auth/send-verify-code", {}, 45000)
+        setMsg("Sending… getting session", "info");
+        var stepTimer = setInterval(function () {
+          if (myRun !== runId) { clearInterval(stepTimer); return; }
+        }, 1000);
+
+        getTokenFast()
+          .then(function (tok) {
+            if (myRun !== runId) return null;
+            setMsg("Sending… talking to Codex server", "info");
+            var body = { idToken: tok };
+            return Promise.race([
+              fetch(BACKEND + "/auth/send-verify-code", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: "Bearer " + tok
+                },
+                body: JSON.stringify(body)
+              }).then(function (r) {
+                return r.text().then(function (text) {
+                  var j = {};
+                  try { j = text ? JSON.parse(text) : {}; } catch (e) {}
+                  return { r: r, j: j };
+                });
+              }),
+              raceTimeout(35000, "Server timed out after 35s. Resend again in a moment.")
+            ]);
+          })
           .then(function (x) {
-            sending = false;
+            clearInterval(stepTimer);
+            if (myRun !== runId) return;
             btnResend.disabled = false;
+            if (!x) return;
             if (x.j && x.j.alreadyVerified) {
               setMsg("Already verified. Redirecting…", "ok");
-              setTimeout(function () { location.href = "app/home.html"; }, 500);
+              setTimeout(function () { location.href = "app/home.html"; }, 400);
               return;
             }
             if (!x.r.ok) {
               throw new Error((x.j && x.j.error) || ("Send failed (" + x.r.status + ")"));
             }
-            setMsg("Code sent. Check inbox for codexhub16@gmail.com (and Spam).", "ok");
+            setMsg("Code sent from codexhub16@gmail.com — check Inbox & Spam.", "ok");
           })
           .catch(function (e) {
-            sending = false;
+            clearInterval(stepTimer);
+            if (myRun !== runId) return;
             btnResend.disabled = false;
-            var m = (e && e.message) || "Could not send code";
-            if (/Failed to fetch|NetworkError|abort/i.test(m)) {
-              m = "Cannot reach server. Wait 30s or use VPN, then Resend.";
+            if (e && e.message === "cancelled") return;
+            var m = (e && e.message) || "Could not send";
+            if (/Failed to fetch|NetworkError/i.test(m)) {
+              m = "Network error. Use VPN, wait 20s, Resend.";
             }
             setMsg(m, "err");
           });
@@ -196,34 +225,41 @@
       function checkCode() {
         var c = codeValue();
         if (c.length !== 6) { setMsg("Enter all 6 digits", "err"); return; }
+        runId += 1;
+        var myRun = runId;
         setMsg("Checking…", "info");
         btnVerify.disabled = true;
-        api("/auth/check-verify-code", { code: c }, 30000)
+        post("/auth/check-verify-code", { code: c }, myRun)
           .then(function (x) {
+            if (myRun !== runId) return;
             btnVerify.disabled = false;
             if (!x.r.ok) throw new Error((x.j && x.j.error) || "Wrong code");
-            setMsg("Verified! Opening Codex Hub…", "ok");
+            setMsg("Verified!", "ok");
             var user = firebase.auth().currentUser;
             return (user ? user.reload().catch(function () {}) : Promise.resolve()).then(function () {
               location.href = "chooseFaculty.html";
             });
           })
           .catch(function (e) {
+            if (myRun !== runId) return;
             btnVerify.disabled = false;
-            setMsg((e && e.message) || "Verification failed", "err");
+            if (e && e.message === "cancelled") return;
+            setMsg((e && e.message) || "Failed", "err");
           });
       }
 
       btnVerify.onclick = checkCode;
-      btnResend.onclick = function () { sendCode(); };
+      btnResend.onclick = function () {
+        // Always allow Resend — cancels previous attempt
+        sendCode();
+      };
 
       var authReady = false;
-      firebase.auth().onAuthStateChanged(function (user) {
+      function onUser(user) {
         if (authReady) return;
         authReady = true;
         if (!user) {
-          setMsg("Please sign in first", "err");
-          setTimeout(function () { location.href = "login.html"; }, 1000);
+          setMsg("Not signed in — go to Login first.", "err");
           return;
         }
         if (user.emailVerified) {
@@ -232,15 +268,19 @@
           return;
         }
         document.getElementById("hint").textContent =
-          "Code goes to " + (user.email || "your email") + " from Codex Hub / codexhub16@gmail.com.";
+          "Code will go to " + (user.email || "your email") + " from codexhub16@gmail.com.";
         sendCode();
-      });
+      }
 
+      firebase.auth().onAuthStateChanged(onUser);
+
+      // Failsafe: if Auth never answers
       setTimeout(function () {
         if (!authReady) {
-          setMsg("Auth is blocked or slow. Turn on VPN, open Login, then come back.", "err");
+          setMsg("Firebase Auth not responding. Turn on VPN → open Login → then this page.", "err");
+          btnResend.disabled = false;
         }
-      }, 18000);
+      }, 12000);
     })();
   </script>
 </body>
