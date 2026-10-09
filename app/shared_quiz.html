@@ -54,32 +54,38 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="../js/firestore-boot.js"></script>
   <script src="../js/firebase-config.js"></script>
-  <script>
-  (function () {
+    <script>
+    var root = document.getElementById("root");
     var id = new URLSearchParams(location.search).get("id");
     if (!id) {
       var parts = (location.pathname || "").split("/").filter(Boolean);
       var qi = parts.indexOf("q");
       if (qi >= 0 && parts[qi + 1]) id = decodeURIComponent(parts[qi + 1]);
+      // also support /app/shared_quiz.html leftover path segment
+      if (!id && parts.length) {
+        var last = parts[parts.length - 1];
+        if (last && last !== "shared_quiz.html" && last !== "q" && last !== "app") id = decodeURIComponent(last);
+      }
     }
-    var root = document.getElementById("root");
-    if (!id) { root.innerHTML = '<p class="err">Missing quiz link.</p>'; return; }
+    if (!id) { root.innerHTML = '<p class="err">Missing quiz link.</p>'; }
+    else {
     var db = firebase.firestore();
     var quiz = [], title = "Shared quiz", idx = 0, answers = {};
-    function esc(s){return String(s||"").replace(/[&<>"']/g,function(m){return({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[m];});}
-    function paintStart() {
-      root.innerHTML = '<div class="start"><h1>'+esc(title)+'</h1><p class="meta">Shared practice on Codex Hub</p>'+
-        '<div class="big">'+quiz.length+'</div><p class="meta">questions · untimed practice</p>'+
-        '<button class="pri" style="width:100%;height:52px;border:0;border-radius:14px;font-weight:800;font-family:inherit;cursor:pointer;margin-top:12px" id="go">Start quiz</button></div>';
+    function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+    function paintStart(){
+      root.innerHTML = '<div class="start"><p class="meta">Shared quiz</p><h1>'+esc(title)+'</h1>'+
+        '<p class="meta">'+quiz.length+' questions</p>'+
+        '<button class="pri" style="width:100%;height:52px;border:0;border-radius:14px;font-weight:800;font-family:inherit;cursor:pointer;margin-top:12px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff" id="go">Start</button></div>';
       document.getElementById("go").onclick = function(){ idx=0; answers={}; paintQ(); };
     }
-    function paintQ() {
+    function paintQ(){
       var item = quiz[idx];
+      if (!item) { root.innerHTML = '<p class="err">No questions in this quiz.</p>'; return; }
       root.innerHTML = '<p class="meta">Question '+(idx+1)+' / '+quiz.length+'</p><h1 style="font-size:1.05rem">'+esc(item.q)+'</h1>'+
-        item.options.map(function(o,i){
+        (item.options||[]).map(function(o,i){
           var c = answers[idx]===i?' checked':'';
           return '<label class="opt"><input type="radio" name="q" value="'+i+'"'+c+'> '+esc(o)+'</label>';
-        }).join('')+
+        }).join("")+
         '<div class="nav"><button class="sec" id="back"'+(idx===0?' disabled':'')+'>Back</button>'+
         (idx<quiz.length-1?'<button class="pri" id="next">Next</button>':'<button class="pri" id="fin">Finish</button>')+'</div>';
       root.querySelectorAll('input[name=q]').forEach(function(inp){ inp.onchange=function(){ answers[idx]=+inp.value; }; });
@@ -87,24 +93,37 @@
       var n=document.getElementById("next"); if(n) n.onclick=function(){var s=root.querySelector('input:checked');if(s)answers[idx]=+s.value;idx++;paintQ();};
       var f=document.getElementById("fin"); if(f) f.onclick=function(){
         var s=root.querySelector('input:checked');if(s)answers[idx]=+s.value;
-        var correct=0; quiz.forEach(function(it,i){ if(answers[i]===it.ans) correct++; });
-        var pct=Math.round(100*correct/quiz.length);
-        root.innerHTML='<div class="start"><h1>Score</h1><div class="big">'+correct+' / '+quiz.length+'</div><p class="meta">'+pct+'% · Practice on Codex Hub</p>'+
-          '<button class="pri" style="width:100%;height:48px;border:0;border-radius:14px;font-weight:800;margin-top:12px" id="retry">Retry</button>'+
-          '<a href="../index.html" style="display:block;text-align:center;margin-top:14px;color:var(--accent);font-weight:700">Open Codex Hub</a></div>';
-        document.getElementById("retry").onclick=paintStart;
+        var correct=0;
+        quiz.forEach(function(q,i){ if(typeof q.answer==='number' && answers[i]===q.answer) correct++; });
+        root.innerHTML = '<div class="start"><h1>Done</h1><p class="big">'+correct+' / '+quiz.length+'</p>'+
+          '<button class="pri" style="width:100%;height:48px;border:0;border-radius:14px;font-weight:800;margin-top:12px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff" id="retry">Retry</button></div>';
+        document.getElementById("retry").onclick=function(){paintStart();};
       };
     }
+    var loadTimer = setTimeout(function(){
+      if (root && /Loading quiz/i.test(root.textContent||"")) {
+        root.innerHTML = '<p class="err">Still loading…</p><p class="meta">Firestore is slow or blocked on this network (same issue as login). Try VPN / other network, then Retry.</p>'+
+          '<button class="pri" style="width:100%;height:48px;border:0;border-radius:14px;font-weight:800;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff" id="quizRetry">Retry</button>';
+        var rb=document.getElementById("quizRetry"); if(rb) rb.onclick=function(){ location.reload(); };
+      }
+    }, 10000);
     db.collection("shared_quizzes").doc(id).get().then(function(snap){
+      clearTimeout(loadTimer);
       if(!snap.exists){ root.innerHTML='<p class="err">This quiz link is invalid or was removed.</p>'; return; }
-      var d=snap.data()||{};
-      title=d.title||"Shared quiz";
-      quiz=Array.isArray(d.questions)?d.questions:[];
-      if(!quiz.length){ root.innerHTML='<p class="err">No questions in this quiz.</p>'; return; }
+      var data = snap.data() || {};
+      title = data.title || title;
+      quiz = Array.isArray(data.questions) ? data.questions : [];
+      if (!quiz.length) { root.innerHTML='<p class="err">This quiz has no questions.</p>'; return; }
       try{ db.collection("shared_quizzes").doc(id).update({views:firebase.firestore.FieldValue.increment(1)}); }catch(e){}
       paintStart();
-    }).catch(function(err){ root.innerHTML='<p class="err">'+esc(err.message)+'</p>'; });
-  })();
+    }).catch(function(err){
+      clearTimeout(loadTimer);
+      root.innerHTML = '<p class="err">Could not load quiz.</p><p class="meta">'+(err&&err.message?esc(err.message):'network')+'</p>'+
+        '<button class="pri" style="width:100%;height:48px;border:0;border-radius:14px;font-weight:800;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff" id="quizRetry2">Retry</button>';
+      var r2=document.getElementById("quizRetry2"); if(r2) r2.onclick=function(){ location.reload(); };
+    });
+    }
   </script>
+
 </body>
 </html>
