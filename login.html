@@ -235,12 +235,6 @@
     }
 
   </style>
-
-  <!-- Vercel Speed Insights -->
-  <script>
-    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-  </script>
-  <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
 <body>
   <div class="auth-layout">
@@ -330,14 +324,11 @@
   
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="js/firestore-boot.js"></script>
-<script src="js/auth-retry.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script>
   (function () {
     "use strict";
     if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
-    if (typeof CodexFirebaseReady === "function") CodexFirebaseReady();
-    else { try { firebase.firestore().settings({ experimentalForceLongPolling: true, merge: true }); } catch(e){} }
     var auth = firebase.auth();
     var db = firebase.firestore();
 
@@ -362,12 +353,7 @@
       }
       // Email/password accounts must verify before entering the app (Google is trusted)
       if (user && !user.emailVerified && isPasswordUser(user)) {
-        try {
-          user.sendEmailVerification({
-            url: (location.origin || "https://codex-hub-prime.vercel.app") + "/verify-email.html?verified=1",
-            handleCodeInApp: false
-          });
-        } catch (eV) { try { user.sendEmailVerification(); } catch (e2) {} }
+/* Brevo handles verification — no Firebase email */
         showStatus("Verify your email first. Check inbox and Spam.", "error");
         location.href = "verify-email.html";
         return Promise.resolve();
@@ -393,20 +379,19 @@
       if (!email || !password) { showStatus("Enter email and password."); return; }
       loginBtn.disabled = true;
       loginBtn.textContent = "Signing in…";
-      var retryTimer = setTimeout(function () {
-        showStatus("Connection is slow — retrying…", "info");
-      }, 1200);
-      // Was showing "can't reach server" on the FIRST failed attempt with no
-      // retry at all — most of those are transient (works again a second or
-      // two later), so retry quietly first and only show an error if it's
-      // still failing after a few tries.
-      CodexAuthRetry.run(function () { return auth.signInWithEmailAndPassword(email, password); })
-        .then(function (cred) { clearTimeout(retryTimer); return routeAfterLogin(cred.user); })
+      auth.signInWithEmailAndPassword(email, password)
+        .then(function (cred) { return routeAfterLogin(cred.user); })
         .catch(function (err) {
-          clearTimeout(retryTimer);
-          showStatus(CodexAuthRetry.friendlyMessage(err, "Could not sign in."));
+          var map = {
+            "auth/invalid-credential": "Wrong email or password.",
+            "auth/user-not-found": "No account with that email.",
+            "auth/wrong-password": "Wrong password.",
+            "auth/too-many-requests": "Too many attempts. Try again later.",
+            "auth/invalid-email": "That email looks invalid."
+          };
+          showStatus(map[err.code] || err.message || "Could not sign in.");
           loginBtn.disabled = false;
-          loginBtn.textContent = "Try again";
+          loginBtn.textContent = "Sign in";
         });
     });
 
@@ -414,16 +399,10 @@
       clearStatus();
       googleBtn.disabled = true;
       var provider = new firebase.auth.GoogleAuthProvider();
-      var retryTimer2 = setTimeout(function () {
-        showStatus("Connection is slow — retrying…", "info");
-      }, 1200);
-      CodexAuthRetry.run(function () { return auth.signInWithPopup(provider); })
-        .then(function (cred) { clearTimeout(retryTimer2); return routeAfterLogin(cred.user); })
+      auth.signInWithPopup(provider)
+        .then(function (cred) { return routeAfterLogin(cred.user); })
         .catch(function (err) {
-          clearTimeout(retryTimer2);
-          if (err.code !== "auth/popup-closed-by-user") {
-            showStatus(CodexAuthRetry.friendlyMessage(err, "Google sign-in failed."));
-          }
+          if (err.code !== "auth/popup-closed-by-user") showStatus(err.message || "Google sign-in failed.");
           googleBtn.disabled = false;
         });
     });

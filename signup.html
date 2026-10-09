@@ -217,12 +217,6 @@
     .pw-wrap { z-index: 2; }
 
   </style>
-
-  <!-- Vercel Speed Insights -->
-  <script>
-    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-  </script>
-  <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
 <body>
   <div class="auth-layout">
@@ -375,15 +369,12 @@
   <script src="js/referrals.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="js/firestore-boot.js"></script>
-<script src="js/auth-retry.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script src="js/firebase-config.js"></script>
   <script>
   (function () {
     "use strict";
     if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
-    if (typeof CodexFirebaseReady === "function") CodexFirebaseReady();
-    else { try { firebase.firestore().settings({ experimentalForceLongPolling: true, merge: true }); } catch(e){} }
     var auth = firebase.auth();
     var db = firebase.firestore();
     function el(id) { return document.getElementById(id); }
@@ -562,37 +553,13 @@
       btn.disabled = true;
       btn.textContent = "Creating your account…";
       var username = cleanUsername(el("username").value);
-      
-  function codexVerificationContinueUrl() {
-    var o = (location.origin || "").replace(/\/$/, "");
-    // After Firebase default page verifies, "Continue" lands here
-    if (/vercel\.app|github\.io|localhost|127\.0\.0\.1/i.test(o)) {
-      return o + "/verify-email.html?verified=1";
-    }
-    return "https://codex-hub-prime.vercel.app/verify-email.html?verified=1";
-  }
-  function codexSendVerification(user) {
-    var settings = {
-      url: codexVerificationContinueUrl(),
-      handleCodeInApp: false
-    };
-    return user.sendEmailVerification(settings);
-  }
-
-      var retryTimer = setTimeout(function () { alertMsg("Connection is slow — retrying…", true); }, 1200);
-      CodexAuthRetry.run(function () { return auth.createUserWithEmailAndPassword(el("email").value.trim().toLowerCase(), el("password").value); })
+      auth.createUserWithEmailAndPassword(el("email").value.trim().toLowerCase(), el("password").value)
         .then(function (cred) {
-          clearTimeout(retryTimer);
           return claimUsername(cred.user.uid, username).then(function () {
             return cred.user.updateProfile({ displayName: el("fullName").value.trim() }).then(function () {
               return createProfile(cred.user, { authProvider: "email" }).then(function () {
-                try {
-                  codexSendVerification(cred.user);
-                } catch (e) {
-                  try { cred.user.sendEmailVerification({ url: codexVerificationContinueUrl(), handleCodeInApp: false }); }
-                  catch (e2) { try { cred.user.sendEmailVerification(); } catch (e3) {} }
-                }
-                alertMsg("Account created. Check your email (and Spam) to verify before logging in.", true);
+                /* Brevo 6-digit on v/* Brevo on verify-email.html */
+                alertMsg("Account created. Enter the 6-digit code we send next.", true);
                 setTimeout(function () { location.href = "verify-email.html"; }, 900);
               });
             });
@@ -606,11 +573,15 @@
           });
         })
         .catch(function (err) {
-          clearTimeout(retryTimer);
           if (err.message === "USERNAME_TAKEN") return;
           btn.disabled = false;
           btn.textContent = "Create my Codex account →";
-          alertMsg(CodexAuthRetry.friendlyMessage(err, "Could not create account."));
+          var map = {
+            "auth/email-already-in-use": "This email is already registered. Try logging in.",
+            "auth/invalid-email": "Please enter a valid email.",
+            "auth/weak-password": "Password is too weak."
+          };
+          alertMsg(map[err.code] || err.message || "Could not create account.");
         });
     };
 
@@ -620,7 +591,7 @@
       b.disabled = true;
       b.textContent = "Connecting…";
       var provider = new firebase.auth.GoogleAuthProvider();
-      CodexAuthRetry.run(function () { return auth.signInWithPopup(provider); })
+      auth.signInWithPopup(provider)
         .then(function (cred) {
           stashReferralFromForm();
           try {
@@ -629,7 +600,7 @@
           location.href = "chooseFaculty.html";
         })
         .catch(function (err) {
-          if (err.code !== "auth/popup-closed-by-user") alertMsg(CodexAuthRetry.friendlyMessage(err, "Google sign-in failed."));
+          if (err.code !== "auth/popup-closed-by-user") alertMsg(err.message || "Google sign-in failed.");
           b.disabled = false;
           b.innerHTML = b.getAttribute("data-label") || "Continue with Google";
         });
