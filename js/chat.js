@@ -17,7 +17,7 @@
   function displayFromUser(data, id) {
     data = data || {};
     var name =
-      data.fullName || data.displayName || data.username || data.name ||
+      data.username || data.fullName || data.displayName || data.name ||
       (data.email ? String(data.email).split("@")[0] : null) || "Student";
     return {
       uid: id,
@@ -64,8 +64,13 @@
             if (ud.avatarKey) base.avatarKey = ud.avatarKey;
             if (ud.photoURL) base.photoURL = ud.photoURL;
             else if (ud.avatarKey) base.photoURL = ""; // character only
-            if (ud.fullName || ud.displayName) base.fullName = ud.fullName || ud.displayName;
             if (ud.username) base.username = ud.username;
+            // Keep showing the username here too — this used to unconditionally
+            // overwrite it with the real name from the live users/ doc, which
+            // silently undid the "show username, not real name" preference for
+            // anyone whose users/ doc had fullName/displayName set (i.e. almost
+            // everyone).
+            base.fullName = base.username || ud.fullName || ud.displayName || base.fullName;
           }
         } catch (e) {}
         return base;
@@ -88,10 +93,15 @@
       var pubSnap = await db().collection("public_profiles").limit(200).get();
       pubSnap.forEach(function (doc) {
         if (doc.id === me) return;
+        var pd = doc.data() || {};
+        // avatarKey + username must be passed through here — without them,
+        // default/character avatars never show on the Find People tab (only
+        // uploaded photos do), and names fall back to real names instead of
+        // the chosen username.
         map[doc.id] = displayFromUser({
-          fullName: doc.data().displayName, photoURL: doc.data().photoURL,
-          university: doc.data().university, faculty: doc.data().faculty,
-          department: doc.data().department, level: doc.data().level, bio: doc.data().bio
+          fullName: pd.displayName, photoURL: pd.photoURL, avatarKey: pd.avatarKey,
+          university: pd.university, faculty: pd.faculty,
+          department: pd.department, level: pd.level, bio: pd.bio, username: pd.username
         }, doc.id);
       });
     } catch (e) {}
@@ -102,15 +112,23 @@
         var leg = displayFromUser(doc.data(), doc.id);
         if (map[doc.id]) {
           var cur = map[doc.id];
+          var username = cur.username || leg.username;
           map[doc.id] = {
             uid: doc.id,
-            fullName: cur.fullName !== "Student" ? cur.fullName : leg.fullName,
-            username: cur.username || leg.username,
+            // Prefer the username over either card's fullName, same rule as
+            // everywhere else in chat — only fall back to a real/displayed
+            // name for the rare account with no username set yet.
+            fullName: username || (cur.fullName !== "Student" ? cur.fullName : leg.fullName),
+            username: username,
             university: cur.university || leg.university,
             faculty: cur.faculty || leg.faculty,
             department: cur.department || leg.department,
             level: cur.level || leg.level,
             photoURL: cur.photoURL || leg.photoURL,
+            // avatarKey was being dropped here entirely, same bug as the
+            // public_profiles branch above — default/character avatars
+            // never showed for anyone merged through this path.
+            avatarKey: leg.avatarKey || cur.avatarKey || "",
             bio: cur.bio || leg.bio,
             xpPoints: leg.xpPoints || cur.xpPoints,
             rank: leg.rank || cur.rank,

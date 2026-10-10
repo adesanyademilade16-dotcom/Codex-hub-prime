@@ -187,13 +187,81 @@
     return '<div class="empty"><h3>' + escapeHtml(title) + '</h3><p>' + escapeHtml(sub) + '</p></div>';
   }
 
+  function renderConvRow(c) {
+    var isG = c.type === "group" || (c.card && c.card.isGroup);
+    return (
+      '<button type="button" class="row-item" data-open-conv="' + escapeAttr(c.id) +
+        '" data-uid="' + escapeAttr(c.card.uid || "") +
+        '" data-type="' + (isG ? "group" : "dm") +
+        '" data-name="' + escapeAttr(c.card.fullName || "") +
+        '" data-photo="' + escapeAttr(c.card.photoURL || "") +
+        '" data-sub="' + escapeAttr(c.card.university || (isG ? "Group" : "")) + '">' +
+        '<div class="av">' + avHtml(c.card) + '</div>' +
+        '<div class="meta"><div class="top"><span class="name">' + escapeHtml(displayNameOf(c.card)) +
+        (c.muted ? " 🔇" : "") + '</span><span class="time">' + escapeHtml(timeLabel(c.updatedAt)) +
+        '</span></div><div class="preview">' +
+        (function () {
+          var preview = c.lastMessage || "Say hello";
+          var meId = firebase.auth().currentUser && firebase.auth().currentUser.uid;
+          // Make it obvious when the latest message was sent by the current user.
+          // This applies even when the conversation has no unread messages.
+          if (c.lastSender && c.lastSender === meId) {
+            preview = "[You: " + preview + "]";
+          } else if (c.unread > 0 && c.lastSenderName) {
+            preview = c.lastSenderName + ": " + preview;
+          }
+          return escapeHtml(preview);
+        })() +
+        (c.unread > 0 ? '<span class="unread-pill">' + (c.unread > 99 ? "99+" : c.unread) + '</span>' : '') +
+        '</div>' +
+        (isG ? '<div class="group-presence-line" data-group-presence="' + escapeAttr(c.id) + '">Checking online…</div>' : '') +
+        '</div></button>'
+    );
+  }
+
+  /** Slim, JSON-safe copy of a conversation for the instant-paint cache —
+   *  same shape renderConvRow() expects, minus anything that can't survive
+   *  sessionStorage (Firestore Timestamp objects become plain millis).
+   *  Keeps username alongside fullName so displayNameOf() still prefers the
+   *  username on a cached/replayed row, same as a live one. */
+  function toCacheConv(c) {
+    return {
+      id: c.id, type: c.type, muted: c.muted, unread: c.unread,
+      lastMessage: c.lastMessage, lastSender: c.lastSender, lastSenderName: c.lastSenderName,
+      updatedAt: c.updatedAt && c.updatedAt.toMillis ? c.updatedAt.toMillis() : (c.updatedAt || null),
+      card: {
+        uid: c.card && c.card.uid, fullName: c.card && c.card.fullName,
+        username: c.card && c.card.username,
+        photoURL: c.card && c.card.photoURL, avatarKey: c.card && c.card.avatarKey,
+        university: c.card && c.card.university, isGroup: c.card && c.card.isGroup
+      }
+    };
+  }
+
   async function loadPane() {
     var pane = $("listPane");
-    pane.innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
     var q = ($("searchInput").value || "").trim();
+    // Paint last-known conversations instantly (before Firestore even
+    // responds) so Chats doesn't open to a blank shimmering list every time
+    // — the real listConversations() call below still runs and replaces
+    // this the moment it resolves.
+    var paintedFromCache = false;
+    if (state.tab === "chats" && !q && window.CodexSpeed) {
+      var cached = CodexSpeed.getList("chats");
+      if (cached && cached.length) {
+        try {
+          pane.innerHTML = cached.map(renderConvRow).join("");
+          paintedFromCache = true;
+        } catch (eCache) {}
+      }
+    }
+    if (!paintedFromCache) {
+      pane.innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
+    }
     try {
       if (state.tab === "chats") {
         var convs = await CodexChat.listConversations();
+        try { if (window.CodexSpeed) CodexSpeed.saveList("chats", convs.map(toCacheConv), 25); } catch (eSaveList) {}
         if (q) {
           convs = convs.filter(function (c) {
             return (c.card.fullName + " " + (c.lastMessage || "")).toLowerCase().indexOf(q.toLowerCase()) !== -1;
@@ -203,37 +271,7 @@
           pane.innerHTML = emptyHtml("No conversations yet", "Find classmates and start a study chat.");
           return;
         }
-        pane.innerHTML = convs.map(function (c) {
-          var isG = c.type === "group" || (c.card && c.card.isGroup);
-          return (
-            '<button type="button" class="row-item" data-open-conv="' + escapeAttr(c.id) +
-              '" data-uid="' + escapeAttr(c.card.uid || "") +
-              '" data-type="' + (isG ? "group" : "dm") +
-              '" data-name="' + escapeAttr(c.card.fullName || "") +
-              '" data-photo="' + escapeAttr(c.card.photoURL || "") +
-              '" data-sub="' + escapeAttr(c.card.university || (isG ? "Group" : "")) + '">' +
-              '<div class="av">' + avHtml(c.card) + '</div>' +
-              '<div class="meta"><div class="top"><span class="name">' + escapeHtml(displayNameOf(c.card)) +
-              (c.muted ? " 🔇" : "") + '</span><span class="time">' + escapeHtml(timeLabel(c.updatedAt)) +
-              '</span></div><div class="preview">' +
-              (function () {
-                var preview = c.lastMessage || "Say hello";
-                var meId = firebase.auth().currentUser && firebase.auth().currentUser.uid;
-                // Make it obvious when the latest message was sent by the current user.
-                // This applies even when the conversation has no unread messages.
-                if (c.lastSender && c.lastSender === meId) {
-                  preview = "[You: " + preview + "]";
-                } else if (c.unread > 0 && c.lastSenderName) {
-                  preview = c.lastSenderName + ": " + preview;
-                }
-                return escapeHtml(preview);
-              })() +
-              (c.unread > 0 ? '<span class="unread-pill">' + (c.unread > 99 ? "99+" : c.unread) + '</span>' : '') +
-              '</div>' +
-              (isG ? '<div class="group-presence-line" data-group-presence="' + escapeAttr(c.id) + '">Checking online…</div>' : '') +
-              '</div></button>'
-          );
-        }).join("");
+        pane.innerHTML = convs.map(renderConvRow).join("");
         refreshGroupPresenceRows();
         // Refresh visible group online counts without changing group data.
         if (state.tab === "chats") {

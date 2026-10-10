@@ -40,6 +40,10 @@
           email: user && user.email,
           uid: user && user.uid,
           photoURL: (profile && profile.photoURL) || (user && user.photoURL) || "",
+          avatarKey: profile && profile.avatarKey,
+          university: profile && profile.university,
+          faculty: profile && profile.faculty,
+          xpPoints: profile && (profile.xpPoints || profile.xp),
           ts: Date.now()
         };
         sessionStorage.setItem(KEY, JSON.stringify(slim));
@@ -96,8 +100,87 @@
       return true;
     },
 
-    markSkeleton: function () {
-      ["mName", "mMeta", "mStreak", "mRank", "mLevel"].forEach(function (id) {
+    /** Profile page reuses most of the same ids as Home (mName, mRank, mPlan,
+     *  dName, dRank, dStreak, dPlan, dLevel all already get set by
+     *  paintHomeFromCache above) — this just adds the avatar initials and the
+     *  extra detail-card fields that are specific to the profile layout. */
+    paintProfileFromCache: function () {
+      var p = this.getCached();
+      if (!p) return false;
+      this.paintHomeFromCache();
+      function set(id, val) {
+        var el = document.getElementById(id);
+        if (el && val != null && val !== "") el.textContent = val;
+      }
+      var full = (p.fullName || "Student").trim();
+      var initials = full.split(/\s+/).map(function (w) { return w[0] || ""; }).join("").slice(0, 2).toUpperCase() || "ST";
+      // Only paint initials when there's no photo cached — a real <img> will
+      // replace this the moment CodexMedia resolves the real avatar, we just
+      // don't want to show a blank/default circle for that first moment.
+      if (!p.photoURL && !p.avatarKey) {
+        ["mAv", "dAv"].forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el && !el.querySelector("img")) el.textContent = initials;
+        });
+      }
+      set("dUni", p.university);
+      set("dFac", p.faculty);
+      set("dLev", p.level);
+      set("dUser", p.username ? "@" + p.username : null);
+      if (p.xpPoints != null) set("dXp", p.xpPoints + (p.rank ? " · Rank " + p.rank : ""));
+      this.clearSkeleton();
+      return true;
+    },
+
+    /** CBT/study stats cache for stats.html — separate from the profile
+     *  cache since this is analytics data, not identity data. */
+    saveStats: function (s) {
+      try {
+        if (!s) return;
+        var slim = {
+          overall: s.overall, sessions: s.sessions, questions: s.questions,
+          best: s.best, courses: s.courses, ts: Date.now()
+        };
+        sessionStorage.setItem("codex_session_stats_v1", JSON.stringify(slim));
+      } catch (e) {}
+    },
+    paintStatsFromCache: function () {
+      try {
+        var o = safeParse(sessionStorage.getItem("codex_session_stats_v1"));
+        if (!o || !o.ts || Date.now() - o.ts > 6 * 60 * 60 * 1000) return false;
+        function set(id, val) {
+          var el = document.getElementById(id);
+          if (el && val != null && val !== "") el.textContent = val;
+        }
+        set("overall", o.overall); set("sessions", o.sessions);
+        set("questions", o.questions); set("best", o.best); set("courses", o.courses);
+        this.clearSkeleton();
+        return true;
+      } catch (e) { return false; }
+    },
+
+    /** Generic small-list cache (conversation lists, etc). Stores at most
+     *  `limit` items — this is only ever a "paint something while we wait"
+     *  layer, never a source of truth, so it stays deliberately small. */
+    saveList: function (key, items, limit) {
+      try {
+        if (!Array.isArray(items)) return;
+        sessionStorage.setItem(
+          "codex_list_" + key,
+          JSON.stringify({ items: items.slice(0, limit || 20), ts: Date.now() })
+        );
+      } catch (e) {}
+    },
+    getList: function (key) {
+      try {
+        var o = safeParse(sessionStorage.getItem("codex_list_" + key));
+        if (!o || !o.ts || Date.now() - o.ts > 6 * 60 * 60 * 1000) return null;
+        return o.items || null;
+      } catch (e) { return null; }
+    },
+
+    markSkeleton: function (ids) {
+      (ids || ["mName", "mMeta", "mStreak", "mRank", "mLevel"]).forEach(function (id) {
         var el = document.getElementById(id);
         if (el && (!el.textContent || el.textContent === "Student" || el.textContent === "—" || el.textContent === "0")) {
           el.classList.add("codex-skel");
@@ -145,12 +228,22 @@
 
   w.CodexSpeed = CodexSpeed;
 
-  // Auto: on any page with shell, inject CSS + optional home paint
+  // Auto: on any page with shell, inject CSS + paint whatever's cached for
+  // that page immediately (before Firestore even starts), so the first
+  // frame the student sees is their own last-known data, not a blank
+  // skeleton. The real fetch still runs as normal and overwrites this.
   try {
     CodexSpeed.injectSkeletonCss();
-    if (document.body && document.body.getAttribute("data-page") === "home") {
+    var pg = document.body && document.body.getAttribute("data-page");
+    if (pg === "home") {
       CodexSpeed.markSkeleton();
       CodexSpeed.paintHomeFromCache();
+    } else if (pg === "profile") {
+      CodexSpeed.markSkeleton(["mName", "mRank", "mStreak", "mPlan", "dName", "dRank", "dStreak", "dPlan", "dLevel"]);
+      CodexSpeed.paintProfileFromCache();
+    } else if (pg === "stats") {
+      CodexSpeed.markSkeleton(["overall", "sessions", "questions", "best", "courses"]);
+      CodexSpeed.paintStatsFromCache();
     }
   } catch (e) {}
 })(window);

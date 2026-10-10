@@ -437,6 +437,38 @@
         return n ? batch.commit() : null;
       });
     }
+    /** Pending friend requests + join requests on groups I own, counted
+     *  directly from their source collections rather than only trusting a
+     *  notifications/{uid}/items doc to exist for every single event. This
+     *  is what used to make the bell look "dead" even when a real request
+     *  was sitting there the whole time — if that one write ever failed, got
+     *  skipped, or raced, the bell had no other way to know. */
+    function countPendingRequests(me) {
+      var fr = firebase.firestore().collection("friend_requests")
+        .where("to", "==", me.uid).where("status", "==", "pending").limit(40).get()
+        .then(function (s) { return s.size || 0; }).catch(function () { return 0; });
+      var gr = firebase.firestore().collection("groups")
+        .where("createdBy", "==", me.uid).limit(20).get()
+        .then(function (snap) {
+          var groupIds = [];
+          snap.forEach(function (d) { groupIds.push(d.id); });
+          if (!groupIds.length) return 0;
+          return Promise.all(groupIds.map(function (gid) {
+            return firebase.firestore().collection("groups").doc(gid).collection("join_requests").limit(20).get()
+              .then(function (s) { return s.size || 0; }).catch(function () { return 0; });
+          })).then(function (counts) { return counts.reduce(function (a, b) { return a + b; }, 0); });
+        }).catch(function () { return 0; });
+      return Promise.all([fr, gr]).then(function (r) { return r[0] + r[1]; });
+    }
+    function paintBellDot(unread) {
+      ["notifBtn", "notifBtnDesk"].forEach(function (id) {
+        var btn = document.getElementById(id);
+        if (!btn) return;
+        var dot = btn.querySelector(".bell-dot") || btn.querySelector("[data-bell-count]");
+        if (!dot) { dot = document.createElement("span"); dot.className="bell-dot"; dot.setAttribute("data-bell-count","1"); btn.style.position="relative"; btn.appendChild(dot); }
+        dot.hidden = unread <= 0; dot.textContent = unread > 9 ? "9+" : String(unread);
+      });
+    }
     function refreshNotifBadge() {
       var col = notifCol();
       if (!col) return;
@@ -444,7 +476,8 @@
       Promise.all([
         col.get(),
         me ? firebase.firestore().collection("announcements").where("status", "==", "active").limit(25).get() : Promise.resolve({ docs: [] }),
-        me ? firebase.firestore().collection("announcement_reads").doc(me.uid).get() : Promise.resolve({ exists:false })
+        me ? firebase.firestore().collection("announcement_reads").doc(me.uid).get() : Promise.resolve({ exists:false }),
+        me ? countPendingRequests(me) : Promise.resolve(0)
       ]).then(function (results) {
         var personal = 0;
         results[0].forEach(function (d) { if (!(d.data() || {}).read) personal++; });
@@ -456,14 +489,8 @@
           var expiry = a.expiresAt && a.expiresAt.toMillis ? a.expiresAt.toMillis() : 0;
           if ((!start || start <= now) && (!expiry || now < expiry) && !readStates[d.id]) announcements++;
         });
-        var unread = personal + announcements;
-        ["notifBtn", "notifBtnDesk"].forEach(function (id) {
-          var btn = document.getElementById(id);
-          if (!btn) return;
-          var dot = btn.querySelector(".bell-dot") || btn.querySelector("[data-bell-count]");
-          if (!dot) { dot = document.createElement("span"); dot.className="bell-dot"; dot.setAttribute("data-bell-count","1"); btn.style.position="relative"; btn.appendChild(dot); }
-          dot.hidden = unread <= 0; dot.textContent = unread > 9 ? "9+" : String(unread);
-        });
+        var pendingReqs = results[3] || 0;
+        paintBellDot(personal + announcements + pendingReqs);
       }).catch(function () {});
     }
 
@@ -689,24 +716,19 @@
         var me = firebase.auth().currentUser;
         if (!me) return;
         var db = firebase.firestore();
-        var personal = 0, announcements = 0, readStates = {};
-        function paint() {
-          var unread = personal + announcements;
-          ["notifBtn", "notifBtnDesk"].forEach(function (id) {
-            var btn = document.getElementById(id);
-            if (!btn) return;
-            var dot = btn.querySelector(".bell-dot") || btn.querySelector("[data-bell-count]");
-            if (!dot) {
-              dot = document.createElement("span");
-              dot.className = "bell-dot";
-              dot.setAttribute("data-bell-count", "1");
-              btn.style.position = "relative";
-              btn.appendChild(dot);
-            }
-            dot.hidden = unread <= 0;
-            dot.textContent = unread > 9 ? "9+" : String(unread);
-          });
+        var personal = 0, announcements = 0, pendingReqs = 0, readStates = {};
+        function paint() { paintBellDot(personal + announcements + pendingReqs); }
+        // friend_requests / group join_requests don't have a cheap single
+        // realtime listener (join_requests is a per-group subcollection), so
+        // these are polled instead — but on a short enough interval that a
+        // pending request shows up within half a minute of arriving, not
+        // only once the bell happens to get tapped.
+        function pollPendingRequests() {
+          countPendingRequests(me).then(function (n) { pendingReqs = n; paint(); });
         }
+        pollPendingRequests();
+        var pendingPollTimer = setInterval(pollPendingRequests, 25000);
+        notifBadgeUnsubs.push(function () { clearInterval(pendingPollTimer); });
         function recalcAnnouncements(snap) {
           var now = Date.now(), count = 0;
           snap.forEach(function (d) {
