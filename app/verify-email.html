@@ -47,12 +47,10 @@
     .msg.err { color: #DC2626; }
     .msg.ok { color: #059669; }
     .msg.info { color: #475569; }
-    .alt { margin-top: 14px; font-size: .8rem; color: var(--muted); text-align: center; line-height: 1.4; }
+    .alt { margin-top: 14px; font-size: .8rem; color: var(--muted); text-align: center; }
     .alt a { color: var(--indigo); font-weight: 700; }
   </style>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="js/firebase-config.js"></script>
+
 </head>
 <body>
   <div class="card">
@@ -70,86 +68,108 @@
     <button class="pri" type="button" id="btnVerify">Verify</button>
     <button class="ghost" type="button" id="btnResend">Resend code</button>
     <p class="msg" id="msg"></p>
-    <p class="alt"><a href="login.html">Back to login</a> · Use VPN if your network blocks Google</p>
+    <p class="alt"><a href="../login.html">Back to login</a> · VPN helps if Google is blocked</p>
   </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="../js/firebase-config.js"></script>
   <script>
-    (function () {
-      var BACKEND = "https://codex-backend-new.onrender.com";
-      var inputs = [].slice.call(document.querySelectorAll("#digits input"));
-      var msg = document.getElementById("msg");
-      var btnVerify = document.getElementById("btnVerify");
-      var btnResend = document.getElementById("btnResend");
-      var runId = 0; // each Resend cancels previous "logical" run
+  (function () {
+    // Fallback if firebase-config.js failed to load (local editor / wrong path)
+    if (!window.FIREBASE_CONFIG) {
+      window.FIREBASE_CONFIG = {
+        apiKey: "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+        authDomain: "codex-study-hub-923c5.firebaseapp.com",
+        projectId: "codex-study-hub-923c5",
+        storageBucket: "codex-study-hub-923c5.appspot.com",
+        messagingSenderId: "750631534625",
+        appId: "1:750631534625:web:5f59e1841bb856bdbba360"
+      };
+    }
+    if (!firebase.apps.length) {
+      firebase.initializeApp(window.FIREBASE_CONFIG);
+    }
 
-      function setMsg(t, kind) {
-        msg.textContent = t || "";
-        msg.className = "msg " + (kind || (t ? "err" : ""));
-      }
-      function codeValue() {
-        return inputs.map(function (i) { return (i.value || "").replace(/\D/g, ""); }).join("");
-      }
-      inputs.forEach(function (inp, idx) {
-        inp.addEventListener("input", function () {
-          inp.value = (inp.value || "").replace(/\D/g, "").slice(0, 1);
-          if (inp.value && idx < inputs.length - 1) inputs[idx + 1].focus();
-        });
-        inp.addEventListener("keydown", function (e) {
-          if (e.key === "Backspace" && !inp.value && idx > 0) inputs[idx - 1].focus();
-        });
-        inp.addEventListener("paste", function (e) {
-          var p = ((e.clipboardData || window.clipboardData).getData("text") || "").replace(/\D/g, "").slice(0, 6);
-          if (p.length > 1) {
-            e.preventDefault();
-            for (var i = 0; i < 6; i++) inputs[i].value = p[i] || "";
-            inputs[Math.min(p.length, 5)].focus();
-          }
-        });
+    var BACKEND = "https://codex-backend-new.onrender.com";
+    var inputs = [].slice.call(document.querySelectorAll("#digits input"));
+    var msg = document.getElementById("msg");
+    var btnVerify = document.getElementById("btnVerify");
+    var btnResend = document.getElementById("btnResend");
+    var runId = 0;
+
+    function setMsg(t, kind) {
+      msg.textContent = t || "";
+      msg.className = "msg " + (kind || (t ? "err" : ""));
+    }
+    function codeValue() {
+      return inputs.map(function (i) { return (i.value || "").replace(/\D/g, ""); }).join("");
+    }
+    inputs.forEach(function (inp, idx) {
+      inp.addEventListener("input", function () {
+        inp.value = (inp.value || "").replace(/\D/g, "").slice(0, 1);
+        if (inp.value && idx < inputs.length - 1) inputs[idx + 1].focus();
       });
-
-      function raceTimeout(ms, label) {
-        return new Promise(function (_, reject) {
-          setTimeout(function () {
-            reject(new Error(label || "Timed out"));
-          }, ms);
-        });
-      }
-
-      function getTokenFast() {
-        var user = firebase.auth().currentUser;
-        if (!user) {
-          return Promise.reject(new Error("Not signed in. Open Login, sign in, then come back."));
+      inp.addEventListener("keydown", function (e) {
+        if (e.key === "Backspace" && !inp.value && idx > 0) inputs[idx - 1].focus();
+      });
+      inp.addEventListener("paste", function (e) {
+        var p = ((e.clipboardData || window.clipboardData).getData("text") || "").replace(/\D/g, "").slice(0, 6);
+        if (p.length > 1) {
+          e.preventDefault();
+          for (var i = 0; i < 6; i++) inputs[i].value = p[i] || "";
+          inputs[Math.min(p.length, 5)].focus();
         }
-        // Race: cached token vs hard 8s wall — never hang forever
-        var tokenPromise = Promise.resolve()
-          .then(function () { return user.getIdToken(false); })
-          .then(function (tok) {
-            if (tok && String(tok).length > 40) return String(tok);
-            return user.getIdToken(true);
-          })
-          .then(function (tok) {
-            if (!tok || String(tok).length < 40) {
-              throw new Error("No session token. Log in again with VPN, then Resend.");
-            }
-            return String(tok);
-          });
-        return Promise.race([
-          tokenPromise,
-          raceTimeout(8000, "Auth token timed out (8s). Turn on VPN → Login → Resend.")
-        ]);
-      }
+      });
+    });
 
-      function post(path, extraBody, myRun) {
-        return getTokenFast().then(function (tok) {
-          if (myRun !== runId) return Promise.reject(new Error("cancelled"));
-          var body = Object.assign({ idToken: tok }, extraBody || {});
+    function raceTimeout(ms, label) {
+      return new Promise(function (_, reject) {
+        setTimeout(function () { reject(new Error(label || "Timed out")); }, ms);
+      });
+    }
+
+    function getTokenFast() {
+      var user = firebase.auth().currentUser;
+      if (!user) {
+        return Promise.reject(new Error("Not signed in. Open Login, sign in, then come back."));
+      }
+      var tokenPromise = Promise.resolve()
+        .then(function () { return user.getIdToken(false); })
+        .then(function (tok) {
+          if (tok && String(tok).length > 40) return String(tok);
+          return user.getIdToken(true);
+        })
+        .then(function (tok) {
+          if (!tok || String(tok).length < 40) {
+            throw new Error("No session token. Log in again (VPN helps), then Resend.");
+          }
+          return String(tok);
+        });
+      return Promise.race([
+        tokenPromise,
+        raceTimeout(8000, "Auth token timed out (8s). VPN → Login → Resend.")
+      ]);
+    }
+
+    function sendCode() {
+      runId += 1;
+      var myRun = runId;
+      btnResend.disabled = true;
+      setMsg("Sending… getting session", "info");
+
+      getTokenFast()
+        .then(function (tok) {
+          if (myRun !== runId) return null;
+          setMsg("Sending… talking to Codex server", "info");
           return Promise.race([
-            fetch(BACKEND + path, {
+            fetch(BACKEND + "/auth/send-verify-code", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
                 Authorization: "Bearer " + tok
               },
-              body: JSON.stringify(body)
+              body: JSON.stringify({ idToken: tok })
             }).then(function (r) {
               return r.text().then(function (text) {
                 var j = {};
@@ -157,131 +177,109 @@
                 return { r: r, j: j };
               });
             }),
-            raceTimeout(35000, "Server timed out. Wait and Resend (Render may be waking).")
+            raceTimeout(35000, "Server timed out. Wait and Resend.")
           ]);
-        });
-      }
-
-      function sendCode() {
-        runId += 1;
-        var myRun = runId;
-        btnResend.disabled = true;
-        setMsg("Sending… getting session", "info");
-        var stepTimer = setInterval(function () {
-          if (myRun !== runId) { clearInterval(stepTimer); return; }
-        }, 1000);
-
-        getTokenFast()
-          .then(function (tok) {
-            if (myRun !== runId) return null;
-            setMsg("Sending… talking to Codex server", "info");
-            var body = { idToken: tok };
-            return Promise.race([
-              fetch(BACKEND + "/auth/send-verify-code", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: "Bearer " + tok
-                },
-                body: JSON.stringify(body)
-              }).then(function (r) {
-                return r.text().then(function (text) {
-                  var j = {};
-                  try { j = text ? JSON.parse(text) : {}; } catch (e) {}
-                  return { r: r, j: j };
-                });
-              }),
-              raceTimeout(35000, "Server timed out after 35s. Resend again in a moment.")
-            ]);
-          })
-          .then(function (x) {
-            clearInterval(stepTimer);
-            if (myRun !== runId) return;
-            btnResend.disabled = false;
-            if (!x) return;
-            if (x.j && x.j.alreadyVerified) {
-              setMsg("Already verified. Redirecting…", "ok");
-              setTimeout(function () { location.href = "app/home.html"; }, 400);
-              return;
-            }
-            if (!x.r.ok) {
-              throw new Error((x.j && x.j.error) || ("Send failed (" + x.r.status + ")"));
-            }
-            setMsg("Code sent from codexhub16@gmail.com — check Inbox & Spam.", "ok");
-          })
-          .catch(function (e) {
-            clearInterval(stepTimer);
-            if (myRun !== runId) return;
-            btnResend.disabled = false;
-            if (e && e.message === "cancelled") return;
-            var m = (e && e.message) || "Could not send";
-            if (/Failed to fetch|NetworkError/i.test(m)) {
-              m = "Network error. Use VPN, wait 20s, Resend.";
-            }
-            setMsg(m, "err");
-          });
-      }
-
-      function checkCode() {
-        var c = codeValue();
-        if (c.length !== 6) { setMsg("Enter all 6 digits", "err"); return; }
-        runId += 1;
-        var myRun = runId;
-        setMsg("Checking…", "info");
-        btnVerify.disabled = true;
-        post("/auth/check-verify-code", { code: c }, myRun)
-          .then(function (x) {
-            if (myRun !== runId) return;
-            btnVerify.disabled = false;
-            if (!x.r.ok) throw new Error((x.j && x.j.error) || "Wrong code");
-            setMsg("Verified!", "ok");
-            var user = firebase.auth().currentUser;
-            return (user ? user.reload().catch(function () {}) : Promise.resolve()).then(function () {
-              location.href = "chooseFaculty.html";
-            });
-          })
-          .catch(function (e) {
-            if (myRun !== runId) return;
-            btnVerify.disabled = false;
-            if (e && e.message === "cancelled") return;
-            setMsg((e && e.message) || "Failed", "err");
-          });
-      }
-
-      btnVerify.onclick = checkCode;
-      btnResend.onclick = function () {
-        // Always allow Resend — cancels previous attempt
-        sendCode();
-      };
-
-      var authReady = false;
-      function onUser(user) {
-        if (authReady) return;
-        authReady = true;
-        if (!user) {
-          setMsg("Not signed in — go to Login first.", "err");
-          return;
-        }
-        if (user.emailVerified) {
-          setMsg("Already verified.", "ok");
-          setTimeout(function () { location.href = "app/home.html"; }, 400);
-          return;
-        }
-        document.getElementById("hint").textContent =
-          "Code will go to " + (user.email || "your email") + " from codexhub16@gmail.com.";
-        sendCode();
-      }
-
-      firebase.auth().onAuthStateChanged(onUser);
-
-      // Failsafe: if Auth never answers
-      setTimeout(function () {
-        if (!authReady) {
-          setMsg("Firebase Auth not responding. Turn on VPN → open Login → then this page.", "err");
+        })
+        .then(function (x) {
+          if (myRun !== runId) return;
           btnResend.disabled = false;
-        }
-      }, 12000);
-    })();
+          if (!x) return;
+          if (x.j && x.j.alreadyVerified) {
+            setMsg("Already verified. Redirecting…", "ok");
+            setTimeout(function () { location.href = "home.html"; }, 400);
+            return;
+          }
+          if (!x.r.ok) {
+            throw new Error((x.j && x.j.error) || ("Send failed (" + x.r.status + ")"));
+          }
+          setMsg("Code sent from codexhub16@gmail.com — check Inbox & Spam.", "ok");
+        })
+        .catch(function (e) {
+          if (myRun !== runId) return;
+          btnResend.disabled = false;
+          if (e && e.message === "cancelled") return;
+          var m = (e && e.message) || "Could not send";
+          if (/Failed to fetch|NetworkError/i.test(m)) m = "Network error. Use VPN, wait 20s, Resend.";
+          if (/No Firebase App|initializeApp/i.test(m)) m = "Firebase not started. Hard-refresh this page.";
+          setMsg(m, "err");
+        });
+    }
+
+    function checkCode() {
+      var c = codeValue();
+      if (c.length !== 6) { setMsg("Enter all 6 digits", "err"); return; }
+      runId += 1;
+      var myRun = runId;
+      setMsg("Checking…", "info");
+      btnVerify.disabled = true;
+      getTokenFast()
+        .then(function (tok) {
+          if (myRun !== runId) return null;
+          return Promise.race([
+            fetch(BACKEND + "/auth/check-verify-code", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + tok
+              },
+              body: JSON.stringify({ idToken: tok, code: c })
+            }).then(function (r) {
+              return r.text().then(function (text) {
+                var j = {};
+                try { j = text ? JSON.parse(text) : {}; } catch (e) {}
+                return { r: r, j: j };
+              });
+            }),
+            raceTimeout(30000, "Check timed out")
+          ]);
+        })
+        .then(function (x) {
+          if (myRun !== runId) return;
+          btnVerify.disabled = false;
+          if (!x) return;
+          if (!x.r.ok) throw new Error((x.j && x.j.error) || "Wrong code");
+          setMsg("Verified!", "ok");
+          var user = firebase.auth().currentUser;
+          return (user ? user.reload().catch(function () {}) : Promise.resolve()).then(function () {
+            location.href = "../chooseFaculty.html";
+          });
+        })
+        .catch(function (e) {
+          if (myRun !== runId) return;
+          btnVerify.disabled = false;
+          setMsg((e && e.message) || "Failed", "err");
+        });
+    }
+
+    btnVerify.onclick = checkCode;
+    btnResend.onclick = function () { sendCode(); };
+
+    var authReady = false;
+    firebase.auth().onAuthStateChanged(function (user) {
+      if (authReady) return;
+      authReady = true;
+      if (!user) {
+        setMsg("Not signed in — go to Login first.", "err");
+        return;
+      }
+      if (user.emailVerified) {
+        setMsg("Already verified.", "ok");
+        setTimeout(function () { location.href = "home.html"; }, 400);
+        return;
+      }
+      document.getElementById("hint").textContent =
+        "Code will go to " + (user.email || "your email") + " from codexhub16@gmail.com.";
+      sendCode();
+    });
+
+    setTimeout(function () {
+      if (!authReady) {
+        setMsg("Firebase Auth not responding. VPN → Login → this page.", "err");
+        btnResend.disabled = false;
+      }
+    }, 12000);
+  })();
   </script>
+
 </body>
 </html>
