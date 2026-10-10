@@ -605,7 +605,7 @@
         var done = function (id) {
           sharedId = id;
           var origin = location.origin && location.origin.indexOf("file:") === 0 ? "https://codex-hub.app" : (location.origin || "");
-          var path = location.pathname.replace(/study-lab-doc\\.html.*/, "shared_quiz.html");
+          var path = location.pathname.replace(/study-lab-doc\.html.*/, "shared_quiz.html");
           if (path.indexOf("shared_quiz") === -1) path = "/app/shared_quiz.html";
           var url = "https://codex-hub-prime.vercel.app/q/" + encodeURIComponent(id);
           if (location.protocol === "file:") url = "shared_quiz.html?id=" + id;
@@ -711,7 +711,7 @@
           };
           document.getElementById("askNovaScore").onclick = function () {
             var lines = quiz.map(function (it, i) {
-              return (i + 1) + ". " + it.q + "\\nOptions: " + (it.options || []).join(" | ");
+              return (i + 1) + ". " + it.q + "\nOptions: " + (it.options || []).join(" | ");
             }).join("\n\n");
             try { sessionStorage.setItem("nova_prefill", "I scored " + correct + "/" + quiz.length + " on this quiz. Explain the correct answers simply:\n\n" + lines.slice(0, 3500)); } catch (e) {}
             location.href = "nova.html";

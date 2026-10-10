@@ -20,8 +20,73 @@ html.theme-dark .metric span, html.theme-dark .label, html.theme-dark .muted { c
   </script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
-<body class="app-body"><div id="shell-root"></div><main class="wrap"><header class="head"><div class="eyebrow">Your learning data</div><h1>Study stats</h1><p>See your CBT performance, strongest courses, weak areas and recent activity.</p></header><section class="hero"><div class="hero-copy"><strong>Overall accuracy</strong><b id="overall">—</b><span id="heroSub">Complete CBT sessions to build your profile.</span></div><div class="ring" id="ring" data-pct="—" style="--pct:0deg"></div></section><section class="kpis"><div class="kpi"><b id="sessions">0</b><span>Sessions</span></div><div class="kpi"><b id="questions">0</b><span>Questions</span></div><div class="kpi"><b id="best">—</b><span>Best score</span></div><div class="kpi"><b id="courses">0</b><span>Courses</span></div></section><div class="grid"><section class="card"><h2>Course performance</h2><div class="bars" id="bars"><div class="empty">Your course breakdown will appear here.</div></div></section><section class="card"><h2>Study guidance</h2><div class="insight" id="insight">Complete more CBT sessions and Nova can use your real results to guide your study plan.</div></section><section class="card"><h2>Recent attempts</h2><div class="hist" id="history"><div class="empty">No attempts yet.</div></div></section><section class="card"><h2>Weak areas</h2><div class="insight" id="weak">No weak course identified yet.</div></section></div></main>
+<body class="app-body" data-page="stats"><div id="shell-root"></div><main class="wrap"><header class="head"><div class="eyebrow">Your learning data</div><h1>Study stats</h1><p>See your CBT performance, strongest courses, weak areas and recent activity.</p></header><section class="hero"><div class="hero-copy"><strong>Overall accuracy</strong><b id="overall">—</b><span id="heroSub">Complete CBT sessions to build your profile.</span></div><div class="ring" id="ring" data-pct="—" style="--pct:0deg"></div></section><section class="kpis"><div class="kpi"><b id="sessions">0</b><span>Sessions</span></div><div class="kpi"><b id="questions">0</b><span>Questions</span></div><div class="kpi"><b id="best">—</b><span>Best score</span></div><div class="kpi"><b id="courses">0</b><span>Courses</span></div></section><div class="grid"><section class="card"><h2>Course performance</h2><div class="bars" id="bars"><div class="empty">Your course breakdown will appear here.</div></div></section><section class="card"><h2>Study guidance</h2><div class="insight" id="insight">Complete more CBT sessions and Nova can use your real results to guide your study plan.</div></section><section class="card"><h2>Recent attempts</h2><div class="hist" id="history"><div class="empty">No attempts yet.</div></div></section><section class="card"><h2>Weak areas</h2><div class="insight" id="weak">No weak course identified yet.</div></section></div></main>
 <script src="../js/firebase-config.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="../js/firestore-boot.js"></script><script src="../js/app-auth.js"></script><script src="../js/onboarding.js"></script>
-  <script src="../js/shell.js"></script><script>(function(){if(!firebase.apps.length)firebase.initializeApp(window.FIREBASE_CONFIG);function esc(s){return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}CodexAuth.requireUser().then(async r=>{CodexShell.mountShell({active:'stats',page:'stats',user:r.user,profile:r.profile});var snap=await r.db.collection('stats').doc(r.user.uid).get(),hist=snap.exists?((snap.data()||{}).history||[]):[];if(!hist.length)return;var totalQ=0,correct=0,best=0,by={};hist.forEach(h=>{var code=h.code||h.subject||'—',t=Number(h.totalQuestions)||0,s=Number(h.score)||0,p=typeof h.percentage==='number'?h.percentage:(t?s/t*100:0);totalQ+=t;correct+=s;best=Math.max(best,p);if(!by[code])by[code]={t:0,s:0,n:0};by[code].t+=t;by[code].s+=s;by[code].n++});var avg=totalQ?Math.round(correct/totalQ*100):0;document.getElementById('overall').textContent=avg+'%';document.getElementById('heroSub').textContent=hist.length+' CBT session'+(hist.length===1?'':'s')+' recorded';document.getElementById('ring').style.setProperty('--pct',(avg*3.6)+'deg');document.getElementById('ring').dataset.pct=avg+'%';document.getElementById('sessions').textContent=hist.length;document.getElementById('questions').textContent=totalQ;document.getElementById('best').textContent=Math.round(best)+'%';document.getElementById('courses').textContent=Object.keys(by).length;var rows=Object.keys(by).map(c=>{var o=by[c];return {code:c,p:o.t?Math.round(o.s/o.t*100):0,n:o.n}}).sort((a,b)=>a.p-b.p);document.getElementById('bars').innerHTML=rows.map(o=>'<div class="bar"><code>'+esc(o.code)+'</code><div class="track"><i style="width:'+o.p+'%"></i></div><span class="pct">'+o.p+'%</span></div>').join('');var weak=rows.slice(0,3).filter(x=>x.p<75);document.getElementById('weak').innerHTML=weak.length?weak.map(x=>'<div style="margin-bottom:7px"><strong>'+esc(x.code)+'</strong> · '+x.p+'%<div style="color:#64748B;margin-top:2px">Consider another notes review and targeted CBT practice.</div></div>').join(''):'Your current course results do not show a clear weak course below 75%.';document.getElementById('insight').textContent=avg<60?'Start with your weakest course and use short practice blocks.':avg<75?'Mix notes review with targeted CBT practice on weaker courses.':'Keep rotating review and CBT so strong performance stays consistent.';document.getElementById('history').innerHTML=hist.slice().reverse().slice(0,12).map(h=>{var c=h.code||h.subject||'CBT',t=Number(h.totalQuestions)||0,s=Number(h.score)||0,p=typeof h.percentage==='number'?Math.round(h.percentage):(t?Math.round(s/t*100):0);return '<a href="cbt.html?code='+encodeURIComponent(c)+'"><div><b>'+esc(c)+'</b><small>'+esc(h.date||'')+(h.mode?' · '+esc(h.mode):'')+'</small></div><strong>'+p+'%</strong></a>'}).join('');}).catch(()=>location.href='../login.html')})();</script>
+  <script src="../js/shell.js"></script>
+  <script src="../js/codex-speed.js"></script>
+  <script>
+  (function () {
+    if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+    function esc(s) {
+      return String(s || "").replace(/[&<>"]/g, function (c) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+      });
+    }
+    CodexAuth.requireUser().then(async function (r) {
+      CodexShell.mountShell({ active: "stats", page: "stats", user: r.user, profile: r.profile });
+      var snap = await r.db.collection("stats").doc(r.user.uid).get();
+      var hist = snap.exists ? ((snap.data() || {}).history || []) : [];
+      if (!hist.length) { try { if (window.CodexSpeed) CodexSpeed.clearSkeleton(); } catch (eSp0) {} return; }
+      var totalQ = 0, correct = 0, best = 0, by = {};
+      hist.forEach(function (h) {
+        var code = h.code || h.subject || "\u2014";
+        var t = Number(h.totalQuestions) || 0;
+        var s = Number(h.score) || 0;
+        var p = typeof h.percentage === "number" ? h.percentage : (t ? s / t * 100 : 0);
+        totalQ += t; correct += s; best = Math.max(best, p);
+        if (!by[code]) by[code] = { t: 0, s: 0, n: 0 };
+        by[code].t += t; by[code].s += s; by[code].n++;
+      });
+      var avg = totalQ ? Math.round(correct / totalQ * 100) : 0;
+      document.getElementById("overall").textContent = avg + "%";
+      document.getElementById("heroSub").textContent = hist.length + " CBT session" + (hist.length === 1 ? "" : "s") + " recorded";
+      document.getElementById("ring").style.setProperty("--pct", (avg * 3.6) + "deg");
+      document.getElementById("ring").dataset.pct = avg + "%";
+      document.getElementById("sessions").textContent = hist.length;
+      document.getElementById("questions").textContent = totalQ;
+      document.getElementById("best").textContent = Math.round(best) + "%";
+      document.getElementById("courses").textContent = Object.keys(by).length;
+      try {
+        if (window.CodexSpeed) {
+          CodexSpeed.saveStats({ overall: avg + "%", sessions: hist.length, questions: totalQ, best: Math.round(best) + "%", courses: Object.keys(by).length });
+          CodexSpeed.clearSkeleton();
+        }
+      } catch (eSp) {}
+      var rows = Object.keys(by).map(function (c) {
+        var o = by[c];
+        return { code: c, p: o.t ? Math.round(o.s / o.t * 100) : 0, n: o.n };
+      }).sort(function (a, b) { return a.p - b.p; });
+      document.getElementById("bars").innerHTML = rows.map(function (o) {
+        return '<div class="bar"><code>' + esc(o.code) + '</code><div class="track"><i style="width:' + o.p + '%"></i></div><span class="pct">' + o.p + '%</span></div>';
+      }).join("");
+      var weak = rows.slice(0, 3).filter(function (x) { return x.p < 75; });
+      document.getElementById("weak").innerHTML = weak.length ? weak.map(function (x) {
+        return '<div style="margin-bottom:7px"><strong>' + esc(x.code) + '</strong> \u00b7 ' + x.p + '%<div style="color:#64748B;margin-top:2px">Consider another notes review and targeted CBT practice.</div></div>';
+      }).join("") : "Your current course results do not show a clear weak course below 75%.";
+      document.getElementById("insight").textContent = avg < 60
+        ? "Start with your weakest course and use short practice blocks."
+        : avg < 75
+          ? "Mix notes review with targeted CBT practice on weaker courses."
+          : "Keep rotating review and CBT so strong performance stays consistent.";
+      document.getElementById("history").innerHTML = hist.slice().reverse().slice(0, 12).map(function (h) {
+        var c = h.code || h.subject || "CBT";
+        var t = Number(h.totalQuestions) || 0;
+        var s = Number(h.score) || 0;
+        var p = typeof h.percentage === "number" ? Math.round(h.percentage) : (t ? Math.round(s / t * 100) : 0);
+        return '<a href="cbt.html?code=' + encodeURIComponent(c) + '"><div><b>' + esc(c) + '</b><small>' + esc(h.date || "") + (h.mode ? " \u00b7 " + esc(h.mode) : "") + '</small></div><strong>' + p + '%</strong></a>';
+      }).join("");
+    }).catch(function () { location.href = "../login.html"; });
+  })();
+  </script>
 <script>try{if(window.CodexOnboarding)CodexOnboarding.auto("stats",700);}catch(e){}</script>
 </body></html>

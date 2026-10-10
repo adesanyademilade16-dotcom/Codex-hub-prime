@@ -496,6 +496,7 @@ html.theme-dark .section-label { color: #94A3B8 !important; }
   <script src="../js/referrals.js"></script>
   <script src="../js/onboarding.js"></script>
   <script src="../js/shell.js"></script>
+  <script src="../js/codex-speed.js"></script>
   <script src="../js/rank.js"></script>
   <script>
   (function () {
@@ -618,6 +619,12 @@ html.theme-dark .section-label { color: #94A3B8 !important; }
         }
       } catch (eRk) {}
       document.getElementById("mStreak").textContent = streak;
+      try {
+        if (window.CodexSpeed) {
+          CodexSpeed.saveProfile(p, u);
+          CodexSpeed.clearSkeleton();
+        }
+      } catch (eSp) {}
       document.getElementById("mPlan").textContent = plan;
       var bioEl = document.getElementById("mBio");
       if (bioEl) bioEl.textContent = p.bio || p.about || "No bio yet — you can add one in a future edit-profile field.";
