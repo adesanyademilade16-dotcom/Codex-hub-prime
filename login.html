@@ -275,7 +275,7 @@
               <button type="button" class="eye-btn" id="togglePw" aria-label="Show password" aria-pressed="false"><svg class="eye-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
             </div>
             <div class="row-between">
-              <a class="forgotLink" href="#" id="forgotBtn">Forgot password?</a>
+              <a class="forgotLink" href="reset-password.html" id="forgotBtn">Forgot password?</a>
             </div>
             <button type="submit" id="loginBtn">Sign in</button>
           </form>
@@ -411,13 +411,14 @@ showStatus("Verify your email first. Check inbox and Spam.", "error");
         });
     });
 
-    forgotBtn.addEventListener("click", function (e) {
-      e.preventDefault();
-      var email = (emailEl.value || "").trim();
-      var dest = "reset-password.html" + (email ? ("?email=" + encodeURIComponent(email)) : "");
-      location.href = dest;
-    });
-    });
+    if (forgotBtn) {
+      forgotBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        var email = (emailEl && emailEl.value || "").trim();
+        var dest = "reset-password.html" + (email ? ("?email=" + encodeURIComponent(email)) : "");
+        location.href = dest;
+      });
+    }
 
     // Password eye toggles (if present)
     document.querySelectorAll("[data-toggle-pass]").forEach(function (btn) {
