@@ -339,6 +339,11 @@
     var googleBtn = document.getElementById("googleBtn");
     var forgotBtn = document.getElementById("forgotBtn");
     var status = document.getElementById("status");
+    try {
+      if (/[?&]reset=1/.test(location.search)) {
+        setTimeout(function () { showStatus("Password updated. Sign in with your new password.", "ok"); }, 0);
+      }
+    } catch (eR) {}
 
     function showStatus(msg, type) {
       status.textContent = msg;
@@ -353,8 +358,7 @@
       }
       // Email/password accounts must verify before entering the app (Google is trusted)
       if (user && !user.emailVerified && isPasswordUser(user)) {
-/* Brevo handles verification — no Firebase email */
-        showStatus("Verify your email first. Check inbox and Spam.", "error");
+showStatus("Verify your email first. Check inbox and Spam.", "error");
         location.href = "verify-email.html";
         return Promise.resolve();
       }
@@ -409,15 +413,10 @@
 
     forgotBtn.addEventListener("click", function (e) {
       e.preventDefault();
-      var email = emailEl.value.trim();
-      if (!email) {
-        showStatus("Enter your email above, then tap Forgot password.", "info");
-        emailEl.focus();
-        return;
-      }
-      auth.sendPasswordResetEmail(email)
-        .then(function () { showStatus("Reset link sent. Check your inbox (and spam).", "ok"); })
-        .catch(function (err) { showStatus(err.message || "Could not send reset email."); });
+      var email = (emailEl.value || "").trim();
+      var dest = "reset-password.html" + (email ? ("?email=" + encodeURIComponent(email)) : "");
+      location.href = dest;
+    });
     });
 
     // Password eye toggles (if present)
