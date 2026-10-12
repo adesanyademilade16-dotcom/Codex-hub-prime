@@ -1,8 +1,8 @@
 /**
  * Codex Hub 2.0 — CBT engine
  * Library → setup → exam → results
- * Free: 3 lifetime starts (users.cbtTrialsUsed / cbtTrialsLimit)
- * Regular/Pro: unlimited
+ * Free: CBT trials (system/limits.cbtTrialsFree + bonus)
+ * Regular/Pro: unlimited while planExpiresAt active; expired → free
  */
 (function () {
   "use strict";
@@ -70,9 +70,11 @@
   }
   function isPaid() {
     var email = (state.profile && state.profile.email) || (state.user && state.user.email) || "";
-    if (String(email).toLowerCase() === "codexhub16@gmail.com") return true;
+    if (typeof CodexEntitlements !== "undefined") {
+      return CodexEntitlements.getEntitlement(state.profile || {}, email).activePaid;
+    }
     var plan = String(state.plan || "free").toLowerCase();
-    return plan.indexOf("pro") >= 0 || plan.indexOf("regular") >= 0 || plan === "paid";
+    return plan.indexOf("pro") >= 0 || plan.indexOf("regular") >= 0;
   }
   function isAdminUser() {
     var email = (state.profile && state.profile.email) || (state.user && state.user.email) || "";
@@ -179,7 +181,11 @@
     var el = $("trialsNote");
     if (!el) return;
     if (isPaid() && state.trialsLimit >= 999) {
-      el.innerHTML = "Your <b>Pro</b> plan includes effectively unlimited CBT practice.";
+      var lab = (state.entitlement && state.entitlement.label) || (state.plan === "regular" ? "Regular" : "Pro");
+      var until = (state.entitlement && state.entitlement.expiresAt && typeof CodexEntitlements !== "undefined")
+        ? CodexEntitlements.formatExpiry(state.entitlement.expiresAt) : "";
+      el.innerHTML = "Your <b>" + lab + "</b> plan includes unlimited CBT" +
+        (until ? " until <b>" + until + "</b>" : "") + ".";
       return;
     }
     var left = Math.max(0, state.trialsLimit - state.trialsUsed);
@@ -250,8 +256,12 @@
     var snap = await db.collection("users").doc(state.user.uid).get();
     var d = snap.exists ? snap.data() : {};
     state.profile = d;
-    state.plan = normPlan(d.plan || d.subscription || d.tier || "free");
     if (state.user && state.user.email && !d.email) d.email = state.user.email;
+    var ent0 = (typeof CodexEntitlements !== "undefined")
+      ? CodexEntitlements.getEntitlement(d, state.user && state.user.email)
+      : { plan: normPlan(d.plan || d.subscription || d.tier || "free"), unlimitedCbt: false };
+    state.plan = ent0.plan;
+    state.entitlement = ent0;
     state.trialsUsed = Number(d.cbtTrialsUsed) || 0;
     state.trialsBonus = Number(d.cbtTrialsBonus) || 0;
     // Global limits from system/limits (Admin → Configuration)
@@ -268,12 +278,13 @@
     } catch (e) { /* offline / rules */ }
     var personal = Number(d.cbtTrialsLimit) || 0;
     var bonus = Number(state.trialsBonus) || 0;
-    var plan = state.plan || "free";
-    var baseLimit = globalFree;
-    if (plan === "pro") baseLimit = globalPro;
-    else if (plan === "regular") baseLimit = globalReg;
-    // Personal grant or admin bonus can only raise the cap
-    state.trialsLimit = Math.max(baseLimit, personal) + bonus;
+    // Active paid subscription → unlimited CBT for the whole window
+    if (state.entitlement && state.entitlement.unlimitedCbt) {
+      state.trialsLimit = 999999;
+    } else {
+      var baseLimit = globalFree;
+      state.trialsLimit = Math.max(baseLimit, personal) + bonus;
+    }
   }
 
   async function consumeTrial() {
