@@ -679,7 +679,7 @@
     $("modalBody").innerHTML =
       '<p style="font-size:.84rem;margin-bottom:12px">Student: <b>' + esc(u.fullName || u.email || u._id) + '</b></p>' +
       '<div class="field"><label>New plan</label><select id="newPlan"><option value="free">Free</option><option value="regular">Regular</option><option value="pro">Pro</option></select></div>' +
-      '<div class="field"><label>Duration (days, 0 = clear expiry)</label><input type="number" id="planDays" value="30" min="0" max="730"></div>' +
+      '<div class="field"><label>Duration (days, 0 = clear expiry)</label><input type="number" id="planDays" value="120" min="0" max="730"></div>' +
       '<div class="field"><label>Reason (required)</label><textarea id="planReason" placeholder="Scholarship, support, testing…"></textarea></div>' +
       '<p style="font-size:.74rem;color:var(--danger)">This writes protected billing fields. Rules may only allow SUPER_ADMIN / Cloud Functions. Every change is audited.</p>';
     $("modalFooter").innerHTML =
@@ -699,12 +699,19 @@
         isRegular: plan === "regular",
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       };
-      if (days > 0) {
+      if (plan === "free" || days <= 0) {
+        patch.planExpiresAt = null;
+        patch.subscriptionExpires = null;
+        patch.proUntil = null;
+        patch.regularUntil = null;
+      } else {
         var exp = new Date();
         exp.setDate(exp.getDate() + days);
-        patch.proUntil = plan === "pro" ? exp : null;
-        patch.regularUntil = plan === "regular" ? exp : null;
-        patch.subscriptionExpires = exp;
+        var expMs = exp.getTime();
+        patch.planExpiresAt = expMs;
+        patch.subscriptionExpires = expMs;
+        patch.proUntil = plan === "pro" ? expMs : null;
+        patch.regularUntil = plan === "regular" ? expMs : null;
       }
       $("modalConfirmPlan").disabled = true;
       db().collection("users").doc(u._id).set(patch, { merge: true }).then(function () {
@@ -726,29 +733,121 @@
   MODULES.subscriptions = function (root) {
     return loadOverviewMetrics().then(function (m) {
       root.innerHTML =
-        '<div class="ws-header"><div><h1>Subscriptions</h1><p>Plan distribution and manual grants (audited).</p></div></div>' +
+        '<div class="ws-header"><div><h1>Subscriptions</h1><p>Plan distribution · Paystack + manual grants (audited).</p></div>' +
+        '<div class="ws-actions"><button type="button" class="btn" id="goPay">Payments</button> ' +
+        '<button type="button" class="btn btn-primary" id="goStudents">Grant from Students</button></div></div>' +
         '<div class="metrics">' +
           '<div class="metric"><div class="label">Free</div><div class="value">' + m.free + '</div></div>' +
           '<div class="metric"><div class="label">Regular</div><div class="value">' + m.regular + '</div></div>' +
           '<div class="metric"><div class="label">Pro</div><div class="value">' + m.pro + '</div></div>' +
           '<div class="metric accent"><div class="label">Paid (sample)</div><div class="value">' + (m.regular + m.pro) + '</div></div>' +
         '</div>' +
-        '<div class="card"><div class="card-bd"><p style="font-size:.88rem;line-height:1.55;color:var(--muted)">' +
-        'Manual plan changes are available from <b>Students → student drawer → Change plan</b>. ' +
-        'Production grants should go through a Cloud Function so billing fields stay rule-protected. Paystack is not connected yet.' +
-        '</p><button type="button" class="btn btn-primary" id="goStudents">Open students</button></div></div>';
-      $("goStudents").onclick = function () { navigate("students"); };
+        '<div class="card"><div class="card-bd"><p style="font-size:.88rem;line-height:1.55;color:var(--muted);margin:0 0 10px">' +
+        '<b>Automatic:</b> Paystack success writes plan + 120-day <code>planExpiresAt</code> (verify or webhook).<br>' +
+        '<b>Manual:</b> Students → open student → <b>Change plan</b> (default 120 days). Use for support when payment succeeded but browser never returned. Every change is audited.<br>' +
+        'Admins can write billing fields; students cannot (Firestore rules).' +
+        '</p><button type="button" class="btn btn-primary" id="goStudents2">Open students</button></div></div>' +
+        '<div class="card"><div class="card-hd"><h2>Recent plan changes (audit)</h2></div><div class="card-bd">' +
+        '<div class="table-wrap"><table class="data" id="subAuditTable"><thead><tr>' +
+        '<th>When</th><th>Admin</th><th>Student</th><th>Change</th><th>Reason</th></tr></thead><tbody></tbody></table></div></div></div>';
+      function goS() { navigate("students"); }
+      $("goStudents").onclick = goS;
+      $("goStudents2").onclick = goS;
+      $("goPay").onclick = function () { navigate("payments"); };
+      return db().collection("admin_audit").orderBy("createdAt", "desc").limit(25).get()
+        .catch(function () { return { forEach: function () {} }; })
+        .then(function (snap) {
+          var tb = document.querySelector("#subAuditTable tbody");
+          if (!tb) return;
+          var rows = [];
+          snap.forEach(function (doc) {
+            var d = doc.data() || {};
+            if (String(d.action || "") !== "subscription_change") return;
+            var when = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate().toLocaleString() : "—";
+            var meta = d.meta || d.details || {};
+            rows.push("<tr><td>" + esc(when) + "</td><td>" + esc(d.adminEmail || d.adminUid || "—") +
+              "</td><td>" + esc((d.target && (d.target.email || d.target.uid)) || meta.email || "—") +
+              "</td><td>" + esc((meta.from || "?") + " → " + (meta.to || meta.plan || "?")) +
+              "</td><td>" + esc(meta.reason || d.reason || "—") + "</td></tr>");
+          });
+          tb.innerHTML = rows.length ? rows.join("") : "<tr><td colspan='5' style='color:var(--muted)'>No subscription_change audits yet.</td></tr>";
+        });
     });
   };
 
   MODULES.payments = function (root) {
     root.innerHTML =
-      '<div class="ws-header"><div><h1>Payments</h1><p>Paystack integration-ready workspace.</p></div></div>' +
-      '<div class="card"><div class="card-bd">' +
-      '<div class="empty"><b>Payments integration not connected</b>' +
-      '<span>Paystack has not been integrated yet. When it is, this workspace will show revenue, successful/failed transactions, and verification status. Secret keys stay server-side only.</span></div>' +
-      '</div></div>';
-    return Promise.resolve();
+      '<div class="ws-header"><div><h1>Payments</h1><p>Hub Paystack transactions (server-verified).</p></div>' +
+      '<div class="ws-actions"><button type="button" class="btn" id="payRefresh">Refresh</button></div></div>' +
+      '<div class="metrics" id="payMetrics">' +
+        '<div class="metric"><div class="label">Transactions</div><div class="value" id="payCount">—</div></div>' +
+        '<div class="metric"><div class="label">Revenue (₦)</div><div class="value" id="payRev">—</div></div>' +
+        '<div class="metric"><div class="label">Regular</div><div class="value" id="payReg">—</div></div>' +
+        '<div class="metric accent"><div class="label">Pro</div><div class="value" id="payPro">—</div></div>' +
+      '</div>' +
+      '<div class="card"><div class="card-hd"><h2>Recent Hub payments</h2></div><div class="card-bd">' +
+      '<p style="font-size:.8rem;color:var(--muted);margin:0 0 10px">Source: <code>hub_transactions</code> written only by the backend after Paystack verify/webhook. ' +
+      'If a student paid but is still Free, find their <code>CHUB_</code> reference here or in Paystack, then grant from Students.</p>' +
+      '<div class="table-wrap"><table class="data" id="payTable"><thead><tr>' +
+      '<th>When</th><th>Reference</th><th>Plan</th><th>Amount</th><th>UID</th><th></th></tr></thead><tbody></tbody></table></div></div></div>';
+
+    function loadPay() {
+      return db().collection("hub_transactions").orderBy("createdAt", "desc").limit(50).get()
+        .then(function (snap) {
+          var n = 0, rev = 0, reg = 0, pro = 0, rows = [];
+          snap.forEach(function (doc) {
+            var d = doc.data() || {};
+            n++;
+            var amt = Number(d.amountNaira) || (Number(d.amountKobo) ? Number(d.amountKobo) / 100 : 0);
+            rev += amt;
+            var plan = String(d.plan || "").toLowerCase();
+            if (plan === "regular") reg++;
+            if (plan === "pro") pro++;
+            var when = "—";
+            if (typeof d.createdAt === "number") when = new Date(d.createdAt).toLocaleString();
+            else if (d.createdAt && d.createdAt.toDate) when = d.createdAt.toDate().toLocaleString();
+            var uid = d.uid || "—";
+            rows.push(
+              "<tr><td>" + esc(when) + "</td><td style='font-size:.72rem;word-break:break-all'>" + esc(d.reference || doc.id) +
+              "</td><td>" + esc(plan || "—") + "</td><td>₦" + esc(String(amt)) +
+              "</td><td style='font-size:.72rem'>" + esc(uid) +
+              "</td><td><button type='button' class='btn pay-find' data-uid='" + esc(uid) + "' style='padding:4px 8px;font-size:.75rem'>Student</button></td></tr>"
+            );
+          });
+          $("payCount").textContent = String(n);
+          $("payRev").textContent = rev ? String(Math.round(rev)) : "0";
+          $("payReg").textContent = String(reg);
+          $("payPro").textContent = String(pro);
+          var tb = document.querySelector("#payTable tbody");
+          if (tb) {
+            tb.innerHTML = rows.length ? rows.join("") :
+              "<tr><td colspan='6' style='color:var(--muted)'>No hub_transactions yet. Complete a test payment from Plans.</td></tr>";
+            tb.querySelectorAll(".pay-find").forEach(function (btn) {
+              btn.onclick = function () {
+                var uid = btn.getAttribute("data-uid");
+                if (!uid || uid === "—") return;
+                navigate("students");
+                // best-effort: user can search by uid/email on students
+                setTimeout(function () {
+                  var q = document.getElementById("studentSearch") || document.querySelector("input[type=search]");
+                  if (q) { q.value = uid; q.dispatchEvent(new Event("input")); }
+                }, 400);
+              };
+            });
+          }
+        })
+        .catch(function (err) {
+          console.warn("hub_transactions", err);
+          var tb = document.querySelector("#payTable tbody");
+          if (tb) {
+            tb.innerHTML = "<tr><td colspan='6' style='color:var(--danger)'>Could not load transactions. " +
+              "Publish rules for hub_transactions (admin read) and ensure payments exist.</td></tr>";
+          }
+        });
+    }
+
+    $("payRefresh").onclick = function () { loadPay(); };
+    return loadPay();
   };
 
   MODULES.resources = function (root) {
