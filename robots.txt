@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /login.html
+Allow: /signup.html
+Allow: /guides/
+Allow: /splash.html
+
+Disallow: /app/
+Disallow: /admin/
+Disallow: /js/
+Disallow: /css/
+
+Sitemap: https://codex-hub-prime.vercel.app/sitemap.xml

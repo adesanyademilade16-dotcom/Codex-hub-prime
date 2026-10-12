@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#4F46E5" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Codex Hub</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    html,body { height:100%; margin:0; }
+    body {
+      display:flex; align-items:center; justify-content:center;
+      background: linear-gradient(160deg, #4F46E5 0%, #7C3AED 55%, #312E81 100%);
+      font-family: system-ui, -apple-system, sans-serif; color:#fff;
+    }
+    .box { text-align:center; padding:24px; }
+    .logo {
+      width:88px; height:88px; border-radius:22px; background:#fff;
+      display:flex; align-items:center; justify-content:center; margin:0 auto 18px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.25); font-weight:900; color:#4F46E5; font-size:1.4rem;
+    }
+    h1 { margin:0 0 8px; font-size:1.35rem; letter-spacing:-.02em; }
+    p { margin:0; opacity:.85; font-size:.92rem; }
+    .spin {
+      width:28px; height:28px; margin:22px auto 0; border:3px solid rgba(255,255,255,.35);
+      border-top-color:#fff; border-radius:50%; animation:s .8s linear infinite;
+    }
+    @keyframes s { to { transform:rotate(360deg); } }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+</head>
+<body>
+  <div class="box">
+    <div class="logo">CH</div>
+    <h1>Codex Hub</h1>
+    <p>Loading your study space…</p>
+    <div class="spin" aria-hidden="true"></div>
+  </div>
+  <script>
+  (function () {
+    var HOME = "app/home.html";
+    var LOGIN = "login.html";
+    var LANDING = "index.html";
+    function go(url) { location.replace(url); }
+    // Browser tab marketing: only force app shell when installed / pwa query
+    var isPwa = window.matchMedia("(display-mode: standalone)").matches
+      || window.navigator.standalone === true
+      || /source=pwa/i.test(location.search)
+      || sessionStorage.getItem("codex_pwa") === "1";
+    if (/source=pwa/i.test(location.search)) sessionStorage.setItem("codex_pwa", "1");
+
+    function route(user) {
+      if (user) go(HOME);
+      else if (isPwa) go(LOGIN + "?next=" + encodeURIComponent(HOME));
+      else go(LANDING);
+    }
+
+    try {
+      if (!window.FIREBASE_CONFIG) { go(isPwa ? LOGIN : LANDING); return; }
+      if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+      var done = false;
+      var t = setTimeout(function () {
+        if (done) return;
+        done = true;
+        route(firebase.auth().currentUser);
+      }, 4000);
+      firebase.auth().onAuthStateChanged(function (user) {
+        if (done) return;
+        done = true;
+        clearTimeout(t);
+        route(user);
+      });
+    } catch (e) {
+      go(isPwa ? LOGIN : LANDING);
+    }
+  })();
+  </script>
+</body>
+</html>
