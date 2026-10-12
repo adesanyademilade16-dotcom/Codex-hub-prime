@@ -1,321 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script src="../js/theme-boot.js"></script>
-
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Plans · Codex Hub</title>
-  <meta name="theme-color" content="#4F46E5">
-  <link rel="icon" href="../assets/favicon.png">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/tokens.css">
-  <link rel="stylesheet" href="../css/shell.css">
+  <link rel="stylesheet" href="../css/shell.css" />
   <style>
-    :root {
-      --indigo: #4F46E5; --violet: #7C3AED; --ink: #0F172A;
-      --muted: #64748B; --line: #E8ECF4; --font: "Plus Jakarta Sans", system-ui, sans-serif;
+    :root { --indigo:#4F46E5; --muted:#64748b; }
+    .wrap { max-width: 520px; margin: 0 auto; padding: 16px 16px 100px; }
+    .card {
+      background: #fff; border: 1px solid #E2E8F0; border-radius: 16px;
+      padding: 18px; margin-bottom: 14px; box-shadow: 0 8px 24px rgba(15,23,42,.06);
     }
-    * { box-sizing: border-box; }
-    body.app-body { margin: 0; font-family: var(--font); background: #F1F5F9; color: var(--ink); }
-    .page { max-width: 1100px; margin: 0 auto; padding: 12px 14px 32px; }
-    .top { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-    .top a {
-      width: 40px; height: 40px; border-radius: 12px; background: #fff; border: 1px solid var(--line);
-      display: grid; place-items: center; text-decoration: none; color: var(--ink); font-weight: 700;
+    .card.pro { border-color: #C4B5FD; background: linear-gradient(180deg,#FAF5FF,#fff); }
+    .card h2 { margin: 0 0 6px; font-size: 1.15rem; }
+    .price { font-size: 1.6rem; font-weight: 800; color: #0f172a; }
+    .price span { font-size: .85rem; font-weight: 600; color: var(--muted); }
+    ul { margin: 10px 0 14px; padding-left: 18px; color: #334155; font-size: .9rem; line-height: 1.5; }
+    button.cta {
+      width: 100%; height: 46px; border: 0; border-radius: 12px; font-weight: 800;
+      background: linear-gradient(135deg,#4F46E5,#7C3AED); color: #fff; cursor: pointer;
     }
-    .intro { margin: 8px 0 20px; }
-    .intro h1 {
-      font-size: 1.45rem; font-weight: 800; letter-spacing: -.03em; margin: 0 0 6px;
-      background: linear-gradient(120deg, #1E3A8A, #4F46E5 45%, #7C3AED);
-      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-    }
-    .intro p { margin: 0; color: var(--muted); line-height: 1.5; font-size: .92rem; max-width: 520px; }
-
-    .grid {
-      display: grid; gap: 16px;
-      grid-template-columns: 1fr;
-    }
-    @media (min-width: 720px) {
-      .grid { grid-template-columns: repeat(3, 1fr); align-items: stretch; }
-    }
-
-    /* Flip card */
-    .flip {
-      perspective: 1200px;
-      min-height: 420px;
-    }
-    .flip-inner {
-      position: relative; width: 100%; height: 100%; min-height: 420px;
-      transition: transform .7s cubic-bezier(.22,1,.36,1);
-      transform-style: preserve-3d;
-    }
-    .flip:hover .flip-inner,
-    .flip.is-flipped .flip-inner { transform: rotateY(180deg); }
-    .face {
-      position: absolute; inset: 0;
-      backface-visibility: hidden; -webkit-backface-visibility: hidden;
-      border-radius: 22px; padding: 22px 18px;
-      background: #fff; border: 1px solid var(--line);
-      box-shadow: 0 12px 32px rgba(15,23,42,.06);
-      display: flex; flex-direction: column;
-      overflow: hidden;
-    }
-    .face.back {
-      transform: rotateY(180deg);
-      background: linear-gradient(160deg, #312E81, #4F46E5 50%, #7C3AED);
-      color: #fff; border: 0;
-    }
-    .face .shine {
-      pointer-events: none; position: absolute; inset: 0;
-      background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.55) 50%, transparent 60%);
-      transform: translateX(-120%);
-      animation: beam 3.2s ease-in-out infinite;
-    }
-    @keyframes beam {
-      0%, 55% { transform: translateX(-120%); }
-      75% { transform: translateX(120%); }
-      100% { transform: translateX(120%); }
-    }
-    .badge {
-      position: absolute; top: 14px; right: 14px; z-index: 2;
-      font-size: .65rem; font-weight: 800; letter-spacing: .06em;
-      padding: 5px 10px; border-radius: 999px;
-      background: #EEF2FF; color: #4338CA;
-    }
-    .badge.hot {
-      background: linear-gradient(135deg, #F59E0B, #EF4444); color: #fff;
-    }
-    .badge.pro {
-      background: linear-gradient(135deg, #7C3AED, #4F46E5); color: #fff;
-    }
-    .plan-name { font-size: .75rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
-    .face h2 { font-size: 1.35rem; font-weight: 800; margin: 8px 0 4px; letter-spacing: -.02em; }
-    .price { font-size: 1.8rem; font-weight: 800; margin: 8px 0 4px; color: var(--indigo); }
-    .price small { font-size: .85rem; font-weight: 600; color: var(--muted); }
-    .face.back .price { color: #fff; }
-    .face.back .plan-name { color: #C4B5FD; }
-    .face.back .price small { color: #E0E7FF; }
-    .desc { font-size: .85rem; color: var(--muted); line-height: 1.45; margin: 0 0 14px; flex: 0; }
-    .face.back .desc { color: #E0E7FF; }
-    .feats { list-style: none; padding: 0; margin: 0 0 16px; flex: 1; }
-    .feats li {
-      display: flex; gap: 10px; align-items: flex-start;
-      font-size: .85rem; padding: 6px 0; color: #334155;
-    }
-    .face.back .feats li { color: #F8FAFC; }
-    .feats li svg { flex-shrink: 0; margin-top: 2px; }
-    .cta {
-      display: flex; align-items: center; justify-content: center;
-      min-height: 48px; border-radius: 14px; border: 0; width: 100%;
-      font-weight: 800; font-size: .9rem; cursor: pointer; font-family: inherit;
-      text-decoration: none; color: #fff;
-      background: linear-gradient(135deg, #4F46E5, #7C3AED);
-      position: relative; overflow: hidden;
-    }
-    .cta::after {
-      content: ""; position: absolute; inset: 0; pointer-events: none;
-      background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.45) 50%, transparent 65%);
-      transform: translateX(-120%); animation: beam 3s ease-in-out infinite;
-    }
-    .cta.ghost {
-      background: #F1F5F9; color: var(--ink);
-    }
-    .cta.ghost::after { display: none; }
-    .face.back .cta {
-      background: #fff; color: #3730A3;
-    }
-    .face.back .cta::after { display: none; }
-    .flip-hint {
-      text-align: center; font-size: .75rem; color: var(--muted); margin-top: 8px;
-    }
-    .note {
-      margin-top: 20px; padding: 14px 16px; border-radius: 16px;
-      background: #EEF2FF; color: #3730A3; font-size: .85rem; line-height: 1.5;
-    }
-    .featured {
-      border: 2px solid transparent;
-      background:
-        linear-gradient(#fff, #fff) padding-box,
-        linear-gradient(135deg, #4F46E5, #7C3AED) border-box;
-    }
-    @media (min-width: 720px) {
-      .flip.featured-wrap { transform: scale(1.03); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .flip-inner { transition: none; }
-      .flip:hover .flip-inner { transform: none; }
+    button.cta:disabled { opacity: .55; cursor: not-allowed; }
+    button.ghost { background: #F1F5F9; color: #334155; }
+    .msg { text-align: center; font-size: .88rem; margin: 10px 0; min-height: 1.2em; }
+    .msg.err { color: #DC2626; }
+    .msg.ok { color: #059669; }
+    .msg.info { color: #475569; }
+    .active-badge {
+      display: inline-block; font-size: .72rem; font-weight: 800; padding: 3px 8px;
+      border-radius: 999px; background: #D1FAE5; color: #065F46; margin-bottom: 8px;
     }
   </style>
-
-  <!-- Vercel Speed Insights -->
-  <script>
-    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-  </script>
-  <script defer src="/_vercel/speed-insights/script.js"></script>
-</head>
-<body class="app-body" data-page="profile">
-  <div class="page">
-    <div class="top">
-      <a href="profile.html" aria-label="Back">←</a>
-    </div>
-    <div class="intro">
-      <h1>Choose how you study</h1>
-      <p>Free to start. Upgrade when you need more CBT sessions, resources and Nova power. Paystack checkout hooks in when we go live.</p>
-    </div>
-
-    <div class="grid">
-      <!-- FREE -->
-      <div class="flip" data-flip>
-        <div class="flip-inner">
-          <div class="face front">
-            <span class="shine" aria-hidden="true"></span>
-            <span class="badge">STARTER</span>
-            <div class="plan-name">Free</div>
-            <h2>Explore Codex</h2>
-            <div class="price">₦0 <small>/ forever</small></div>
-            <p class="desc">Enough to learn the flow: practice, notes and a taste of Nova.</p>
-            <ul class="feats">
-              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg> Limited CBT sessions / week</li>
-              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg> Core notes access</li>
-              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg> Light Nova questions</li>
-              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg> Leaderboard &amp; profile</li>
-            </ul>
-            <button type="button" class="cta ghost" data-select="free">Current plan path</button>
-          </div>
-          <div class="face back">
-            <div class="plan-name">Free includes</div>
-            <h2>Start without pressure</h2>
-            <div class="price">₦0</div>
-            <p class="desc">Perfect while you complete your faculty profile and try one CBT set.</p>
-            <ul class="feats">
-              <li>✓ Onboarding &amp; academic profile</li>
-              <li>✓ Sample exam-style questions</li>
-              <li>✓ Community ranks (view)</li>
-              <li>✓ Upgrade anytime</li>
-            </ul>
-            <button type="button" class="cta" data-select="free">Stay on Free</button>
-          </div>
-        </div>
-        <p class="flip-hint">Tap card to flip · see what’s inside</p>
-      </div>
-
-      <!-- REGULAR -->
-      <div class="flip featured-wrap" data-flip>
-        <div class="flip-inner">
-          <div class="face front featured">
-            <span class="shine" aria-hidden="true"></span>
-            <span class="badge hot">MOST LOVED</span>
-            <div class="plan-name">Regular</div>
-            <h2>Study with room</h2>
-            <div class="price">₦2,000 <small>/ month</small></div>
-            <p class="desc">More practice, more downloads, steadier Nova help through the semester.</p>
-            <ul class="feats">
-              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg> Expanded CBT sessions</li>
-              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg> PDF downloads</li>
-              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg> More Nova workload</li>
-              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg> Priority in support queue</li>
-            </ul>
-            <button type="button" class="cta" data-select="regular">Choose Regular</button>
-          </div>
-          <div class="face back">
-            <div class="plan-name">Regular unlocks</div>
-            <h2>Built for semester grind</h2>
-            <div class="price">₦2,000<span style="font-size:.9rem">/mo</span></div>
-            <p class="desc">Prices are placeholders until Paystack goes live — design only.</p>
-            <ul class="feats">
-              <li>✓ Higher CBT weekly cap</li>
-              <li>✓ Resource library downloads</li>
-              <li>✓ Study Lab uploads</li>
-              <li>✓ Rank visibility boost</li>
-            </ul>
-            <button type="button" class="cta" data-select="regular">I’m ready</button>
-          </div>
-        </div>
-        <p class="flip-hint">Tap card to flip · see what’s inside</p>
-      </div>
-
-      <!-- PRO -->
-      <div class="flip" data-flip>
-        <div class="flip-inner">
-          <div class="face front">
-            <span class="shine" aria-hidden="true"></span>
-            <span class="badge pro">PRO</span>
-            <div class="plan-name">Pro</div>
-            <h2>All-access focus</h2>
-            <div class="price">₦5,000 <small>/ month</small></div>
-            <p class="desc">Maximum CBT, Nova depth and resources for heavy exam seasons.</p>
-            <ul class="feats">
-              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg> Highest CBT limits</li>
-              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg> Full PDF &amp; past Q access</li>
-              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg> Full Nova capacity</li>
-              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg> Pro badge on profile</li>
-            </ul>
-            <button type="button" class="cta" data-select="pro">Choose Pro</button>
-          </div>
-          <div class="face back">
-            <div class="plan-name">Pro includes</div>
-            <h2>When exams don’t wait</h2>
-            <div class="price">₦5,000<span style="font-size:.9rem">/mo</span></div>
-            <p class="desc">Checkout with Paystack will plug into this button later — no charge today.</p>
-            <ul class="feats">
-              <li>✓ Everything in Regular</li>
-              <li>✓ Priority Nova responses</li>
-              <li>✓ Early feature access</li>
-              <li>✓ Pro identity in chats</li>
-            </ul>
-            <button type="button" class="cta" data-select="pro">I’m ready</button>
-          </div>
-        </div>
-        <p class="flip-hint">Tap card to flip · see what’s inside</p>
-      </div>
-    </div>
-
-    <p class="note">
-      <strong>Paystack is design-ready, not charging yet.</strong>
-      When the rest of the app is solid, we’ll connect live keys, webhooks and entitlement grants.
-      Tapping a plan only saves your interest locally for now.
-    </p>
-  </div>
-
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="../js/firestore-boot.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script src="../js/firebase-config.js"></script>
-  <script src="../js/app-auth.js"></script>
-  <script src="../js/shell.js"></script>
+  <script src="../js/entitlements.js"></script>
+</head>
+<body class="app-body">
+  <header class="app-top">
+    <a href="profile.html" aria-label="Back">←</a>
+    <strong>Plans</strong>
+    <span></span>
+  </header>
+  <div class="wrap">
+    <p style="color:#64748b;font-size:.92rem;line-height:1.45">
+      Free keeps a limited CBT trial pool (admin can raise it). Regular and Pro unlock
+      <b>unlimited CBT for 120 days</b> after payment.
+    </p>
+    <p class="msg" id="msg"></p>
+
+    <div class="card" id="cardFree">
+      <h2>Free</h2>
+      <div class="price">₦0 <span>/ forever</span></div>
+      <ul>
+        <li>Limited CBT trials (lifetime free pool)</li>
+        <li>Nova &amp; tools with free limits</li>
+        <li>Leaderboard &amp; profile</li>
+      </ul>
+      <button type="button" class="cta ghost" id="btnFree" disabled>Current path</button>
+    </div>
+
+    <div class="card" id="cardRegular">
+      <h2>Regular</h2>
+      <div class="price">₦2,000 <span>/ 120 days</span></div>
+      <ul>
+        <li>Unlimited CBT while active</li>
+        <li>Full course library access</li>
+        <li>Higher Nova limits</li>
+      </ul>
+      <button type="button" class="cta" data-plan="regular">Upgrade — ₦2,000</button>
+    </div>
+
+    <div class="card pro" id="cardPro">
+      <h2>Pro</h2>
+      <div class="price">₦5,000 <span>/ 120 days</span></div>
+      <ul>
+        <li>Everything in Regular</li>
+        <li>Pro badge in chats</li>
+        <li>Highest Nova priority</li>
+      </ul>
+      <button type="button" class="cta" data-plan="pro">Upgrade — ₦5,000</button>
+    </div>
+  </div>
   <script>
   (function () {
-    CodexShell.mountShell({ page: "profile", title: "Plans", user: { fullName: "Student" } });
-
-    document.querySelectorAll("[data-flip]").forEach(function (card) {
-      card.addEventListener("click", function (e) {
-        if (e.target.closest("button")) return;
-        card.classList.toggle("is-flipped");
-      });
+    var BACKEND = "https://codex-backend-new.onrender.com";
+    if (!window.FIREBASE_CONFIG) return;
+    if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+    var auth = firebase.auth();
+    var db = firebase.firestore();
+    var msg = document.getElementById("msg");
+    function setMsg(t, k) {
+      msg.textContent = t || "";
+      msg.className = "msg " + (k || "");
+    }
+    function paintActive(ent) {
+      document.querySelectorAll(".active-badge").forEach(function (n) { n.remove(); });
+      if (!ent || !ent.activePaid) return;
+      var card = ent.plan === "pro" ? document.getElementById("cardPro") : document.getElementById("cardRegular");
+      if (!card) return;
+      var b = document.createElement("div");
+      b.className = "active-badge";
+      b.textContent = "Active" + (ent.expiresAt ? (" until " + CodexEntitlements.formatExpiry(ent.expiresAt)) : "");
+      card.insertBefore(b, card.firstChild);
+      var btn = card.querySelector("button[data-plan]");
+      if (btn) { btn.disabled = true; btn.textContent = "Active plan"; }
+    }
+    async function startPay(plan) {
+      var user = auth.currentUser;
+      if (!user) { setMsg("Sign in first.", "err"); location.href = "../login.html"; return; }
+      setMsg("Starting secure checkout…", "info");
+      document.querySelectorAll("button[data-plan]").forEach(function (b) { b.disabled = true; });
+      try {
+        var tok = await user.getIdToken(true);
+        var res = await fetch(BACKEND + "/paystack/initialize", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + tok },
+          body: JSON.stringify({ plan: plan })
+        });
+        var data = await res.json().catch(function () { return {}; });
+        if (!res.ok || !data.authorization_url) {
+          throw new Error(data.error || "Could not start payment");
+        }
+        window.location.href = data.authorization_url;
+      } catch (e) {
+        setMsg(e.message || "Payment start failed", "err");
+        document.querySelectorAll("button[data-plan]").forEach(function (b) { b.disabled = false; });
+      }
+    }
+    document.querySelectorAll("button[data-plan]").forEach(function (btn) {
+      btn.addEventListener("click", function () { startPay(btn.getAttribute("data-plan")); });
     });
-
-    document.querySelectorAll("[data-select]").forEach(function (btn) {
-      btn.addEventListener("click", function (e) {
-        e.stopPropagation();
-        var plan = btn.getAttribute("data-select");
-        localStorage.setItem("codex_plan_interest", plan);
-        btn.textContent = plan === "free" ? "Noted · Free" : "Interest saved · " + plan;
-        // Paystack hook later:
-        // window.PaystackPop.setup({ key, email, amount, ref, callback...})
-        setTimeout(function () {
-          alert("Design only for now.\n\nYou chose: " + plan.toUpperCase() +
-            "\n\nLive Paystack checkout will use this same button when we enable payments.");
-        }, 200);
+    auth.onAuthStateChanged(function (user) {
+      if (!user) return;
+      db.collection("users").doc(user.uid).get().then(function (snap) {
+        var p = snap.exists ? snap.data() : {};
+        p.email = p.email || user.email;
+        if (typeof CodexEntitlements !== "undefined") paintActive(CodexEntitlements.getEntitlement(p, user.email));
       });
-    });
-
-    CodexAuth.requireUser().then(function (res) {
-      CodexShell.mountShell({
-        page: "profile",
-        title: "Plans",
-        user: { fullName: res.profile.fullName || res.user.displayName }
-      });
+      // Return from Paystack: ?reference= or ?trxref=
+      try {
+        var q = new URLSearchParams(location.search);
+        var ref = q.get("reference") || q.get("trxref");
+        if (ref) {
+          setMsg("Confirming payment…", "info");
+          user.getIdToken(true).then(function (tok) {
+            return fetch(BACKEND + "/paystack/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Authorization: "Bearer " + tok },
+              body: JSON.stringify({ reference: ref })
+            });
+          }).then(function (r) { return r.json().then(function (j) { return { r: r, j: j }; }); })
+            .then(function (x) {
+              if (x.j && x.j.ok) {
+                setMsg("Payment confirmed. Your plan is active for 120 days.", "ok");
+                setTimeout(function () { location.href = "profile.html"; }, 1200);
+              } else {
+                setMsg((x.j && x.j.error) || "Payment not confirmed yet. Wait a moment and refresh.", "err");
+              }
+            })
+            .catch(function () { setMsg("Could not confirm yet. Open this page again shortly.", "err"); });
+        }
+      } catch (eQ) {}
     });
   })();
   </script>

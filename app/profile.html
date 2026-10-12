@@ -507,7 +507,20 @@ html.theme-dark .section-label { color: #94A3B8 !important; }
       return (name || "ST").split(/\s+/).map(function (p) { return p[0]; }).slice(0, 2).join("").toUpperCase();
     }
     function planLabel(p) {
-      var t = (p.subscriptionTier || p.plan || "free").toString().toLowerCase();
+      var entP = (typeof CodexEntitlements !== "undefined") ? CodexEntitlements.getEntitlement(p, p.email) : null;
+    var t = entP ? entP.plan : (p.subscriptionTier || p.plan || "free").toString().toLowerCase();
+    try {
+      var hint = document.getElementById("mSubHint");
+      if (hint && entP) {
+        if (entP.activePaid && entP.expiresAt) {
+          hint.textContent = entP.label + " · until " + CodexEntitlements.formatExpiry(entP.expiresAt);
+        } else if (entP.expired) {
+          hint.textContent = "Expired — renew on Plans";
+        } else {
+          hint.textContent = "Manage Free / Regular / Pro";
+        }
+      }
+    } catch (eH) {}
       if (t.indexOf("pro") >= 0) return "Pro";
       if (t.indexOf("regular") >= 0) return "Regular";
       return "Free";
@@ -724,5 +737,6 @@ html.theme-dark .section-label { color: #94A3B8 !important; }
   <script src="../js/chat.js"></script>
 
 <script>try{if(window.CodexOnboarding)CodexOnboarding.auto("profile",700);}catch(e){}</script>
+<script src="../js/entitlements.js"></script>
 </body>
 </html>

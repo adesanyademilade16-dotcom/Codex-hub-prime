@@ -1135,23 +1135,21 @@ html.theme-dark .muted, html.theme-dark .sub { color: #94A3B8 !important; }
       }
     }
     async function loadCbtCap(profile, planLabel) {
+      var lim = {};
+      try {
+        var snap = await firebase.firestore().collection("system").doc("limits").get();
+        if (snap.exists) lim = snap.data() || {};
+      } catch (e) {}
+      if (typeof CodexEntitlements !== "undefined") {
+        var al = CodexEntitlements.cbtAllowance(profile, lim, profile.email);
+        if (al.unlimited) return { used: al.used, limit: al.limit, left: "∞", unlimited: true, ent: al.ent };
+        return { used: al.used, limit: al.limit, left: al.left, unlimited: false, ent: al.ent };
+      }
       var used = Number(profile.cbtTrialsUsed) || 0;
       var bonus = Number(profile.cbtTrialsBonus) || 0;
       var personal = Number(profile.cbtTrialsLimit) || 0;
-      var free = 3, reg = 30, pro = 999;
-      try {
-        var snap = await firebase.firestore().collection("system").doc("limits").get();
-        if (snap.exists) {
-          var lim = snap.data() || {};
-          if (Number(lim.cbtTrialsFree) >= 0) free = Number(lim.cbtTrialsFree);
-          if (Number(lim.cbtTrialsRegular) > 0) reg = Number(lim.cbtTrialsRegular);
-          if (Number(lim.cbtTrialsPro) > 0) pro = Number(lim.cbtTrialsPro);
-        }
-      } catch (e) {}
-      var base = free;
-      if (planLabel === "PRO") base = pro;
-      else if (planLabel === "REGULAR") base = reg;
-      var limit = Math.max(base, personal) + bonus;
+      var free = Number(lim.cbtTrialsFree) >= 0 ? Number(lim.cbtTrialsFree) : 3;
+      var limit = Math.max(free, personal) + bonus;
       return { used: used, limit: limit, left: Math.max(0, limit - used) };
     }
 
@@ -1221,8 +1219,12 @@ html.theme-dark .muted, html.theme-dark .sub { color: #94A3B8 !important; }
         .filter(Boolean).join(" · ");
       var hour = new Date().getHours();
       var greet = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
-      var tier = (profile.subscriptionTier || profile.plan || "free").toString().toLowerCase();
-      var planLabel = tier.indexOf("pro") >= 0 ? "PRO" : tier.indexOf("regular") >= 0 ? "REGULAR" : "FREE PLAN";
+      var entH = (typeof CodexEntitlements !== "undefined")
+        ? CodexEntitlements.getEntitlement(profile, profile.email)
+        : null;
+      var tier = entH ? entH.plan : (profile.subscriptionTier || profile.plan || "free").toString().toLowerCase();
+      var planLabel = entH ? (entH.label || "Free").toUpperCase()
+        : (tier.indexOf("pro") >= 0 ? "PRO" : tier.indexOf("regular") >= 0 ? "REGULAR" : "FREE PLAN");
       var subline = (profile.semester || localStorage.getItem("selectedSemester") || "1st") +
         (profile.department ? " · " + profile.department : "");
 
@@ -1603,5 +1605,6 @@ html.theme-dark .muted, html.theme-dark .sub { color: #94A3B8 !important; }
 
   </script>
   <script src="../js/pwa-install.js"></script>
+<script src="../js/entitlements.js"></script>
 </body>
 </html>
