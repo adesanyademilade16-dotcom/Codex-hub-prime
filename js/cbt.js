@@ -1,8 +1,8 @@
 /**
  * Codex Hub 2.0 — CBT engine
  * Library → setup → exam → results
- * Free: CBT trials (system/limits.cbtTrialsFree + bonus)
- * Regular/Pro: unlimited while planExpiresAt active; expired → free
+ * Free: 3 lifetime starts (users.cbtTrialsUsed / cbtTrialsLimit)
+ * Regular/Pro: unlimited
  */
 (function () {
   "use strict";
@@ -70,11 +70,9 @@
   }
   function isPaid() {
     var email = (state.profile && state.profile.email) || (state.user && state.user.email) || "";
-    if (typeof CodexEntitlements !== "undefined") {
-      return CodexEntitlements.getEntitlement(state.profile || {}, email).activePaid;
-    }
+    if (String(email).toLowerCase() === "codexhub16@gmail.com") return true;
     var plan = String(state.plan || "free").toLowerCase();
-    return plan.indexOf("pro") >= 0 || plan.indexOf("regular") >= 0;
+    return plan.indexOf("pro") >= 0 || plan.indexOf("regular") >= 0 || plan === "paid";
   }
   function isAdminUser() {
     var email = (state.profile && state.profile.email) || (state.user && state.user.email) || "";
@@ -121,7 +119,13 @@
   }
 
   async function loadBank(code) {
-    var snap = await db.collection("questions").doc(code).get();
+    // Timeout so "Loading course…" cannot hang forever on bad network / offline Firestore
+    var snap = await Promise.race([
+      db.collection("questions").doc(code).get(),
+      new Promise(function (_, reject) {
+        setTimeout(function () { reject(new Error("timeout")); }, 15000);
+      })
+    ]);
     if (!snap.exists) return null;
     var data = snap.data() || {};
     var map = flattenBank(data.questions);
@@ -181,11 +185,7 @@
     var el = $("trialsNote");
     if (!el) return;
     if (isPaid() && state.trialsLimit >= 999) {
-      var lab = (state.entitlement && state.entitlement.label) || (state.plan === "regular" ? "Regular" : "Pro");
-      var until = (state.entitlement && state.entitlement.expiresAt && typeof CodexEntitlements !== "undefined")
-        ? CodexEntitlements.formatExpiry(state.entitlement.expiresAt) : "";
-      el.innerHTML = "Your <b>" + lab + "</b> plan includes unlimited CBT" +
-        (until ? " until <b>" + until + "</b>" : "") + ".";
+      el.innerHTML = "Your <b>Pro</b> plan includes effectively unlimited CBT practice.";
       return;
     }
     var left = Math.max(0, state.trialsLimit - state.trialsUsed);
@@ -235,7 +235,13 @@
       $("setupBody").classList.remove("hidden");
     } catch (err) {
       console.error(err);
-      $("setupLoading").textContent = "Could not load questions. Check your connection and try again.";
+      var msg = (err && err.message === "timeout")
+        ? "This is taking too long. Check your internet (or wait for Firestore to reconnect), then retry."
+        : "Could not load questions. The course may have no bank yet, or the connection failed.";
+      $("setupLoading").innerHTML =
+        "<p><b>Could not open CBT setup</b></p><p style='margin-top:8px'>" + msg + "</p>" +
+        '<p style="margin-top:16px"><a href="course-library.html?mode=cbt">Back to library</a> · ' +
+        '<a href="javascript:location.reload()">Retry</a></p>';
     }
   }
 
@@ -256,12 +262,8 @@
     var snap = await db.collection("users").doc(state.user.uid).get();
     var d = snap.exists ? snap.data() : {};
     state.profile = d;
+    state.plan = normPlan(d.plan || d.subscription || d.tier || "free");
     if (state.user && state.user.email && !d.email) d.email = state.user.email;
-    var ent0 = (typeof CodexEntitlements !== "undefined")
-      ? CodexEntitlements.getEntitlement(d, state.user && state.user.email)
-      : { plan: normPlan(d.plan || d.subscription || d.tier || "free"), unlimitedCbt: false };
-    state.plan = ent0.plan;
-    state.entitlement = ent0;
     state.trialsUsed = Number(d.cbtTrialsUsed) || 0;
     state.trialsBonus = Number(d.cbtTrialsBonus) || 0;
     // Global limits from system/limits (Admin → Configuration)
@@ -278,13 +280,12 @@
     } catch (e) { /* offline / rules */ }
     var personal = Number(d.cbtTrialsLimit) || 0;
     var bonus = Number(state.trialsBonus) || 0;
-    // Active paid subscription → unlimited CBT for the whole window
-    if (state.entitlement && state.entitlement.unlimitedCbt) {
-      state.trialsLimit = 999999;
-    } else {
-      var baseLimit = globalFree;
-      state.trialsLimit = Math.max(baseLimit, personal) + bonus;
-    }
+    var plan = state.plan || "free";
+    var baseLimit = globalFree;
+    if (plan === "pro") baseLimit = globalPro;
+    else if (plan === "regular") baseLimit = globalReg;
+    // Personal grant or admin bonus can only raise the cap
+    state.trialsLimit = Math.max(baseLimit, personal) + bonus;
   }
 
   async function consumeTrial() {
