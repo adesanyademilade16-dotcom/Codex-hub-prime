@@ -896,12 +896,6 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
     .md-ol li::marker { font-weight: 800; color: #A5B4FC; }
     .md-ul { padding-left: 1.2rem; margin: 0.4rem 0; }
     </style>
-
-  <!-- Vercel Speed Insights -->
-  <script>
-    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-  </script>
-  <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
 <body data-page="nova">
   <div class="hist-backdrop" id="histBackdrop"></div>
@@ -1100,7 +1094,7 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
 
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="../js/firestore-boot.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
   <script src="../js/firebase-config.js"></script>
   <script src="../js/app-auth.js"></script>
@@ -1361,7 +1355,8 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
         } else {
           var w = window.open("", "_blank");
           if (w) {
-            w.document.write("<!doctype html><html><head><title>Nova export</title></head><body style='font-family:system-ui;padding:24px;white-space:pre-wrap'>" + escape(plain).replace(/\n/g, "<br>") + "</body></html>");
+            w.document.write("<!doctype html><html><head><title>Nova export</title></head><body style='font-family:system-ui;padding:24px;white-space:pre-wrap'>" + escape(plain).replace(/\n/g, "<br>") + "<script src="../js/camera-pick.js"></script>
+</body></html>");
             w.document.close();
             setTimeout(function () { try { w.print(); } catch (e) {} }, 350);
           } else {
@@ -1509,20 +1504,13 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
         return "$$" + t + "$$";
       });
       // Ordered + unordered lists → real HTML (Gremlin-style readable structure)
-      // NOTE: numbering is regenerated in code (1,2,3…10,11,12…), never trusted
-      // from the model's own text. Small/distilled models occasionally mis-type
-      // two-digit numbers (writing "0." instead of "10.") or restart counting —
-      // this guarantees the number shown always matches the real position.
       raw = raw.replace(/(?:^|\n)((?:\s*(?:\d+[.)]\s+|[•\-\*]\s+)[^\n]+(?:\n|$))+)/g, function (_, block) {
         var lines = String(block).trim().split(/\n/);
         var isOl = /^\s*\d+[.)]\s+/.test(lines[0] || "");
         var tag = isOl ? "ol" : "ul";
-        var n = 0;
         var items = lines.map(function (ln) {
           var t = ln.replace(/^\s*(?:\d+[.)]\s+|[•\-\*]\s+)/, "").trim();
-          if (!t) return "";
-          n++;
-          return isOl ? ('<li value="' + n + '">' + t + "</li>") : ("<li>" + t + "</li>");
+          return t ? "<li>" + t + "</li>" : "";
         }).filter(Boolean).join("");
         return "\n<" + tag + " class=\"md-list\">" + items + "</" + tag + ">\n";
       });
@@ -1831,7 +1819,7 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        alert('Saved "' + parsed.name + '" with ' + parsed.tasks.length + ' tasks.\n\nOpen Study Planner to view and edit them.');
+        alert('Saved "' + parsed.name + '" with ' + parsed.tasks.length + ' tasks.\\n\\nOpen Study Planner to view and edit them.');
         _novaUserContext = null;
       } catch (e) {
         console.error(e);
@@ -2684,26 +2672,24 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
         memBlock + dataBlock +
         "Be precise, structured, and practical like a strong tutor (ChatGPT / Gemini / Claude quality). " +
         "Never invent exam scores, ranks, or CBT results. If data is missing, say so and ask. " +
-        "FORMATTING DISCIPLINE (read carefully — this is what separates a lazy answer from a lecturer's answer):\n" +
-        "- Formatting tools (numbers, bullets, bold, headings, Roman numerals, tables) exist to show STRUCTURE that is actually there. If the content is one continuous idea, write normal prose — do not invent a numbered list just to use the tool.\n" +
-        "- Use 1. 2. 3. ONLY for a true sequence of separate, parallel items (steps to follow, a list of distinct questions, a set of vocabulary items). One numbered line = one complete, self-contained item. Never spread a single item's parts (clue, then meaning, then answer) across several numbered lines — merge them into one line instead:\n" +
-        "    GOOD: **1. WROTE → TOWER** — a high building, often part of a church\n" +
-        "    BAD:  1. WROTE\n          2. Meaning: a high building\n          3. Answer: TOWER\n" +
-        "- Numbering must count up for real and never restart or skip: 1…9, then 10, 11, 12… (never 0, 1, 2 again after 9). If a list is long, that's fine — keep counting.\n" +
-        "- Use Roman numerals (i, ii, iii) ONLY to label sub-parts that belong INSIDE one numbered item (e.g. a question with parts i–iii), so the student can tell they are not new top-level items. Do not use Roman numerals as a general-purpose list style.\n" +
-        "- Use (a)(b)(c) the same way — sub-points under one parent item, not a competing numbering system.\n" +
-        "- Use **bold** only for the specific term, answer, or heading-like word being introduced — not whole sentences, and not every noun.\n" +
-        "- Use a heading (### ) only to separate genuinely different sections (e.g. a new question, a new topic), never for a single short reply.\n" +
-        "- Use one short paragraph with normal punctuation — commas, semicolons, brackets, hyphens, question marks — for explanation and reasoning. A sentence like 'It is good to be trustworthy; it means not lying, keeping promises, and being honest even when it is hard' reads better than splitting it into three numbered mini-points.\n" +
-        "- Use a markdown table ONLY when comparing 2+ things side-by-side across the same categories. Keep it narrow (2–4 short columns); never put long explanations inside a cell.\n" +
-        "- Keep lines readable on a phone (~40–55 characters); soft-wrap, don't write one giant unbroken line.\n" +
-        "- Long equations go on their own line in $$...$$; the app lets that one formula scroll horizontally so the page itself doesn't.\n" +
-        "- For exam walkthroughs: Q1, Q2… each with What it asks → Key idea → Worked steps → Answer, one question block at a time.\n" +
-        "- End with a short callout for the key result, e.g. **Answer: π** or a single-line $$...$$, when there is one clear final answer.\n" +
+        "RESPONSE LAYOUT (critical for mobile):\n" +
+        "1) Prefer numbered steps (1. 2. 3.), lettered points (a) b) c)), or bullets — NOT wide markdown tables by default.\n" +
+        "2) Use a markdown table ONLY when comparing 2+ categories side-by-side (e.g. properties of A vs B). Keep tables narrow (2–4 short columns). Never put long explanations inside table cells.\n" +
+        "3) Keep every line readable on a phone (~40–55 chars). Soft-wrap sentences; do not write ultra-long unbroken lines.\n" +
+        "4) Long equations: put each on its own line, preferably in $$...$$. The app will allow horizontal scroll for that formula only — do not force the whole page to scroll sideways.\n" +
+        "5) Use short headings (### Q1, ### Step 2) and a thin horizontal rule (---) between major sections when helpful.\n" +
+        "6) For exam walkthroughs: structure as Q1, Q2… each with: What it asks → Key idea → Worked steps → Answer. One question block at a time.\n" +
+        "7) Put key formulas or final answers in a short callout line, e.g. **Answer: π** or a single-line $$...$$.\n" +
         "CHARACTER SWITCH: Changing Pulse/Forge/Spark only changes tone and teaching style — keep the SAME conversation facts, quizzes, and image context.\n" +
         "FORGE STYLE VARIATION: If the user is casual, teasing, or rude, answer with a *fresh* short line each time (never repeat the same small-talk opener). Rotate push-backs; stay academic-strict, not a broken record.\n" +
         "IMAGE HONESTY: You do not magically remember pixels. When a past image is attached via vision, describe only what you see. Never claim an image is a specific character unless visible details match. If generation failed quality, admit it.\n" +
-        "- When YOU set a mini-drill, remember those exact prompts and grade the user's next reply against them.\n" +
+        "WORKSHEET / LIST FORMAT (critical):\n" +
+        "- For anagrams, vocab, or short Q&A items use ONE line per item:\n" +
+        "  **1. CLAPS → SCALP** — part of your head\n" +
+        "  Never split one item across three numbered lines (clue / meaning / answer as 1,2,3).\n" +
+        "- Number items 1, 2, 3 through 17+ without restarting. Always write full numbers (10, 11, 12) not 0 or 1 for ten.\n" +
+        "- Use bullets or **bold answers** when numbering would confuse. Use (a)(b) only for sub-points under one main item.\n" +
+        "- When YOU set a mini-drill, remember those exact prompts and grade the users next reply against them.\n" +
         "VISION: If the system notes image data is attached, you CAN see the image. Never claim you cannot see it. Solve from the pixels.\n" +
         "CONVERSATION MEMORY: Treat the full chat history as long-term memory for this session. When the user refers to earlier answers, quizzes, scores, images you generated, pictures they uploaded, or prior explanations, recall them specifically. If a past image is present in the thread or attached for vision, use what you see and what was said about it. Do not claim you forgot prior turns in this same chat. Do not describe chat UI chrome unless asked. " +
         "When the user attaches a PDF or DOCX, treat extracted text as the document content and answer from it. " +
@@ -3480,10 +3466,35 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
       setTimeout(function () { hideOverlay("plusModal"); }, 300);
     };
     document.getElementById("actCamera").onclick = function () {
+      try {
+        if (window.CodexCamera) {
+          window.CodexCamera.pickCamera(function (files) {
+            if (!files || !files[0]) return;
+            var inp = document.getElementById("camInput");
+            // Re-use existing onchange pipeline via DataTransfer if possible
+            try {
+              var dt = new DataTransfer();
+              dt.items.add(files[0]);
+              if (inp) {
+                inp.files = dt.files;
+                inp.dispatchEvent(new Event("change", { bubbles: true }));
+                return;
+              }
+            } catch (e1) {}
+            // direct path
+            if (typeof handlePickedImageFiles === "function") handlePickedImageFiles(files);
+            else if (typeof onCamFiles === "function") onCamFiles(files);
+          });
+          return;
+        }
+      } catch (e) { console.warn(e); }
       var inp = document.getElementById("camInput");
-      inp.value = "";
-      inp.click();
-      setTimeout(function () { hideOverlay("plusModal"); }, 300);
+      if (inp) {
+        if (inp.style.display === "none") {
+          inp.style.cssText = "position:fixed;left:0;bottom:0;width:1px;height:1px;opacity:0.01;z-index:0";
+        }
+        inp.click();
+      }
     };
     document.getElementById("actFiles").onclick = function () {
       hideOverlay("plusModal");
@@ -4042,5 +4053,6 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
     });
   })();
   </script>
+<script src="../js/camera-pick.js"></script>
 </body>
 </html>

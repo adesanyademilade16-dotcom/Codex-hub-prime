@@ -80,12 +80,6 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:#A5B4FC;box-sh
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:720px){.grid-2{grid-template-columns:1fr}}
 </style>
-
-  <!-- Vercel Speed Insights -->
-  <script>
-    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-  </script>
-  <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
 <body class="app-body">
 
@@ -107,8 +101,8 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:#A5B4FC;box-sh
     <p class="hint">Type a question, upload an image of the paper, or use the camera. Solutions are structured — not a single unexplained line.</p>
     <textarea id="qText" placeholder="e.g. Solve 2x² − 5x − 3 = 0 and show working..."></textarea>
     <div class="file-row" style="margin-top:10px">
-      <input type="file" id="qImg" accept="image/*" style="display:none">
-      <input type="file" id="qCam" accept="image/*" capture="environment" style="display:none">
+      <input type="file" id="qImg" accept="image/*" style="position:fixed;left:0;bottom:0;width:1px;height:1px;opacity:0.01;z-index:0" tabindex="-1" aria-hidden="true">
+      <input type="file" id="qCam" accept="image/*" capture="environment" style="position:fixed;left:0;bottom:0;width:1px;height:1px;opacity:0.01;z-index:0" tabindex="-1" aria-hidden="true">
       <button type="button" class="file-btn" id="btnGallery" type="button">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 15l-5-5L5 19"/></svg>
         Upload photo
@@ -142,13 +136,12 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:#A5B4FC;box-sh
 <script src="../js/firebase-config.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="../js/firestore-boot.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="../js/app-auth.js"></script>
 <script src="../js/media.js"></script>
 <script src="../js/shell.js"></script>
 <script src="../js/codex-md.js"></script>
 <script src="../js/student-tools-core.js"></script>
-<script src="../js/auto-scroll.js"></script>
 
 <script>
 (function(){
@@ -203,7 +196,15 @@ window.__toolReady = function(){
       r.onerror = rej; r.readAsDataURL(file);
     });
   }
-  document.getElementById("btnCam").onclick = function(){ document.getElementById("qCam").click(); };
+  document.getElementById("btnCam").onclick = function(){
+  if (window.CodexCamera) {
+    window.CodexCamera.pickCamera(function(files){
+      if (files && files[0]) onImg(files[0]);
+    });
+    return;
+  }
+  document.getElementById("qCam").click();
+};
   var btnGal = document.getElementById("btnGallery");
   if (btnGal) btnGal.onclick = function(){ document.getElementById("qImg").click(); };
   function onImg(file){
@@ -264,4 +265,5 @@ window.__toolReady = function(){
   };
 };
 </script>
+<script src="../js/camera-pick.js"></script>
 </body></html>
