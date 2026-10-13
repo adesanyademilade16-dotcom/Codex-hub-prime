@@ -1,8 +1,7 @@
-/* Codex Hub FCM service worker — place at site ROOT next to index.html */
+/* Codex Hub FCM service worker — MUST live at site ROOT (same folder as index.html) */
 importScripts("https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js");
 
-// Same config as js/firebase-config.js (public keys only)
 firebase.initializeApp({
   apiKey: "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
   authDomain: "codex-study-hub-923c5.firebaseapp.com",
@@ -15,30 +14,37 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(function (payload) {
-  const title = (payload.notification && payload.notification.title) || "Codex Hub";
-  const body = (payload.notification && payload.notification.body) || "New update";
-  const data = payload.data || {};
-  self.registration.showNotification(title, {
+  const n = (payload && payload.notification) || {};
+  const d = (payload && payload.data) || {};
+  const title = n.title || d.title || "Codex Hub";
+  const body = n.body || d.body || "New update";
+  const options = {
     body: body,
     icon: "/assets/icons/icon-192.png",
     badge: "/assets/icons/icon-192.png",
-    tag: data.tag || "codex-hub",
-    data: data
-  });
+    tag: d.tag || "codex-hub",
+    data: d,
+    renotify: true
+  };
+  self.registration.showNotification(title, options);
 });
 
 self.addEventListener("notificationclick", function (event) {
   event.notification.close();
-  const url = (event.notification.data && event.notification.data.url) || "/app/home.html";
+  var path = (event.notification.data && event.notification.data.url) || "/app/chats.html";
+  if (path.indexOf("http") !== 0) {
+    path = self.location.origin + (path.charAt(0) === "/" ? path : "/" + path);
+  }
   event.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (list) {
-      for (const c of list) {
+      for (var i = 0; i < list.length; i++) {
+        var c = list[i];
         if (c.url && "focus" in c) {
-          c.navigate(url);
+          try { c.navigate(path); } catch (e) {}
           return c.focus();
         }
       }
-      if (clients.openWindow) return clients.openWindow(url);
+      if (clients.openWindow) return clients.openWindow(path);
     })
   );
 });
