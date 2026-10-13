@@ -179,6 +179,24 @@
     $("stSoon").textContent = all.comingSoon;
     $("stLib").textContent = Object.keys(state.library).length;
     try { renderFeaturedRails(); } catch (e) { console.warn("featured", e); }
+    setCatalogReady(true);
+  }
+
+  function setCatalogReady(ready) {
+    var loadEl = $("catalogLoading");
+    var grid = $("courseGrid");
+    var empty = $("emptyState");
+    var req = $("btnRequest");
+    var section = document.querySelector(".section-head");
+    if (loadEl) {
+      loadEl.style.display = ready ? "none" : "block";
+      loadEl.setAttribute("aria-busy", ready ? "false" : "true");
+    }
+    if (grid) grid.style.display = ready ? "" : "none";
+    if (req) req.style.display = ready ? "" : "none";
+    if (section) section.style.visibility = ready ? "visible" : "hidden";
+    // Never show empty/request while still loading
+    if (!ready && empty) empty.style.display = "none";
   }
 
 
@@ -1022,6 +1040,7 @@
       return;
     }
     state.user = user;
+    try { setCatalogReady(false); } catch (e) {}
     bind();
     await loadProfile(user.uid);
     await loadLibrary();
