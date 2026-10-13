@@ -902,8 +902,8 @@ html.theme-dark .icon-round { background: #1E293B !important; color: #E2E8F0 !im
         <button type="button" id="attSticker"><span style="font-size:1.2rem">😊</span>Stickers</button>
         <button type="button" id="attClose">Close</button>
       </div>
-      <input type="file" id="fileCamera" accept="image/*" capture="environment" style="position:fixed;left:0;bottom:0;width:1px;height:1px;opacity:0.01;z-index:0" tabindex="-1" aria-hidden="true">
-      <input type="file" id="fileGallery" accept="image/*" multiple style="position:fixed;left:0;bottom:0;width:1px;height:1px;opacity:0.01;z-index:0" tabindex="-1" aria-hidden="true">
+      <input type="file" id="fileCamera" accept="image/*" capture="environment" hidden>
+      <input type="file" id="fileGallery" accept="image/*" multiple hidden>
       <input type="file" id="fileVideo" accept="video/*" hidden>
       <input type="file" id="fileDoc" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,image/*" hidden>
     </div>
@@ -985,14 +985,16 @@ html.theme-dark .icon-round { background: #1E293B !important; color: #E2E8F0 !im
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
   <script src="../js/firebase-config.js"></script>
   <script src="../js/app-auth.js"></script>
   <script src="../js/shell.js"></script>
   <script src="../js/media.js"></script>
-  <script src="../js/chat.js"></script>
+  <script src="../js/fcm-config.js"></script>
+<script src="../js/push-client.js"></script>
+<script src="../js/chat.js"></script>
   <script src="../js/onboarding.js"></script>
-  <script src="../js/camera-pick.js"></script>
-<script src="../js/chats-page.js"></script>
+  <script src="../js/chats-page.js"></script>
 
 <script>try{if(window.CodexOnboarding)CodexOnboarding.auto("chats",700);}catch(e){}</script>
 </body>
