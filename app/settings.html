@@ -253,8 +253,8 @@
       </div>
       <div class="row">
         <div class="grow">
-          <strong>Enable push (FCM)</strong>
-          <span>Browser permission for background alerts</span>
+          <strong>Notifications</strong>
+          <span>Chat, friends & Nova alerts (recommended)</span>
         </div>
         <button type="button" class="toggle" id="fcmToggle" aria-pressed="false"><i></i></button>
       </div>
@@ -403,7 +403,7 @@
         }
       } catch (e) { console.warn(e); }
       if (Notification.permission === "granted") {
-        new Notification("Codex Hub", { body: "Push alerts enabled on this device.", tag: "codex-fcm-test" });
+        /* new Notification disabled in PWA — use CodexPush.localNotify */ void 0;
       }
     }
 
@@ -561,41 +561,62 @@
 
 <script>try{if(window.CodexOnboarding)CodexOnboarding.auto("settings",700);}catch(e){}</script>
 
+
+
+
+
+
+
 <script>
 (function () {
   var btn = document.getElementById("fcmToggle");
   if (!btn) return;
+
   function setPressed(on) {
     btn.setAttribute("aria-pressed", on ? "true" : "false");
     btn.classList.toggle("on", !!on);
   }
+
+  // Default ON visually if not explicitly disabled
   try {
-    if (localStorage.getItem("codex_push_enabled") === "1") setPressed(true);
-  } catch (e) {}
+    if (localStorage.getItem("codex_push_disabled") === "1") setPressed(false);
+    else if (localStorage.getItem("codex_push_enabled") === "1" || localStorage.getItem("codex_push_enabled") === null) {
+      setPressed(true);
+    }
+  } catch (e) { setPressed(true); }
+
   btn.addEventListener("click", async function () {
+    var isOn = btn.getAttribute("aria-pressed") === "true";
+    btn.disabled = true;
     try {
       if (!window.CodexPush) {
-        alert("Push client not loaded. Deploy js/push-client.js and js/fcm-config.js");
+        alert("Push client not loaded yet. Refresh the page.");
         return;
       }
-      btn.disabled = true;
-      await window.CodexPush.registerAndSaveToken();
-      setPressed(true);
-      try {
-        var t = await window.CodexPush.testPush();
-        if (t && t.sent > 0) {
-          alert("Push enabled. Test notification sent — check your shade.");
-        } else if (t && t.reason === "no_token_on_your_account") {
-          alert("Permission saved but no token yet. Check VAPID key in fcm-config.js");
-        } else {
-          alert("Push enabled on this device.");
-        }
-      } catch (e2) {
-        alert("Push enabled (token saved). Test: " + (e2.message || e2));
+      if (isOn) {
+        // Turn OFF — never call Notification constructor
+        await window.CodexPush.disablePush();
+        setPressed(false);
+        // no alert required
+      } else {
+        await window.CodexPush.registerAndSaveToken();
+        setPressed(true);
+        try {
+          var t = await window.CodexPush.testPush();
+          if (t && t.sent > 0) {
+            // optional soft message
+          }
+        } catch (e2) {}
       }
     } catch (err) {
-      alert(err.message || String(err));
-      setPressed(false);
+      var msg = (err && err.message) ? err.message : String(err);
+      if (/Illegal constructor/i.test(msg)) {
+        // Token may still be fine
+        setPressed(true);
+        try { localStorage.setItem("codex_push_enabled", "1"); localStorage.removeItem("codex_push_disabled"); } catch (e) {}
+      } else {
+        alert(msg);
+      }
     } finally {
       btn.disabled = false;
     }
