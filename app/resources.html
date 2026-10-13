@@ -11,12 +11,6 @@
 <link rel="stylesheet" href="../css/shell.css">
 <link rel="stylesheet" href="../css/components.css">
 <link rel="stylesheet" href="../css/resources.css">
-
-  <!-- Vercel Speed Insights -->
-  <script>
-    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-  </script>
-  <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
 <body class="shell-body res-section" data-page="resources">
 <div id="shellRoot"></div>
@@ -34,15 +28,19 @@
   </div>
 </header>
 <script>
-(function(){
-  var b=document.querySelector('[data-res-back]');
-  if(!b)return;
-  b.addEventListener('click',function(){
-    try { if(document.referrer && document.referrer.indexOf(location.origin)===0 && history.length>1){ history.back(); return; } } catch(e){}
-    location.href='home.html';
+(function () {
+  // Fixed back navigation (no browser history.back loops).
+  var target = 'home.html';
+  var b = document.querySelector("[data-res-back]");
+  if (!b) return;
+  b.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    location.href = target;
   });
 })();
 </script>
+
 
 <main class="res-page" id="main">
   <div class="res-hero">
@@ -105,7 +103,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script><script src="../js/firestore-boot.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="../js/firebase-config.js"></script>
 <script src="../js/app-auth.js"></script>
 <script src="../js/media.js"></script>
