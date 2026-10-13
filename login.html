@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
   <title>Log in · Codex Hub</title>
   <meta name="theme-color" content="#312e81">
   <link rel="icon" type="image/png" href="assets/favicon.png">
@@ -21,11 +21,19 @@
       --display: "Plus Jakarta Sans", system-ui, sans-serif;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { min-height: 100dvh; font-family: var(--font); color: #0F172A; background: #F8FAFC; }
+    html { overflow-x: hidden; width: 100%; }
+    body {
+      min-height: 100dvh; min-height: 100vh;
+      font-family: var(--font); color: #0F172A; background: #F8FAFC;
+      overflow-x: hidden; width: 100%; max-width: 100vw;
+      -webkit-text-size-adjust: 100%;
+    }
     a { color: inherit; text-decoration: none; }
     button, input { font: inherit; }
 
-    .auth-layout { min-height: 100dvh; display: grid; width: 100%; }
+    .auth-layout { min-height: 100dvh; display: grid; width: 100%; max-width: 100vw; overflow-x: hidden; box-sizing: border-box; }
+    .auth-form, .card-inner, .form_main { max-width: 100%; box-sizing: border-box; }
+    .card-inner { overflow-x: hidden; }
     .auth-side {
       display: none;
       background: linear-gradient(160deg, #1e1b4b 0%, #312e81 42%, #4c1d95 100%);
@@ -124,6 +132,7 @@
       position: absolute; left: 14px; width: 18px; height: 18px; color: #94A3B8; pointer-events: none; z-index: 3;
     }
     .inputField {
+      font-size: 16px; /* prevent iOS zoom that splits the card */
       width: 100%; height: 52px; background: #fff; border: 1.5px solid var(--border);
       border-radius: 16px; padding: 0 16px 0 44px; color: #0F172A; font-size: .95rem; font-weight: 500;
       transition: border-color .2s, box-shadow .2s;
@@ -133,7 +142,8 @@
     .inputField:focus {
       outline: none; border-color: #38BDF8; box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15);
     }
-    .pw-wrap .inputField { padding-right: 48px; }
+    .pw-wrap .inputField {
+      font-size: 16px; /* prevent iOS zoom that splits the card */ padding-right: 48px; }
     .pw-wrap { position: relative; z-index: 5; }
     .eye-btn {
       pointer-events: auto;
@@ -158,7 +168,7 @@
       box-shadow: 0 18px 20px -12px rgba(37, 99, 235, 0.55);
       transition: transform .2s, filter .2s;
     }
-    #loginBtn:hover:not(:disabled) { transform: translateY(-2px) scale(1.01); filter: brightness(1.05); }
+    #loginBtn:hover:not(:disabled) { filter: brightness(1.05); }
     #loginBtn:disabled { opacity: .65; cursor: wait; }
 
     .divider {
@@ -275,7 +285,7 @@
               <button type="button" class="eye-btn" id="togglePw" aria-label="Show password" aria-pressed="false"><svg class="eye-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
             </div>
             <div class="row-between">
-              <a class="forgotLink" href="reset-password.html" id="forgotBtn">Forgot password?</a>
+              <a class="forgotLink" href="#" id="forgotBtn">Forgot password?</a>
             </div>
             <button type="submit" id="loginBtn">Sign in</button>
           </form>
@@ -339,11 +349,6 @@
     var googleBtn = document.getElementById("googleBtn");
     var forgotBtn = document.getElementById("forgotBtn");
     var status = document.getElementById("status");
-    try {
-      if (/[?&]reset=1/.test(location.search)) {
-        setTimeout(function () { showStatus("Password updated. Sign in with your new password.", "ok"); }, 0);
-      }
-    } catch (eR) {}
 
     function showStatus(msg, type) {
       status.textContent = msg;
@@ -358,7 +363,8 @@
       }
       // Email/password accounts must verify before entering the app (Google is trusted)
       if (user && !user.emailVerified && isPasswordUser(user)) {
-showStatus("Verify your email first. Check inbox and Spam.", "error");
+        try { user.sendEmailVerification(); } catch (eV) {}
+        showStatus("Verify your email first. Check inbox and Spam.", "error");
         location.href = "verify-email.html";
         return Promise.resolve();
       }
@@ -383,6 +389,8 @@ showStatus("Verify your email first. Check inbox and Spam.", "error");
       if (!email || !password) { showStatus("Enter email and password."); return; }
       loginBtn.disabled = true;
       loginBtn.textContent = "Signing in…";
+      document.body.style.overflowX = "hidden";
+      try { document.documentElement.style.overflowX = "hidden"; } catch (e) {}
       auth.signInWithEmailAndPassword(email, password)
         .then(function (cred) { return routeAfterLogin(cred.user); })
         .catch(function (err) {
@@ -411,14 +419,18 @@ showStatus("Verify your email first. Check inbox and Spam.", "error");
         });
     });
 
-    if (forgotBtn) {
-      forgotBtn.addEventListener("click", function (e) {
-        e.preventDefault();
-        var email = (emailEl && emailEl.value || "").trim();
-        var dest = "reset-password.html" + (email ? ("?email=" + encodeURIComponent(email)) : "");
-        location.href = dest;
-      });
-    }
+    forgotBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      var email = emailEl.value.trim();
+      if (!email) {
+        showStatus("Enter your email above, then tap Forgot password.", "info");
+        emailEl.focus();
+        return;
+      }
+      auth.sendPasswordResetEmail(email)
+        .then(function () { showStatus("Reset link sent. Check your inbox (and spam).", "ok"); })
+        .catch(function (err) { showStatus(err.message || "Could not send reset email."); });
+    });
 
     // Password eye toggles (if present)
     document.querySelectorAll("[data-toggle-pass]").forEach(function (btn) {
