@@ -61,12 +61,6 @@
     var p = name.split(/\s+/);
     return ((p[0] && p[0][0]) || "?") + ((p[1] && p[1][0]) || "");
   }
-  function displayNameOf(card) {
-    if (!card) return "Student";
-    var u = card.username || card.userName || card.handle;
-    if (u && String(u).trim()) return String(u).trim();
-    return card.fullName || card.displayName || "Student";
-  }
   function escapeHtml(s) {
     return String(s || "").replace(/[&<>"']/g, function (c) {
       return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
@@ -187,81 +181,13 @@
     return '<div class="empty"><h3>' + escapeHtml(title) + '</h3><p>' + escapeHtml(sub) + '</p></div>';
   }
 
-  function renderConvRow(c) {
-    var isG = c.type === "group" || (c.card && c.card.isGroup);
-    return (
-      '<button type="button" class="row-item" data-open-conv="' + escapeAttr(c.id) +
-        '" data-uid="' + escapeAttr(c.card.uid || "") +
-        '" data-type="' + (isG ? "group" : "dm") +
-        '" data-name="' + escapeAttr(c.card.fullName || "") +
-        '" data-photo="' + escapeAttr(c.card.photoURL || "") +
-        '" data-sub="' + escapeAttr(c.card.university || (isG ? "Group" : "")) + '">' +
-        '<div class="av">' + avHtml(c.card) + '</div>' +
-        '<div class="meta"><div class="top"><span class="name">' + escapeHtml(displayNameOf(c.card)) +
-        (c.muted ? " 🔇" : "") + '</span><span class="time">' + escapeHtml(timeLabel(c.updatedAt)) +
-        '</span></div><div class="preview">' +
-        (function () {
-          var preview = c.lastMessage || "Say hello";
-          var meId = firebase.auth().currentUser && firebase.auth().currentUser.uid;
-          // Make it obvious when the latest message was sent by the current user.
-          // This applies even when the conversation has no unread messages.
-          if (c.lastSender && c.lastSender === meId) {
-            preview = "[You: " + preview + "]";
-          } else if (c.unread > 0 && c.lastSenderName) {
-            preview = c.lastSenderName + ": " + preview;
-          }
-          return escapeHtml(preview);
-        })() +
-        (c.unread > 0 ? '<span class="unread-pill">' + (c.unread > 99 ? "99+" : c.unread) + '</span>' : '') +
-        '</div>' +
-        (isG ? '<div class="group-presence-line" data-group-presence="' + escapeAttr(c.id) + '">Checking online…</div>' : '') +
-        '</div></button>'
-    );
-  }
-
-  /** Slim, JSON-safe copy of a conversation for the instant-paint cache —
-   *  same shape renderConvRow() expects, minus anything that can't survive
-   *  sessionStorage (Firestore Timestamp objects become plain millis).
-   *  Keeps username alongside fullName so displayNameOf() still prefers the
-   *  username on a cached/replayed row, same as a live one. */
-  function toCacheConv(c) {
-    return {
-      id: c.id, type: c.type, muted: c.muted, unread: c.unread,
-      lastMessage: c.lastMessage, lastSender: c.lastSender, lastSenderName: c.lastSenderName,
-      updatedAt: c.updatedAt && c.updatedAt.toMillis ? c.updatedAt.toMillis() : (c.updatedAt || null),
-      card: {
-        uid: c.card && c.card.uid, fullName: c.card && c.card.fullName,
-        username: c.card && c.card.username,
-        photoURL: c.card && c.card.photoURL, avatarKey: c.card && c.card.avatarKey,
-        university: c.card && c.card.university, isGroup: c.card && c.card.isGroup
-      }
-    };
-  }
-
   async function loadPane() {
     var pane = $("listPane");
+    pane.innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
     var q = ($("searchInput").value || "").trim();
-    // Paint last-known conversations instantly (before Firestore even
-    // responds) so Chats doesn't open to a blank shimmering list every time
-    // — the real listConversations() call below still runs and replaces
-    // this the moment it resolves.
-    var paintedFromCache = false;
-    if (state.tab === "chats" && !q && window.CodexSpeed) {
-      var cached = CodexSpeed.getList("chats");
-      if (cached && cached.length) {
-        try {
-          pane.innerHTML = cached.map(renderConvRow).join("");
-          paintedFromCache = true;
-        } catch (eCache) {}
-      }
-    }
-    if (!paintedFromCache) {
-      pane.innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
-    }
     try {
       if (state.tab === "chats") {
         var convs = await CodexChat.listConversations();
-        try { if (window.CodexSpeed) CodexSpeed.saveList("chats", convs.map(toCacheConv), 25); } catch (eSaveList) {}
         if (q) {
           convs = convs.filter(function (c) {
             return (c.card.fullName + " " + (c.lastMessage || "")).toLowerCase().indexOf(q.toLowerCase()) !== -1;
@@ -271,7 +197,37 @@
           pane.innerHTML = emptyHtml("No conversations yet", "Find classmates and start a study chat.");
           return;
         }
-        pane.innerHTML = convs.map(renderConvRow).join("");
+        pane.innerHTML = convs.map(function (c) {
+          var isG = c.type === "group" || (c.card && c.card.isGroup);
+          return (
+            '<button type="button" class="row-item" data-open-conv="' + escapeAttr(c.id) +
+              '" data-uid="' + escapeAttr(c.card.uid || "") +
+              '" data-type="' + (isG ? "group" : "dm") +
+              '" data-name="' + escapeAttr(c.card.fullName || "") +
+              '" data-photo="' + escapeAttr(c.card.photoURL || "") +
+              '" data-sub="' + escapeAttr(c.card.university || (isG ? "Group" : "")) + '">' +
+              '<div class="av">' + avHtml(c.card) + '</div>' +
+              '<div class="meta"><div class="top"><span class="name">' + escapeHtml(c.card.fullName) +
+              (c.muted ? " 🔇" : "") + '</span><span class="time">' + escapeHtml(timeLabel(c.updatedAt)) +
+              '</span></div><div class="preview">' +
+              (function () {
+                var preview = c.lastMessage || "Say hello";
+                var meId = firebase.auth().currentUser && firebase.auth().currentUser.uid;
+                // Make it obvious when the latest message was sent by the current user.
+                // This applies even when the conversation has no unread messages.
+                if (c.lastSender && c.lastSender === meId) {
+                  preview = "[You: " + preview + "]";
+                } else if (c.unread > 0 && c.lastSenderName) {
+                  preview = c.lastSenderName + ": " + preview;
+                }
+                return escapeHtml(preview);
+              })() +
+              (c.unread > 0 ? '<span class="unread-pill">' + (c.unread > 99 ? "99+" : c.unread) + '</span>' : '') +
+              '</div>' +
+              (isG ? '<div class="group-presence-line" data-group-presence="' + escapeAttr(c.id) + '">Checking online…</div>' : '') +
+              '</div></button>'
+          );
+        }).join("");
         refreshGroupPresenceRows();
         // Refresh visible group online counts without changing group data.
         if (state.tab === "chats") {
@@ -301,7 +257,7 @@
           html += reqs.map(function (r) {
             return (
               '<div class="row-item" style="cursor:default"><div class="av">' + avHtml(r.card) + '</div>' +
-              '<div class="meta"><div class="top"><span class="name">' + escapeHtml(displayNameOf(r.card)) + '</span></div>' +
+              '<div class="meta"><div class="top"><span class="name">' + escapeHtml(r.card.fullName) + '</span></div>' +
               '<div class="preview">' + escapeHtml([r.card.university, r.card.department].filter(Boolean).join(" · ") || "Codex student") +
               '</div></div><div class="person-actions">' +
               '<button type="button" class="pill-btn primary" data-accept="' + escapeAttr(r.id) + '">Accept</button>' +
@@ -314,7 +270,7 @@
           html += gReqs.map(function (r) {
             return (
               '<div class="row-item" style="cursor:default"><div class="av">' + avHtml(r.card) + '</div>' +
-              '<div class="meta"><div class="top"><span class="name">' + escapeHtml(displayNameOf(r.card)) + '</span></div>' +
+              '<div class="meta"><div class="top"><span class="name">' + escapeHtml(r.card.fullName) + '</span></div>' +
               '<div class="preview">Wants to join · ' + escapeHtml(r.groupName) + '</div></div>' +
               '<div class="person-actions">' +
               '<button type="button" class="pill-btn primary" data-accept-gjoin="' + escapeAttr(r.groupId) + '" data-from="' + escapeAttr(r.from) + '">Accept</button>' +
@@ -412,7 +368,7 @@
     }
     return (
       '<div class="row-item" style="cursor:default"><div class="av">' + avHtml(p) + '</div>' +
-      '<div class="meta"><div class="top"><span class="name">' + escapeHtml(displayNameOf(p)) + '</span></div>' +
+      '<div class="meta"><div class="top"><span class="name">' + escapeHtml(p.fullName) + '</span></div>' +
       '<div class="preview">' + escapeHtml(sub) + '</div>' +
       (p.incomplete ? '<span class="tag warn">Legacy profile</span>' : '') +
       '</div><div class="person-actions">' + actions + '</div></div>'
@@ -569,7 +525,7 @@
     if (state.unsubTyping) { try { state.unsubTyping(); } catch (e) {} state.unsubTyping = null; }
     if (state.unsubPresence) { try { state.unsubPresence(); } catch (e) {} state.unsubPresence = null; }
 
-    $("threadName").textContent = displayNameOf(card) || "Chat";
+    $("threadName").textContent = (card && card.fullName) || "Chat";
     var subBits = [];
     if (card && card.isGroup) {
       $("threadSub").textContent = "Group · loading…";
@@ -991,7 +947,7 @@
         return (
           '<label class="invite-row">' +
             '<div class="av" style="width:40px;height:40px">' + avHtml(p) + '</div>' +
-            '<div class="meta"><div class="name">' + escapeHtml(displayNameOf(p)) + '</div>' +
+            '<div class="meta"><div class="name">' + escapeHtml(p.fullName) + '</div>' +
             '<div class="preview">' + escapeHtml(p.university || "") + '</div></div>' +
             '<input type="checkbox" data-inv="' + escapeAttr(p.uid) + '">' +
           '</label>'
@@ -1021,7 +977,26 @@
   // attach
   $("btnAttach").onclick = function () { $("attachSheet").classList.add("open"); };
   $("attClose").onclick = function () { $("attachSheet").classList.remove("open"); };
-  $("attCamera").onclick = function () { $("fileCamera").click(); };
+  $("attCamera").onclick = function () {
+    try {
+      if (window.CodexCamera) {
+        window.CodexCamera.pickCamera(function (files) {
+          if (files && files[0]) addPendingFiles(files, "image");
+          var sheet = $("attachSheet");
+          if (sheet) sheet.classList.remove("open");
+        });
+        return;
+      }
+    } catch (e) { console.warn("CodexCamera", e); }
+    var inp = $("fileCamera");
+    if (inp) {
+      // repair display:none
+      if (inp.style.display === "none") {
+        inp.style.cssText = "position:fixed;left:0;bottom:0;width:1px;height:1px;opacity:0.01;z-index:0";
+      }
+      inp.click();
+    }
+  };
   $("attGallery").onclick = function () { $("fileGallery").click(); };
   $("attFile").onclick = function () { $("fileDoc").click(); };
   if ($("attVideo")) $("attVideo").onclick = function () { $("fileVideo").click(); };
@@ -1807,7 +1782,6 @@
   };
 
   // boot
-  try { if (window.refreshChatBadge) refreshChatBadge(); } catch (eB) {}
   CodexShell.mountShell({ page: "chats", title: "Chats", user: { fullName: "Student" } });
   CodexAuth.requireUser().then(async function (res) {
     state.me = res.user;
