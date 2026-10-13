@@ -68,6 +68,18 @@
     try {
       if (typeof Notification !== "undefined" && Notification.permission === "granted") {
         new Notification(title || "Nova", { body: body || "Your offline message was processed.", tag: "nova-offline" });
+      try {
+        if (window.CodexPush && firebase.auth().currentUser) {
+          window.CodexPush.notifyUser({
+            toUid: firebase.auth().currentUser.uid,
+            title: title || "Nova",
+            body: body || "Your offline message was processed.",
+            url: "https://codex-hub-prime.vercel.app/app/nova.html",
+            tag: "nova-offline",
+            type: "nova_offline"
+          });
+        }
+      } catch (eNo) {}
       }
     } catch (e) {}
   }

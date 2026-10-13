@@ -17,7 +17,7 @@
   function displayFromUser(data, id) {
     data = data || {};
     var name =
-      data.username || data.fullName || data.displayName || data.name ||
+      data.fullName || data.displayName || data.username || data.name ||
       (data.email ? String(data.email).split("@")[0] : null) || "Student";
     return {
       uid: id,
@@ -64,13 +64,8 @@
             if (ud.avatarKey) base.avatarKey = ud.avatarKey;
             if (ud.photoURL) base.photoURL = ud.photoURL;
             else if (ud.avatarKey) base.photoURL = ""; // character only
+            if (ud.fullName || ud.displayName) base.fullName = ud.fullName || ud.displayName;
             if (ud.username) base.username = ud.username;
-            // Keep showing the username here too — this used to unconditionally
-            // overwrite it with the real name from the live users/ doc, which
-            // silently undid the "show username, not real name" preference for
-            // anyone whose users/ doc had fullName/displayName set (i.e. almost
-            // everyone).
-            base.fullName = base.username || ud.fullName || ud.displayName || base.fullName;
           }
         } catch (e) {}
         return base;
@@ -93,15 +88,10 @@
       var pubSnap = await db().collection("public_profiles").limit(200).get();
       pubSnap.forEach(function (doc) {
         if (doc.id === me) return;
-        var pd = doc.data() || {};
-        // avatarKey + username must be passed through here — without them,
-        // default/character avatars never show on the Find People tab (only
-        // uploaded photos do), and names fall back to real names instead of
-        // the chosen username.
         map[doc.id] = displayFromUser({
-          fullName: pd.displayName, photoURL: pd.photoURL, avatarKey: pd.avatarKey,
-          university: pd.university, faculty: pd.faculty,
-          department: pd.department, level: pd.level, bio: pd.bio, username: pd.username
+          fullName: doc.data().displayName, photoURL: doc.data().photoURL,
+          university: doc.data().university, faculty: doc.data().faculty,
+          department: doc.data().department, level: doc.data().level, bio: doc.data().bio
         }, doc.id);
       });
     } catch (e) {}
@@ -112,23 +102,15 @@
         var leg = displayFromUser(doc.data(), doc.id);
         if (map[doc.id]) {
           var cur = map[doc.id];
-          var username = cur.username || leg.username;
           map[doc.id] = {
             uid: doc.id,
-            // Prefer the username over either card's fullName, same rule as
-            // everywhere else in chat — only fall back to a real/displayed
-            // name for the rare account with no username set yet.
-            fullName: username || (cur.fullName !== "Student" ? cur.fullName : leg.fullName),
-            username: username,
+            fullName: cur.fullName !== "Student" ? cur.fullName : leg.fullName,
+            username: cur.username || leg.username,
             university: cur.university || leg.university,
             faculty: cur.faculty || leg.faculty,
             department: cur.department || leg.department,
             level: cur.level || leg.level,
             photoURL: cur.photoURL || leg.photoURL,
-            // avatarKey was being dropped here entirely, same bug as the
-            // public_profiles branch above — default/character avatars
-            // never showed for anyone merged through this path.
-            avatarKey: leg.avatarKey || cur.avatarKey || "",
             bio: cur.bio || leg.bio,
             xpPoints: leg.xpPoints || cur.xpPoints,
             rank: leg.rank || cur.rank,
@@ -199,6 +181,18 @@
         createdAt: nowTs(),
         read: false
       });
+      try {
+        if (window.CodexPush && window.CodexPush.notifyUser) {
+          window.CodexPush.notifyUser({
+            toUid: toUid,
+            title: "Friend request",
+            body: fromName + " sent you a friend request",
+            url: "https://codex-hub-prime.vercel.app/app/chats.html",
+            tag: "friend-request",
+            type: "friend_request"
+          });
+        }
+      } catch (eFr) {}
     } catch (e) {}
     return id;
   }
@@ -253,6 +247,18 @@
         read: false,
         message: accName + " accepted your friend request."
       });
+      try {
+        if (window.CodexPush && typeof fromUid !== "undefined" && fromUid) {
+          window.CodexPush.notifyUser({
+            toUid: fromUid,
+            title: "Friend request accepted",
+            body: (accName || "Someone") + " accepted your friend request",
+            url: "https://codex-hub-prime.vercel.app/app/chats.html",
+            tag: "friend-accepted",
+            type: "friend_accepted"
+          });
+        }
+      } catch (eFa) {}
     } catch (e) {}
   }
 
@@ -509,6 +515,8 @@
       pinned: false
     };
     await db().collection("conversations").doc(convId).collection("messages").add(payload);
+
+
     var preview = text;
     if (!preview) {
       if (extra.type === "images" && extra.mediaUrls) preview = extra.mediaUrls.length + " photos";
@@ -523,6 +531,31 @@
       var meCard = await getUserCard(me);
       if (meCard && meCard.fullName) myName = meCard.fullName;
     } catch (eN) {}
+    // FCM: notify other participants (fire-and-forget)
+    try {
+      if (window.CodexPush && window.CodexPush.notifyUser) {
+        (async function () {
+          try {
+            var convSnap = await db().collection("conversations").doc(convId).get();
+            var parts = (convSnap.exists && convSnap.data().participants) || [];
+            var previewPush = String(text || preview || "New message").slice(0, 80);
+            var who = myName || "Someone";
+            for (var pi = 0; pi < parts.length; pi++) {
+              if (parts[pi] === me) continue;
+              window.CodexPush.notifyUser({
+                toUid: parts[pi],
+                title: who,
+                body: previewPush,
+                url: "https://codex-hub-prime.vercel.app/app/chats.html",
+                tag: "chat-" + convId,
+                type: "chat_message"
+              });
+            }
+          } catch (ePush) { console.warn("push chat", ePush); }
+        })();
+      }
+    } catch (ePushOuter) {}
+
     var convUpdate = {
       lastMessage: preview.slice(0, 120),
       lastSender: me,
