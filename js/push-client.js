@@ -1,11 +1,6 @@
 /**
- * Codex Hub — push client (token save + notify via backend)
- *
- * Setup once:
- *   1) Firebase Console → Cloud Messaging → Web Push certificates → Generate key pair
- *   2) Put public key in js/fcm-config.js (CODEX_FCM_VAPID)
- *   3) Deploy firebase-messaging-sw.js at site ROOT
- *   4) Mount fcm-routes.js on Render backend
+ * Codex Hub push client — PWA-safe, default-on friendly
+ * Never relies on `new Notification()` (illegal in Android installed PWA).
  */
 (function (global) {
   "use strict";
@@ -25,21 +20,20 @@
   }
 
   function localNotify(title, body, tag) {
-    if (typeof Notification === "undefined") return;
-    if (Notification.permission !== "granted") return;
-    try {
-      new Notification(title || "Codex Hub", {
-        body: body || "",
-        tag: tag || "codex",
-        icon: "/assets/icons/icon-192.png"
-      });
-    } catch (e) {
-      try {
-        navigator.serviceWorker.ready.then(function (reg) {
-          reg.showNotification(title || "Codex Hub", { body: body || "", tag: tag || "codex" });
-        });
-      } catch (e2) {}
-    }
+    if (typeof Notification === "undefined") return Promise.resolve();
+    if (Notification.permission !== "granted") return Promise.resolve();
+    var opts = {
+      body: body || "",
+      tag: tag || "codex",
+      icon: "/assets/icons/icon-192.png",
+      badge: "/assets/icons/icon-192.png"
+    };
+    if (!("serviceWorker" in navigator)) return Promise.resolve();
+    return navigator.serviceWorker.ready
+      .then(function (reg) {
+        return reg.showNotification(title || "Codex Hub", opts);
+      })
+      .catch(function () { /* ignore */ });
   }
 
   async function getIdToken() {
@@ -51,15 +45,13 @@
   async function registerAndSaveToken() {
     var perm = await ensurePermission();
     if (perm !== "granted") {
-      throw new Error("Notification permission not granted");
+      throw new Error("Notifications blocked. Enable them in phone Settings → Apps → Chrome/Codex Hub → Notifications.");
     }
     var key = vapidKey();
-    if (!key) {
-      throw new Error("Missing VAPID key — add CODEX_FCM_VAPID in js/fcm-config.js");
+    if (!key || key.indexOf("PASTE_") === 0) {
+      throw new Error("Missing VAPID key in js/fcm-config.js");
     }
-    if (!firebase.messaging) {
-      throw new Error("firebase-messaging not loaded");
-    }
+    if (!firebase.messaging) throw new Error("firebase-messaging not loaded");
 
     var reg = await navigator.serviceWorker.register("/firebase-messaging-sw.js", { scope: "/" });
     await navigator.serviceWorker.ready;
@@ -85,16 +77,38 @@
 
     try {
       localStorage.setItem("codex_push_enabled", "1");
+      localStorage.removeItem("codex_push_disabled");
+    } catch (e) {}
+
+    try {
+      await localNotify("Codex Hub", "Notifications are on. You’ll get chat & study alerts here.", "codex-fcm-on");
     } catch (e) {}
 
     return token;
+  }
+
+  /** Turn off preference (does not revoke browser permission — only stops our sends preference + optional token remove) */
+  async function disablePush() {
+    try {
+      localStorage.setItem("codex_push_enabled", "0");
+      localStorage.setItem("codex_push_disabled", "1");
+    } catch (e) {}
+    var user = firebase.auth().currentUser;
+    if (user) {
+      try {
+        await firebase.firestore().collection("users").doc(user.uid).set(
+          { pushEnabled: false, fcmUpdatedAt: firebase.firestore.FieldValue.serverTimestamp() },
+          { merge: true }
+        );
+      } catch (e) {}
+    }
+    return true;
   }
 
   async function notifyUser(opts) {
     opts = opts || {};
     var toUid = opts.toUid;
     if (!toUid) return { ok: false, error: "no toUid" };
-    // Don't notify yourself
     try {
       if (firebase.auth().currentUser && firebase.auth().currentUser.uid === toUid) {
         return { ok: true, skipped: "self" };
@@ -122,7 +136,6 @@
       });
       return await res.json();
     } catch (e) {
-      console.warn("push notify", e);
       return { ok: false, error: String(e.message || e) };
     }
   }
@@ -141,12 +154,52 @@
     return await res.json();
   }
 
+  /**
+   * Soft auto-enable after login (default ON).
+   * Only runs if user has not explicitly turned push off.
+   * Does not spam: once per session.
+   */
+  function autoEnableIfNeeded() {
+    try {
+      if (localStorage.getItem("codex_push_disabled") === "1") return;
+      if (sessionStorage.getItem("codex_push_auto_done") === "1") return;
+    } catch (e) {}
+
+    if (!firebase || !firebase.auth) return;
+    firebase.auth().onAuthStateChanged(function (user) {
+      if (!user) return;
+      try {
+        if (sessionStorage.getItem("codex_push_auto_done") === "1") return;
+        sessionStorage.setItem("codex_push_auto_done", "1");
+      } catch (e) {}
+
+      // Delay slightly so page scripts finish
+      setTimeout(function () {
+        if (!global.CodexPush || !global.CodexPush.registerAndSaveToken) return;
+        // If already granted, register silently. If default, request once.
+        var perm = (typeof Notification !== "undefined") ? Notification.permission : "denied";
+        if (perm === "denied") return;
+        global.CodexPush.registerAndSaveToken().catch(function (err) {
+          console.warn("auto push", err && err.message ? err.message : err);
+        });
+      }, 2500);
+    });
+  }
+
   global.CodexPush = {
     ensurePermission: ensurePermission,
     localNotify: localNotify,
     registerAndSaveToken: registerAndSaveToken,
+    disablePush: disablePush,
     notifyUser: notifyUser,
     testPush: testPush,
+    autoEnableIfNeeded: autoEnableIfNeeded,
     API_BASE: API_BASE
   };
+
+  // Kick auto-enable when this script loads (home/settings/chats)
+  try {
+    if (document.readyState === "complete") autoEnableIfNeeded();
+    else window.addEventListener("load", autoEnableIfNeeded);
+  } catch (e) {}
 })(typeof window !== "undefined" ? window : this);
