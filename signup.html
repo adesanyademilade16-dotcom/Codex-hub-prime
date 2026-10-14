@@ -558,9 +558,9 @@
           return claimUsername(cred.user.uid, username).then(function () {
             return cred.user.updateProfile({ displayName: el("fullName").value.trim() }).then(function () {
               return createProfile(cred.user, { authProvider: "email" }).then(function () {
-                /* Brevo 6-digit on v/* Brevo on verify-email.html */
-                alertMsg("Account created. Enter the 6-digit code we send next.", true);
-                setTimeout(function () { location.href = "verify-email.html"; }, 900);
+                // Brevo 6-digit code is sent on verify-email.html (not Firebase link)
+                try { sessionStorage.setItem("codex_just_signed_up", "1"); } catch (e) {}
+                location.href = "verify-email.html";
               });
             });
           }).catch(function (err) {
