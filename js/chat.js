@@ -36,48 +36,73 @@
     };
   }
 
+  var _userCardCache = {};
+  var _userCardInflight = {};
+  var _USER_CARD_TTL = 60000;
+
   async function getUserCard(userId) {
     if (!userId) return null;
-    try {
-      var pub = await db().collection("public_profiles").doc(userId).get();
-      if (pub.exists) {
-        var p = pub.data() || {};
-        var base = displayFromUser({
-          fullName: p.displayName,
-          displayName: p.displayName,
-          photoURL: p.photoURL,
-          avatarKey: p.avatarKey || "",
-          university: p.university,
-          faculty: p.faculty,
-          department: p.department,
-          level: p.level,
-          bio: p.bio,
-          username: p.username
-        }, userId);
-        try {
-          var u = await db().collection("users").doc(userId).get();
-          if (u.exists) {
-            var ud = u.data() || {};
-            base.xpPoints = typeof ud.xpPoints === "number" ? ud.xpPoints : base.xpPoints;
-            base.rank = ud.rank || ud.rankLabel || base.rank;
-            // Prefer live profile avatar over stale public mirror
-            if (ud.avatarKey) base.avatarKey = ud.avatarKey;
-            if (ud.photoURL) base.photoURL = ud.photoURL;
-            else if (ud.avatarKey) base.photoURL = ""; // character only
-            if (ud.fullName || ud.displayName) base.fullName = ud.fullName || ud.displayName;
-            if (ud.username) base.username = ud.username;
+    var now = Date.now();
+    var hit = _userCardCache[userId];
+    if (hit && (now - hit.t) < _USER_CARD_TTL) return hit.card;
+    if (_userCardInflight[userId]) return _userCardInflight[userId];
+
+    _userCardInflight[userId] = (async function () {
+      try {
+        // Parallel fetch public + users (was sequential — main chat-list delay)
+        var pubRef = db().collection("public_profiles").doc(userId);
+        var userRef = db().collection("users").doc(userId);
+        var results = await Promise.all([
+          pubRef.get().catch(function () { return null; }),
+          userRef.get().catch(function () { return null; })
+        ]);
+        var pub = results[0];
+        var uSnap = results[1];
+        var base;
+
+        if (pub && pub.exists) {
+          var p = pub.data() || {};
+          base = displayFromUser({
+            fullName: p.displayName,
+            displayName: p.displayName,
+            photoURL: p.photoURL,
+            avatarKey: p.avatarKey || "",
+            university: p.university,
+            faculty: p.faculty,
+            department: p.department,
+            level: p.level,
+            bio: p.bio,
+            username: p.username
+          }, userId);
+        } else {
+          base = displayFromUser({}, userId);
+        }
+
+        if (uSnap && uSnap.exists) {
+          var ud = uSnap.data() || {};
+          if (!pub || !pub.exists) {
+            base = displayFromUser(ud, userId);
           }
-        } catch (e) {}
+          base.xpPoints = typeof ud.xpPoints === "number" ? ud.xpPoints : base.xpPoints;
+          base.rank = ud.rank || ud.rankLabel || base.rank;
+          if (ud.avatarKey) base.avatarKey = ud.avatarKey;
+          if (ud.photoURL) base.photoURL = ud.photoURL;
+          else if (ud.avatarKey) base.photoURL = "";
+          if (ud.fullName || ud.displayName) base.fullName = ud.fullName || ud.displayName;
+          if (ud.username) base.username = ud.username;
+        }
+
+        _userCardCache[userId] = { t: Date.now(), card: base };
         return base;
+      } finally {
+        delete _userCardInflight[userId];
       }
-    } catch (e) {}
-    try {
-      var u2 = await db().collection("users").doc(userId).get();
-      if (u2.exists) return displayFromUser(u2.data(), userId);
-    } catch (e2) {}
-    return displayFromUser({}, userId);
+    })();
+
+    return _userCardInflight[userId];
   }
 
+  
   async function discoverPeople(opts) {
     opts = opts || {};
     var limit = opts.limit || 40;
@@ -181,18 +206,6 @@
         createdAt: nowTs(),
         read: false
       });
-      try {
-        if (window.CodexPush && window.CodexPush.notifyUser) {
-          window.CodexPush.notifyUser({
-            toUid: toUid,
-            title: "Friend request",
-            body: fromName + " sent you a friend request",
-            url: "https://codex-hub-prime.vercel.app/app/chats.html",
-            tag: "friend-request",
-            type: "friend_request"
-          });
-        }
-      } catch (eFr) {}
     } catch (e) {}
     return id;
   }
@@ -247,18 +260,6 @@
         read: false,
         message: accName + " accepted your friend request."
       });
-      try {
-        if (window.CodexPush && typeof fromUid !== "undefined" && fromUid) {
-          window.CodexPush.notifyUser({
-            toUid: fromUid,
-            title: "Friend request accepted",
-            body: (accName || "Someone") + " accepted your friend request",
-            url: "https://codex-hub-prime.vercel.app/app/chats.html",
-            tag: "friend-accepted",
-            type: "friend_accepted"
-          });
-        }
-      } catch (eFa) {}
     } catch (e) {}
   }
 
@@ -368,33 +369,59 @@
         return [];
       }
     }
-    var out = [];
+
+    // Build rows first without awaiting each card (was sequential N+1)
+    var pending = [];
     for (var i = 0; i < snap.docs.length; i++) {
       var d = snap.docs[i];
       var data = d.data() || {};
       var pref = prefs[d.id] || {};
       if (pref.hidden) continue;
       var other = (data.participants || []).filter(function (x) { return x !== me; })[0];
-      var card;
-      if (data.type === "group") {
-        var mc = (data.members || data.participants || []).length;
-        var gName = data.name || "Group";
-        var gPhoto = data.photoURL || "";
-        try {
-          var gdoc = await db().collection("groups").doc(d.id).get();
+      pending.push({
+        id: d.id,
+        data: data,
+        pref: pref,
+        other: other
+      });
+    }
+
+    // Parallel: user cards + group docs
+    var cards = await Promise.all(pending.map(function (row) {
+      if (row.data.type === "group") {
+        return db().collection("groups").doc(row.id).get().then(function (gdoc) {
+          var mc = (row.data.members || row.data.participants || []).length;
+          var gName = row.data.name || "Group";
+          var gPhoto = row.data.photoURL || "";
           if (gdoc.exists) {
             var gd = gdoc.data() || {};
             mc = (gd.members || []).length || mc;
             gName = gd.name || gName;
             gPhoto = gd.photoURL || gPhoto;
           }
-        } catch (eG) {}
-        card = { uid: d.id, fullName: gName, photoURL: gPhoto, university: mc + " members", isGroup: true };
-      } else {
-        card = await getUserCard(other);
+          return { uid: row.id, fullName: gName, photoURL: gPhoto, university: mc + " members", isGroup: true };
+        }).catch(function () {
+          return {
+            uid: row.id,
+            fullName: row.data.name || "Group",
+            photoURL: row.data.photoURL || "",
+            university: ((row.data.participants || []).length || 1) + " members",
+            isGroup: true
+          };
+        });
       }
+      return getUserCard(row.other);
+    }));
+
+    var out = [];
+    for (var j = 0; j < pending.length; j++) {
+      var row = pending[j];
+      var data = row.data;
+      var pref = row.pref;
       out.push({
-        id: d.id, type: data.type || "dm", card: card,
+        id: row.id,
+        type: data.type || "dm",
+        card: cards[j],
         lastMessage: data.lastMessage || "",
         lastSender: data.lastSender || "",
         lastSenderName: data.lastSenderName || "",
@@ -407,6 +434,7 @@
         muted: !!pref.muted
       });
     }
+
     // Ensure every group membership appears in Chats (even if conversation query lagged)
     try {
       var myGroups = await listMyGroups();
@@ -515,8 +543,6 @@
       pinned: false
     };
     await db().collection("conversations").doc(convId).collection("messages").add(payload);
-
-
     var preview = text;
     if (!preview) {
       if (extra.type === "images" && extra.mediaUrls) preview = extra.mediaUrls.length + " photos";
@@ -531,31 +557,6 @@
       var meCard = await getUserCard(me);
       if (meCard && meCard.fullName) myName = meCard.fullName;
     } catch (eN) {}
-    // FCM: notify other participants (fire-and-forget)
-    try {
-      if (window.CodexPush && window.CodexPush.notifyUser) {
-        (async function () {
-          try {
-            var convSnap = await db().collection("conversations").doc(convId).get();
-            var parts = (convSnap.exists && convSnap.data().participants) || [];
-            var previewPush = String(text || preview || "New message").slice(0, 80);
-            var who = myName || "Someone";
-            for (var pi = 0; pi < parts.length; pi++) {
-              if (parts[pi] === me) continue;
-              window.CodexPush.notifyUser({
-                toUid: parts[pi],
-                title: who,
-                body: previewPush,
-                url: "https://codex-hub-prime.vercel.app/app/chats.html",
-                tag: "chat-" + convId,
-                type: "chat_message"
-              });
-            }
-          } catch (ePush) { console.warn("push chat", ePush); }
-        })();
-      }
-    } catch (ePushOuter) {}
-
     var convUpdate = {
       lastMessage: preview.slice(0, 120),
       lastSender: me,
@@ -1390,6 +1391,7 @@
   global.CodexChat = {
     dmId: dmId,
     getUserCard: getUserCard,
+    invalidateUserCard: function (id) { if (id) delete _userCardCache[id]; else _userCardCache = {}; },
     discoverPeople: discoverPeople,
     sendFriendRequest: sendFriendRequest,
     respondFriendRequest: respondFriendRequest,
