@@ -95,6 +95,8 @@
       display: flex; align-items: center; gap: 10px;
       padding: 10px 8px 10px 6px; background: #fff; border-bottom: 1px solid var(--line);
       min-height: 58px; flex-shrink: 0;
+      position: sticky; top: 0; z-index: 6;
+      box-shadow: 0 1px 0 rgba(15,23,42,.06);
     }
     .thread-bar .back {
       width: 40px; height: 40px; border: 0; background: #F1F5F9; border-radius: 12px;
@@ -727,7 +729,16 @@
       color: #CBD5E1;
     }
 
-  </style>
+  /* sticky-thread-bar */
+
+      .thread-bar {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 6 !important;
+        flex-shrink: 0 !important;
+        background: #fff !important;
+      }
+</style>
 
 <style id="dark-override">
 html.theme-dark body.app-body { background: #0F172A !important; color: #F1F5F9 !important; }
@@ -747,6 +758,15 @@ html.theme-dark .pill.active, html.theme-dark .pill-btn.primary {
   background: linear-gradient(135deg,#6366F1,#8B5CF6) !important; color: #fff !important;
 }
 html.theme-dark .icon-round { background: #1E293B !important; color: #E2E8F0 !important; }
+/* sticky-thread-bar */
+
+      .thread-bar {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 6 !important;
+        flex-shrink: 0 !important;
+        background: #fff !important;
+      }
 </style>
 
 </head>
