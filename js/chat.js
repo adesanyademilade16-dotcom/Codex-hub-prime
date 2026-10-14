@@ -49,12 +49,9 @@
 
     _userCardInflight[userId] = (async function () {
       try {
-        // Parallel fetch public + users (was sequential — main chat-list delay)
-        var pubRef = db().collection("public_profiles").doc(userId);
-        var userRef = db().collection("users").doc(userId);
         var results = await Promise.all([
-          pubRef.get().catch(function () { return null; }),
-          userRef.get().catch(function () { return null; })
+          db().collection("public_profiles").doc(userId).get().catch(function () { return null; }),
+          db().collection("users").doc(userId).get().catch(function () { return null; })
         ]);
         var pub = results[0];
         var uSnap = results[1];
@@ -206,6 +203,18 @@
         createdAt: nowTs(),
         read: false
       });
+      try {
+        if (window.CodexPush && window.CodexPush.notifyUser) {
+          window.CodexPush.notifyUser({
+            toUid: toUid,
+            title: "Friend request",
+            body: fromName + " sent you a friend request",
+            url: "https://codex-hub-prime.vercel.app/app/chats.html",
+            tag: "friend-request",
+            type: "friend_request"
+          });
+        }
+      } catch (eFr) {}
     } catch (e) {}
     return id;
   }
@@ -260,6 +269,18 @@
         read: false,
         message: accName + " accepted your friend request."
       });
+      try {
+        if (window.CodexPush && typeof fromUid !== "undefined" && fromUid) {
+          window.CodexPush.notifyUser({
+            toUid: fromUid,
+            title: "Friend request accepted",
+            body: (accName || "Someone") + " accepted your friend request",
+            url: "https://codex-hub-prime.vercel.app/app/chats.html",
+            tag: "friend-accepted",
+            type: "friend_accepted"
+          });
+        }
+      } catch (eFa) {}
     } catch (e) {}
   }
 
@@ -370,7 +391,6 @@
       }
     }
 
-    // Build rows first without awaiting each card (was sequential N+1)
     var pending = [];
     for (var i = 0; i < snap.docs.length; i++) {
       var d = snap.docs[i];
@@ -378,15 +398,9 @@
       var pref = prefs[d.id] || {};
       if (pref.hidden) continue;
       var other = (data.participants || []).filter(function (x) { return x !== me; })[0];
-      pending.push({
-        id: d.id,
-        data: data,
-        pref: pref,
-        other: other
-      });
+      pending.push({ id: d.id, data: data, pref: pref, other: other });
     }
 
-    // Parallel: user cards + group docs
     var cards = await Promise.all(pending.map(function (row) {
       if (row.data.type === "group") {
         return db().collection("groups").doc(row.id).get().then(function (gdoc) {
@@ -543,6 +557,8 @@
       pinned: false
     };
     await db().collection("conversations").doc(convId).collection("messages").add(payload);
+
+
     var preview = text;
     if (!preview) {
       if (extra.type === "images" && extra.mediaUrls) preview = extra.mediaUrls.length + " photos";
@@ -557,6 +573,47 @@
       var meCard = await getUserCard(me);
       if (meCard && meCard.fullName) myName = meCard.fullName;
     } catch (eN) {}
+    // FCM: server-side notify (works when recipient is outside the app)
+    try {
+      (async function () {
+        try {
+          var user = firebase.auth().currentUser;
+          if (!user) return;
+          var idToken = await user.getIdToken();
+          var API = (window.CODEX_API_BASE || "https://codex-backend-new.onrender.com").replace(/\/$/, "");
+          var payload = {
+            convId: convId,
+            title: myName || "Someone",
+            body: String(text || preview || "New message").slice(0, 120),
+            url: "https://codex-hub-prime.vercel.app/app/chats.html"
+          };
+          async function attempt() {
+            var res = await fetch(API + "/push/on-chat-message", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + idToken
+              },
+              body: JSON.stringify(payload)
+            });
+            return res.json();
+          }
+          var result = await attempt();
+          // Retry once if backend was cold
+          if (!result || result.ok === false) {
+            await new Promise(function (r) { setTimeout(r, 1500); });
+            result = await attempt();
+          }
+          if (result && result.sent === 0) {
+            console.warn("push: no tokens on recipients — they need Notifications enabled once");
+          }
+        } catch (ePush) {
+          console.warn("push chat", ePush);
+        }
+      })();
+    } catch (ePushOuter) {}
+
+
     var convUpdate = {
       lastMessage: preview.slice(0, 120),
       lastSender: me,
