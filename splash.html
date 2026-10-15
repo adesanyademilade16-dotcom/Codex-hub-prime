@@ -4,79 +4,54 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#4F46E5" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>Codex Hub</title>
-  <link rel="manifest" href="manifest.json" />
   <style>
-    html,body { height:100%; margin:0; }
-    body {
-      display:flex; align-items:center; justify-content:center;
-      background: linear-gradient(160deg, #4F46E5 0%, #7C3AED 55%, #312E81 100%);
-      font-family: system-ui, -apple-system, sans-serif; color:#fff;
-    }
-    .box { text-align:center; padding:24px; }
-    .logo {
-      width:88px; height:88px; border-radius:22px; background:#fff;
-      display:flex; align-items:center; justify-content:center; margin:0 auto 18px;
-      box-shadow: 0 12px 40px rgba(0,0,0,.25); font-weight:900; color:#4F46E5; font-size:1.4rem;
-    }
-    h1 { margin:0 0 8px; font-size:1.35rem; letter-spacing:-.02em; }
-    p { margin:0; opacity:.85; font-size:.92rem; }
-    .spin {
-      width:28px; height:28px; margin:22px auto 0; border:3px solid rgba(255,255,255,.35);
-      border-top-color:#fff; border-radius:50%; animation:s .8s linear infinite;
-    }
-    @keyframes s { to { transform:rotate(360deg); } }
+    html, body { margin: 0; height: 100%; background: linear-gradient(160deg, #4F46E5, #7C3AED); }
+    body { display: grid; place-items: center; font-family: system-ui, sans-serif; color: #fff; }
+    .box { text-align: center; padding: 24px; }
+    .logo { width: 72px; height: 72px; border-radius: 18px; background: #fff; display: grid; place-items: center;
+      margin: 0 auto 16px; font-weight: 900; color: #4F46E5; font-size: 1.4rem; box-shadow: 0 12px 40px rgba(0,0,0,.25); }
+    p { opacity: .9; font-size: .9rem; }
+    .spin { width: 28px; height: 28px; border: 3px solid rgba(255,255,255,.35); border-top-color: #fff;
+      border-radius: 50%; margin: 20px auto 0; animation: s 0.8s linear infinite; }
+    @keyframes s { to { transform: rotate(360deg); } }
   </style>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="js/firebase-config.js"></script>
 </head>
 <body>
   <div class="box">
-    <div class="logo">CH</div>
-    <h1>Codex Hub</h1>
+    <div class="logo">CX</div>
+    <div style="font-weight:800;font-size:1.25rem">Codex Hub</div>
     <p>Loading your study space…</p>
     <div class="spin" aria-hidden="true"></div>
   </div>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
   <script>
-  (function () {
-    var HOME = "app/home.html";
-    var LOGIN = "login.html";
-    var LANDING = "index.html";
-    function go(url) { location.replace(url); }
-    // Browser tab marketing: only force app shell when installed / pwa query
-    var isPwa = window.matchMedia("(display-mode: standalone)").matches
-      || window.navigator.standalone === true
-      || /source=pwa/i.test(location.search)
-      || sessionStorage.getItem("codex_pwa") === "1";
-    if (/source=pwa/i.test(location.search)) sessionStorage.setItem("codex_pwa", "1");
-
-    function route(user) {
-      if (user) go(HOME);
-      else if (isPwa) go(LOGIN + "?next=" + encodeURIComponent(HOME));
-      else go(LANDING);
-    }
-
-    try {
-      if (!window.FIREBASE_CONFIG) { go(isPwa ? LOGIN : LANDING); return; }
-      if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+    (function () {
+      if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+      var auth = firebase.auth();
+      try {
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+      } catch (e) {}
+      if (/source=pwa/i.test(location.search)) {
+        try { sessionStorage.setItem("codex_pwa", "1"); } catch (e) {}
+      }
       var done = false;
-      var t = setTimeout(function () {
+      function go(url) {
         if (done) return;
         done = true;
-        route(firebase.auth().currentUser);
-      }, 4000);
-      firebase.auth().onAuthStateChanged(function (user) {
-        if (done) return;
-        done = true;
-        clearTimeout(t);
-        route(user);
+        location.replace(url);
+      }
+      // Timeout: never leave user stuck on splash
+      setTimeout(function () {
+        if (!done) go(auth.currentUser ? "app/home.html" : "login.html");
+      }, 8000);
+      auth.onAuthStateChanged(function (user) {
+        if (user) go("app/home.html");
+        else go("login.html");
       });
-    } catch (e) {
-      go(isPwa ? LOGIN : LANDING);
-    }
-  })();
+    })();
   </script>
 </body>
 </html>

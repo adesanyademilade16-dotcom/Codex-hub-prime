@@ -1,0 +1,15 @@
+<!-- Paste near top of index.html body: if already signed in, skip marketing -->
+<script>
+(function () {
+  try {
+    if (!window.firebase || !window.FIREBASE_CONFIG) return;
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function(){});
+    firebase.auth().onAuthStateChanged(function (u) {
+      if (u && /source=pwa/i.test(location.search)) {
+        location.replace("app/home.html");
+      }
+    });
+  } catch (e) {}
+})();
+</script>
