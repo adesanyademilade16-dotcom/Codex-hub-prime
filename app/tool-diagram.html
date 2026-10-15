@@ -161,6 +161,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:#A5B4FC;box-sh
 <script>
 window.__toolReady = function(){
   var ST = CodexStudentTools, lastUrl = "", lastDesc = "", lastSvg = "";
+  /* pollinations kept as last resort */
   function pollinationsUrl(prompt){
     var p = encodeURIComponent(prompt + ", clean educational diagram, high quality, white background, sharp labels, no photorealism");
     return "https://image.pollinations.ai/prompt/" + encodeURIComponent("well labelled educational diagram, clear labels, white background, textbook style: " + p) + "?width=1024&height=1024&nologo=true&enhance=true";
@@ -173,16 +174,32 @@ window.__toolReady = function(){
     box.innerHTML = '<div class="spin-load"><div class="ring"></div><span>'+(msg||"Loading diagram…")+'</span></div>';
   }
 
+  async function searchLabelledDiagram(desc) {
+    var API = (window.CODEX_API_BASE || "https://codex-backend-new.onrender.com").replace(/\/$/, "");
+    var q = "well labelled diagram " + desc + " textbook educational";
+    try {
+      var u = firebase.auth().currentUser;
+      var headers = { "Content-Type": "application/json" };
+      if (u) { try { headers.Authorization = "Bearer " + (await u.getIdToken()); } catch (e) {} }
+      var res = await fetch(API + "/search/images", { method: "POST", headers: headers, body: JSON.stringify({ query: q, limit: 6 }) });
+      if (!res.ok) return null;
+      var data = await res.json();
+      var imgs = data.images || [];
+      if (imgs[0]) return (imgs[0].full || imgs[0].url || null);
+    } catch (e) {}
+    return null;
+  }
   function generateAiImage(prompt){
     var full = String(prompt || "") + ", clean educational diagram, labelled scientific illustration, white background, sharp labels, textbook style, no photorealism, no watermark";
-    if (ST && typeof ST.generateImage === "function") {
-      return ST.generateImage(full).then(function (data) {
-        return (data && data.image_url) || pollinationsUrl(full);
-      }).catch(function () {
-        return pollinationsUrl(full);
-      });
-    }
-    return Promise.resolve(pollinationsUrl(full));
+    return Promise.resolve(searchLabelledDiagram(prompt)).then(function (hitUrl) {
+      if (hitUrl) return hitUrl;
+      if (ST && typeof ST.generateImage === "function") {
+        return ST.generateImage(full).then(function (data) {
+          return (data && data.image_url) || pollinationsUrl(full);
+        }).catch(function () { return pollinationsUrl(full); });
+      }
+      return pollinationsUrl(full);
+    });
   }
   function buildHybridSvg(title){
     var t = String(title || "Diagram").slice(0, 48);

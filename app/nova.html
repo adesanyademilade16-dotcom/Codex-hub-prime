@@ -723,11 +723,17 @@
     }
     body.nova-light .char .char-blurb { color: #64748B; }
     
-    .src-box{margin-top:12px;padding:10px 12px;border-radius:14px;background:rgba(99,102,241,.12);border:1px solid rgba(165,180,252,.25)}
+    .src-box{margin-top:12px;padding:0;border-radius:14px;background:rgba(99,102,241,.12);border:1px solid rgba(165,180,252,.25);overflow:hidden}
     body.nova-light .src-box{background:rgba(79,70,229,.06);border-color:rgba(79,70,229,.15)}
-    .src-box .src-label{font-size:.68rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#A5B4FC;margin-bottom:8px}
-    body.nova-light .src-box .src-label{color:#4F46E5}
-    .src-list{display:flex;flex-wrap:wrap;gap:8px}
+    .src-box summary.src-label{
+      font-size:.72rem;font-weight:800;letter-spacing:.04em;color:#A5B4FC;
+      padding:10px 12px;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;user-select:none
+    }
+    .src-box summary.src-label::-webkit-details-marker{display:none}
+    .src-box summary.src-label::after{content:"▾";opacity:.7;font-size:.85rem}
+    .src-box[open] summary.src-label::after{content:"▴"}
+    body.nova-light .src-box summary.src-label{color:#4F46E5}
+    .src-list{display:flex;flex-wrap:wrap;gap:8px;padding:0 12px 12px}
     .src-chip{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:6px 10px;border-radius:999px;font-size:.72rem;font-weight:700;background:rgba(15,23,42,.45);color:#E0E7FF;text-decoration:none;border:1px solid rgba(148,163,184,.25)}
     body.nova-light .src-chip{background:#fff;color:#312e81;border-color:rgba(79,70,229,.2)}
     .src-chip .src-dot{width:8px;height:8px;border-radius:50%;background:#818CF8;flex-shrink:0}
@@ -1301,7 +1307,7 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
               '<a class="img-dl" href="' + escape(u) + '" download="nova-image.png" title="Download"' +
                 (isData ? "" : ' target="_blank" rel="noopener"') + '>Download</a>' +
               '<button type="button" class="img-open" data-full="' + escape(u) + '" title="Open">Open</button>' +
-            '</div></div>';
+            '</div></details>';
         }
         var label = item.name || "File";
         var short = label.length > 28 ? label.slice(0, 24) + "…" : label;
@@ -1355,8 +1361,7 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
         } else {
           var w = window.open("", "_blank");
           if (w) {
-            w.document.write("<!doctype html><html><head><title>Nova export</title></head><body style='font-family:system-ui;padding:24px;white-space:pre-wrap'>" + escape(plain).replace(/\n/g, "<br>") + "<script src="../js/camera-pick.js"></script>
-</body></html>");
+            w.document.write("<!doctype html><html><head><title>Nova export</title></head><body style='font-family:system-ui;padding:24px;white-space:pre-wrap'>" + escape(plain).replace(/\n/g, "<br>") + "</body></html>");
             w.document.close();
             setTimeout(function () { try { w.print(); } catch (e) {} }, 350);
           } else {
@@ -1542,7 +1547,7 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
         raw = '<p class="md-p">' + raw + "</p>";
       }
       if (sources.length) {
-        raw += '<div class="src-box"><div class="src-label">Sources</div><div class="src-list">' +
+        raw += '<details class="src-box"><summary class="src-label">Sources (' + (sources.length||0) + ')</summary><div class="src-list">' +
           sources.map(function (s) {
             var inner = '<span class="src-dot"></span><span>' + escape(s.title || "Source") + "</span>";
             if (s.url) return '<a class="src-chip" href="' + escape(s.url) + '" target="_blank" rel="noopener noreferrer">' + inner + "</a>";
@@ -3466,35 +3471,10 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
       setTimeout(function () { hideOverlay("plusModal"); }, 300);
     };
     document.getElementById("actCamera").onclick = function () {
-      try {
-        if (window.CodexCamera) {
-          window.CodexCamera.pickCamera(function (files) {
-            if (!files || !files[0]) return;
-            var inp = document.getElementById("camInput");
-            // Re-use existing onchange pipeline via DataTransfer if possible
-            try {
-              var dt = new DataTransfer();
-              dt.items.add(files[0]);
-              if (inp) {
-                inp.files = dt.files;
-                inp.dispatchEvent(new Event("change", { bubbles: true }));
-                return;
-              }
-            } catch (e1) {}
-            // direct path
-            if (typeof handlePickedImageFiles === "function") handlePickedImageFiles(files);
-            else if (typeof onCamFiles === "function") onCamFiles(files);
-          });
-          return;
-        }
-      } catch (e) { console.warn(e); }
       var inp = document.getElementById("camInput");
-      if (inp) {
-        if (inp.style.display === "none") {
-          inp.style.cssText = "position:fixed;left:0;bottom:0;width:1px;height:1px;opacity:0.01;z-index:0";
-        }
-        inp.click();
-      }
+      inp.value = "";
+      inp.click();
+      setTimeout(function () { hideOverlay("plusModal"); }, 300);
     };
     document.getElementById("actFiles").onclick = function () {
       hideOverlay("plusModal");
@@ -4053,6 +4033,5 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
     });
   })();
   </script>
-<script src="../js/camera-pick.js"></script>
 </body>
 </html>
