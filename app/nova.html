@@ -1520,6 +1520,7 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
         return "\n<" + tag + " class=\"md-list\">" + items + "</" + tag + ">\n";
       });
       var sources = [];
+      raw = stripLeakedImageHtml(raw);
       raw = raw.replace(/(?:^|\n)(?:\*\*)?Sources?:?(?:\*\*)?\s*\n([\s\S]*)$/i, function (_, block) {
         String(block).split(/\n+/).forEach(function (line) {
           line = line.replace(/^[\s*•\-]+/, "").trim();
@@ -1552,7 +1553,7 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
             var inner = '<span class="src-dot"></span><span>' + escape(s.title || "Source") + "</span>";
             if (s.url) return '<a class="src-chip" href="' + escape(s.url) + '" target="_blank" rel="noopener noreferrer">' + inner + "</a>";
             return '<span class="src-chip">' + inner + "</span>";
-          }).join("") + "</div></div>";
+          }).join("") + "</div></details>";
       }
       return raw;
     }
@@ -2948,14 +2949,46 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
       if (/\bsea\s+animals?\b|\banimals?\b.{0,20}\b(images?|pictures?|photos?)\b/i.test(t)) return true;
       return false;
     }
-    function extractImageQuery(text) {
+    function resolveImageSubject(text, historyMsgs) {
       var t = String(text || "").trim();
-      // Prefer the subject after “of/about/on”
       var m = t.match(/(?:images?|pictures?|photos?|diagrams?|references?)\s+(?:of|for|about|on)\s+(.+)$/i);
-      if (m) return m[1].replace(/[?.!].*$/, "").trim().slice(0, 80);
-      m = t.match(/(?:search|look\s*up|find|show)\s+(?:online\s+)?(?:for\s+)?(.+?)(?:\s+and\s+bring|\s+with\s+images?|\s+images?|\s+pictures?)?$/i);
-      if (m) return m[1].replace(/[?.!].*$/, "").trim().slice(0, 80);
-      return t.replace(/\b(please|online|search|images?|pictures?|photos?|reference|bring|show|me)\b/gi, " ").replace(/\s+/g, " ").trim().slice(0, 80);
+      var subject = m ? m[1].replace(/[?.!].*$/, "").trim() : "";
+      if (!subject) {
+        m = t.match(/(?:search|look\s*up|find|show|bring)\s+(?:me\s+)?(?:online\s+)?(?:images?|pictures?|photos?)?\s*(?:of|for|about)?\s*(.+)$/i);
+        if (m) subject = m[1].replace(/[?.!].*$/, "").trim();
+      }
+      if (!subject) subject = t.replace(/\b(please|online|search|images?|pictures?|photos?|reference|bring|show|me)\b/gi, " ").replace(/\s+/g, " ").trim();
+      // Pronoun / short subject → pull last proper name from history
+      var short = !subject || /^(him|her|them|this|that|it|the\s+same|same)$/i.test(subject) || subject.length < 3;
+      if (short && historyMsgs && historyMsgs.length) {
+        for (var i = historyMsgs.length - 1; i >= 0; i--) {
+          var h = String((historyMsgs[i] && (historyMsgs[i].content || historyMsgs[i].text)) || "");
+          // e.g. "Do you know John Cena" / "John Cena is..."
+          var nm = h.match(/\b(?:know|about|who\s+is|who's)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,3})/);
+          if (nm) return nm[1].trim();
+          nm = h.match(/\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,2})\b/);
+          if (nm && !/^(Yes|The|How|What|When|Pulse|Nova|Quick)\b/.test(nm[1])) return nm[1].trim();
+        }
+      }
+      return subject.slice(0, 80);
+    }
+    
+    function stripLeakedImageHtml(raw) {
+      var s = String(raw || "");
+      // Model sometimes dumps <figure class="gen-fig"> or full <img ...> into tables — remove
+      s = s.replace(/<figure\b[^>]*>[\s\S]*?<\/figure>/gi, "");
+      s = s.replace(/<img\b[^>]*>/gi, "");
+      s = s.replace(/&lt;figure[\s\S]*?&lt;\/figure&gt;/gi, "");
+      s = s.replace(/&lt;img\b[^&]*&gt;/gi, "");
+      // Empty table shells left behind
+      s = s.replace(/\|\s*\|\s*Image\s*\|[\s\S]*?(?=\n\n|\n#|$)/gi, "");
+      return s;
+    }
+
+    function extractImageQuery(text) {
+      // Prefer history-aware subject (him → John Cena)
+      var hist = (typeof state !== "undefined" && state.messages) ? state.messages : [];
+      return resolveImageSubject(text, hist);
     }
     function isJunkClientImage(title, url) {
       var s = ((title || "") + " " + (url || "")).toLowerCase();
@@ -2982,32 +3015,49 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
     }
     function fetchReferenceImages(query) {
       if (!query) return Promise.resolve([]);
-      var url = API_BASE + "/image-search?q=" + encodeURIComponent(query) + "&limit=6";
+      var q = String(query).trim();
+      // Resolve pronouns using chat history (him → John Cena)
+      try {
+        if (typeof resolveImageSubject === "function" && state && state.messages) {
+          q = resolveImageSubject("images of " + q, state.messages) || q;
+        }
+      } catch (e) {}
+      console.log("[Nova] image search q=", q);
+
+      function fromWiki() {
+        var wurl = "https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=" +
+          encodeURIComponent(q) + "&gsrlimit=6&prop=imageinfo&iiprop=url|mime|size&iiurlwidth=640&format=json&origin=*";
+        return fetch(wurl).then(function (r) { return r.json(); }).then(function (data) {
+          var pages = (data && data.query && data.query.pages) || {};
+          var out = [];
+          Object.keys(pages).forEach(function (id) {
+            var p = pages[id];
+            var info = (p.imageinfo && p.imageinfo[0]) || null;
+            if (!info || (info.mime && !/^image\//i.test(info.mime))) return;
+            var src = info.thumburl || info.url;
+            if (src) out.push({ url: src, full: info.url || src, title: String(p.title || "").replace(/^File:/i, ""), source: "wikimedia" });
+          });
+          return out;
+        }).catch(function () { return []; });
+      }
+
+      // Prefer backend (Tavily→Serper→Wiki). Try GET then POST.
+      var url = API_BASE + "/image-search?q=" + encodeURIComponent(q) + "&limit=8";
       return fetch(url, { method: "GET" })
-        .then(function (r) { return r.json(); })
+        .then(function (r) { if (!r.ok) throw new Error("img_http_" + r.status); return r.json(); })
         .then(function (data) {
-          return (data && data.images) || [];
+          var imgs = (data && data.images) || [];
+          console.log("[Nova] image provider=", (data && data.provider) || "?", "count=", imgs.length);
+          if (imgs.length) return imgs;
+          return fromWiki();
         })
-        .catch(function () {
-          // client-side Wikimedia fallback
-          var wurl = "https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=" +
-            encodeURIComponent(query) + "&gsrlimit=6&prop=imageinfo&iiprop=url|mime&iiurlwidth=640&format=json&origin=*";
-          return fetch(wurl).then(function (r) { return r.json(); }).then(function (data) {
-            var pages = (data && data.query && data.query.pages) || {};
-            var out = [];
-            Object.keys(pages).forEach(function (id) {
-              var p = pages[id];
-              var info = p.imageinfo && p.imageinfo[0];
-              if (!info) return;
-              if (info.mime && !/^image\//i.test(info.mime)) return;
-              out.push({ url: info.thumburl || info.url, full: info.url, title: (p.title || "").replace(/^File:/i, ""), source: "wikimedia" });
-            });
-            return out;
-          }).catch(function () { return []; });
+        .catch(function (err) {
+          console.warn("[Nova] /image-search failed", err && err.message);
+          return fromWiki();
         });
     }
 
-    
+
     function clientWantsLiveSearch(text) {
       var q = String(text || "").toLowerCase();
       if (/\b(online\s+search|search\s+online|do\s+an?\s+online|live\s+search|search\s+the\s+web|look\s+up\s+online|google\s+it)\b/i.test(q)) return true;
