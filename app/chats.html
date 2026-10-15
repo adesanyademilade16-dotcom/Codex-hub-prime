@@ -738,6 +738,73 @@
         flex-shrink: 0 !important;
         background: #fff !important;
       }
+
+/* === HARD FIX: thread header never disappears when keyboard opens === */
+html.thread-open, body.thread-open {
+  overflow: hidden !important;
+  height: 100% !important;
+  height: 100dvh !important;
+}
+body.thread-open .bottom-nav,
+body.thread-open .shell-top,
+body.thread-open .app-header {
+  display: none !important;
+}
+.thread.open {
+  display: flex !important;
+  flex-direction: column !important;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  z-index: 80 !important;
+  overflow: hidden !important;
+  background: #EEF2F7 !important;
+}
+.thread-bar {
+  flex: 0 0 auto !important;
+  position: relative !important;
+  top: auto !important;
+  z-index: 10 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-height: 56px !important;
+  padding: 8px 10px !important;
+  padding-top: max(8px, env(safe-area-inset-top)) !important;
+  background: #fff !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+  box-shadow: 0 1px 0 rgba(15,23,42,.06) !important;
+  /* never scroll away */
+  transform: none !important;
+}
+.thread-search-bar {
+  flex: 0 0 auto !important;
+}
+.thread-msgs {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch;
+}
+.composer {
+  flex: 0 0 auto !important;
+  position: relative !important;
+  z-index: 10 !important;
+  background: #fff !important;
+  border-top: 1px solid #E2E8F0 !important;
+  padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
+}
+html.theme-dark .thread-bar,
+html.theme-dark .composer {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #F1F5F9 !important;
+}
+
 </style>
 
 <style id="dark-override">
