@@ -186,7 +186,32 @@
     });
   }
 
+  
+  /** Typed push so shade shows clear source */
+  async function notifyTyped(type, opts) {
+    opts = opts || {};
+    var titles = {
+      chat_message: opts.title || "New message",
+      friend_request: "Friend request",
+      friend_accept: "Friend request accepted",
+      group_invite: "Group invite",
+      announcement: "Codex Hub announcement",
+      nova_ready: "Nova · reply ready",
+      admin: "Codex Hub update"
+    };
+    var tag = type || "codex";
+    return notifyUser({
+      toUid: opts.toUid,
+      title: titles[type] || opts.title || "Codex Hub",
+      body: opts.body || "",
+      url: opts.url || "https://codex-hub-prime.vercel.app/app/home.html",
+      tag: tag,
+      type: type || "generic"
+    });
+  }
+
   global.CodexPush = {
+    notifyTyped: notifyTyped,
     ensurePermission: ensurePermission,
     localNotify: localNotify,
     registerAndSaveToken: registerAndSaveToken,

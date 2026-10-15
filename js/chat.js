@@ -16,8 +16,9 @@
 
   function displayFromUser(data, id) {
     data = data || {};
+    /* Chats show username first (why we collect it at signup) */
     var name =
-      data.fullName || data.displayName || data.username || data.name ||
+      data.username || data.fullName || data.displayName || data.name ||
       (data.email ? String(data.email).split("@")[0] : null) || "Student";
     return {
       uid: id,
@@ -1447,6 +1448,10 @@
 
   global.CodexChat = {
     dmId: dmId,
+    chatDisplayName: function (card) {
+      if (!card) return "Student";
+      return card.username || card.fullName || card.displayName || "Student";
+    },
     getUserCard: getUserCard,
     invalidateUserCard: function (id) { if (id) delete _userCardCache[id]; else _userCardCache = {}; },
     discoverPeople: discoverPeople,

@@ -525,7 +525,7 @@
     if (state.unsubTyping) { try { state.unsubTyping(); } catch (e) {} state.unsubTyping = null; }
     if (state.unsubPresence) { try { state.unsubPresence(); } catch (e) {} state.unsubPresence = null; }
 
-    $("threadName").textContent = (card && card.fullName) || "Chat";
+    $("threadName").textContent = (card && (card.username || card.fullName)) || "Chat";
     var subBits = [];
     if (card && card.isGroup) {
       $("threadSub").textContent = "Group · loading…";
@@ -977,26 +977,7 @@
   // attach
   $("btnAttach").onclick = function () { $("attachSheet").classList.add("open"); };
   $("attClose").onclick = function () { $("attachSheet").classList.remove("open"); };
-  $("attCamera").onclick = function () {
-    try {
-      if (window.CodexCamera) {
-        window.CodexCamera.pickCamera(function (files) {
-          if (files && files[0]) addPendingFiles(files, "image");
-          var sheet = $("attachSheet");
-          if (sheet) sheet.classList.remove("open");
-        });
-        return;
-      }
-    } catch (e) { console.warn("CodexCamera", e); }
-    var inp = $("fileCamera");
-    if (inp) {
-      // repair display:none
-      if (inp.style.display === "none") {
-        inp.style.cssText = "position:fixed;left:0;bottom:0;width:1px;height:1px;opacity:0.01;z-index:0";
-      }
-      inp.click();
-    }
-  };
+  $("attCamera").onclick = function () { $("fileCamera").click(); };
   $("attGallery").onclick = function () { $("fileGallery").click(); };
   $("attFile").onclick = function () { $("fileDoc").click(); };
   if ($("attVideo")) $("attVideo").onclick = function () { $("fileVideo").click(); };
