@@ -1068,12 +1068,12 @@ html.theme-dark .muted, html.theme-dark .sub { color: #94A3B8 !important; }
     
     function dayKey(d) {
       d = d || new Date();
+      // One shared calendar (Lagos) so phone & laptop agree on "today"
+      try { return new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Lagos", year: "numeric", month: "2-digit", day: "2-digit" }).format(d); } catch (eTz) {}
       return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
     }
     function yesterdayKey() {
-      var d = new Date();
-      d.setDate(d.getDate() - 1);
-      return dayKey(d);
+      return dayKey(new Date(Date.now() - 86400000));
     }
     /** Normalize Firestore Timestamp | Date | string → YYYY-M-D local day key */
     function toDayKey(val) {
@@ -1097,25 +1097,36 @@ html.theme-dark .muted, html.theme-dark .sub { color: #94A3B8 !important; }
     }
     /** Bump day streak once per calendar day when user opens Home */
     async function touchDailyStreak(uid, profile) {
+      // Read the SERVER copy inside a transaction so a new device / empty cache
+      // can never overwrite a real streak with 1 (bug: phone→laptop reset 4→1).
       var today = dayKey();
-      var last = toDayKey(profile.lastStreakDate || profile.lastActiveDate || "");
-      var streak = Number(profile.dayStreak != null ? profile.dayStreak : profile.streak) || 0;
-      if (last === today) {
-        return streak > 0 ? streak : 1;
+      var ref = firebase.firestore().collection("users").doc(uid);
+      function calc(d) {
+        d = d || {};
+        var last = toDayKey(d.lastStreakDate || d.lastActiveDate || "");
+        var cur = Number(d.dayStreak != null ? d.dayStreak : d.streak) || 0;
+        if (last === today) return { n: cur > 0 ? cur : 1, write: cur <= 0 };
+        if (last === yesterdayKey()) return { n: Math.max(1, cur) + 1, write: true };
+        return { n: 1, write: true };
       }
-      if (last === yesterdayKey()) streak = Math.max(1, streak) + 1;
-      else streak = 1;
+      var streak;
       try {
-        await firebase.firestore().collection("users").doc(uid).set({
-          dayStreak: streak,
-          streak: streak,
-          lastStreakDate: today,
-          lastActiveDate: today,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
+        streak = await firebase.firestore().runTransaction(async function (tx) {
+          var snap = await tx.get(ref);           // transactions always hit the server
+          var r = calc(snap.exists ? snap.data() : {});
+          if (r.write) tx.set(ref, {
+            dayStreak: r.n, streak: r.n, lastStreakDate: today, lastActiveDate: today,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+          return r.n;
+        });
       } catch (e) {
-        console.warn("streak write", e);
-        // Still show computed streak locally even if offline write fails
+        // Offline / server unreachable: SHOW the best known value, never write it.
+        console.warn("streak sync deferred", e && e.code);
+        var known = Number(profile.dayStreak != null ? profile.dayStreak : profile.streak) || 0;
+        var lk = toDayKey(profile.lastStreakDate || profile.lastActiveDate || "");
+        streak = (lk === today || lk === yesterdayKey()) ? Math.max(1, known) : Math.max(1, known);
+        return streak;
       }
       profile.dayStreak = streak;
       profile.streak = streak;

@@ -651,7 +651,7 @@ html.theme-dark .section-label { color: #94A3B8 !important; }
       document.getElementById("mCopy").onclick = function () { copyText(code, this); };
       document.getElementById("mOut").onclick = function () {
         var leave = function () {
-          CodexAuth.auth.signOut().then(function () { location.href = "../login.html"; });
+          (function(){try{Object.keys(localStorage).forEach(function(k){if(k.indexOf("codex_chatlist_")===0||k.indexOf("codex_speed")===0)localStorage.removeItem(k);});}catch(e){}})(),CodexAuth.auth.signOut().then(function () { location.href = "../login.html"; });
         };
         if (window.CodexModal && CodexModal.confirm) {
           CodexModal.confirm("Had enough studying for now? Your progress stays saved.", "Sign out?").then(function (ok) {

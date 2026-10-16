@@ -4,7 +4,7 @@
   <script src="../js/theme-boot.js"></script>
 
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
   <title>Chats · Codex Hub</title>
   <meta name="theme-color" content="#4F46E5">
   <link rel="icon" href="../assets/favicon.png">
@@ -514,7 +514,7 @@
         max-width: none !important;
         margin: 0 !important;
         width: 100% !important;
-        height: calc(100dvh - 56px) !important;
+        height: calc(var(--vvh, 100dvh) - 56px) !important;
         min-height: 480px;
         flex-direction: row !important;
         background: #fff;
@@ -743,7 +743,7 @@
 html.thread-open, body.thread-open {
   overflow: hidden !important;
   height: 100% !important;
-  height: 100dvh !important;
+  height: var(--vvh, 100dvh) !important;
 }
 body.thread-open .bottom-nav,
 body.thread-open .shell-top,
@@ -757,8 +757,8 @@ body.thread-open .app-header {
   inset: 0 !important;
   width: 100% !important;
   height: 100% !important;
-  height: 100dvh !important;
-  max-height: 100dvh !important;
+  height: var(--vvh, 100dvh) !important;
+  max-height: var(--vvh, 100dvh) !important;
   z-index: 80 !important;
   overflow: hidden !important;
   background: #EEF2F7 !important;
@@ -836,6 +836,7 @@ html.theme-dark .icon-round { background: #1E293B !important; color: #E2E8F0 !im
       }
 </style>
 
+  <script src="../js/keyboard-fix.js" defer></script>
 </head>
 <body class="app-body" data-page="chats">
   <div class="chat-app" id="chatApp">
