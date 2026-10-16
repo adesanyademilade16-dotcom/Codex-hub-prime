@@ -53,7 +53,7 @@
     }
     if (!firebase.messaging) throw new Error("firebase-messaging not loaded");
 
-    var reg = await navigator.serviceWorker.register("/firebase-messaging-sw.js", { scope: "/" });
+    var reg = await navigator.serviceWorker.register("/service-worker.js", { scope: "/" });
     await navigator.serviceWorker.ready;
 
     var messaging = firebase.messaging();

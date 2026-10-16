@@ -300,7 +300,6 @@
       await db.collection("users").doc(state.user.uid).set(
         {
           cbtTrialsUsed: state.trialsUsed,
-          cbtTrialsLimit: state.trialsLimit,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         },
         { merge: true }

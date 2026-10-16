@@ -181,10 +181,27 @@
     return '<div class="empty"><h3>' + escapeHtml(title) + '</h3><p>' + escapeHtml(sub) + '</p></div>';
   }
 
+  // WhatsApp-style: show the last chat list instantly from this device,
+  // then refresh quietly in the background. No skeleton flash on return.
+  function chatCacheKey() {
+    var u = firebase.auth().currentUser;
+    return u ? "codex_chatlist_v1_" + u.uid : null;
+  }
   async function loadPane() {
     var pane = $("listPane");
-    pane.innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
     var q = ($("searchInput").value || "").trim();
+    var usedCache = false;
+    if (state.tab === "chats" && !q) {
+      if (state.chatListHtml) { pane.innerHTML = state.chatListHtml; usedCache = true; }
+      else {
+        try {
+          var k0 = chatCacheKey();
+          var cached = k0 && localStorage.getItem(k0);
+          if (cached) { pane.innerHTML = cached; usedCache = true; }
+        } catch (eC) {}
+      }
+    }
+    if (!usedCache) pane.innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
     try {
       if (state.tab === "chats") {
         var convs = await CodexChat.listConversations();
@@ -228,6 +245,10 @@
               '</div></button>'
           );
         }).join("");
+        if (!q) {
+          state.chatListHtml = pane.innerHTML;
+          try { var k1 = chatCacheKey(); if (k1) localStorage.setItem(k1, pane.innerHTML); } catch (eS) {}
+        }
         refreshGroupPresenceRows();
         // Refresh visible group online counts without changing group data.
         if (state.tab === "chats") {
@@ -471,18 +492,21 @@
 
   async function openConv(convId, card) {
     state.convId = convId;
-    try { if (CodexChat.setActiveConversation) await CodexChat.setActiveConversation(convId); } catch (ePresence) {}
+    // Open the thread screen IMMEDIATELY (was waiting on 3 network calls first)
+    $("thread").classList.add("open");
+    document.body.classList.add("thread-open");
+    try { var ph0 = $("threadPlaceholder"); if (ph0) { ph0.style.display = "none"; ph0.classList.add("hidden"); } } catch (ePh) {}
+    try { if (CodexChat.setActiveConversation) CodexChat.setActiveConversation(convId); } catch (ePresence) {}
     state.other = card;
     state.otherUid = card && !card.isGroup ? card.uid : null;
     state.replyTo = null;
     $("replyPreview").classList.remove("open");
     // Clear unread for this thread immediately (badge + list pill)
     try {
-      if (window.CodexChat && CodexChat.clearConversationUnread) {
-        await CodexChat.clearConversationUnread(convId);
-      } else if (window.CodexChat && CodexChat.markMessagesRead) {
-        await CodexChat.markMessagesRead(convId, []);
-      }
+      var pClr = (window.CodexChat && CodexChat.clearConversationUnread)
+        ? CodexChat.clearConversationUnread(convId)
+        : (window.CodexChat && CodexChat.markMessagesRead ? CodexChat.markMessagesRead(convId, []) : null);
+      if (pClr && pClr.catch) pClr.catch(function () {});
     } catch (eClr) {}
     // Zero the list pill for this row if still visible
     try {
@@ -559,16 +583,12 @@
     $("threadAv").classList.remove("online-ring", "offline-ring");
     $("threadAv").classList.add(card && card.isGroup ? "offline-ring" : "offline-ring");
 
-    var pref = await CodexChat.getChatPref(convId);
+    $("threadMsgs").innerHTML = '<div class="empty"><p>Loading…</p></div>';
+    var pref = {};
+    try { pref = (await CodexChat.getChatPref(convId)) || {}; } catch (ePref) {}
+    if (state.convId !== convId) return; // user already switched
     state.clearBeforeMs = pref.clearBeforeMs || 0;
     state.muted = !!pref.muted;
-
-    $("thread").classList.add("open");
-    document.body.classList.add("thread-open");
-    var ph = $("threadPlaceholder");
-    if (ph) { ph.style.display = "none"; ph.classList.add("hidden"); }
-
-    $("threadMsgs").innerHTML = '<div class="empty"><p>Loading…</p></div>';
     state.unsubMsg = CodexChat.listenMessages(convId, renderMsgs, { clearBeforeMs: state.clearBeforeMs });
 
     state.unsubTyping = CodexChat.listenTyping(convId, function (uids) {

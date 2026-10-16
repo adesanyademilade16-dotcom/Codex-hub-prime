@@ -16,7 +16,7 @@
       // Relative to this script's own page (index.html, at the site root),
       // so this keeps working whether the site is hosted at a domain root
       // or a subpath (e.g. a GitHub Pages project page).
-      navigator.serviceWorker.register("service-worker.js", { scope: "./" }).catch(function () {});
+      navigator.serviceWorker.register("/service-worker.js", { scope: "/" }).catch(function () {});
     });
   }
 

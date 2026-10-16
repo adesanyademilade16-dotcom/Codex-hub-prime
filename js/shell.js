@@ -30,7 +30,7 @@
     }
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", function () {
-        navigator.serviceWorker.register("../service-worker.js", { scope: "../" }).catch(function () {});
+        navigator.serviceWorker.register("/service-worker.js", { scope: "/" }).catch(function () {});
       });
     }
   } catch (e) {}
@@ -405,7 +405,7 @@
     backdrop.onclick = function () { open(false); };
     document.getElementById("signOutBtn").onclick = function () {
       if (w.CodexAuth && w.CodexAuth.auth) {
-        w.CodexAuth.auth.signOut().then(function () { location.href = "../login.html"; });
+        (function(){try{Object.keys(localStorage).forEach(function(k){if(k.indexOf("codex_chatlist_")===0||k.indexOf("codex_speed")===0)localStorage.removeItem(k);});}catch(e){}})(),w.CodexAuth.auth.signOut().then(function () { location.href = "../login.html"; });
       } else {
         location.href = "../login.html";
       }
