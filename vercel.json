@@ -1,5 +1,4 @@
 {
-  "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
     {
@@ -341,11 +340,6 @@
       "source": "/verify-email.html",
       "destination": "/verify-email",
       "permanent": true
-    },
-    {
-      "source": "/app/leaderboard",
-      "destination": "/leaderboard",
-      "permanent": true
     }
   ],
   "rewrites": [
@@ -500,6 +494,30 @@
     {
       "source": "/verify-email",
       "destination": "/app/verify-email.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/login.html"
+    },
+    {
+      "source": "/signup",
+      "destination": "/signup.html"
+    },
+    {
+      "source": "/reset-password",
+      "destination": "/reset-password.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms.html"
+    },
+    {
+      "source": "/chooseFaculty",
+      "destination": "/chooseFaculty.html"
+    },
+    {
+      "source": "/app/:page((?!.*\\.).+)",
+      "destination": "/app/:page.html"
     }
   ],
   "headers": [
