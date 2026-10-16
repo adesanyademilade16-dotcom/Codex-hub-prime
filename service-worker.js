@@ -1,81 +1,134 @@
-/* Codex Hub service worker — deliberately conservative.
- * This app is auth-gated and data-heavy (Firestore, Nova AI, PDFs, credits),
- * so we do NOT cache HTML pages, API calls, or Firebase traffic — stale
- * cached auth state or stale credit/resource data would be worse than no
- * offline support at all. All this SW does is:
- *   1) make the app installable (required for the browser's install prompt)
- *   2) cache-first the truly static shell assets (icons, fonts CSS, logo)
- *      so repeat visits feel faster on slow mobile data.
- * Everything else always goes to the network.
+/* Codex Hub — ONE service worker for the whole site (scope "/").
+ *
+ * Why one: the app used to register service-worker.js AND
+ * firebase-messaging-sw.js on the same scope. The browser keeps only one per
+ * scope, so every page load silently replaced the push worker and offline
+ * notifications (chats, announcements, Nova replies) stopped arriving.
+ *
+ * This file now does both jobs:
+ *   1) Push notifications (FCM) — works when the app is closed
+ *   2) Speed: static files (icons, CSS, JS) are served instantly from cache and
+ *      refreshed in the background. HTML, Firebase, Nova API are never cached.
  */
-const VERSION = "codexhub-sw-v1";
+importScripts("https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js");
+importScripts("https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js");
+
+const VERSION = "codexhub-sw-v3";
 const STATIC_CACHE = VERSION + "-static";
 
-// Resolved relative to this file's own URL (wherever it was registered from),
-// so this still works whether the site sits at a domain root or a subpath
-// (e.g. a GitHub Pages project page).
+firebase.initializeApp({
+  apiKey: "AIzaSyCd7l9eOMbO7F4TSuV55VqnaJUQbFvsibA",
+  authDomain: "codex-study-hub-923c5.firebaseapp.com",
+  projectId: "codex-study-hub-923c5",
+  storageBucket: "codex-study-hub-923c5.appspot.com",
+  messagingSenderId: "750631534625",
+  appId: "1:750631534625:web:5f59e1841bb856bdbba360"
+});
+const messaging = firebase.messaging();
+
+// FCM shows `notification` payloads by itself. Only draw manually for
+// data-only messages, otherwise students get every notification twice.
+messaging.onBackgroundMessage(function (payload) {
+  if (payload && payload.notification) return;
+  const d = (payload && payload.data) || {};
+  return self.registration.showNotification(d.title || "Codex Hub", {
+    body: d.body || "New update",
+    icon: "/assets/icons/icon-192.png",
+    badge: "/assets/icons/icon-192.png",
+    tag: d.tag || "codex-hub",
+    data: d,
+    renotify: true,
+    vibrate: [80, 40, 80]
+  });
+});
+
+function cleanPath(p) {
+  // old links → clean URLs (/app/chats.html → /chats)
+  return String(p || "/chats").replace(/^\/?app\/([A-Za-z0-9_-]+)\.html/, "/$1");
+}
+
+self.addEventListener("notificationclick", function (event) {
+  event.notification.close();
+  const d = event.notification.data || {};
+  const fcm = d.FCM_MSG && d.FCM_MSG.notification && d.FCM_MSG.notification.click_action;
+  let path = d.url || fcm || "/chats";
+  try {
+    const u = new URL(path, self.location.origin);
+    path = u.origin === self.location.origin ? self.location.origin + cleanPath(u.pathname) + u.search + u.hash : self.location.origin + "/home";
+  } catch (e) {
+    path = self.location.origin + "/home";
+  }
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (list) {
+      for (const c of list) {
+        if (c.url && c.url.indexOf(self.location.origin) === 0 && "focus" in c) {
+          return c.focus().then(function (fc) { try { return (fc || c).navigate(path); } catch (e) {} });
+        }
+      }
+      if (clients.openWindow) return clients.openWindow(path);
+    })
+  );
+});
+
 const PRECACHE = [
-  "assets/logo.png",
-  "assets/favicon.png",
-  "assets/icons/icon-192.png",
-  "assets/icons/icon-512.png",
-  "css/tokens.css",
-  "css/shell.css"
-].map((p) => new URL(p, self.location.href).toString());
+  "/assets/logo.png",
+  "/assets/favicon.png",
+  "/assets/icons/icon-192.png",
+  "/assets/icons/icon-512.png",
+  "/css/tokens.css",
+  "/css/shell.css",
+  "/css/components.css",
+  "/js/theme-boot.js",
+  "/js/firebase-config.js",
+  "/js/shell.js"
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(STATIC_CACHE)
-      .then((cache) => cache.addAll(PRECACHE))
-      .catch(() => {}) // never fail install over one missing asset
+    caches.open(STATIC_CACHE).then((cache) =>
+      Promise.all(PRECACHE.map((u) => cache.add(u).catch(() => {})))
+    )
   );
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((names) =>
-      Promise.all(names.filter((n) => n !== STATIC_CACHE).map((n) => caches.delete(n)))
-    )
+    caches.keys()
+      .then((names) => Promise.all(names.filter((n) => n !== STATIC_CACHE).map((n) => caches.delete(n))))
+      .then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-function isStaticAsset(url) {
-  return /\.(png|jpg|jpeg|webp|svg|ico|woff2?)$/i.test(url.pathname) &&
-    url.origin === self.location.origin;
+function isStatic(url) {
+  if (url.origin !== self.location.origin) {
+    // Firebase SDK files are versioned & immutable → safe to cache
+    return url.hostname === "www.gstatic.com" && /\/firebasejs\/\d/.test(url.pathname);
+  }
+  if (url.pathname === "/service-worker.js" || url.pathname === "/firebase-messaging-sw.js") return false;
+  return /\.(png|jpg|jpeg|webp|svg|ico|woff2?|css|js|mp4)$/i.test(url.pathname);
 }
 
 self.addEventListener("fetch", (event) => {
   const req = event.request;
-  if (req.method !== "GET") return; // never touch writes
-
+  if (req.method !== "GET") return;
   const url = new URL(req.url);
+  if (req.headers.get("range")) return; // video seeking
 
-  // Never intercept Firebase/Firestore/Auth, the AI backend, or any
-  // cross-origin API call — those must always hit the network live.
-  if (url.origin !== self.location.origin) return;
-  if (/\/chat\b|\/image-gen\b|\/api\//.test(url.pathname)) return;
-
-  if (isStaticAsset(url)) {
+  if (isStatic(url)) {
+    // stale-while-revalidate: instant from cache, refresh in background
     event.respondWith(
-      caches.match(req).then((cached) => {
-        if (cached) return cached;
-        return fetch(req).then((res) => {
-          if (res && res.ok) {
-            const copy = res.clone();
-            caches.open(STATIC_CACHE).then((c) => c.put(req, copy));
-          }
-          return res;
-        }).catch(() => cached);
-      })
+      caches.open(STATIC_CACHE).then((cache) =>
+        cache.match(req).then((cached) => {
+          const net = fetch(req).then((res) => {
+            if (res && (res.ok || res.type === "opaque")) cache.put(req, res.clone());
+            return res;
+          }).catch(() => cached);
+          return cached || net;
+        })
+      )
     );
     return;
   }
-
-  // HTML / everything else: network first, never served stale, so a signed-in
-  // user never sees yesterday's page. Only used to avoid a hard offline error.
-  if (req.mode === "navigate") {
-    event.respondWith(fetch(req).catch(() => Response.error()));
-  }
+  // Pages, Firebase, Nova API: always live (never stale login state)
 });

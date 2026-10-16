@@ -1,4 +1,353 @@
 {
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/app/You.html",
+      "destination": "/You",
+      "permanent": true
+    },
+    {
+      "source": "/You.html",
+      "destination": "/You",
+      "permanent": true
+    },
+    {
+      "source": "/app/about.html",
+      "destination": "/about",
+      "permanent": true
+    },
+    {
+      "source": "/about.html",
+      "destination": "/about",
+      "permanent": true
+    },
+    {
+      "source": "/app/ai-lab.html",
+      "destination": "/ai-lab",
+      "permanent": true
+    },
+    {
+      "source": "/ai-lab.html",
+      "destination": "/ai-lab",
+      "permanent": true
+    },
+    {
+      "source": "/app/announcements.html",
+      "destination": "/announcements",
+      "permanent": true
+    },
+    {
+      "source": "/announcements.html",
+      "destination": "/announcements",
+      "permanent": true
+    },
+    {
+      "source": "/app/cbt.html",
+      "destination": "/cbt",
+      "permanent": true
+    },
+    {
+      "source": "/cbt.html",
+      "destination": "/cbt",
+      "permanent": true
+    },
+    {
+      "source": "/app/change-password.html",
+      "destination": "/change-password",
+      "permanent": true
+    },
+    {
+      "source": "/change-password.html",
+      "destination": "/change-password",
+      "permanent": true
+    },
+    {
+      "source": "/app/chats.html",
+      "destination": "/chats",
+      "permanent": true
+    },
+    {
+      "source": "/chats.html",
+      "destination": "/chats",
+      "permanent": true
+    },
+    {
+      "source": "/app/course-library.html",
+      "destination": "/course-library",
+      "permanent": true
+    },
+    {
+      "source": "/course-library.html",
+      "destination": "/course-library",
+      "permanent": true
+    },
+    {
+      "source": "/app/edit-profile.html",
+      "destination": "/edit-profile",
+      "permanent": true
+    },
+    {
+      "source": "/edit-profile.html",
+      "destination": "/edit-profile",
+      "permanent": true
+    },
+    {
+      "source": "/app/home.html",
+      "destination": "/home",
+      "permanent": true
+    },
+    {
+      "source": "/home.html",
+      "destination": "/home",
+      "permanent": true
+    },
+    {
+      "source": "/app/leaderboard.html",
+      "destination": "/leaderboard",
+      "permanent": true
+    },
+    {
+      "source": "/leaderboard.html",
+      "destination": "/leaderboard",
+      "permanent": true
+    },
+    {
+      "source": "/app/my-resources.html",
+      "destination": "/my-resources",
+      "permanent": true
+    },
+    {
+      "source": "/my-resources.html",
+      "destination": "/my-resources",
+      "permanent": true
+    },
+    {
+      "source": "/app/notes.html",
+      "destination": "/notes",
+      "permanent": true
+    },
+    {
+      "source": "/notes.html",
+      "destination": "/notes",
+      "permanent": true
+    },
+    {
+      "source": "/app/notifications.html",
+      "destination": "/notifications",
+      "permanent": true
+    },
+    {
+      "source": "/notifications.html",
+      "destination": "/notifications",
+      "permanent": true
+    },
+    {
+      "source": "/app/nova.html",
+      "destination": "/nova",
+      "permanent": true
+    },
+    {
+      "source": "/nova.html",
+      "destination": "/nova",
+      "permanent": true
+    },
+    {
+      "source": "/app/pdf-viewer.html",
+      "destination": "/pdf-viewer",
+      "permanent": true
+    },
+    {
+      "source": "/pdf-viewer.html",
+      "destination": "/pdf-viewer",
+      "permanent": true
+    },
+    {
+      "source": "/app/pricing.html",
+      "destination": "/pricing",
+      "permanent": true
+    },
+    {
+      "source": "/pricing.html",
+      "destination": "/pricing",
+      "permanent": true
+    },
+    {
+      "source": "/app/profile.html",
+      "destination": "/profile",
+      "permanent": true
+    },
+    {
+      "source": "/profile.html",
+      "destination": "/profile",
+      "permanent": true
+    },
+    {
+      "source": "/app/resource-upload.html",
+      "destination": "/resource-upload",
+      "permanent": true
+    },
+    {
+      "source": "/resource-upload.html",
+      "destination": "/resource-upload",
+      "permanent": true
+    },
+    {
+      "source": "/app/resource-view.html",
+      "destination": "/resource-view",
+      "permanent": true
+    },
+    {
+      "source": "/resource-view.html",
+      "destination": "/resource-view",
+      "permanent": true
+    },
+    {
+      "source": "/app/resources.html",
+      "destination": "/resources",
+      "permanent": true
+    },
+    {
+      "source": "/resources.html",
+      "destination": "/resources",
+      "permanent": true
+    },
+    {
+      "source": "/app/settings.html",
+      "destination": "/settings",
+      "permanent": true
+    },
+    {
+      "source": "/settings.html",
+      "destination": "/settings",
+      "permanent": true
+    },
+    {
+      "source": "/app/shared_quiz.html",
+      "destination": "/shared_quiz",
+      "permanent": true
+    },
+    {
+      "source": "/shared_quiz.html",
+      "destination": "/shared_quiz",
+      "permanent": true
+    },
+    {
+      "source": "/app/stats.html",
+      "destination": "/stats",
+      "permanent": true
+    },
+    {
+      "source": "/stats.html",
+      "destination": "/stats",
+      "permanent": true
+    },
+    {
+      "source": "/app/student-tools.html",
+      "destination": "/student-tools",
+      "permanent": true
+    },
+    {
+      "source": "/student-tools.html",
+      "destination": "/student-tools",
+      "permanent": true
+    },
+    {
+      "source": "/app/study-lab.html",
+      "destination": "/study-lab",
+      "permanent": true
+    },
+    {
+      "source": "/study-lab.html",
+      "destination": "/study-lab",
+      "permanent": true
+    },
+    {
+      "source": "/app/study-lab-doc.html",
+      "destination": "/study-lab-doc",
+      "permanent": true
+    },
+    {
+      "source": "/study-lab-doc.html",
+      "destination": "/study-lab-doc",
+      "permanent": true
+    },
+    {
+      "source": "/app/todo.html",
+      "destination": "/todo",
+      "permanent": true
+    },
+    {
+      "source": "/todo.html",
+      "destination": "/todo",
+      "permanent": true
+    },
+    {
+      "source": "/app/tool-assignment.html",
+      "destination": "/tool-assignment",
+      "permanent": true
+    },
+    {
+      "source": "/tool-assignment.html",
+      "destination": "/tool-assignment",
+      "permanent": true
+    },
+    {
+      "source": "/app/tool-code.html",
+      "destination": "/tool-code",
+      "permanent": true
+    },
+    {
+      "source": "/tool-code.html",
+      "destination": "/tool-code",
+      "permanent": true
+    },
+    {
+      "source": "/app/tool-diagram.html",
+      "destination": "/tool-diagram",
+      "permanent": true
+    },
+    {
+      "source": "/tool-diagram.html",
+      "destination": "/tool-diagram",
+      "permanent": true
+    },
+    {
+      "source": "/app/tool-flowchart.html",
+      "destination": "/tool-flowchart",
+      "permanent": true
+    },
+    {
+      "source": "/tool-flowchart.html",
+      "destination": "/tool-flowchart",
+      "permanent": true
+    },
+    {
+      "source": "/app/tool-scan-solve.html",
+      "destination": "/tool-scan-solve",
+      "permanent": true
+    },
+    {
+      "source": "/tool-scan-solve.html",
+      "destination": "/tool-scan-solve",
+      "permanent": true
+    },
+    {
+      "source": "/app/verify-email.html",
+      "destination": "/verify-email",
+      "permanent": true
+    },
+    {
+      "source": "/verify-email.html",
+      "destination": "/verify-email",
+      "permanent": true
+    },
+    {
+      "source": "/app/leaderboard",
+      "destination": "/leaderboard",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/q/:id",
@@ -9,44 +358,148 @@
       "destination": "/app/shared_quiz.html"
     },
     {
-      "source": "/home",
-      "destination": "/app/home.html"
-    },
-    {
-      "source": "/profile",
-      "destination": "/app/profile.html"
-    },
-    {
-      "source": "/chats",
-      "destination": "/app/chats.html"
-    },
-    {
-      "source": "/nova",
-      "destination": "/app/nova.html"
-    },
-    {
-      "source": "/cbt",
-      "destination": "/app/cbt.html"
-    },
-    {
       "source": "/ranks",
       "destination": "/app/leaderboard.html"
-    },
-    {
-      "source": "/settings",
-      "destination": "/app/settings.html"
     },
     {
       "source": "/library",
       "destination": "/app/course-library.html"
     },
     {
-      "source": "/login",
-      "destination": "/login.html"
+      "source": "/You",
+      "destination": "/app/You.html"
     },
     {
-      "source": "/signup",
-      "destination": "/signup.html"
+      "source": "/about",
+      "destination": "/app/about.html"
+    },
+    {
+      "source": "/ai-lab",
+      "destination": "/app/ai-lab.html"
+    },
+    {
+      "source": "/announcements",
+      "destination": "/app/announcements.html"
+    },
+    {
+      "source": "/cbt",
+      "destination": "/app/cbt.html"
+    },
+    {
+      "source": "/change-password",
+      "destination": "/app/change-password.html"
+    },
+    {
+      "source": "/chats",
+      "destination": "/app/chats.html"
+    },
+    {
+      "source": "/course-library",
+      "destination": "/app/course-library.html"
+    },
+    {
+      "source": "/edit-profile",
+      "destination": "/app/edit-profile.html"
+    },
+    {
+      "source": "/home",
+      "destination": "/app/home.html"
+    },
+    {
+      "source": "/leaderboard",
+      "destination": "/app/leaderboard.html"
+    },
+    {
+      "source": "/my-resources",
+      "destination": "/app/my-resources.html"
+    },
+    {
+      "source": "/notes",
+      "destination": "/app/notes.html"
+    },
+    {
+      "source": "/notifications",
+      "destination": "/app/notifications.html"
+    },
+    {
+      "source": "/nova",
+      "destination": "/app/nova.html"
+    },
+    {
+      "source": "/pdf-viewer",
+      "destination": "/app/pdf-viewer.html"
+    },
+    {
+      "source": "/pricing",
+      "destination": "/app/pricing.html"
+    },
+    {
+      "source": "/profile",
+      "destination": "/app/profile.html"
+    },
+    {
+      "source": "/resource-upload",
+      "destination": "/app/resource-upload.html"
+    },
+    {
+      "source": "/resource-view",
+      "destination": "/app/resource-view.html"
+    },
+    {
+      "source": "/resources",
+      "destination": "/app/resources.html"
+    },
+    {
+      "source": "/settings",
+      "destination": "/app/settings.html"
+    },
+    {
+      "source": "/shared_quiz",
+      "destination": "/app/shared_quiz.html"
+    },
+    {
+      "source": "/stats",
+      "destination": "/app/stats.html"
+    },
+    {
+      "source": "/student-tools",
+      "destination": "/app/student-tools.html"
+    },
+    {
+      "source": "/study-lab",
+      "destination": "/app/study-lab.html"
+    },
+    {
+      "source": "/study-lab-doc",
+      "destination": "/app/study-lab-doc.html"
+    },
+    {
+      "source": "/todo",
+      "destination": "/app/todo.html"
+    },
+    {
+      "source": "/tool-assignment",
+      "destination": "/app/tool-assignment.html"
+    },
+    {
+      "source": "/tool-code",
+      "destination": "/app/tool-code.html"
+    },
+    {
+      "source": "/tool-diagram",
+      "destination": "/app/tool-diagram.html"
+    },
+    {
+      "source": "/tool-flowchart",
+      "destination": "/app/tool-flowchart.html"
+    },
+    {
+      "source": "/tool-scan-solve",
+      "destination": "/app/tool-scan-solve.html"
+    },
+    {
+      "source": "/verify-email",
+      "destination": "/app/verify-email.html"
     }
   ],
   "headers": [
@@ -69,6 +522,54 @@
         {
           "key": "Feature-Policy",
           "value": "camera 'self'; microphone 'self'"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        }
+      ]
+    },
+    {
+      "source": "/service-worker.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        },
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        }
+      ]
+    },
+    {
+      "source": "/firebase-messaging-sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/(css|js|assets)/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, stale-while-revalidate=604800"
         }
       ]
     }

@@ -331,6 +331,7 @@
   </script>
 
   <script src="js/firebase-config.js"></script>
+  <script src="js/auth-retry.js"></script>
   
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -340,7 +341,26 @@
     "use strict";
     if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
     var auth = firebase.auth();
-    var db = firebase.firestore();
+    try { auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); } catch (eP) {}
+    var db = (window.CodexFirebaseReady && window.CodexFirebaseReady()) || firebase.firestore();
+    var R = window.CodexAuthRetry || { run: function (f) { return f(); }, friendlyMessage: function (e, f) { return (e && e.message) || f; } };
+    function nice(err, fb) {
+      var m = R.friendlyMessage(err, fb);
+      // Never show raw "Firebase: ..." text to students
+      if (/^Firebase:/i.test(m || "")) m = fb;
+      return m;
+    }
+    var isStandalone = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+    // Finish a Google redirect sign-in (used in installed PWA / when popups are blocked)
+    auth.getRedirectResult().then(function (cred) {
+      if (cred && cred.user) return routeAfterLogin(cred.user);
+    }).catch(function (err) { if (err && err.code) showStatus(nice(err, "Google sign-in failed. Try again.")); });
+    // Already signed in on this device? Go straight in — no login screen.
+    var _autoRouted = false;
+    auth.onAuthStateChanged(function (u) {
+      var pw = u && (u.providerData || []).some(function (x) { return x && x.providerId === "password"; });
+      if (u && (u.emailVerified || !pw) && !_autoRouted && !loginBtn.disabled) { _autoRouted = true; routeAfterLogin(u); }
+    });
 
     var form = document.getElementById("loginForm");
     var emailEl = document.getElementById("email");
@@ -391,7 +411,11 @@
       loginBtn.textContent = "Signing in…";
       document.body.style.overflowX = "hidden";
       try { document.documentElement.style.overflowX = "hidden"; } catch (e) {}
-      auth.signInWithEmailAndPassword(email, password)
+      if (navigator.onLine === false) {
+        showStatus("You're offline. Turn on data or Wi-Fi and try again.");
+        loginBtn.disabled = false; loginBtn.textContent = "Sign in"; return;
+      }
+      R.run(function () { return auth.signInWithEmailAndPassword(email, password); }, { retries: 3, delay: 800 })
         .then(function (cred) { return routeAfterLogin(cred.user); })
         .catch(function (err) {
           var map = {
@@ -401,7 +425,7 @@
             "auth/too-many-requests": "Too many attempts. Try again later.",
             "auth/invalid-email": "That email looks invalid."
           };
-          showStatus(map[err.code] || err.message || "Could not sign in.");
+          showStatus(map[err.code] || nice(err, "Could not sign in. Please try again."));
           loginBtn.disabled = false;
           loginBtn.textContent = "Sign in";
         });
@@ -411,10 +435,16 @@
       clearStatus();
       googleBtn.disabled = true;
       var provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider)
+      provider.setCustomParameters({ prompt: "select_account" });
+      if (isStandalone) { auth.signInWithRedirect(provider); return; }
+      R.run(function () { return auth.signInWithPopup(provider); }, { retries: 1, delay: 900 })
         .then(function (cred) { return routeAfterLogin(cred.user); })
         .catch(function (err) {
-          if (err.code !== "auth/popup-closed-by-user") showStatus(err.message || "Google sign-in failed.");
+          var c = err && err.code;
+          if (c === "auth/popup-blocked" || c === "auth/operation-not-supported-in-this-environment" || c === "auth/network-request-failed") {
+            auth.signInWithRedirect(provider); return;
+          }
+          if (c !== "auth/popup-closed-by-user" && c !== "auth/cancelled-popup-request") showStatus(nice(err, "Google sign-in failed. Try again."));
           googleBtn.disabled = false;
         });
     });
@@ -427,9 +457,9 @@
         emailEl.focus();
         return;
       }
-      auth.sendPasswordResetEmail(email)
+      R.run(function () { return auth.sendPasswordResetEmail(email); })
         .then(function () { showStatus("Reset link sent. Check your inbox (and spam).", "ok"); })
-        .catch(function (err) { showStatus(err.message || "Could not send reset email."); });
+        .catch(function (err) { showStatus(nice(err, "Could not send reset email.")); });
     });
 
     // Password eye toggles (if present)

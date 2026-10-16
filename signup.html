@@ -546,6 +546,13 @@
       });
     }
 
+    function niceErr(err, fb) {
+      var c = err && err.code;
+      if (c === "auth/network-request-failed" || c === "auth/timeout") return "Can't reach the sign-up server right now. Check your data/Wi-Fi and try again.";
+      if (c === "auth/popup-blocked") return "Your browser blocked the Google window. Allow pop-ups and try again.";
+      var m = (err && err.message) || fb;
+      return /^Firebase:/i.test(m) ? fb : m;
+    }
     if (el("createBtn")) el("createBtn").onclick = function () {
       clearAlert();
       if (!el("terms").checked) return alertMsg("Please agree to the Terms & Conditions.");
@@ -581,7 +588,7 @@
             "auth/invalid-email": "Please enter a valid email.",
             "auth/weak-password": "Password is too weak."
           };
-          alertMsg(map[err.code] || err.message || "Could not create account.");
+          alertMsg(map[err.code] || niceErr(err, "Could not create account. Please try again."));
         });
     };
 
@@ -600,7 +607,7 @@
           location.href = "chooseFaculty.html";
         })
         .catch(function (err) {
-          if (err.code !== "auth/popup-closed-by-user") alertMsg(err.message || "Google sign-in failed.");
+          if (err.code !== "auth/popup-closed-by-user" && err.code !== "auth/cancelled-popup-request") alertMsg(niceErr(err, "Google sign-in failed. Try again."));
           b.disabled = false;
           b.innerHTML = b.getAttribute("data-label") || "Continue with Google";
         });
