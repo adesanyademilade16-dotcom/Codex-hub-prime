@@ -381,10 +381,11 @@
         var ps = (u && u.providerData) || [];
         return ps.some(function (p) { return p && p.providerId === "password"; });
       }
-      // Email/password accounts must verify before entering the app (Google is trusted)
+      // Email/password accounts must verify before entering the app (Google is trusted).
+      // Do NOT call user./*removed sendEmailVerification()*/ — that sends Firebase's ugly link email.
+      // verify-email.html uses Brevo 6-digit codes via our backend instead.
       if (user && !user.emailVerified && isPasswordUser(user)) {
-        try { user.sendEmailVerification(); } catch (eV) {}
-        showStatus("Verify your email first. Check inbox and Spam.", "error");
+        showStatus("Verify your email first — we'll send a 6-digit code.", "error");
         location.href = "verify-email.html";
         return Promise.resolve();
       }
