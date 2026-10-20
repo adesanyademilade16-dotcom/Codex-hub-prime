@@ -9,6 +9,8 @@
   var auth = firebase.auth();
   var db = firebase.firestore();
 
+  var personalPage = document.body.dataset.libraryView === "personal";
+
   var state = {
     user: null,
     profile: null,
@@ -169,6 +171,7 @@
   }
 
   function renderGrid(append) {
+    if (personalPage) return;
     var result = CurriculumLoader.catalogSlice(queryOpts());
     state.total = result.total;
     $("sectionCount").textContent = result.total + " found";
@@ -214,17 +217,32 @@
   }
 
 
+  
+  // When user opens catalog mid CBT/Notes setup, warn if they leave without adding a course
+  function markSetupFlow(kind) {
+    try { sessionStorage.setItem("codex_setup_flow", kind || "cbt"); } catch (e) {}
+  }
+  function clearSetupFlow() {
+    try { sessionStorage.removeItem("codex_setup_flow"); } catch (e) {}
+  }
+  function setupFlowActive() {
+    try { return sessionStorage.getItem("codex_setup_flow") || ""; } catch (e) { return ""; }
+  }
+
   function practiceHref(code, kind) {
-    if (kind === "notes") return "notes.html?code=" + encodeURIComponent(code);
-    return "cbt.html?code=" + encodeURIComponent(code);
+    // Absolute clean URLs — relative *.html under /my-library caused blank white pages
+    if (kind === "notes") return "/notes?code=" + encodeURIComponent(code);
+    return "/cbt?code=" + encodeURIComponent(code);
   }
 
   function openCourseAction(code) {
     if (state.entryMode === "notes") {
+      clearSetupFlow();
       location.href = practiceHref(code, "notes");
       return;
     }
     if (state.entryMode === "cbt") {
+      clearSetupFlow();
       location.href = practiceHref(code, "cbt");
       return;
     }
@@ -284,38 +302,18 @@
     $("dBody").innerHTML = body;
     var inLib = !!state.library[c.code];
     var btn = $("dAdd");
-    if (inLib) {
-      btn.textContent = "Remove from library";
-      btn.className = "danger";
-    } else {
-      btn.textContent = c.hasContent ? "Add to library" : "Add · notify team";
-    var act = $("detailActions");
-    if (act) {
-      var extra = "";
-      if (c.hasContent) {
-        extra =
-          '<button type="button" class="primary" id="btnPracticeCbt" data-code="' + esc(c.code) + '">Practice CBT</button>' +
-          '<button type="button" class="ghost" id="btnReadNotes" data-code="' + esc(c.code) + '">Read notes</button>';
-      }
-      var exist = act.querySelector("#detailPrimaryBtns");
-      if (!exist) {
-        var wrap = document.createElement("div");
-        wrap.id = "detailPrimaryBtns";
-        wrap.style.cssText = "display:flex;flex-direction:column;gap:8px;width:100%;margin-top:8px";
-        act.appendChild(wrap);
-        exist = wrap;
-      }
-      // keep add button as-is; prepend practice
-      var addBtn = act.querySelector("[data-detail-add]") || btn;
-      exist.innerHTML = extra;
-      if (extra) {
-        var pc = $("btnPracticeCbt"), rn = $("btnReadNotes");
-        if (pc) pc.onclick = function () { location.href = practiceHref(c.code, "cbt"); };
-        if (rn) rn.onclick = function () { location.href = practiceHref(c.code, "notes"); };
-      }
-    }
-
-      btn.className = "primary";
+    btn.textContent = inLib ? "Remove from library" : c.hasContent ? "Add to library" : "Add · notify team";
+    btn.className = inLib ? "danger" : "primary";
+    var previousActions = $("detailPrimaryBtns");
+    if (previousActions) previousActions.remove();
+    if (c.hasContent) {
+      var wrap = document.createElement("div");
+      wrap.id = "detailPrimaryBtns";
+      wrap.innerHTML = '<button type="button" class="primary" id="btnPracticeCbt">Practice CBT</button>' +
+        '<button type="button" class="ghost" id="btnReadNotes">Read notes</button>';
+      $("dBody").appendChild(wrap);
+      $("btnPracticeCbt").onclick = function () { location.href = practiceHref(c.code, "cbt"); };
+      $("btnReadNotes").onclick = function () { location.href = practiceHref(c.code, "notes"); };
     }
     $("sheetBg").classList.add("open");
     $("detailSheet").classList.add("open");
@@ -802,19 +800,47 @@
     // Keep this URL-driven so the Back button never gets trapped in a library/history loop.
     try {
       var _m = new URLSearchParams(location.search).get("mode");
-      if (_m === "cbt" || _m === "notes") state.entryMode = _m;
+      if (_m === "cbt" || _m === "notes") {
+        if (!personalPage) {
+          location.replace("/my-library?mode=" + _m);
+          return;
+        }
+        state.entryMode = _m;
+      }
       if (_m === "search") state.searchOnOpen = true;
     } catch (e) {}
 
   function bind() {
     $("btnBack").onclick = function () {
-      // From CBT/Notes entry: always return to Home (avoid mode loop)
-      if (state.entryMode === "cbt" || state.entryMode === "notes") {
-        location.replace("home.html");
+      var leave = function () {
+        if (personalPage || state.entryMode === "cbt" || state.entryMode === "notes") {
+          location.replace("/home");
+          return;
+        }
+        try {
+          var ref = document.referrer || "";
+          if (ref && ref.indexOf(location.origin) === 0 && history.length > 1) {
+            var path = ref.replace(location.origin, "").split("?")[0];
+            if (path && path !== location.pathname && path !== "/course-library" && path !== "/course-library.html") {
+              history.back();
+              return;
+            }
+          }
+        } catch (e) {}
+        location.href = "/home";
+      };
+      var flow = setupFlowActive();
+      if (flow && !personalPage) {
+        var msg = flow === "notes"
+          ? "Leave without choosing a course? Your notes setup will be cancelled."
+          : "Leave without choosing a course? Your CBT setup will be cancelled.";
+        if (window.confirm(msg)) {
+          clearSetupFlow();
+          leave();
+        }
         return;
       }
-      if (history.length > 1) history.back();
-      else location.href = "home.html";
+      leave();
     };
 
     buildLevelChips();
@@ -944,22 +970,17 @@
     }
 
     $("btnMyLib").onclick = function () {
-      // Re-read semester from Home / localStorage every time panel opens
-      state.librarySemester = normalizeSemester(
-        localStorage.getItem("selectedSemester") ||
-        (state.profile && state.profile.semester) ||
-        "1"
-      );
-      syncSemButtons();
-      renderMyLib();
-      $("myLibPanel").classList.add("open");
+      location.href = "/my-library";
     };
     $("myLibClose").onclick = function () {
-      $("myLibPanel").classList.remove("open");
+      if (personalPage) location.replace("/home");
+      else $("myLibPanel").classList.remove("open");
     };
     if ($("btnBrowseFromLib")) {
       $("btnBrowseFromLib").onclick = function () {
-        $("myLibPanel").classList.remove("open");
+        var mode = state.entryMode || "browse";
+        if (mode === "cbt" || mode === "notes") markSetupFlow(mode);
+        location.href = "/course-library";
       };
     }
     // Semester toggle — must work + sync to Home
@@ -1050,7 +1071,7 @@
 
   auth.onAuthStateChanged(async function (user) {
     if (!user) {
-      location.href = "../login.html";
+      location.href = "/login";
       return;
     }
     state.user = user;
@@ -1080,8 +1101,8 @@
     renderGrid(false);
 
     // CBT / Notes: open My Library only AFTER library + seed finished
-    if (state.entryMode === "cbt" || state.entryMode === "notes") {
-      document.title = (state.entryMode === "cbt" ? "CBT · " : "Notes · ") + "My Library · Codex Hub";
+    if (personalPage || state.entryMode === "cbt" || state.entryMode === "notes") {
+      document.title = (state.entryMode === "cbt" ? "CBT · " : state.entryMode === "notes" ? "Notes · " : "") + "My Library · Codex Hub";
       renderMyLib();
       if ($("myLibPanel")) $("myLibPanel").classList.add("open");
     }
