@@ -760,25 +760,22 @@ a{color:inherit;text-decoration:none}
 }
 
 
-/* ===== POLISH v1 — My Library ===== */
+/* ===== POLISH v2 — My Library (fluid, full-width) ===== */
 body[data-library-view="personal"] {
   background: #F1F5F9 !important;
 }
 body[data-library-view="personal"] .page,
 body[data-library-view="personal"] .mylib-panel,
 #myLibPanel {
-  max-width: 560px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: none !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
   padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
 }
-@media (min-width: 720px) {
-  body[data-library-view="personal"] .page,
-  #myLibPanel { max-width: 820px; }
-}
-@media (min-width: 1100px) {
-  body[data-library-view="personal"] .page,
-  #myLibPanel { max-width: 1080px; }
+.mylib-panel, #myLibPanel {
+  padding-left: 0;
+  padding-right: 0;
 }
 
 /* Top bar */
@@ -845,27 +842,26 @@ body[data-library-view="personal"] .mylib-panel,
   color: #fff !important;
 }
 
-/* Theme — exactly 5 dots, one row, no wrap */
+/* Theme — 5 dots, one row */
 #themeRow, .theme-row {
   display: flex !important;
   align-items: center !important;
-  gap: 10px !important;
+  gap: 8px !important;
   flex-wrap: nowrap !important;
-  padding: 10px 14px 4px !important;
   margin: 0 !important;
   overflow-x: auto;
 }
 #themeRow::before { content: none !important; }
 .theme-label {
-  font-size: .65rem !important;
+  font-size: .62rem !important;
   font-weight: 800 !important;
   letter-spacing: .06em !important;
   color: #94A3B8 !important;
   flex-shrink: 0;
 }
 .theme-dot {
-  width: 22px !important;
-  height: 22px !important;
+  width: 20px !important;
+  height: 20px !important;
   border-radius: 50% !important;
   border: 2px solid transparent !important;
   flex-shrink: 0 !important;
@@ -877,104 +873,142 @@ body[data-library-view="personal"] .mylib-panel,
   box-shadow: 0 0 0 2px rgba(37,99,235,.2);
 }
 
-/* Semester — Home-style pill toggle */
-.mylib-sem-wrap {
+/* Semester INSIDE hero (like Home welcome card) */
+.mylib-hero {
+  position: relative;
+  margin: 12px 14px !important;
+  padding: 18px 16px 16px !important;
+  border-radius: 20px !important;
+  background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 45%, #4F46E5 100%) !important;
+  color: #fff !important;
+  overflow: hidden;
+  box-shadow: 0 10px 24px rgba(37,99,235,.25);
+}
+.mylib-hero h3, #myLibTitle {
+  position: relative;
+  margin: 0 0 6px !important;
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  color: #fff !important;
+}
+.mylib-hero p, #myLibSub {
+  position: relative;
+  margin: 0 0 12px !important;
+  font-size: .8rem !important;
+  line-height: 1.4 !important;
+  opacity: .92;
+  color: #fff !important;
+  max-width: 95%;
+}
+.mylib-hero-sem {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 14px 6px;
+  flex-wrap: wrap;
 }
-.sem-lab {
-  font-size: .65rem;
-  font-weight: 800;
-  letter-spacing: .04em;
-  color: #94A3B8;
-  flex-shrink: 0;
+.mylib-hero-sem .sem-lab {
+  font-size: .7rem;
+  font-weight: 700;
+  opacity: .9;
 }
-#myLibSem, .mylib-sem {
-  display: inline-flex !important;
+.mylib-hero-sem .sem-pill {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.22);
+}
+.mylib-hero-sem button {
+  border: 0;
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: .78rem;
+  font-weight: 700;
+  background: transparent;
+  color: rgba(255,255,255,.85);
+  cursor: pointer;
+}
+.mylib-hero-sem button.active {
+  background: #fff;
+  color: #1D4ED8;
+  box-shadow: 0 1px 4px rgba(0,0,0,.12);
+}
+
+/* Toolbar: theme + compact Restore/Clear chips */
+.mylib-toolbar {
+  display: flex;
   align-items: center;
-  gap: 0 !important;
-  padding: 3px !important;
-  margin: 0 !important;
-  background: #E2E8F0 !important;
-  border-radius: 999px !important;
-  border: 0 !important;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 14px 4px;
 }
-#myLibSem button, #sem1Btn, #sem2Btn {
-  flex: 0 0 auto !important;
-  border: 0 !important;
-  border-radius: 999px !important;
-  font-weight: 700 !important;
-  font-size: .8rem !important;
-  padding: 8px 18px !important;
-  background: transparent !important;
-  color: #64748B !important;
+.mylib-actions {
+  display: flex !important;
+  gap: 8px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.mylib-actions .qa-chip {
+  border: 1.5px solid #E2E8F0;
+  background: #fff;
+  color: #0F172A;
+  font-size: .72rem;
+  font-weight: 700;
+  padding: 7px 12px;
+  border-radius: 999px;
   cursor: pointer;
   min-height: 0 !important;
 }
-#myLibSem button.active, #sem1Btn.active, #sem2Btn.active {
-  background: #fff !important;
-  color: #0F172A !important;
-  box-shadow: 0 1px 4px rgba(15,23,42,.12) !important;
-  border-color: transparent !important;
+.mylib-actions .qa-chip.qa-danger {
+  color: #DC2626;
+  border-color: #FECACA;
 }
 
-/* Quick actions — square tiles like Home streak/level cards */
-.mylib-actions {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 10px !important;
-  padding: 8px 14px 8px !important;
-  margin: 0 !important;
+/* Banner always full width — never a grid column */
+.mylib-banner, .mylib-banner-info {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: .78rem;
+  line-height: 1.4;
+  background: #EEF2FF;
+  border: 1px solid #C7D2FE;
+  color: #3730A3;
 }
-.mylib-actions .qa-tile {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 4px;
-  min-height: 72px !important;
-  border-radius: 16px !important;
-  border: 1px solid #E2E8F0 !important;
-  background: #fff !important;
-  color: #0F172A !important;
-  font-weight: 700 !important;
-  cursor: pointer;
-  padding: 12px 8px !important;
-  box-shadow: 0 2px 8px rgba(15,23,42,.04);
-}
-.mylib-actions .qa-tile .qa-ico {
-  font-size: 1.15rem;
-  line-height: 1;
-}
-.mylib-actions .qa-tile .qa-lbl {
-  font-size: .72rem;
-  font-weight: 800;
-}
-.mylib-actions .qa-tile.qa-danger {
-  color: #DC2626 !important;
-  border-color: #FECACA !important;
-}
-.mylib-actions .qa-primary { display: none !important; }
 
-/* Grid */
+/* List is BLOCK; only .mylib-grid is the card grid */
 #myLibList {
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 12px !important;
-  padding: 12px 14px 28px !important;
+  display: block !important;
+  padding: 8px 14px 28px !important;
   width: 100% !important;
   box-sizing: border-box;
 }
-@media (min-width: 720px) {
-  #myLibList { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+.mylib-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  width: 100%;
 }
-@media (min-width: 1100px) {
-  #myLibList { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+@media (min-width: 520px) {
+  .mylib-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
 }
-#myLibList .ccard,
-#myLibList article {
+@media (min-width: 760px) {
+  .mylib-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+}
+@media (min-width: 1024px) {
+  .mylib-grid { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }
+}
+@media (min-width: 1280px) {
+  .mylib-grid { grid-template-columns: repeat(6, minmax(0, 1fr)) !important; }
+}
+
+.mylib-grid .ccard,
+.mylib-grid article,
+#myLibList .mylib-grid .ccard {
   width: 100% !important;
   max-width: none !important;
   min-width: 0 !important;
@@ -987,30 +1021,38 @@ body[data-library-view="personal"] .mylib-panel,
   overflow: hidden;
   box-shadow: 0 4px 14px rgba(15,23,42,.05);
 }
+.mylib-grid .ccard .title,
 #myLibList .ccard .title {
   font-size: .8rem !important;
   line-height: 1.35 !important;
   white-space: normal !important;
   word-break: normal !important;
-  overflow-wrap: break-word !important;
+  overflow-wrap: anywhere !important;
   writing-mode: horizontal-tb !important;
   display: -webkit-box !important;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-#myLibList .ccard .art { height: 84px !important; }
+.mylib-grid .ccard .art { height: 80px !important; }
 
+/* Skeleton cards (not spinner) */
 #myLibSkel, .mylib-skel {
-  display: grid;
+  display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  padding: 12px 14px;
+  padding: 8px 14px 20px;
+}
+@media (min-width: 520px) {
+  #myLibSkel, .mylib-skel { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 760px) {
+  #myLibSkel, .mylib-skel { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 .mylib-skel .skel-card {
   background: #fff; border: 1px solid #E2E8F0; border-radius: 16px; overflow: hidden;
 }
-.mylib-skel .skel-art { height: 84px; background: #E2E8F0; }
+.mylib-skel .skel-art { height: 80px; background: #E2E8F0; }
 .mylib-skel .skel-line { height: 10px; margin: 12px 12px 0; border-radius: 6px; background: #E2E8F0; }
 .mylib-skel .skel-line.short { width: 50%; height: 8px; margin: 8px 12px 14px; }
 .mylib-skel .skel-pulse { animation: skelPulse 1.2s ease-in-out infinite; }
@@ -1097,14 +1139,14 @@ body[data-library-view="personal"] .mylib-panel,
   </div>
   <div class="mylib-hero" id="myLibHero">
     <h3 id="myLibTitle">Your courses</h3>
-    <p id="myLibSub">Courses for your programme appear here. Add more from the catalog or remove any you don’t need.</p>
-    <svg class="book-deco" width="56" height="42" viewBox="0 0 56 42" fill="none" aria-hidden="true">
-      <rect x="4" y="6" width="32" height="28" rx="3" fill="#fff" fill-opacity=".9"/>
-      <path d="M10 12h20" stroke="#312E81" stroke-opacity=".35" stroke-width="2" stroke-linecap="round"/>
-      <path d="M10 18h14" stroke="#312E81" stroke-opacity=".35" stroke-width="2" stroke-linecap="round"/>
-      <path d="M10 24h18" stroke="#312E81" stroke-opacity=".35" stroke-width="2" stroke-linecap="round"/>
-      <path d="M36 8l12 5v22l-12-5V8z" fill="#C4B5FD" fill-opacity=".85"/>
-    </svg>
+    <p id="myLibSub">Courses for your programme appear here. Add more from Browse or remove ones you don’t need.</p>
+    <div class="mylib-hero-sem" id="myLibSem" role="group" aria-label="Semester">
+      <span class="sem-lab">Semester</span>
+      <div class="sem-pill">
+        <button type="button" data-sem="1" id="sem1Btn" class="active">1st</button>
+        <button type="button" data-sem="2" id="sem2Btn">2nd</button>
+      </div>
+    </div>
   </div>
   <div class="mylib-toolbar">
     <div class="theme-row" id="themeRow" title="Library theme">
@@ -1115,26 +1157,25 @@ body[data-library-view="personal"] .mylib-panel,
       <button type="button" class="theme-dot" data-theme="sunset" style="background:#C2410C" aria-label="Sunset"></button>
       <button type="button" class="theme-dot" data-theme="violet" style="background:#6D28D9" aria-label="Violet"></button>
     </div>
-    <div class="mylib-sem-wrap">
-      <span class="sem-lab">Semester</span>
-      <div class="mylib-sem" id="myLibSem" role="group" aria-label="Semester">
-        <button type="button" data-sem="1" id="sem1Btn" class="active">1st</button>
-        <button type="button" data-sem="2" id="sem2Btn">2nd</button>
-      </div>
+    <div class="mylib-actions" id="myLibActions">
+      <button type="button" class="qa-chip" id="btnReseed">Restore</button>
+      <button type="button" class="qa-chip qa-danger" id="btnClearLib">Clear</button>
     </div>
   </div>
-  <div class="mylib-actions" id="myLibActions">
-    <button type="button" class="qa-tile" id="btnReseed">
-      <span class="qa-ico" aria-hidden="true">↺</span>
-      <span class="qa-lbl">Restore</span>
-    </button>
-    <button type="button" class="qa-tile qa-danger" id="btnClearLib">
-      <span class="qa-ico" aria-hidden="true">⌫</span>
-      <span class="qa-lbl">Clear</span>
-    </button>
+  <div id="myLibSkel" class="mylib-skel" style="display:none" aria-hidden="true">
+    <div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div>
+    <div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div>
+    <div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div>
+    <div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div>
   </div>
-  <div class="list" id="myLibSkel" class="mylib-skel" style="display:none"><div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div><div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div><div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div><div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div></div>
-    <div id="myLibList" aria-live="polite"><div class="catalog-loading"><div class="catalog-spinner" aria-hidden="true"></div><p><b>Loading your courses…</b></p></div></div>
+  <div id="myLibList" aria-live="polite">
+    <div class="mylib-skel">
+      <div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div>
+      <div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div>
+      <div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div>
+      <div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div>
+    </div>
+  </div>
 </main>
 
 <!-- Detail sheet -->
@@ -1211,33 +1252,13 @@ body[data-library-view="personal"] .mylib-panel,
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script src="../js/firebase-config.js"></script>
-<script src="../js/faculty-data.js"></script>
-<script src="../js/curriculum-data.js"></script>
-<script src="../js/curriculum-loader.js"></script>
-<script src="../js/onboarding.js"></script>
-  <script src="../js/shell.js"></script>
-
-<script>
-(function () {
-  function bindQa() {
-    var b = document.getElementById("qaBrowse");
-    if (b) b.addEventListener("click", function () {
-      var t = document.getElementById("btnBrowseFromLib");
-      if (t) t.click();
-      else {
-        var path = location.pathname || "";
-        var useHtml = /\.html|\/app\//.test(path);
-        location.href = useHtml ? "course-library.html" : "/course-library";
-      }
-    });
-  }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bindQa);
-  else bindQa();
-})();
-</script>
-
-<script src="../js/course-library.js"></script>
+<script src="/js/firebase-config.js" onerror="this.onerror=null;this.src='../js/firebase-config.js'"></script>
+<script src="/js/faculty-data.js" onerror="this.onerror=null;this.src='../js/faculty-data.js'"></script>
+<script src="/js/curriculum-data.js" onerror="this.onerror=null;this.src='../js/curriculum-data.js'"></script>
+<script src="/js/curriculum-loader.js" onerror="this.onerror=null;this.src='../js/curriculum-loader.js'"></script>
+<script src="/js/onboarding.js" onerror="this.onerror=null;this.src='../js/onboarding.js'"></script>
+<script src="/js/shell.js" onerror="this.onerror=null;this.src='../js/shell.js'"></script>
+<script src="/js/course-library.js" onerror="this.onerror=null;this.src='../js/course-library.js'"></script>
 
 <script>try{if(window.CodexOnboarding)CodexOnboarding.auto("my-library",700);}catch(e){}</script>
 <script>
