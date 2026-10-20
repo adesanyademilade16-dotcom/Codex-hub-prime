@@ -10,6 +10,51 @@
   var db = firebase.firestore();
 
   var personalPage = document.body.dataset.libraryView === "personal";
+  try { if (personalPage) setTimeout(function(){ if (typeof setMyLibSkel==="function") setMyLibSkel(true); }, 0); } catch(eSk) {}
+
+  /** Navigate Hub pages on both local (/app/*.html) and clean URLs (/home). */
+  
+  function setMyLibSkel(on) {
+    var sk = $("myLibSkel");
+    var list = $("myLibList");
+    if (sk) sk.style.display = on ? "grid" : "none";
+    if (list && on) { /* keep list for structure */ }
+  }
+
+  function hubGo(name, query) {
+    var pages = {
+      home: { html: "home.html", clean: "/home" },
+      courseLibrary: { html: "course-library.html", clean: "/course-library" },
+      myLibrary: { html: "my-library.html", clean: "/my-library" },
+      cbt: { html: "cbt.html", clean: "/cbt" },
+      notes: { html: "notes.html", clean: "/notes" },
+      login: { html: "../login.html", clean: "/login" }
+    };
+    var p = pages[name] || pages.home;
+    var path = location.pathname || "";
+    var useHtml = /\.html(\?|$)/.test(path) || path.indexOf("/app/") !== -1;
+    var url = useHtml ? p.html : p.clean;
+    if (query) {
+      url += (url.indexOf("?") >= 0 ? "&" : "?") + query.replace(/^\?/, "");
+    }
+    location.href = url;
+  }
+  function hubReplace(name, query) {
+    var pages = {
+      home: { html: "home.html", clean: "/home" },
+      courseLibrary: { html: "course-library.html", clean: "/course-library" },
+      myLibrary: { html: "my-library.html", clean: "/my-library" },
+      cbt: { html: "cbt.html", clean: "/cbt" },
+      notes: { html: "notes.html", clean: "/notes" }
+    };
+    var p = pages[name] || pages.home;
+    var path = location.pathname || "";
+    var useHtml = /\.html(\?|$)/.test(path) || path.indexOf("/app/") !== -1;
+    var url = useHtml ? p.html : p.clean;
+    if (query) url += (url.indexOf("?") >= 0 ? "&" : "?") + query.replace(/^\?/, "");
+    location.replace(url);
+  }
+
 
   var state = {
     user: null,
@@ -230,9 +275,11 @@
   }
 
   function practiceHref(code, kind) {
-    // Absolute clean URLs — relative *.html under /my-library caused blank white pages
-    if (kind === "notes") return "/notes?code=" + encodeURIComponent(code);
-    return "/cbt?code=" + encodeURIComponent(code);
+    var q = "code=" + encodeURIComponent(code);
+    var path = location.pathname || "";
+    var useHtml = /\.html(\?|$)/.test(path) || path.indexOf("/app/") !== -1;
+    if (kind === "notes") return useHtml ? ("notes.html?" + q) : ("/notes?" + q);
+    return useHtml ? ("cbt.html?" + q) : ("/cbt?" + q);
   }
 
   function openCourseAction(code) {
@@ -327,6 +374,7 @@
 
   async function loadLibrary() {
     if (!state.user) return;
+    try { setMyLibSkel(false); } catch (e0) {}
     state.library = {};
     try {
       var snap = await db.collection("users").doc(state.user.uid).collection("library").get();
@@ -802,7 +850,7 @@
       var _m = new URLSearchParams(location.search).get("mode");
       if (_m === "cbt" || _m === "notes") {
         if (!personalPage) {
-          location.replace("/my-library?mode=" + _m);
+          hubReplace("myLibrary", "mode=" + _m);
           return;
         }
         state.entryMode = _m;
@@ -812,25 +860,16 @@
 
   function bind() {
     $("btnBack").onclick = function () {
-      // Catalog explore OR personal shelf: never history.back() (blank white page on clean URLs).
-      // Setup-flow confirm only when Browse was opened mid CBT/Notes without picking a course.
-      var goHome = function () { location.href = "/home"; };
       var flow = (typeof setupFlowActive === "function") ? setupFlowActive() : "";
-      if (flow && !personalPage && state.entryMode === "browse") {
+      if (flow && !personalPage) {
         var msg = flow === "notes"
           ? "Leave without choosing a course? Your notes setup will be cancelled."
           : "Leave without choosing a course? Your CBT setup will be cancelled.";
-        if (window.confirm(msg)) {
-          try { clearSetupFlow(); } catch (e) {}
-          goHome();
-        }
-        return;
+        if (!window.confirm(msg)) return;
+        try { clearSetupFlow(); } catch (e) {}
       }
-      if (personalPage || state.entryMode === "cbt" || state.entryMode === "notes") {
-        location.replace("/home");
-        return;
-      }
-      goHome();
+      // Always Home — works on localhost /app/*.html AND clean /course-library URLs
+      hubGo("home");
     };
 
     buildLevelChips();
@@ -960,63 +999,18 @@
     }
 
     $("btnMyLib").onclick = function () {
-      location.href = "/my-library";
+      hubGo("myLibrary");
     };
     $("myLibClose").onclick = function () {
-      if (personalPage) location.replace("/home");
+      if (personalPage) hubReplace("home");
       else $("myLibPanel").classList.remove("open");
     };
     if ($("btnBrowseFromLib")) {
       $("btnBrowseFromLib").onclick = function () {
         var mode = state.entryMode || "browse";
         if (mode === "cbt" || mode === "notes") markSetupFlow(mode);
-        location.href = "/course-library";
+        hubGo("courseLibrary");
       };
-    }
-    // Semester toggle — must work + sync to Home
-    if ($("myLibSem")) {
-      $("myLibSem").onclick = function (e) {
-        var b = e.target.closest("[data-sem]");
-        if (!b) return;
-        setLibrarySemester(b.getAttribute("data-sem"));
-      };
-    }
-    if ($("sem1Btn")) {
-      $("sem1Btn").onclick = function (e) {
-        e.preventDefault();
-        setLibrarySemester("1");
-      };
-    }
-    if ($("sem2Btn")) {
-      $("sem2Btn").onclick = function (e) {
-        e.preventDefault();
-        setLibrarySemester("2");
-      };
-    }
-    syncSemButtons();
-
-    if ($("btnReseed")) $("btnReseed").onclick = restoreProgrammeCourses;
-    if ($("btnClearLib")) $("btnClearLib").onclick = clearLibrary;
-    if ($("themeRow")) {
-      $("themeRow").onclick = function (e) {
-        var d = e.target.closest("[data-theme]");
-        if (!d) return;
-        applyLibTheme(d.getAttribute("data-theme"));
-      };
-    }
-
-
-
-    function openReq() {
-      if (state.profile && state.profile.level) $("reqLevel").value = String(state.profile.level);
-      $("reqModal").classList.add("open");
-    }
-    $("btnRequest").onclick = openReq;
-    $("btnRequestEmpty").onclick = openReq;
-    $("reqCancel").onclick = function () { $("reqModal").classList.remove("open"); };
-    $("reqModal").onclick = function (e) {
-      if (e.target === $("reqModal")) $("reqModal").classList.remove("open");
-    };
     $("reqSend").onclick = submitRequest;
 
     $("confirmNo").onclick = function () {
@@ -1061,7 +1055,7 @@
 
   auth.onAuthStateChanged(async function (user) {
     if (!user) {
-      location.href = "/login";
+      hubGo("login");
       return;
     }
     state.user = user;
@@ -1097,4 +1091,6 @@
       if ($("myLibPanel")) $("myLibPanel").classList.add("open");
     }
   });
+
+}
 })();
