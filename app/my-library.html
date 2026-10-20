@@ -719,8 +719,15 @@ a{color:inherit;text-decoration:none}
   padding: 10px 12px 12px !important;
 }
 
-/* Skeleton for personal shelf */
-#myLibSkel, .mylib-skel {
+/* Skeleton for personal shelf — hidden until .is-loading */
+#myLibSkel {
+  display: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 12px 14px;
+}
+#myLibSkel.is-loading { display: grid; }
+.mylib-skel {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
@@ -1037,25 +1044,35 @@ body[data-library-view="personal"] .mylib-panel,
 .mylib-grid .ccard .art { height: 80px !important; }
 
 /* Skeleton cards (not spinner) */
-#myLibSkel, .mylib-skel {
-  display: grid !important;
+/* Default HIDDEN — only show while loading (JS adds .is-loading) */
+#myLibSkel {
+  display: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 8px 14px 20px;
+}
+#myLibSkel.is-loading {
+  display: grid;
+}
+.mylib-skel {
+  display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   padding: 8px 14px 20px;
 }
 @media (min-width: 520px) {
-  #myLibSkel, .mylib-skel { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  #myLibSkel, #myLibSkel.is-loading, .mylib-skel { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (min-width: 760px) {
-  #myLibSkel, .mylib-skel { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  #myLibSkel, #myLibSkel.is-loading, .mylib-skel { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
-.mylib-skel .skel-card {
+#myLibSkel .skel-card, .mylib-skel .skel-card {
   background: #fff; border: 1px solid #E2E8F0; border-radius: 16px; overflow: hidden;
 }
-.mylib-skel .skel-art { height: 80px; background: #E2E8F0; }
-.mylib-skel .skel-line { height: 10px; margin: 12px 12px 0; border-radius: 6px; background: #E2E8F0; }
-.mylib-skel .skel-line.short { width: 50%; height: 8px; margin: 8px 12px 14px; }
-.mylib-skel .skel-pulse { animation: skelPulse 1.2s ease-in-out infinite; }
+#myLibSkel .skel-art, .mylib-skel .skel-art { height: 80px; background: #E2E8F0; }
+#myLibSkel .skel-line, .mylib-skel .skel-line { height: 10px; margin: 12px 12px 0; border-radius: 6px; background: #E2E8F0; }
+#myLibSkel .skel-line.short, .mylib-skel .skel-line.short { width: 50%; height: 8px; margin: 8px 12px 14px; }
+#myLibSkel .skel-pulse, .mylib-skel .skel-pulse { animation: skelPulse 1.2s ease-in-out infinite; }
 @keyframes skelPulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
 </style>
@@ -1162,20 +1179,13 @@ body[data-library-view="personal"] .mylib-panel,
       <button type="button" class="qa-chip qa-danger" id="btnClearLib">Clear</button>
     </div>
   </div>
-  <div id="myLibSkel" class="mylib-skel" style="display:none" aria-hidden="true">
+  <div id="myLibSkel" class="is-loading" aria-hidden="false" aria-busy="true">
     <div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div>
     <div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div>
     <div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div>
     <div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div>
   </div>
-  <div id="myLibList" aria-live="polite">
-    <div class="mylib-skel">
-      <div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div>
-      <div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div>
-      <div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div>
-      <div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div>
-    </div>
-  </div>
+  <div id="myLibList" aria-live="polite"></div>
 </main>
 
 <!-- Detail sheet -->
