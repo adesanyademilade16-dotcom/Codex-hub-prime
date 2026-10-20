@@ -18,6 +18,8 @@
     var sk = $("myLibSkel");
     var list = $("myLibList");
     if (sk) {
+      if (on) sk.classList.add("is-loading");
+      else sk.classList.remove("is-loading");
       sk.style.display = on ? "grid" : "none";
       sk.setAttribute("aria-hidden", on ? "false" : "true");
     }
