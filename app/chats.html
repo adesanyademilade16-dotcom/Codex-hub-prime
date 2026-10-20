@@ -834,6 +834,69 @@ html.theme-dark .icon-round { background: #1E293B !important; color: #E2E8F0 !im
         flex-shrink: 0 !important;
         background: #fff !important;
       }
+
+/* ===== DESKTOP SPLIT HARD OVERRIDE (must win over mobile fixed thread) ===== */
+@media (min-width: 960px) {
+  body[data-page="chats"] .chat-app {
+    flex-direction: row !important;
+    max-width: none !important;
+    width: 100% !important;
+    height: calc(var(--vvh, 100dvh) - 56px) !important;
+    overflow: hidden !important;
+  }
+  body[data-page="chats"] .chat-sidebar {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 360px !important;
+    min-width: 300px !important;
+    max-width: 400px !important;
+    flex-shrink: 0 !important;
+    height: 100% !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    border-right: 1px solid var(--line, #E2E8F0);
+    background: #F8FAFC;
+  }
+  body[data-page="chats"].thread-open .chat-sidebar {
+    display: flex !important;
+    visibility: visible !important;
+  }
+  body[data-page="chats"] .thread,
+  body[data-page="chats"] .thread.open {
+    position: relative !important;
+    inset: auto !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: auto !important;
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    z-index: 1 !important;
+    box-shadow: none !important;
+  }
+  body[data-page="chats"] .thread { display: none; }
+  body[data-page="chats"] .thread.open {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  body[data-page="chats"] .thread-bar .back {
+    display: none !important; /* list stays visible — no mobile back */
+  }
+  body[data-page="chats"].thread-open .bottom-nav { display: none !important; }
+  body[data-page="chats"].thread-open .shell-top,
+  body[data-page="chats"].thread-open .app-header {
+    display: flex !important;
+  }
+  body[data-page="chats"] .thread-placeholder {
+    flex: 1;
+    display: grid;
+    place-items: center;
+  }
+  body[data-page="chats"] .thread-placeholder.hidden { display: none !important; }
+}
+
 </style>
 
   <script src="../js/keyboard-fix.js" defer></script>

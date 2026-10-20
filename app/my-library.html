@@ -661,6 +661,31 @@ a{color:inherit;text-decoration:none}
 .personal-library .theme-row { margin: 0 !important; }
 .personal-library .mylib-sem { margin: 0 !important; }
 @media(prefers-reduced-motion:reduce) { .catalog-spinner { animation: none; } .ccard, .sheet { transition: none; } }
+
+/* My Library skeleton */
+.mylib-skel {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 8px 0 20px;
+}
+.mylib-skel .skel-card { border-radius: 16px; border: 1.5px solid #E2E8F0; overflow: hidden; background:#fff; }
+.mylib-skel .skel-art { height: 80px; background:#E2E8F0; }
+.mylib-skel .skel-line { height: 10px; margin: 10px 12px 0; border-radius: 6px; background:#E2E8F0; }
+.mylib-skel .skel-line.short { width: 50%; height: 8px; margin-bottom: 12px; }
+@keyframes skelPulse { 0%,100%{opacity:1} 50%{opacity:.45} }
+.mylib-skel .skel-pulse { animation: skelPulse 1.2s ease-in-out infinite; }
+
+/* Wider hero */
+.mylib-hero {
+  padding: 20px 18px 18px !important;
+  border-radius: 18px !important;
+}
+.mylib-hero h2, .mylib-hero .hero-title {
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+}
+
 </style>
 </head>
 <body data-library-view="personal">
@@ -770,7 +795,8 @@ a{color:inherit;text-decoration:none}
     <button type="button" id="btnReseed">Restore programme courses</button>
     <button type="button" id="btnClearLib">Clear library</button>
   </div>
-  <div class="list" id="myLibList" aria-live="polite"><div class="catalog-loading"><div class="catalog-spinner" aria-hidden="true"></div><p><b>Loading your courses…</b></p></div></div>
+  <div class="list" id="myLibSkel" class="mylib-skel" style="display:none" aria-hidden="true"><div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div><div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div><div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div><div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div></div>
+    <div id="myLibList" aria-live="polite"><div class="catalog-loading"><div class="catalog-spinner" aria-hidden="true"></div><p><b>Loading your courses…</b></p></div></div>
 </main>
 
 <!-- Detail sheet -->
