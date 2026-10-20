@@ -17,8 +17,13 @@
   function setMyLibSkel(on) {
     var sk = $("myLibSkel");
     var list = $("myLibList");
-    if (sk) sk.style.display = on ? "grid" : "none";
-    if (list && on) { /* keep list for structure */ }
+    if (sk) {
+      sk.style.display = on ? "grid" : "none";
+      sk.setAttribute("aria-hidden", on ? "false" : "true");
+    }
+    if (list && on) {
+      list.innerHTML = "";
+    }
   }
 
   function hubGo(name, query) {
@@ -511,22 +516,22 @@
     }
     if (!codes.length) {
       list.innerHTML =
-        '<div class="mylib-empty-seed">No courses yet. Tap <b>Restore programme courses</b> to load the default set for ' +
-        esc(dept) + ', or close and browse the catalog.</div>' +
-        '<div class="empty"><h3>Library empty</h3><p>Build your shelf — only you see this list.</p></div>';
+        '<div class="mylib-empty-seed">No courses yet. Tap <b>Restore</b> to load defaults for ' +
+        esc(dept) + ', or Browse the catalog.</div>';
       return;
     }
     var banner = "";
     if (missingProg.length >= 2) {
       banner =
-        '<div class="mylib-banner">Your programme usually includes ' + prog.length +
-        ' courses for this semester. ' + missingProg.length +
-        ' are missing — tap <b>Restore programme courses</b> to add them.</div>';
+        '<div class="mylib-banner">Programme usually has ' + prog.length +
+        ' courses this semester. ' + missingProg.length +
+        ' missing — tap <b>Restore</b>.</div>';
     }
     var semNow = currentSemester();
     var items = codes.map(function (code) {
       var meta = state.library[code] || {};
-      var full = CurriculumLoader.getCourseByCode(code);
+      var full = (window.CurriculumLoader && CurriculumLoader.getCourseByCode)
+        ? CurriculumLoader.getCourseByCode(code) : null;
       return full || {
         code: code,
         title: meta.title || code,
@@ -535,7 +540,6 @@
         hasContent: meta.hasContent
       };
     }).filter(function (c) {
-      // Show courses for active semester; if unknown semester on manual add, still show
       var cs = courseSemesterOf(c);
       if (metaSemesterUnknown(c)) return true;
       return cs === semNow;
@@ -546,18 +550,19 @@
 
     var otherCount = codes.length - items.length;
     if (otherCount > 0) {
-      banner += '<div class="mylib-banner" style="background:#EEF2FF;border-color:#C7D2FE;color:#3730A3">' +
+      banner += '<div class="mylib-banner mylib-banner-info">' +
         otherCount + ' course' + (otherCount === 1 ? '' : 's') +
-        ' hidden for the other semester — switch above to view them.</div>';
+        ' in the other semester — switch above to view.</div>';
     }
 
     if (!items.length) {
       list.innerHTML = banner +
         '<div class="empty"><h3>No courses for ' + (semNow === "2" ? "2nd" : "1st") +
-        ' semester</h3><p>Switch semester above, restore programme courses, or browse the catalog.</p></div>';
+        ' semester</h3><p>Switch semester, Restore, or Browse.</p></div>';
       return;
     }
-    list.innerHTML = banner + '<div class="grid">' + items.map(cardHtml).join("") + "</div>";
+    /* banner is block-level; grid is separate so banner never becomes a column */
+    list.innerHTML = banner + '<div class="mylib-grid">' + items.map(cardHtml).join("") + "</div>";
   }
 
   function metaSemesterUnknown(c) {
