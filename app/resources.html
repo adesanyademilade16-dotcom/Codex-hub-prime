@@ -28,19 +28,14 @@
   </div>
 </header>
 <script>
-(function () {
-  // Fixed back navigation (no browser history.back loops).
-  var target = 'home.html';
-  var b = document.querySelector("[data-res-back]");
-  if (!b) return;
-  b.addEventListener("click", function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    location.href = target;
+(function(){
+  var b=document.querySelector('[data-res-back]');
+  if(!b)return;
+  b.addEventListener('click',function(){
+    (function(){var p=location.pathname||'';location.href=/\.html|\/app\//.test(p)?'home.html':'/home';})();
   });
 })();
 </script>
-
 
 <main class="res-page" id="main">
   <div class="res-hero">
@@ -79,7 +74,9 @@
 
   <div id="rails"></div>
   <h2 class="res-section-label" id="allLabel">All resources</h2>
-  <div id="grid" class="res-grid" aria-live="polite"></div>
+  <div id="resSkel" class="res-skel" aria-hidden="true"><div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div><div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div><div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div><div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div><div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div><div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div></div>
+
+<div id="grid" class="res-grid" aria-live="polite"></div>
   <div id="state" class="res-loading" hidden></div>
   <div style="text-align:center;margin-top:16px">
     <button type="button" class="res-btn res-btn-ghost" id="loadMore" hidden>Load more</button>
@@ -281,5 +278,19 @@
 </script>
 
 <script>try{if(window.CodexOnboarding)CodexOnboarding.auto("resources",700);}catch(e){}</script>
+
+<script>
+(function(){
+  var sk = document.getElementById("resSkel");
+  var grid = document.getElementById("grid");
+  if (!sk || !grid) return;
+  var hide = function(){ if (grid.children.length) sk.style.display = "none"; };
+  var obs = new MutationObserver(hide);
+  obs.observe(grid, { childList: true });
+  // also hide after 8s max so empty state can show
+  setTimeout(function(){ sk.style.display = "none"; }, 8000);
+})();
+</script>
+
 </body>
 </html>
