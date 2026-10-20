@@ -399,10 +399,10 @@
       };
     }
     $("btnBackLib").onclick = function () {
-      location.href = "course-library.html?mode=notes";
+      location.href = "my-library.html?mode=notes";
     };
     $("btnBackLib2").onclick = function () {
-      location.href = "course-library.html?mode=notes";
+      location.href = "my-library.html?mode=notes";
     };
 
     $("btnCopy").onclick = function () {
@@ -522,7 +522,7 @@
     bindActions();
     state.code = qs("code");
     if (!state.code) {
-      location.href = "course-library.html?mode=notes";
+      location.href = "my-library.html?mode=notes";
       return;
     }
 

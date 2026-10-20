@@ -210,7 +210,7 @@
       if (!bank) {
         $("setupLoading").innerHTML =
           "<p><b>Content not ready</b></p><p style='margin-top:8px'>This course has no published questions yet.</p>" +
-          '<p style="margin-top:16px"><a href="course-library.html?mode=cbt">Back to library</a></p>';
+          '<p style="margin-top:16px"><a href="my-library.html?mode=cbt">Back to library</a></p>';
         return;
       }
       state.bank = bank;
@@ -240,7 +240,7 @@
         : "Could not load questions. The course may have no bank yet, or the connection failed.";
       $("setupLoading").innerHTML =
         "<p><b>Could not open CBT setup</b></p><p style='margin-top:8px'>" + msg + "</p>" +
-        '<p style="margin-top:16px"><a href="course-library.html?mode=cbt">Back to library</a> · ' +
+        '<p style="margin-top:16px"><a href="my-library.html?mode=cbt">Back to library</a> · ' +
         '<a href="javascript:location.reload()">Retry</a></p>';
     }
   }
@@ -953,15 +953,15 @@
           $("submitModal").classList.remove("open");
           if (state.timerId) clearInterval(state.timerId);
           maybeRefundTrial().then(function () {
-            location.href = "course-library.html?mode=cbt";
+            location.href = "my-library.html?mode=cbt";
           });
         };
         return;
       }
-      location.href = "course-library.html?mode=cbt";
+      location.href = "my-library.html?mode=cbt";
     };
     $("btnBackLib").onclick = function () {
-      location.href = "course-library.html?mode=cbt";
+      location.href = "my-library.html?mode=cbt";
     };
     $("modeExam").onclick = function () { setMode("exam"); };
     $("modeTopic").onclick = function () { setMode("topic"); };
@@ -1044,7 +1044,7 @@
     state.user = user;
     state.code = (param("code") || "").toUpperCase();
     if (!state.code) {
-      location.href = "course-library.html?mode=cbt";
+      location.href = "my-library.html?mode=cbt";
       return;
     }
     bind();

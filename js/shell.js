@@ -39,24 +39,24 @@
 
   var NAV = [
     { id: "ai", href: "ai-lab.html", label: "AI Lab", icon: "spark" },
-    { id: "chats", href: "/chats", label: "Chats", icon: "chat" },
-    { id: "home", href: "/home", label: "Home", icon: "home", center: true },
+    { id: "chats", href: "chats.html", label: "Chats", icon: "chat" },
+    { id: "home", href: "home.html", label: "Home", icon: "home", center: true },
     { id: "board", href: "leaderboard.html", label: "Ranks", icon: "board" },
-    { id: "profile", href: "/profile", label: "Profile", icon: "user" }
+    { id: "profile", href: "profile.html", label: "Profile", icon: "user" }
   ];
 
   /* Desktop sidebar links (full app map) */
   var SIDE = [
-    { id: "home", href: "/home", label: "Home", icon: "home" },
-    { id: "cbt", href: "/my-library?mode=cbt", label: "CBT", icon: "cbt" },
-    { id: "notes", href: "/my-library?mode=notes", label: "Notes", icon: "notes" },
+    { id: "home", href: "home.html", label: "Home", icon: "home" },
+    { id: "cbt", href: "my-library.html?mode=cbt", label: "CBT", icon: "cbt" },
+    { id: "notes", href: "my-library.html?mode=notes", label: "Notes", icon: "notes" },
     { id: "pdf", href: RESOURCE_PAGE, label: "PDF Library", icon: "pdf" },
     { id: "todo", href: "todo.html", label: "Study Planner", icon: "check" },
     { id: "stats", href: "stats.html", label: "Stats", icon: "board" },
     { id: "ai", href: "ai-lab.html", label: "Nova AI", icon: "spark" },
-    { id: "chats", href: "/chats", label: "Chats", icon: "chat" },
+    { id: "chats", href: "chats.html", label: "Chats", icon: "chat" },
     { id: "tools", href: "student-tools.html", label: "Tools", icon: "tools" },
-    { id: "profile", href: "/profile", label: "Settings", icon: "user" }
+    { id: "profile", href: "profile.html", label: "Settings", icon: "user" }
   ];
 
   var ICONS = {
@@ -258,13 +258,13 @@
     top.className = "topbar";
     top.innerHTML =
       '<button class="icon-btn" id="menuBtn" aria-label="Open menu">' + ICONS.menu + '</button>' +
-      '<a class="top-brand" href="/home" aria-label="Home">' +
+      '<a class="top-brand" href="home.html" aria-label="Home">' +
         '<img src="../assets/logo.png" alt="" width="28" height="28">' +
         '<strong>' + title + '</strong></a>' +
       '<div class="top-actions">' +
         '<button class="icon-btn bell-btn" id="notifBtn" aria-label="Notifications" type="button">' +
           ICONS.bell + '<span class="bell-dot" id="notifDot" hidden></span></button>' +
-        '<a class="avatar" href="/profile" aria-label="Profile">' + avatarHtml(initials, opts.profile || _lastProfile) + '</a></div>';
+        '<a class="avatar" href="profile.html" aria-label="Profile">' + avatarHtml(initials, opts.profile || _lastProfile) + '</a></div>';
 
     /* —— Mobile bottom nav —— */
     var nav = document.createElement("nav");
@@ -311,9 +311,9 @@
       '<div class="drawer-acc open" data-acc="home">' +
         '<button type="button" class="drawer-acc-btn" data-acc-toggle="home"><span>Home &amp; quick access</span><span class="acc-chev">▼</span></button>' +
         '<div class="drawer-acc-body">' +
-          dlink("/home", di.home, "Home dashboard") +
-          dlink("/my-library?mode=cbt", di.cbt, "Start CBT") +
-          dlink("/my-library?mode=notes", di.notes, "Notes") +
+          dlink("home.html", di.home, "Home dashboard") +
+          dlink("my-library.html?mode=cbt", di.cbt, "Start CBT") +
+          dlink("my-library.html?mode=notes", di.notes, "Notes") +
           dlink("resources.html", di.pdf, "PDF library") +
           dlink("todo.html", di.plan, "Study planner") +
           dlink("student-tools.html", di.tools, "Student tools") +
@@ -328,14 +328,14 @@
       '<div class="drawer-acc" data-acc="social">' +
         '<button type="button" class="drawer-acc-btn" data-acc-toggle="social"><span>Social</span><span class="acc-chev">▼</span></button>' +
         '<div class="drawer-acc-body">' +
-          dlink("/chats", di.chat, "Chats") +
+          dlink("chats.html", di.chat, "Chats") +
           dlink("leaderboard.html", di.ranks, "Leaderboard") +
           dlink("stats.html", di.stats, "Statistics") +
         '</div></div>' +
       '<div class="drawer-acc" data-acc="account">' +
         '<button type="button" class="drawer-acc-btn" data-acc-toggle="account"><span>Account</span><span class="acc-chev">▼</span></button>' +
         '<div class="drawer-acc-body">' +
-          dlink("/profile", di.profile, "Profile") +
+          dlink("profile.html", di.profile, "Profile") +
           dlink("settings.html", di.settings, "Settings") +
           dlink("change-password.html", di.lock, "Change password") +
           dlink("pricing.html", di.upgrade, "Upgrade plan") +
@@ -347,7 +347,7 @@
     var deskSide = document.createElement("aside");
     deskSide.className = "desk-sidebar";
     deskSide.innerHTML =
-      '<a class="desk-brand" href="/home"><img src="../assets/logo.png" alt=""><span>Codex Hub</span></a>' +
+      '<a class="desk-brand" href="home.html"><img src="../assets/logo.png" alt=""><span>Codex Hub</span></a>' +
       '<nav class="desk-nav">' +
       SIDE.map(function (item) {
         var active = item.id === page ? " active" : "";
@@ -365,7 +365,7 @@
       '<div class="desk-top-right">' +
         '<button class="icon-btn bell-btn" id="notifBtnDesk" type="button" aria-label="Notifications">' +
           ICONS.bell + '<span class="bell-dot" hidden></span></button>' +
-        '<a class="desk-user" href="/profile">' +
+        '<a class="desk-user" href="profile.html">' +
           '<span class="avatar">' + avatarHtml(initials, opts.profile || _lastProfile) + '</span>' +
           '<span class="desk-user-meta"><strong class="desk-user-name">' + name + '</strong>' +
           '<span class="desk-user-sub">' + (sub || "Student") + '</span></span></a></div>';
@@ -380,7 +380,7 @@
     });
     var deskSearch = deskTop.querySelector(".desk-search");
     if (deskSearch) {
-      var goCourseSearch = function () { location.href = "/course-library?mode=search"; };
+      var goCourseSearch = function () { location.href = "course-library.html?mode=search"; };
       deskSearch.addEventListener("click", goCourseSearch);
       deskSearch.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); goCourseSearch(); } });
     }
@@ -510,7 +510,7 @@
           '<div class="codex-notif-actions"><button type="button" id="codexNotifMarkAll">Mark all as read</button></div>' +
           '<div class="codex-notif-list" id="codexNotifList"><p class="codex-notif-empty">Loading…</p></div>' +
           '<a class="codex-notif-footer" href="announcements.html">View announcements →</a>' +
-          '<a class="codex-notif-footer" href="/chats">Open Requests / Chats →</a>' +
+          '<a class="codex-notif-footer" href="chats.html">Open Requests / Chats →</a>' +
         '</div>';
       document.body.appendChild(panel);
       // styles once
