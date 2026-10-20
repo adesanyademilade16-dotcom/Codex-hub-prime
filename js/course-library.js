@@ -164,9 +164,9 @@
     }
 
     host.innerHTML =
-      rail("Featured · Ready for " + level + "L", featured) +
+      rail("Popular · Ready for " + level + "L", featured) +
       (inLib.length ? rail("In your library", inLib) : "") +
-      rail("Discover", trending) +
+      rail("Trending", trending) +
       (soon.length ? rail("Coming soon", soon.slice(0, 8)) : "");
   }
 
@@ -812,35 +812,25 @@
 
   function bind() {
     $("btnBack").onclick = function () {
-      var leave = function () {
-        if (personalPage || state.entryMode === "cbt" || state.entryMode === "notes") {
-          location.replace("/home");
-          return;
-        }
-        try {
-          var ref = document.referrer || "";
-          if (ref && ref.indexOf(location.origin) === 0 && history.length > 1) {
-            var path = ref.replace(location.origin, "").split("?")[0];
-            if (path && path !== location.pathname && path !== "/course-library" && path !== "/course-library.html") {
-              history.back();
-              return;
-            }
-          }
-        } catch (e) {}
-        location.href = "/home";
-      };
-      var flow = setupFlowActive();
-      if (flow && !personalPage) {
+      // Catalog explore OR personal shelf: never history.back() (blank white page on clean URLs).
+      // Setup-flow confirm only when Browse was opened mid CBT/Notes without picking a course.
+      var goHome = function () { location.href = "/home"; };
+      var flow = (typeof setupFlowActive === "function") ? setupFlowActive() : "";
+      if (flow && !personalPage && state.entryMode === "browse") {
         var msg = flow === "notes"
           ? "Leave without choosing a course? Your notes setup will be cancelled."
           : "Leave without choosing a course? Your CBT setup will be cancelled.";
         if (window.confirm(msg)) {
-          clearSetupFlow();
-          leave();
+          try { clearSetupFlow(); } catch (e) {}
+          goHome();
         }
         return;
       }
-      leave();
+      if (personalPage || state.entryMode === "cbt" || state.entryMode === "notes") {
+        location.replace("/home");
+        return;
+      }
+      goHome();
     };
 
     buildLevelChips();
