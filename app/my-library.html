@@ -845,71 +845,118 @@ body[data-library-view="personal"] .mylib-panel,
   color: #fff !important;
 }
 
-/* Theme row */
-#themeRow {
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  padding: 8px 14px 4px !important;
+/* Theme — exactly 5 dots, one row, no wrap */
+#themeRow, .theme-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: nowrap !important;
+  padding: 10px 14px 4px !important;
+  margin: 0 !important;
+  overflow-x: auto;
 }
-#themeRow::before {
-  content: "THEME";
-  font-size: .65rem; font-weight: 800; letter-spacing: .06em;
-  color: #94A3B8;
+#themeRow::before { content: none !important; }
+.theme-label {
+  font-size: .65rem !important;
+  font-weight: 800 !important;
+  letter-spacing: .06em !important;
+  color: #94A3B8 !important;
+  flex-shrink: 0;
+}
+.theme-dot {
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 50% !important;
+  border: 2px solid transparent !important;
+  flex-shrink: 0 !important;
+  padding: 0 !important;
+  cursor: pointer;
+}
+.theme-dot.active {
+  border-color: #2563EB !important;
+  box-shadow: 0 0 0 2px rgba(37,99,235,.2);
 }
 
-/* SEM like Home */
-#myLibSem {
-  display: flex; gap: 8px;
-  padding: 8px 14px !important;
+/* Semester — Home-style pill toggle */
+.mylib-sem-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px 6px;
+}
+.sem-lab {
+  font-size: .65rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+  color: #94A3B8;
+  flex-shrink: 0;
+}
+#myLibSem, .mylib-sem {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 0 !important;
+  padding: 3px !important;
+  margin: 0 !important;
+  background: #E2E8F0 !important;
+  border-radius: 999px !important;
+  border: 0 !important;
 }
 #myLibSem button, #sem1Btn, #sem2Btn {
-  flex: 1;
-  border-radius: 12px !important;
+  flex: 0 0 auto !important;
+  border: 0 !important;
+  border-radius: 999px !important;
   font-weight: 700 !important;
-  padding: 10px 12px !important;
-  border: 1.5px solid #E2E8F0 !important;
-  background: #fff !important;
-  color: #0F172A !important;
+  font-size: .8rem !important;
+  padding: 8px 18px !important;
+  background: transparent !important;
+  color: #64748B !important;
   cursor: pointer;
+  min-height: 0 !important;
 }
 #myLibSem button.active, #sem1Btn.active, #sem2Btn.active {
-  background: #0F172A !important;
-  color: #fff !important;
-  border-color: #0F172A !important;
+  background: #fff !important;
+  color: #0F172A !important;
+  box-shadow: 0 1px 4px rgba(15,23,42,.12) !important;
+  border-color: transparent !important;
 }
 
-/* Quick actions only: Restore / Clear / Browse */
+/* Quick actions — square tiles like Home streak/level cards */
 .mylib-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  padding: 8px 14px 4px;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  padding: 8px 14px 8px !important;
+  margin: 0 !important;
 }
-.mylib-actions .qa {
-  border-radius: 14px;
-  font-weight: 700;
-  font-size: .8rem;
-  padding: 12px 10px;
+.mylib-actions .qa-tile {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px;
+  min-height: 72px !important;
+  border-radius: 16px !important;
+  border: 1px solid #E2E8F0 !important;
+  background: #fff !important;
+  color: #0F172A !important;
+  font-weight: 700 !important;
   cursor: pointer;
-  border: 1.5px solid #E2E8F0;
-  background: #fff;
-  color: #0F172A;
-  text-align: center;
+  padding: 12px 8px !important;
+  box-shadow: 0 2px 8px rgba(15,23,42,.04);
 }
-.mylib-actions .qa-primary {
-  grid-column: 1 / -1;
-  border: 0;
-  background: linear-gradient(135deg, #4F46E5, #7C3AED);
-  color: #fff;
+.mylib-actions .qa-tile .qa-ico {
+  font-size: 1.15rem;
+  line-height: 1;
 }
-.mylib-actions .qa-danger {
-  color: #DC2626;
-  border-color: #FECACA;
-  background: #fff;
+.mylib-actions .qa-tile .qa-lbl {
+  font-size: .72rem;
+  font-weight: 800;
 }
-/* Hide old separate buttons if we restyle in place */
-#btnReseed {
-  /* will be styled via parent if moved */
+.mylib-actions .qa-tile.qa-danger {
+  color: #DC2626 !important;
+  border-color: #FECACA !important;
 }
+.mylib-actions .qa-primary { display: none !important; }
 
 /* Grid */
 #myLibList {
@@ -1061,23 +1108,30 @@ body[data-library-view="personal"] .mylib-panel,
   </div>
   <div class="mylib-toolbar">
     <div class="theme-row" id="themeRow" title="Library theme">
-      <span class="theme-label">Theme</span>
+      <span class="theme-label">THEME</span>
       <button type="button" class="theme-dot active" data-theme="default" style="background:#1E3A5F" aria-label="Navy"></button>
       <button type="button" class="theme-dot" data-theme="ocean" style="background:#0E7490" aria-label="Ocean"></button>
       <button type="button" class="theme-dot" data-theme="forest" style="background:#047857" aria-label="Forest"></button>
       <button type="button" class="theme-dot" data-theme="sunset" style="background:#C2410C" aria-label="Sunset"></button>
       <button type="button" class="theme-dot" data-theme="violet" style="background:#6D28D9" aria-label="Violet"></button>
     </div>
-    <div class="mylib-sem" id="myLibSem">
-      <span class="lab">Sem</span>
-      <button type="button" data-sem="1" id="sem1Btn">1st</button>
-      <button type="button" data-sem="2" id="sem2Btn">2nd</button>
+    <div class="mylib-sem-wrap">
+      <span class="sem-lab">Semester</span>
+      <div class="mylib-sem" id="myLibSem" role="group" aria-label="Semester">
+        <button type="button" data-sem="1" id="sem1Btn" class="active">1st</button>
+        <button type="button" data-sem="2" id="sem2Btn">2nd</button>
+      </div>
     </div>
   </div>
   <div class="mylib-actions" id="myLibActions">
-    <button type="button" class="qa qa-primary" id="qaBrowse">Browse catalog</button>
-    <button type="button" class="qa" id="btnReseed">Restore programme</button>
-    <button type="button" class="qa qa-danger" id="btnClearLib">Clear library</button>
+    <button type="button" class="qa-tile" id="btnReseed">
+      <span class="qa-ico" aria-hidden="true">↺</span>
+      <span class="qa-lbl">Restore</span>
+    </button>
+    <button type="button" class="qa-tile qa-danger" id="btnClearLib">
+      <span class="qa-ico" aria-hidden="true">⌫</span>
+      <span class="qa-lbl">Clear</span>
+    </button>
   </div>
   <div class="list" id="myLibSkel" class="mylib-skel" style="display:none"><div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div><div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div><div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div><div class="skel-card"><div class="skel-art skel-pulse"></div><div class="skel-line skel-pulse"></div><div class="skel-line short skel-pulse"></div></div></div>
     <div id="myLibList" aria-live="polite"><div class="catalog-loading"><div class="catalog-spinner" aria-hidden="true"></div><p><b>Loading your courses…</b></p></div></div>
