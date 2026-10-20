@@ -16,8 +16,9 @@
 
   function displayFromUser(data, id) {
     data = data || {};
+    /* Chats show username first (why we collect it at signup) */
     var name =
-      data.fullName || data.displayName || data.username || data.name ||
+      data.username || data.fullName || data.displayName || data.name ||
       (data.email ? String(data.email).split("@")[0] : null) || "Student";
     return {
       uid: id,
@@ -36,48 +37,70 @@
     };
   }
 
+  var _userCardCache = {};
+  var _userCardInflight = {};
+  var _USER_CARD_TTL = 60000;
+
   async function getUserCard(userId) {
     if (!userId) return null;
-    try {
-      var pub = await db().collection("public_profiles").doc(userId).get();
-      if (pub.exists) {
-        var p = pub.data() || {};
-        var base = displayFromUser({
-          fullName: p.displayName,
-          displayName: p.displayName,
-          photoURL: p.photoURL,
-          avatarKey: p.avatarKey || "",
-          university: p.university,
-          faculty: p.faculty,
-          department: p.department,
-          level: p.level,
-          bio: p.bio,
-          username: p.username
-        }, userId);
-        try {
-          var u = await db().collection("users").doc(userId).get();
-          if (u.exists) {
-            var ud = u.data() || {};
-            base.xpPoints = typeof ud.xpPoints === "number" ? ud.xpPoints : base.xpPoints;
-            base.rank = ud.rank || ud.rankLabel || base.rank;
-            // Prefer live profile avatar over stale public mirror
-            if (ud.avatarKey) base.avatarKey = ud.avatarKey;
-            if (ud.photoURL) base.photoURL = ud.photoURL;
-            else if (ud.avatarKey) base.photoURL = ""; // character only
-            if (ud.fullName || ud.displayName) base.fullName = ud.fullName || ud.displayName;
-            if (ud.username) base.username = ud.username;
+    var now = Date.now();
+    var hit = _userCardCache[userId];
+    if (hit && (now - hit.t) < _USER_CARD_TTL) return hit.card;
+    if (_userCardInflight[userId]) return _userCardInflight[userId];
+
+    _userCardInflight[userId] = (async function () {
+      try {
+        var results = await Promise.all([
+          db().collection("public_profiles").doc(userId).get().catch(function () { return null; }),
+          db().collection("users").doc(userId).get().catch(function () { return null; })
+        ]);
+        var pub = results[0];
+        var uSnap = results[1];
+        var base;
+
+        if (pub && pub.exists) {
+          var p = pub.data() || {};
+          base = displayFromUser({
+            fullName: p.displayName,
+            displayName: p.displayName,
+            photoURL: p.photoURL,
+            avatarKey: p.avatarKey || "",
+            university: p.university,
+            faculty: p.faculty,
+            department: p.department,
+            level: p.level,
+            bio: p.bio,
+            username: p.username
+          }, userId);
+        } else {
+          base = displayFromUser({}, userId);
+        }
+
+        if (uSnap && uSnap.exists) {
+          var ud = uSnap.data() || {};
+          if (!pub || !pub.exists) {
+            base = displayFromUser(ud, userId);
           }
-        } catch (e) {}
+          base.xpPoints = typeof ud.xpPoints === "number" ? ud.xpPoints : base.xpPoints;
+          base.rank = ud.rank || ud.rankLabel || base.rank;
+          if (ud.avatarKey) base.avatarKey = ud.avatarKey;
+          if (ud.photoURL) base.photoURL = ud.photoURL;
+          else if (ud.avatarKey) base.photoURL = "";
+          if (ud.fullName || ud.displayName) base.fullName = ud.fullName || ud.displayName;
+          if (ud.username) base.username = ud.username;
+        }
+
+        _userCardCache[userId] = { t: Date.now(), card: base };
         return base;
+      } finally {
+        delete _userCardInflight[userId];
       }
-    } catch (e) {}
-    try {
-      var u2 = await db().collection("users").doc(userId).get();
-      if (u2.exists) return displayFromUser(u2.data(), userId);
-    } catch (e2) {}
-    return displayFromUser({}, userId);
+    })();
+
+    return _userCardInflight[userId];
   }
 
+  
   async function discoverPeople(opts) {
     opts = opts || {};
     var limit = opts.limit || 40;
@@ -181,6 +204,18 @@
         createdAt: nowTs(),
         read: false
       });
+      try {
+        if (window.CodexPush && window.CodexPush.notifyUser) {
+          window.CodexPush.notifyUser({
+            toUid: toUid,
+            title: "Friend request",
+            body: fromName + " sent you a friend request",
+            url: "https://codex-hub-prime.vercel.app/app/chats.html",
+            tag: "friend-request",
+            type: "friend_request"
+          });
+        }
+      } catch (eFr) {}
     } catch (e) {}
     return id;
   }
@@ -235,6 +270,18 @@
         read: false,
         message: accName + " accepted your friend request."
       });
+      try {
+        if (window.CodexPush && typeof fromUid !== "undefined" && fromUid) {
+          window.CodexPush.notifyUser({
+            toUid: fromUid,
+            title: "Friend request accepted",
+            body: (accName || "Someone") + " accepted your friend request",
+            url: "https://codex-hub-prime.vercel.app/app/chats.html",
+            tag: "friend-accepted",
+            type: "friend_accepted"
+          });
+        }
+      } catch (eFa) {}
     } catch (e) {}
   }
 
@@ -298,10 +345,11 @@
     var me = uid();
     if (!me || !otherUid) return false;
     try {
-      var a = await db().collection("blocks").doc(me).collection("blocked").doc(otherUid).get();
-      if (a.exists) return true;
-      var b = await db().collection("blocks").doc(otherUid).collection("blocked").doc(me).get();
-      if (b.exists) return true;
+      var checks = await Promise.all([
+        db().collection("blocks").doc(me).collection("blocked").doc(otherUid).get(),
+        db().collection("blocks").doc(otherUid).collection("blocked").doc(me).get()
+      ]);
+      if (checks[0].exists || checks[1].exists) return true;
     } catch (e) {}
     return false;
   }
@@ -344,33 +392,52 @@
         return [];
       }
     }
-    var out = [];
+
+    var pending = [];
     for (var i = 0; i < snap.docs.length; i++) {
       var d = snap.docs[i];
       var data = d.data() || {};
       var pref = prefs[d.id] || {};
       if (pref.hidden) continue;
       var other = (data.participants || []).filter(function (x) { return x !== me; })[0];
-      var card;
-      if (data.type === "group") {
-        var mc = (data.members || data.participants || []).length;
-        var gName = data.name || "Group";
-        var gPhoto = data.photoURL || "";
-        try {
-          var gdoc = await db().collection("groups").doc(d.id).get();
+      pending.push({ id: d.id, data: data, pref: pref, other: other });
+    }
+
+    var cards = await Promise.all(pending.map(function (row) {
+      if (row.data.type === "group") {
+        return db().collection("groups").doc(row.id).get().then(function (gdoc) {
+          var mc = (row.data.members || row.data.participants || []).length;
+          var gName = row.data.name || "Group";
+          var gPhoto = row.data.photoURL || "";
           if (gdoc.exists) {
             var gd = gdoc.data() || {};
             mc = (gd.members || []).length || mc;
             gName = gd.name || gName;
             gPhoto = gd.photoURL || gPhoto;
           }
-        } catch (eG) {}
-        card = { uid: d.id, fullName: gName, photoURL: gPhoto, university: mc + " members", isGroup: true };
-      } else {
-        card = await getUserCard(other);
+          return { uid: row.id, fullName: gName, photoURL: gPhoto, university: mc + " members", isGroup: true };
+        }).catch(function () {
+          return {
+            uid: row.id,
+            fullName: row.data.name || "Group",
+            photoURL: row.data.photoURL || "",
+            university: ((row.data.participants || []).length || 1) + " members",
+            isGroup: true
+          };
+        });
       }
+      return getUserCard(row.other);
+    }));
+
+    var out = [];
+    for (var j = 0; j < pending.length; j++) {
+      var row = pending[j];
+      var data = row.data;
+      var pref = row.pref;
       out.push({
-        id: d.id, type: data.type || "dm", card: card,
+        id: row.id,
+        type: data.type || "dm",
+        card: cards[j],
         lastMessage: data.lastMessage || "",
         lastSender: data.lastSender || "",
         lastSenderName: data.lastSenderName || "",
@@ -383,6 +450,7 @@
         muted: !!pref.muted
       });
     }
+
     // Ensure every group membership appears in Chats (even if conversation query lagged)
     try {
       var myGroups = await listMyGroups();
@@ -462,10 +530,11 @@
     text = String(text || "").trim();
     if (!text && !extra.mediaUrl && !(extra.mediaUrls && extra.mediaUrls.length)) throw new Error("Empty message");
 
-    // block check for DM
+    // Reuse this read for metadata; keep live block checks on every send.
+    var conversationRead = db().collection("conversations").doc(convId).get();
     try {
-      var conv = await db().collection("conversations").doc(convId).get();
-      if (conv.exists) {
+      var conv = await conversationRead;
+      if (conv.exists && conv.data().type === "dm") {
         var parts = conv.data().participants || [];
         var other = parts.filter(function (x) { return x !== me; })[0];
         if (other && await isBlockedEither(other)) throw new Error("You cannot message this user");
@@ -491,6 +560,8 @@
       pinned: false
     };
     await db().collection("conversations").doc(convId).collection("messages").add(payload);
+
+
     var preview = text;
     if (!preview) {
       if (extra.type === "images" && extra.mediaUrls) preview = extra.mediaUrls.length + " photos";
@@ -500,11 +571,50 @@
       else if (extra.type === "file") preview = "File";
       else preview = "Attachment";
     }
-    var myName = "Someone";
+    var currentUser = auth().currentUser;
+    var cachedCard = _userCardCache[me] && _userCardCache[me].card;
+    var myName = (cachedCard && cachedCard.fullName) || (currentUser && currentUser.displayName) || "Someone";
+    // FCM: server-side notify (works when recipient is outside the app)
     try {
-      var meCard = await getUserCard(me);
-      if (meCard && meCard.fullName) myName = meCard.fullName;
-    } catch (eN) {}
+      (async function () {
+        try {
+          var user = firebase.auth().currentUser;
+          if (!user) return;
+          var idToken = await user.getIdToken();
+          var API = (window.CODEX_API_BASE || "https://codex-backend-new.onrender.com").replace(/\/$/, "");
+          var payload = {
+            convId: convId,
+            title: myName || "Someone",
+            body: String(text || preview || "New message").slice(0, 120),
+            url: "https://codex-hub-prime.vercel.app/app/chats.html"
+          };
+          async function attempt() {
+            var res = await fetch(API + "/push/on-chat-message", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + idToken
+              },
+              body: JSON.stringify(payload)
+            });
+            return res.json();
+          }
+          var result = await attempt();
+          // Retry once if backend was cold
+          if (!result || result.ok === false) {
+            await new Promise(function (r) { setTimeout(r, 1500); });
+            result = await attempt();
+          }
+          if (result && result.sent === 0) {
+            console.warn("push: no tokens on recipients — they need Notifications enabled once");
+          }
+        } catch (ePush) {
+          console.warn("push chat", ePush);
+        }
+      })();
+    } catch (ePushOuter) {}
+
+
     var convUpdate = {
       lastMessage: preview.slice(0, 120),
       lastSender: me,
@@ -519,7 +629,7 @@
     // are safely upgraded to the per-user map instead of failing a nested-field write.
     var unreadTargets = [];
     try {
-      var convSnap2 = await db().collection("conversations").doc(convId).get();
+      var convSnap2 = await conversationRead;
       var convData2 = convSnap2.exists ? (convSnap2.data() || {}) : {};
       var parts2 = convData2.participants || convData2.members || [];
       if (convData2.type === "dm" && parts2.length) {
@@ -1338,7 +1448,12 @@
 
   global.CodexChat = {
     dmId: dmId,
+    chatDisplayName: function (card) {
+      if (!card) return "Student";
+      return card.username || card.fullName || card.displayName || "Student";
+    },
     getUserCard: getUserCard,
+    invalidateUserCard: function (id) { if (id) delete _userCardCache[id]; else _userCardCache = {}; },
     discoverPeople: discoverPeople,
     sendFriendRequest: sendFriendRequest,
     respondFriendRequest: respondFriendRequest,

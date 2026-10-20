@@ -50,8 +50,22 @@
     return map[p] || "soon";
   }
 
-  function subjectSvg() {
-    return '<svg class="mark" viewBox="0 0 24 24" fill="currentColor"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
+  function subjectSvg(code) {
+    var prefix = String(code || "").toUpperCase().replace(/[^A-Z]/g, "").slice(0, 3);
+    var paths = {
+      MTH: '<path d="M5 7h14M7 3l10 18M5 17h14"/>',
+      STA: '<path d="M5 20V11M12 20V4M19 20V8"/>',
+      PHY: '<ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="4" ry="10"/><circle cx="12" cy="12" r="1"/>',
+      CHM: '<path d="M9 3h6M10 3v7L4 20h16l-6-10V3M7 16h10"/>',
+      BIO: '<path d="M5 20C5 9 9 4 20 4c0 11-5 16-15 16ZM5 20L16 9"/>',
+      CSC: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4M9 8l-3 3 3 3M15 8l3 3-3 3"/>',
+      ACC: '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8M8 11h2M14 11h2M8 16h2M14 16h2"/>',
+      ECO: '<path d="M3 19h18M4 15l6-6 4 3 6-8M16 4h4v4"/>',
+      MED: '<path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6Z"/>',
+      LAW: '<path d="M12 3v18M5 21h14M4 7h16M6 7l-4 8h8ZM18 7l-4 8h8Z"/>'
+    };
+    if (prefix === "COS") prefix = "CSC";
+    return '<svg aria-hidden="true" class="mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' + (paths[prefix] || '<path d="M6 3h14v18H6a2 2 0 01-2-2V5a2 2 0 012-2ZM4 17h16"/>') + '</svg>';
   }
 
   function cardHtml(c) {
@@ -70,7 +84,7 @@
     return (
       '<article class="ccard' + statusClass + '" data-code="' + esc(c.code) + '">' +
         '<div class="art ' + artClass + '">' +
-          '<div class="code-lg">' + esc(c.code) + '</div>' + badge + subjectSvg() +
+          '<div class="code-lg">' + esc(c.code) + '</div>' + badge + subjectSvg(c.code) +
         '</div>' +
         '<div class="body">' +
           '<div class="title">' + esc(c.title) + '</div>' +
@@ -179,6 +193,24 @@
     $("stSoon").textContent = all.comingSoon;
     $("stLib").textContent = Object.keys(state.library).length;
     try { renderFeaturedRails(); } catch (e) { console.warn("featured", e); }
+    setCatalogReady(true);
+  }
+
+  function setCatalogReady(ready) {
+    var loadEl = $("catalogLoading");
+    var grid = $("courseGrid");
+    var empty = $("emptyState");
+    var req = $("btnRequest");
+    var section = document.querySelector(".section-head");
+    if (loadEl) {
+      loadEl.style.display = ready ? "none" : "block";
+      loadEl.setAttribute("aria-busy", ready ? "false" : "true");
+    }
+    if (grid) grid.style.display = ready ? "" : "none";
+    if (req) req.style.display = ready ? "" : "none";
+    if (section) section.style.visibility = ready ? "visible" : "hidden";
+    // Never show empty/request while still loading
+    if (!ready && empty) empty.style.display = "none";
   }
 
 
@@ -1022,6 +1054,7 @@
       return;
     }
     state.user = user;
+    try { setCatalogReady(false); } catch (e) {}
     bind();
     await loadProfile(user.uid);
     await loadLibrary();
