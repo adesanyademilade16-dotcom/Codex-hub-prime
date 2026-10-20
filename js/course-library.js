@@ -35,10 +35,13 @@
     var useHtml = /\.html(\?|$)/.test(path) || path.indexOf("/app/") !== -1;
     var url = useHtml ? p.html : p.clean;
     if (query) {
-      url += (url.indexOf("?") >= 0 ? "&" : "?") + query.replace(/^\?/, "");
+      url += (url.indexOf("?") >= 0 ? "&" : "?") + String(query).replace(/^\?/, "");
     }
-    location.href = url;
+    try { location.assign(url); } catch (e1) {
+      try { location.href = url; } catch (e2) {}
+    }
   }
+
   function hubReplace(name, query) {
     var pages = {
       home: { html: "home.html", clean: "/home" },
@@ -69,7 +72,8 @@
     selected: null,
     pendingAdd: null,
     librarySemester: "1",
-    entryMode: "browse" // browse | cbt | notes
+    entryMode: "browse", // browse | cbt | notes
+    sort: "default" // default | title | code
   };
 
   function $(id) { return document.getElementById(id); }
@@ -217,6 +221,7 @@
 
   function renderGrid(append) {
     if (personalPage) return;
+    try {
     var result = CurriculumLoader.catalogSlice(queryOpts());
     state.total = result.total;
     $("sectionCount").textContent = result.total + " found";
@@ -242,6 +247,17 @@
     $("stLib").textContent = Object.keys(state.library).length;
     try { renderFeaturedRails(); } catch (e) { console.warn("featured", e); }
     setCatalogReady(true);
+    } catch (err) {
+      console.error("renderGrid failed", err);
+      try { setCatalogReady(true); } catch (e2) {}
+      try {
+        var grid = $("courseGrid");
+        if (grid && !grid.innerHTML) {
+          grid.innerHTML = '<div style="grid-column:1/-1;padding:24px;text-align:center;color:#64748B">Could not load courses. Pull to refresh or try again.</div>';
+          grid.style.display = "";
+        }
+      } catch (e3) {}
+    }
   }
 
   function setCatalogReady(ready) {
@@ -254,7 +270,7 @@
       loadEl.style.display = ready ? "none" : "block";
       loadEl.setAttribute("aria-busy", ready ? "false" : "true");
     }
-    if (grid) grid.style.display = ready ? "" : "none";
+    if (grid) grid.style.display = ready ? "grid" : "none";
     if (req) req.style.display = ready ? "" : "none";
     if (section) section.style.visibility = ready ? "visible" : "hidden";
     // Never show empty/request while still loading
@@ -859,8 +875,23 @@
     } catch (e) {}
 
   function bind() {
-    $("btnBack").onclick = function () {
-      var flow = (typeof setupFlowActive === "function") ? setupFlowActive() : "";
+    window.__codexLibSetSort = function (v) {
+      state.sort = v || "default";
+      state.offset = 0;
+      try { renderGrid(false); } catch (e) {}
+    };
+    document.addEventListener("codex-lib-sort", function (ev) {
+      try {
+        state.sort = (ev.detail && ev.detail.sort) || "default";
+        state.offset = 0;
+        renderGrid(false);
+      } catch (e) {}
+    });
+
+    $("btnBack").onclick = function (ev) {
+      try { if (ev && ev.preventDefault) ev.preventDefault(); } catch (e) {}
+      var flow = "";
+      try { flow = (typeof setupFlowActive === "function") ? setupFlowActive() : ""; } catch (e) {}
       if (flow && !personalPage) {
         var msg = flow === "notes"
           ? "Leave without choosing a course? Your notes setup will be cancelled."
@@ -868,8 +899,13 @@
         if (!window.confirm(msg)) return;
         try { clearSetupFlow(); } catch (e) {}
       }
-      // Always Home — works on localhost /app/*.html AND clean /course-library URLs
-      hubGo("home");
+      // Triple fallback so Back never appears "dead"
+      try {
+        if (typeof hubGo === "function") { hubGo("home"); return; }
+      } catch (e) {}
+      try { location.assign("/home"); return; } catch (e) {}
+      try { location.href = "home.html"; } catch (e) {}
+      try { location.href = "/home"; } catch (e) {}
     };
 
     buildLevelChips();
