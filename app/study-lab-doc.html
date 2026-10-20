@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
   <script src="../js/theme-boot.js"></script>
+  <script src="../js/study-summary.js"></script>
+  <script src="../js/study-math.js"></script>
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -384,6 +386,7 @@
         document.querySelectorAll(".tabs button").forEach(function (b) { b.classList.remove("on"); });
         document.querySelectorAll(".panel").forEach(function (p) { p.classList.remove("on"); });
         btn.classList.add("on");
+        CodexStudyMathSchedule();
         document.getElementById("panel-" + btn.getAttribute("data-tab")).classList.add("on");
       };
     });
@@ -435,6 +438,7 @@
     }
 
     function renderCards() {
+      CodexStudyMathSchedule();
       var box = document.getElementById("cardsBox");
       if (!cards.length) {
         box.innerHTML =
@@ -515,6 +519,7 @@
     }
 
     function renderQuiz() {
+      CodexStudyMathSchedule();
       var box = document.getElementById("quizBox");
       var quiz = loadQuiz(docData || {});
       if (!quiz.length) {
@@ -605,7 +610,7 @@
         var done = function (id) {
           sharedId = id;
           var origin = location.origin && location.origin.indexOf("file:") === 0 ? "https://codex-hub.app" : (location.origin || "");
-          var path = location.pathname.replace(/study-lab-doc\\.html.*/, "shared_quiz.html");
+          var path = location.pathname.replace(/study-lab-doc\.html.*/, "shared_quiz.html");
           if (path.indexOf("shared_quiz") === -1) path = "/app/shared_quiz.html";
           var url = "https://codex-hub-prime.vercel.app/q/" + encodeURIComponent(id);
           if (location.protocol === "file:") url = "shared_quiz.html?id=" + id;
@@ -711,7 +716,7 @@
           };
           document.getElementById("askNovaScore").onclick = function () {
             var lines = quiz.map(function (it, i) {
-              return (i + 1) + ". " + it.q + "\\nOptions: " + (it.options || []).join(" | ");
+              return (i + 1) + ". " + it.q + "\nOptions: " + (it.options || []).join(" | ");
             }).join("\n\n");
             try { sessionStorage.setItem("nova_prefill", "I scored " + correct + "/" + quiz.length + " on this quiz. Explain the correct answers simply:\n\n" + lines.slice(0, 3500)); } catch (e) {}
             location.href = "nova.html";
@@ -760,6 +765,7 @@
         void sheet.offsetWidth;
         sheet.classList.add("flip-in");
         sheet.innerHTML = formatNotes(pages[notePageIdx] || "");
+        CodexStudyMathSchedule();
         var nav = document.getElementById("pageNav");
         if (nav) {
           nav.style.display = pages.length > 1 ? "flex" : "none";
@@ -880,7 +886,7 @@
     }
     function renderSummary() {
       var box = document.getElementById("sumBox");
-      var sum = loadSummary(docData || "");
+      var sum = CodexSummaryText(loadSummary(docData || {}));
       if (!sum) {
         box.innerHTML =
           '<div class="empty"><strong>No summary yet</strong>Generate a short outline from the document title. Deep PDF summarisation uses your existing Study Lab pipeline when wired.</div>' +
@@ -900,7 +906,7 @@
             "Plain text/markdown only — no JSON.";
           callStudyAI(prompt, "Write complete study notes, not placeholders.")
             .then(function (raw) {
-              var text = String(raw || "").trim();
+              var text = CodexSummaryText(raw);
               if (text.length < 40) throw new Error("Summary too short");
               docData.summary = text;
               saveArtifacts();
