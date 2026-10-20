@@ -340,9 +340,23 @@
       "source": "/verify-email.html",
       "destination": "/verify-email",
       "permanent": true
+    },
+    {
+      "source": "/app/my-library.html",
+      "destination": "/my-library",
+      "permanent": true
+    },
+    {
+      "source": "/my-library.html",
+      "destination": "/my-library",
+      "permanent": true
     }
   ],
   "rewrites": [
+    {
+      "source": "/my-library",
+      "destination": "/app/my-library.html"
+    },
     {
       "source": "/q/:id",
       "destination": "/app/shared_quiz.html?id=:id"
