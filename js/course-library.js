@@ -160,6 +160,7 @@
   function buildLevelChips() {
     var levels = ["all", "100", "200", "300", "400", "500", "600"];
     var el = $("levelChips");
+    if (!el) return;
     el.innerHTML = levels.map(function (lv) {
       var label = lv === "all" ? "All levels" : lv + " Level";
       var active = state.level === lv ? " active" : "";
@@ -172,13 +173,13 @@
       level: state.level,
       q: state.query,
       offset: state.offset,
-      limit: state.limit
+      limit: state.limit,
+      sort: state.sort || "default"
     };
     if (state.filter === "live") opts.readyOnly = true;
     if (state.filter === "soon") opts.comingSoonOnly = true;
     if (state.filter === "mine" && state.profile) {
       opts.level = String(state.profile.level || "100");
-      // optional semester soft filter — keep broad for discovery
     }
     return opts;
   }
@@ -400,7 +401,7 @@
     } catch (e) {
       console.warn("library load", e);
     }
-    $("stLib").textContent = Object.keys(state.library).length;
+    if ($("stLib")) $("stLib").textContent = Object.keys(state.library).length;
   }
 
   async function recordDemand(course) {
@@ -490,6 +491,8 @@
   function renderMyLib() {
     applyLibTheme();
     var list = $("myLibList");
+    if (!list) return;
+    try { setMyLibSkel(false); } catch (e) {}
     var codes = Object.keys(state.library);
     var dept = (state.profile && (state.profile.department || "")) || "your department";
     var level = (state.profile && state.profile.level) || "—";
@@ -888,7 +891,7 @@
       } catch (e) {}
     });
 
-    $("btnBack").onclick = function (ev) {
+    function goHome(ev) {
       try { if (ev && ev.preventDefault) ev.preventDefault(); } catch (e) {}
       var flow = "";
       try { flow = (typeof setupFlowActive === "function") ? setupFlowActive() : ""; } catch (e) {}
@@ -899,165 +902,218 @@
         if (!window.confirm(msg)) return;
         try { clearSetupFlow(); } catch (e) {}
       }
-      // Triple fallback so Back never appears "dead"
-      try {
-        if (typeof hubGo === "function") { hubGo("home"); return; }
-      } catch (e) {}
+      try { if (typeof hubGo === "function") { hubGo("home"); return; } } catch (e) {}
       try { location.assign("/home"); return; } catch (e) {}
       try { location.href = "home.html"; } catch (e) {}
       try { location.href = "/home"; } catch (e) {}
-    };
-
-    buildLevelChips();
-    if (state.searchOnOpen) {
-      setTimeout(function () { try { $("searchInput").focus(); } catch (e) {} }, 120);
     }
-    $("levelChips").onclick = function (e) {
-      var b = e.target.closest("[data-level]");
-      if (!b) return;
-      state.level = b.getAttribute("data-level");
-      state.offset = 0;
-      buildLevelChips();
-      renderGrid(false);
+    if ($("btnBack")) $("btnBack").onclick = goHome;
+    if ($("myLibClose")) $("myLibClose").onclick = function () {
+      if (personalPage) goHome();
+      else if ($("myLibPanel")) $("myLibPanel").classList.remove("open");
     };
 
-    $("filterChips").onclick = function (e) {
-      var b = e.target.closest("[data-f]");
-      if (!b) return;
-      state.filter = b.getAttribute("data-f");
-      state.offset = 0;
-      Array.prototype.forEach.call($("filterChips").querySelectorAll(".chip"), function (c) {
-        c.classList.toggle("active", c.getAttribute("data-f") === state.filter);
-      });
-      if (state.filter === "mine" && state.profile && state.profile.level) {
-        state.level = String(state.profile.level);
+    try { buildLevelChips(); } catch (e) {}
+    if (state.searchOnOpen) {
+      setTimeout(function () { try { if ($("searchInput")) $("searchInput").focus(); } catch (e) {} }, 120);
+    }
+    if ($("levelChips")) {
+      $("levelChips").onclick = function (e) {
+        var b = e.target.closest("[data-level]");
+        if (!b) return;
+        state.level = b.getAttribute("data-level");
+        state.offset = 0;
         buildLevelChips();
-      }
-      renderGrid(false);
-    };
+        renderGrid(false);
+      };
+    }
+    if ($("filterChips")) {
+      $("filterChips").onclick = function (e) {
+        var b = e.target.closest("[data-f]");
+        if (!b) return;
+        state.filter = b.getAttribute("data-f");
+        state.offset = 0;
+        Array.prototype.forEach.call($("filterChips").querySelectorAll(".chip"), function (c) {
+          c.classList.toggle("active", c.getAttribute("data-f") === state.filter);
+        });
+        if (state.filter === "mine" && state.profile && state.profile.level) {
+          state.level = String(state.profile.level);
+          buildLevelChips();
+        }
+        renderGrid(false);
+      };
+    }
 
     var searchTimer;
-    $("searchInput").oninput = function () {
-      clearTimeout(searchTimer);
-      var v = this.value;
-      var box = $("searchBox");
-      var hint = $("searchHint");
-      if (box) box.classList.add("loading");
-      if (hint) {
-        hint.textContent = v.trim() ? "Searching…" : "";
-        hint.classList.add("show");
-      }
-      searchTimer = setTimeout(function () {
-        state.query = v;
+    if ($("searchInput")) {
+      $("searchInput").oninput = function () {
+        clearTimeout(searchTimer);
+        var v = this.value;
+        var box = $("searchBox");
+        var hint = $("searchHint");
+        if (box) box.classList.add("loading");
+        if (hint) {
+          hint.textContent = v.trim() ? "Searching…" : "";
+          hint.classList.add("show");
+        }
+        searchTimer = setTimeout(function () {
+          state.query = v;
+          state.offset = 0;
+          renderGrid(false);
+          if (box) box.classList.remove("loading");
+          if (hint) {
+            if (!v.trim()) {
+              hint.textContent = "";
+              hint.classList.remove("show");
+            } else {
+              hint.textContent = state.total + " result" + (state.total === 1 ? "" : "s") + " for “" + v.trim() + "”";
+              hint.classList.add("show");
+            }
+          }
+        }, 280);
+      };
+    }
+    if ($("btnHeroSearch") && $("searchInput")) {
+      $("btnHeroSearch").onclick = function () {
+        $("searchInput").dispatchEvent(new Event("input", { bubbles: true }));
+      };
+    }
+    if ($("sortSelect")) {
+      $("sortSelect").onchange = function () {
+        state.sort = this.value || "default";
         state.offset = 0;
         renderGrid(false);
-        if (box) box.classList.remove("loading");
-        if (hint) {
-          if (!v.trim()) {
-            hint.textContent = "";
-            hint.classList.remove("show");
-          } else {
-            hint.textContent = state.total + " result" + (state.total === 1 ? "" : "s") + " for “" + v.trim() + "”";
-            hint.classList.add("show");
-          }
-        }
-      }, 280);
-    };
-
-    $("btnMore").onclick = function () {
-      state.offset += state.limit;
-      renderGrid(true);
-    };
-
-    $("courseGrid").onclick = function (e) {
-      var add = e.target.closest("[data-add]");
-      if (add) {
-        e.stopPropagation();
-        var code = add.getAttribute("data-add");
-        var c = CurriculumLoader.getCourseByCode(code);
-        if (!c) return;
-        if (state.library[code]) removeFromLibrary(code);
-        else addToLibrary(c, false);
-        return;
-      }
-      var card = e.target.closest("[data-code]");
-      if (card) openDetail(card.getAttribute("data-code"));
-    };
-
-    $("myLibList").onclick = function (e) {
-      var add = e.target.closest("[data-add]");
-      if (add) {
-        e.stopPropagation();
-        var code = add.getAttribute("data-add");
-        var c = CurriculumLoader.getCourseByCode(code) || state.library[code];
-        if (!c) return;
-        if (state.library[code]) removeFromLibrary(code);
-        else {
-          var full = CurriculumLoader.getCourseByCode(code);
-          if (full) addToLibrary(full, false);
-        }
-        return;
-      }
-      var card = e.target.closest("[data-code]");
-      if (!card) return;
-      var code = card.getAttribute("data-code");
-      var full = CurriculumLoader.getCourseByCode(code);
-      var meta = state.library[code] || {};
-      var ready = (full && full.hasContent) || !!meta.hasContent;
-      // CBT / Notes entry: go straight into the activity for Ready courses
-      if (ready && state.entryMode === "cbt") {
-        location.href = practiceHref(code, "cbt");
-        return;
-      }
-      if (ready && state.entryMode === "notes") {
-        location.href = practiceHref(code, "notes");
-        return;
-      }
-      // Browse mode: detail sheet (with Practice CBT / Read notes)
-      openDetail(code);
-    };
-
-    $("sheetBg").onclick = closeDetail;
-    $("sheetClose").onclick = closeDetail;
-    $("dClose2").onclick = closeDetail;
-    $("dAdd").onclick = function () {
-      if (!state.selected) return;
-      if (state.library[state.selected.code]) removeFromLibrary(state.selected.code);
-      else addToLibrary(state.selected, false);
-    };
-
-    function syncSemButtons() {
-      var sem = currentSemester();
-      state.librarySemester = sem;
-      var s1 = $("sem1Btn"), s2 = $("sem2Btn");
-      if (s1) s1.classList.toggle("active", sem === "1");
-      if (s2) s2.classList.toggle("active", sem === "2");
+      };
     }
 
-    $("btnMyLib").onclick = function () {
-      hubGo("myLibrary");
-    };
-    $("myLibClose").onclick = function () {
-      if (personalPage) hubReplace("home");
-      else $("myLibPanel").classList.remove("open");
-    };
-    if ($("btnBrowseFromLib")) {
-      $("btnBrowseFromLib").onclick = function () {
-        var mode = state.entryMode || "browse";
-        if (mode === "cbt" || mode === "notes") markSetupFlow(mode);
-        hubGo("courseLibrary");
+    if ($("btnMore")) {
+      $("btnMore").onclick = function () {
+        state.offset += state.limit;
+        renderGrid(true);
       };
-    $("reqSend").onclick = submitRequest;
+    }
 
-    $("confirmNo").onclick = function () {
-      $("confirmBg").classList.remove("open");
-      state.pendingAdd = null;
-    };
-    $("confirmYes").onclick = function () {
-      $("confirmBg").classList.remove("open");
-      if (state.pendingAdd) addToLibrary(state.pendingAdd, true);
-      state.pendingAdd = null;
-    };
+    if ($("courseGrid")) {
+      $("courseGrid").onclick = function (e) {
+        var add = e.target.closest("[data-add]");
+        if (add) {
+          e.stopPropagation();
+          var code = add.getAttribute("data-add");
+          var c = CurriculumLoader.getCourseByCode(code);
+          if (!c) return;
+          if (state.library[code]) removeFromLibrary(code);
+          else addToLibrary(c, false);
+          return;
+        }
+        var card = e.target.closest("[data-code]");
+        if (card) openDetail(card.getAttribute("data-code"));
+      };
+    }
+
+    if ($("myLibList")) {
+      $("myLibList").onclick = function (e) {
+        var add = e.target.closest("[data-add]");
+        if (add) {
+          e.stopPropagation();
+          var code = add.getAttribute("data-add");
+          var c = CurriculumLoader.getCourseByCode(code) || state.library[code];
+          if (!c) return;
+          if (state.library[code]) removeFromLibrary(code);
+          else {
+            var full = CurriculumLoader.getCourseByCode(code);
+            if (full) addToLibrary(full, false);
+          }
+          return;
+        }
+        var card = e.target.closest("[data-code]");
+        if (!card) return;
+        var code = card.getAttribute("data-code");
+        var full = CurriculumLoader.getCourseByCode(code);
+        var meta = state.library[code] || {};
+        var ready = (full && full.hasContent) || !!meta.hasContent;
+        if (ready && state.entryMode === "cbt") {
+          location.href = practiceHref(code, "cbt");
+          return;
+        }
+        if (ready && state.entryMode === "notes") {
+          location.href = practiceHref(code, "notes");
+          return;
+        }
+        openDetail(code);
+      };
+    }
+
+    if ($("sheetBg")) $("sheetBg").onclick = closeDetail;
+    if ($("sheetClose")) $("sheetClose").onclick = closeDetail;
+    if ($("dClose2")) $("dClose2").onclick = closeDetail;
+    if ($("dAdd")) {
+      $("dAdd").onclick = function () {
+        if (!state.selected) return;
+        if (state.library[state.selected.code]) removeFromLibrary(state.selected.code);
+        else addToLibrary(state.selected, false);
+      };
+    }
+
+    if ($("btnMyLib")) {
+      $("btnMyLib").onclick = function () { hubGo("myLibrary"); };
+    }
+    function goBrowse() {
+      var mode = state.entryMode || "browse";
+      if (mode === "cbt" || mode === "notes") markSetupFlow(mode);
+      hubGo("courseLibrary");
+    }
+    if ($("btnBrowseFromLib")) $("btnBrowseFromLib").onclick = goBrowse;
+    if ($("qaBrowse")) $("qaBrowse").onclick = goBrowse;
+
+    if ($("btnReseed")) {
+      $("btnReseed").onclick = function () { restoreProgrammeCourses(); };
+    }
+    if ($("btnClearLib")) {
+      $("btnClearLib").onclick = function () { clearLibrary(); };
+    }
+
+    if ($("themeRow")) {
+      $("themeRow").onclick = function (e) {
+        var d = e.target.closest("[data-theme]");
+        if (!d) return;
+        applyLibTheme(d.getAttribute("data-theme"));
+      };
+    }
+    if ($("sem1Btn")) {
+      $("sem1Btn").onclick = function () { setLibrarySemester("1"); };
+    }
+    if ($("sem2Btn")) {
+      $("sem2Btn").onclick = function () { setLibrarySemester("2"); };
+    }
+
+    if ($("reqSend")) $("reqSend").onclick = submitRequest;
+    if ($("reqCancel") && $("reqModal")) {
+      $("reqCancel").onclick = function () { $("reqModal").classList.remove("open"); };
+    }
+    if ($("btnRequest")) {
+      $("btnRequest").onclick = function () {
+        if ($("reqModal")) $("reqModal").classList.add("open");
+      };
+    }
+    if ($("btnRequestEmpty")) {
+      $("btnRequestEmpty").onclick = function () {
+        if ($("reqModal")) $("reqModal").classList.add("open");
+      };
+    }
+
+    if ($("confirmNo")) {
+      $("confirmNo").onclick = function () {
+        if ($("confirmBg")) $("confirmBg").classList.remove("open");
+        state.pendingAdd = null;
+      };
+    }
+    if ($("confirmYes")) {
+      $("confirmYes").onclick = function () {
+        if ($("confirmBg")) $("confirmBg").classList.remove("open");
+        if (state.pendingAdd) addToLibrary(state.pendingAdd, true);
+        state.pendingAdd = null;
+      };
+    }
   }
 
   async function loadProfile(uid) {
@@ -1096,37 +1152,36 @@
     }
     state.user = user;
     try { setCatalogReady(false); } catch (e) {}
-    bind();
-    await loadProfile(user.uid);
-    await loadLibrary();
-    // Seed defaults once profile is known (no empty shelf on every CBT visit)
-    await ensureProgrammeCourses(false);
+    try { bind(); } catch (eBind) { console.error("[library] bind failed", eBind); }
+    try { await loadProfile(user.uid); } catch (eP) { console.warn("[library] profile", eP); }
+    try { await loadLibrary(); } catch (eL) { console.warn("[library] library", eL); }
+    try { await ensureProgrammeCourses(false); } catch (eS) { console.warn("[library] seed", eS); }
     if (state.profile && state.profile.level) {
       state.level = String(state.profile.level);
     }
-    // Sync semester from Home before painting library
     state.librarySemester = normalizeSemester(
       localStorage.getItem("selectedSemester") ||
       (state.profile && state.profile.semester) ||
       "1"
     );
-    if (typeof syncSemButtons === "function") {
-      // syncSemButtons is inside bind scope — call via DOM
-    }
     var s1 = $("sem1Btn"), s2 = $("sem2Btn");
     if (s1) s1.classList.toggle("active", state.librarySemester === "1");
     if (s2) s2.classList.toggle("active", state.librarySemester === "2");
 
-    buildLevelChips();
-    renderGrid(false);
+    try { buildLevelChips(); } catch (e) {}
+    try { renderGrid(false); } catch (eG) {
+      console.error("[library] renderGrid", eG);
+      try { setCatalogReady(true); } catch (e2) {}
+    }
 
-    // CBT / Notes: open My Library only AFTER library + seed finished
     if (personalPage || state.entryMode === "cbt" || state.entryMode === "notes") {
       document.title = (state.entryMode === "cbt" ? "CBT · " : state.entryMode === "notes" ? "Notes · " : "") + "My Library · Codex Hub";
-      renderMyLib();
+      try { renderMyLib(); } catch (eM) { console.error("[library] renderMyLib", eM); }
       if ($("myLibPanel")) $("myLibPanel").classList.add("open");
+      try { setMyLibSkel(false); } catch (eSk) {}
+    } else {
+      try { setCatalogReady(true); } catch (e) {}
     }
   });
 
-}
 })();
