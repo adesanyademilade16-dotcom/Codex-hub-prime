@@ -43,12 +43,6 @@ html,body{margin:0;height:100%;background:#0f172a}
   background:#4f46e5;color:#fff;text-decoration:none;font-weight:700;
 }
 </style>
-
-  <!-- Vercel Speed Insights -->
-  <script>
-    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-  </script>
-  <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
 <body>
 <div class="pdf-viewer-shell" id="shell">
@@ -68,146 +62,21 @@ html,body{margin:0;height:100%;background:#0f172a}
 </div>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script><script src="../js/firestore-boot.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="../js/firebase-config.js"></script>
 <script src="../js/app-auth.js"></script>
 <script src="../js/resources-core.js"></script>
+
 <script>
 (function () {
-  var id = new URLSearchParams(location.search).get("id");
-  var pdfDoc = null, pageNum = 1, scale = 1.2, rendering = false, renderToken = 0;
-
-  document.getElementById("btnBack").onclick = function () {
-    if (id) location.href = "resource-view.html?id=" + encodeURIComponent(id);
-    else history.back();
+  var btn = document.getElementById("btnBack");
+  if (!btn) return;
+  btn.onclick = function (e) {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    var qid = new URLSearchParams(location.search).get("id");
+    if (qid) location.replace("resource-view.html?id=" + encodeURIComponent(qid));
+    else location.replace("resources.html");
   };
-  document.getElementById("btnPrev").onclick = function () {
-    if (pageNum <= 1) return;
-    pageNum--;
-    renderPage();
-  };
-  document.getElementById("btnNext").onclick = function () {
-    if (!pdfDoc || pageNum >= pdfDoc.numPages) return;
-    pageNum++;
-    renderPage();
-  };
-  document.getElementById("btnZoomIn").onclick = function () {
-    scale = Math.min(3, scale + 0.2);
-    renderPage();
-  };
-  document.getElementById("btnZoomOut").onclick = function () {
-    scale = Math.max(0.5, scale - 0.2);
-    renderPage();
-  };
-  document.getElementById("btnFit").onclick = function () {
-    if (!pdfDoc) return;
-    pdfDoc.getPage(pageNum).then(function (page) {
-      var stage = document.getElementById("stage");
-      var vw = Math.max(280, stage.clientWidth - 24);
-      var vp = page.getViewport({ scale: 1 });
-      scale = Math.max(0.5, Math.min(2.8, vw / vp.width));
-      renderPage();
-    });
-  };
-
-  async function renderPage() {
-    if (!pdfDoc) return;
-    var token = ++renderToken;
-    rendering = true;
-    try {
-      var page = await pdfDoc.getPage(pageNum);
-      if (token !== renderToken) return;
-      var viewport = page.getViewport({ scale: scale });
-      var canvas = document.getElementById("canvas");
-      var ctx = canvas.getContext("2d", { alpha: false });
-      // Crisp rendering on high-DPI phones (fixes blur on − / Fit)
-      var dpr = Math.min(window.devicePixelRatio || 1, 2.5);
-      canvas.width = Math.floor(viewport.width * dpr);
-      canvas.height = Math.floor(viewport.height * dpr);
-      canvas.style.width = Math.floor(viewport.width) + "px";
-      canvas.style.height = Math.floor(viewport.height) + "px";
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, viewport.width, viewport.height);
-      await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-      if (token !== renderToken) return;
-      document.getElementById("pageLbl").textContent = pageNum + " / " + pdfDoc.numPages;
-    } catch (e) {
-      console.error(e);
-    }
-    rendering = false;
-  }
-
-  function errMsg(e) {
-    if (!e) return "";
-    if (typeof e === "string") return e;
-    if (e.message) return String(e.message);
-    try { return JSON.stringify(e); } catch (x) { return String(e); }
-  }
-
-  function showUnavailable(res, reason) {
-    document.getElementById("title").textContent = (res && res.title) || "Unavailable";
-    var isG = res && /docs\.google\.com|drive\.google\.com/i.test(String(res.fileUrl || ""));
-    var msg = reason || "This file cannot be previewed here.";
-    if (isG) {
-      msg = "This resource was saved as a <strong>Google Docs / Drive link</strong>, not an uploaded PDF file. Open it in Google or download from the resource page.";
-    } else if (res && String(res.fileType || "").toLowerCase().indexOf("doc") >= 0) {
-      msg = "Word documents (<strong>DOCX</strong>) cannot be previewed in the in-app viewer. Use <strong>Download</strong> on the resource page (1 credit).";
-    }
-    var open = (res && res.fileUrl)
-      ? '<a href="' + String(res.fileUrl).replace(/"/g, "") + '" target="_blank" rel="noopener">Open original link</a>'
-      : "";
-    var back = id
-      ? '<p style="margin-top:12px"><a href="resource-view.html?id=' + encodeURIComponent(id) + '" style="color:#a5b4fc">← Back to resource</a></p>'
-      : "";
-    document.getElementById("stage").innerHTML =
-      '<div class="viewer-empty">' + msg + open + back + "</div>";
-  }
-
-  CodexAuth.requireUser().then(async function () {
-    if (!id) {
-      document.getElementById("title").textContent = "Missing resource";
-      return;
-    }
-    var res = await CodexResources.getResource(id);
-    if (!res || res.status !== "approved" || !res.fileUrl) {
-      showUnavailable(res, "Resource not available.");
-      return;
-    }
-    document.getElementById("title").textContent = res.title || "Document";
-    try { CodexResources.recordView(id); } catch (e) {}
-
-    var can = CodexResources.canPreviewOnline
-      ? CodexResources.canPreviewOnline(res)
-      : (String(res.fileType || "pdf").toLowerCase() === "pdf");
-    if (!can) {
-      showUnavailable(res);
-      return;
-    }
-
-    try {
-      var lib = await CodexResources.ensurePdfJs();
-      pdfDoc = await lib.getDocument({
-        url: res.fileUrl,
-        withCredentials: false,
-        disableAutoFetch: false,
-        disableStream: false
-      }).promise;
-      pageNum = 1;
-      // Start near "fit width" on mobile for sharper first paint
-      try {
-        var page0 = await pdfDoc.getPage(1);
-        var stage = document.getElementById("stage");
-        var vw = Math.max(280, stage.clientWidth - 24);
-        var vp = page0.getViewport({ scale: 1 });
-        scale = Math.max(0.85, Math.min(1.6, vw / vp.width));
-      } catch (e0) {}
-      await renderPage();
-    } catch (err) {
-      console.error(err);
-      showUnavailable(res, "This PDF could not be loaded (broken link or blocked host). " + errMsg(err));
-    }
-  });
 })();
 </script>
 </body>
