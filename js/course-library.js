@@ -217,17 +217,32 @@
   }
 
 
+  
+  // When user opens catalog mid CBT/Notes setup, warn if they leave without adding a course
+  function markSetupFlow(kind) {
+    try { sessionStorage.setItem("codex_setup_flow", kind || "cbt"); } catch (e) {}
+  }
+  function clearSetupFlow() {
+    try { sessionStorage.removeItem("codex_setup_flow"); } catch (e) {}
+  }
+  function setupFlowActive() {
+    try { return sessionStorage.getItem("codex_setup_flow") || ""; } catch (e) { return ""; }
+  }
+
   function practiceHref(code, kind) {
-    if (kind === "notes") return "notes.html?code=" + encodeURIComponent(code);
-    return "cbt.html?code=" + encodeURIComponent(code);
+    // Absolute clean URLs — relative *.html under /my-library caused blank white pages
+    if (kind === "notes") return "/notes?code=" + encodeURIComponent(code);
+    return "/cbt?code=" + encodeURIComponent(code);
   }
 
   function openCourseAction(code) {
     if (state.entryMode === "notes") {
+      clearSetupFlow();
       location.href = practiceHref(code, "notes");
       return;
     }
     if (state.entryMode === "cbt") {
+      clearSetupFlow();
       location.href = practiceHref(code, "cbt");
       return;
     }
@@ -787,7 +802,7 @@
       var _m = new URLSearchParams(location.search).get("mode");
       if (_m === "cbt" || _m === "notes") {
         if (!personalPage) {
-          location.replace("my-library.html?mode=" + _m);
+          location.replace("/my-library?mode=" + _m);
           return;
         }
         state.entryMode = _m;
@@ -797,13 +812,35 @@
 
   function bind() {
     $("btnBack").onclick = function () {
-      // The personal shelf always returns Home, never to the catalog.
-      if (personalPage || state.entryMode === "cbt" || state.entryMode === "notes") {
-        location.replace("home.html");
+      var leave = function () {
+        if (personalPage || state.entryMode === "cbt" || state.entryMode === "notes") {
+          location.replace("/home");
+          return;
+        }
+        try {
+          var ref = document.referrer || "";
+          if (ref && ref.indexOf(location.origin) === 0 && history.length > 1) {
+            var path = ref.replace(location.origin, "").split("?")[0];
+            if (path && path !== location.pathname && path !== "/course-library" && path !== "/course-library.html") {
+              history.back();
+              return;
+            }
+          }
+        } catch (e) {}
+        location.href = "/home";
+      };
+      var flow = setupFlowActive();
+      if (flow && !personalPage) {
+        var msg = flow === "notes"
+          ? "Leave without choosing a course? Your notes setup will be cancelled."
+          : "Leave without choosing a course? Your CBT setup will be cancelled.";
+        if (window.confirm(msg)) {
+          clearSetupFlow();
+          leave();
+        }
         return;
       }
-      if (history.length > 1) history.back();
-      else location.href = "home.html";
+      leave();
     };
 
     buildLevelChips();
@@ -933,15 +970,17 @@
     }
 
     $("btnMyLib").onclick = function () {
-      location.href = "my-library.html";
+      location.href = "/my-library";
     };
     $("myLibClose").onclick = function () {
-      if (personalPage) location.replace("home.html");
+      if (personalPage) location.replace("/home");
       else $("myLibPanel").classList.remove("open");
     };
     if ($("btnBrowseFromLib")) {
       $("btnBrowseFromLib").onclick = function () {
-        location.href = "course-library.html";
+        var mode = state.entryMode || "browse";
+        if (mode === "cbt" || mode === "notes") markSetupFlow(mode);
+        location.href = "/course-library";
       };
     }
     // Semester toggle — must work + sync to Home
@@ -1032,7 +1071,7 @@
 
   auth.onAuthStateChanged(async function (user) {
     if (!user) {
-      location.href = "../login.html";
+      location.href = "/login";
       return;
     }
     state.user = user;
