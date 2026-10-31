@@ -30,6 +30,8 @@
     body.thread-open .shell-top, body.thread-open .app-header { display: none !important; }
 
     .chat-app { max-width: 560px; margin: 0 auto; min-height: calc(100dvh - 120px); display: flex; flex-direction: column; }
+    /* Mobile: never show the desktop "Select a conversation" panel under the list */
+    .thread-placeholder { display: none !important; }
     .chat-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px 8px; }
     .chat-head h1 { margin: 0; font-size: 1.35rem; font-weight: 800; color: var(--ink); }
     .chat-head-actions { display: flex; gap: 6px; }
@@ -901,8 +903,10 @@ html.theme-dark .icon-round { background: #1E293B !important; color: #E2E8F0 !im
   }
   body[data-page="chats"] .thread-placeholder {
     flex: 1;
-    display: grid;
+    display: grid !important;
     place-items: center;
+    background: #F5F7FB;
+    height: 100%;
   }
   body[data-page="chats"] .thread-placeholder.hidden { display: none !important; }
 }
