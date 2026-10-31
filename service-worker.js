@@ -13,7 +13,7 @@
 importScripts("https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js");
 
-const VERSION = "codexhub-sw-v3";
+const VERSION = "codexhub-sw-v8";
 const STATIC_CACHE = VERSION + "-static";
 
 firebase.initializeApp({

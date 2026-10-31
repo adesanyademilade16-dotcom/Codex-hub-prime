@@ -18,6 +18,7 @@
 <title>Codex Hub — Study smarter through university</title>
   <meta name="description" content="CBT practice, Nova AI, resources, Study Lab and community for university students. Built for OOU — open to others.">
   <meta name="theme-color" content="#4F46E5">
+  <link rel="preload" as="image" href="assets/img/student-yellow.webp" fetchpriority="high">
   <link rel="icon" type="image/png" href="assets/favicon.png">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
@@ -25,6 +26,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Codex Hub">
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -411,7 +413,7 @@
 
   <header class="site-header" id="header">
     <div class="wrap nav">
-      <a class="logo" href="index.html"><img src="assets/logo.png" alt=""><span>Codex Hub</span></a>
+      <a class="logo" href="index.html"><img src="assets/logo.webp" alt=""><span>Codex Hub</span></a>
       <nav class="nav-links">
         <a href="#features">Features</a>
         <a href="#story">Story</a>
@@ -431,8 +433,8 @@
   <main>
     <section class="hero">
       <div class="hero-video-wrap" aria-hidden="true">
-        <video autoplay muted loop playsinline poster="assets/img/campus-student.jpg">
-          <source src="assets/video/cbt-practice-bg.mp4" type="video/mp4">
+        <video autoplay muted loop playsinline poster="assets/img/campus-student.webp">
+          <source data-src="assets/video/cbt-practice-bg.mp4" type="video/mp4">
         </video>
       </div>
       <div class="wrap hero-grid">
@@ -454,15 +456,15 @@
         <div class="hero-stage reveal">
           <div class="hero-blob"></div>
           <div class="float-card a">
-            <img src="assets/img/nova.png" alt="">
+            <img src="assets/img/nova.webp" alt="" loading="lazy" decoding="async">
             <div>Nova is online<span>Ask any topic</span></div>
           </div>
           <div class="float-card b">
-            <img src="assets/img/cbt-hall.png" alt="">
+            <img src="assets/img/cbt-hall.webp" alt="" loading="lazy" decoding="async">
             <div>CBT ready<span>Practice mode</span></div>
           </div>
           <div class="hero-portrait">
-            <img src="assets/img/student-yellow.png" alt="University student">
+            <img src="assets/img/student-yellow.webp" alt="University student" fetchpriority="high" decoding="async" width="640" height="800">
           </div>
         </div>
       </div>
@@ -477,27 +479,27 @@
         </div>
         <div class="feature-grid">
           <article class="feat reveal">
-            <div class="feat-art"><img src="assets/img/cbt-hall.png" alt=""></div>
+            <div class="feat-art"><img src="assets/img/cbt-hall.webp" alt="" loading="lazy" decoding="async"></div>
             <div class="feat-body"><h3>CBT Exam</h3><p>Exam-style questions with progress so weak topics stop surprising you on test day.</p></div>
           </article>
           <article class="feat reveal">
-            <div class="feat-art contain"><img src="assets/img/nova.png" alt=""></div>
+            <div class="feat-art contain"><img src="assets/img/nova.webp" alt="" loading="lazy" decoding="async"></div>
             <div class="feat-body"><h3>Nova AI</h3><p>Friendly explanations when a lecture note or past question won’t click.</p></div>
           </article>
           <article class="feat reveal">
-            <div class="feat-art contain"><img src="assets/img/laptop-library.png" alt=""></div>
+            <div class="feat-art contain"><img src="assets/img/laptop-library.webp" alt="" loading="lazy" decoding="async"></div>
             <div class="feat-body"><h3>PDF Resources</h3><p>Notes and past questions you can find again — tied to your courses.</p></div>
           </article>
           <article class="feat reveal">
-            <div class="feat-art contain"><img src="assets/img/laptop-books.png" alt=""></div>
+            <div class="feat-art contain"><img src="assets/img/laptop-books.webp" alt="" loading="lazy" decoding="async"></div>
             <div class="feat-body"><h3>Study Lab</h3><p>Organize materials, flashcards and focused sessions in one workspace.</p></div>
           </article>
           <article class="feat reveal">
-            <div class="feat-art"><img src="assets/img/students-phones.jpg" alt=""></div>
+            <div class="feat-art"><img src="assets/img/students-phones.webp" alt="" loading="lazy" decoding="async"></div>
             <div class="feat-body"><h3>Chat &amp; Connect</h3><p>Ask classmates, share files and make campus feel less solo.</p></div>
           </article>
           <article class="feat reveal">
-            <div class="feat-art contain"><img src="assets/img/leaderboard.png" alt=""></div>
+            <div class="feat-art contain"><img src="assets/img/leaderboard.webp" alt="" loading="lazy" decoding="async"></div>
             <div class="feat-body"><h3>Leaderboard</h3><p>Healthy ranks that reward consistent practice, not last-minute cramming.</p></div>
           </article>
         </div>
@@ -513,7 +515,7 @@
 
         <article class="story reveal" style="margin-bottom:40px">
           <div class="story-media tall">
-            <img src="assets/img/campus-student.jpg" alt="Student on campus">
+            <img src="assets/img/campus-student.webp" alt="Student on campus" loading="lazy" decoding="async">
             <div class="tag">Between lectures · on the go</div>
           </div>
           <div class="story-copy">
@@ -522,9 +524,9 @@
             <p>Notes in WhatsApp. Past questions in Drive. CBT somewhere else. By exam week everything is scattered.</p>
             <p>Codex Hub pulls the loop together: practice → see weak areas → ask Nova → improve.</p>
             <div class="portrait-row">
-              <div class="p"><img src="assets/img/student-hoodie.png" alt=""></div>
-              <div class="p"><img src="assets/img/student-teal.png" alt=""></div>
-              <div class="p"><img src="assets/img/student-scarf.png" alt=""></div>
+              <div class="p"><img src="assets/img/student-hoodie.webp" alt="" loading="lazy" decoding="async"></div>
+              <div class="p"><img src="assets/img/student-teal.webp" alt="" loading="lazy" decoding="async"></div>
+              <div class="p"><img src="assets/img/student-scarf.webp" alt="" loading="lazy" decoding="async"></div>
             </div>
           </div>
         </article>
@@ -537,14 +539,14 @@
             <a class="btn btn-soft" href="signup.html">Start practicing</a>
           </div>
           <div class="story-media">
-            <img src="assets/img/cbt-hall.png" alt="CBT hall">
+            <img src="assets/img/cbt-hall.webp" alt="CBT hall" loading="lazy" decoding="async">
             <div class="tag">CBT practice mode</div>
           </div>
         </article>
 
         <article class="story reveal" style="margin-bottom:40px">
           <div class="story-media contain">
-            <img src="assets/img/laptop-guy.png" alt="Student on laptop">
+            <img src="assets/img/laptop-guy.webp" alt="Student on laptop" loading="lazy" decoding="async">
             <div class="tag">Learn together</div>
           </div>
           <div class="story-copy">
@@ -555,7 +557,7 @@
         </article>
 
         <div class="nova-band reveal">
-          <img class="bot" src="assets/img/nova.png" alt="Nova">
+          <img class="bot" src="assets/img/nova.webp" alt="Nova">
           <div>
             <p class="eyebrow">Meet Nova</p>
             <h3 style="font-size:1.4rem;font-weight:800;margin:6px 0 8px">Your AI study buddy</h3>
@@ -704,7 +706,7 @@
   <footer class="footer">
     <div class="wrap footer-grid">
       <div>
-        <div class="logo" style="color:#fff;margin-bottom:12px"><img src="assets/logo.png" alt="" width="32" height="32"><span>Codex Hub</span></div>
+        <div class="logo" style="color:#fff;margin-bottom:12px"><img src="assets/logo.webp" alt="" width="32" height="32"><span>Codex Hub</span></div>
         <p style="max-width:260px">Learn · Connect · Succeed — a TriForge product.</p>
       </div>
       <div><h4>Product</h4><a href="#features">Features</a><a href="#pricing">Pricing</a><a href="#story">Story</a></div>
@@ -736,12 +738,26 @@
     backdrop?.addEventListener('click', closeMenu);
     mobileNav?.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
     window.addEventListener('scroll', () => header.classList.toggle('scrolled', scrollY > 8), { passive: true });
-    document.querySelectorAll('video').forEach(v => v.play().catch(() => {}));
+    // The hero background video is loaded only on suitable desktop connections below.
     const io = new IntersectionObserver((entries, obs) => {
       entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('show'); obs.unobserve(e.target); } });
     }, { threshold: 0.12 });
     document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   </script>
   <script src="js/pwa-install.js"></script>
+
+<script>
+(function(){
+  var v=document.querySelector('.hero-video-wrap video');
+  if(!v) return;
+  var conn=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+  var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var mobile=window.matchMedia&&window.matchMedia('(max-width: 700px)').matches;
+  var saveData=!!(conn&&conn.saveData);
+  if(reduced||mobile||saveData){ v.removeAttribute('autoplay'); v.pause(); return; }
+  var source=v.querySelector('source[data-src]');
+  if(source){ source.src=source.getAttribute('data-src'); source.removeAttribute('data-src'); v.setAttribute('autoplay',''); v.load(); var play=v.play(); if(play&&play.catch) play.catch(function(){}); }
+})();
+</script>
 </body>
 </html>
