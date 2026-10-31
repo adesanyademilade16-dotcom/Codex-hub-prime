@@ -298,7 +298,7 @@ body.app-body{background:#F5F7FB;font-family:"Plus Jakarta Sans",system-ui,sans-
 </main>
 
 <div class="toast" id="toast"></div>
-<script src="../js/firebase-config.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="../js/firestore-boot.js"></script><script src="../js/app-auth.js"></script><script src="../js/media.js"></script><script src="../js/onboarding.js"></script>
+<script src="../js/firebase-config.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="../js/firestore-boot.js"></script><script src="../js/app-auth.js"></script><script src="../js/media.js"></script><script src="../js/onboarding.js"></script><script src="../js/fcm-config.js"></script><script src="../js/push-client.js"></script><script src="../js/reminders-client.js"></script>
   
 <script>
 (function(){"use strict";if(!firebase.apps.length)firebase.initializeApp(window.FIREBASE_CONFIG);var db=firebase.firestore(),uid=null,currentId=null,tasks=[],timer=null,saveTimer=null;var $=id=>document.getElementById(id);
@@ -316,7 +316,73 @@ var total=tasks.length,p=total?Math.round(done.length/total*100):0;$("progressTe
 function bindTaskActions(){document.querySelectorAll('[data-done]').forEach(b=>b.onclick=function(){var i=+b.dataset.done;if(!tasks[i])return;tasks[i].done=!tasks[i].done;render();queueAutoSave();});document.querySelectorAll('[data-remove]').forEach(b=>b.onclick=function(){var i=+b.dataset.remove;if(!tasks[i])return;if(!confirm('Delete this task?'))return;tasks.splice(i,1);render();queueAutoSave();});document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=function(){var i=+b.dataset.edit;if(!tasks[i])return;var n=prompt('Edit task',tasks[i].title);if(n&&n.trim()){tasks[i].title=n.trim();render();queueAutoSave();}})}
 function taskFromInput(){var title=$("taskInput").value.trim();if(!title){$("taskInput").focus();return}var due=$("taskDueInput").value?new Date($("taskDueInput").value).toISOString():($("dueInput").value?new Date($("dueInput").value).toISOString():null);tasks.push({title:title,done:false,duration:Number($("durationInput").value)||45,dueAt:due,reminderMinutes:Number($("reminderInput").value||0),createdAt:Date.now()});$("taskInput").value="";$("taskDueInput").value="";render();queueAutoSave();toast(currentId?'Task added and saved':'Task added · save the plan when ready')}
 function collectPlan(){return{uid:uid,name:$("nameInput").value.trim()||"My study plan",mode:$("modeInput").value,defaultDuration:Number($("durationInput").value)||45,startAt:$("startInput").value?new Date($("startInput").value):null,dueAt:$("dueInput").value?new Date($("dueInput").value):null,reminderMinutes:Number($("reminderInput").value||0),tasks:tasks,completedCount:tasks.filter(t=>t.done).length,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}}
-async function save(opts){opts=opts||{};if(!uid)return;var data=collectPlan();try{if(currentId)await db.collection('study_plans').doc(currentId).set(data,{merge:true});else{data.createdAt=firebase.firestore.FieldValue.serverTimestamp();var ref=await db.collection('study_plans').add(data);currentId=ref.id;}setSaveState('Saved just now');updateSaveButton();if(!opts.silent)toast(currentId?'Plan saved':'Plan created');await loadSaved();}catch(e){console.error('Study Planner save error',e);setSaveState('Not saved · check your connection');if(!opts.silent)toast('Could not save the plan.')}}
+async function syncPlannerReminders(planId, planData){
+  if(!uid||!planId)return;
+  var col=db.collection('users').doc(uid).collection('reminders');
+  var pad=function(n){return n<10?'0'+n:''+n;};
+  var offset=new Date().getTimezoneOffset();
+  var items=[];
+  var planLead=Number(planData.reminderMinutes);
+  if(!isFinite(planLead)||planLead<0)planLead=0;
+  var planDue=ms(planData.dueAt);
+  if(planDue&&planDue>Date.now()-60000){
+    var fireAt=planDue-planLead*60000;
+    if(fireAt<Date.now())fireAt=planDue;
+    var d=new Date(fireAt);
+    items.push({
+      id:'plan_'+planId,
+      type:'task',
+      title:String(planData.name||'Study plan').slice(0,80),
+      time:pad(d.getHours())+':'+pad(d.getMinutes()),
+      days:[],
+      enabled:true,
+      nextAtMs:fireAt,
+      timezoneOffset:offset,
+      source:'study_plan',
+      planId:planId
+    });
+  }
+  (planData.tasks||[]).forEach(function(t,i){
+    if(!t||t.done||!t.dueAt)return;
+    var due=ms(t.dueAt);if(!due||due<Date.now()-60000)return;
+    var lead=Number(t.reminderMinutes);
+    if(!isFinite(lead)||lead<0)lead=planLead;
+    var fire=due-lead*60000;if(fire<Date.now())fire=due;
+    var td=new Date(fire);
+    items.push({
+      id:'plan_'+planId+'_t'+i,
+      type:'task',
+      title:String(t.title||'Study task').slice(0,80),
+      time:pad(td.getHours())+':'+pad(td.getMinutes()),
+      days:[],
+      enabled:true,
+      nextAtMs:fire,
+      timezoneOffset:offset,
+      source:'study_plan',
+      planId:planId
+    });
+  });
+  var batch=db.batch();
+  items.forEach(function(r){
+    batch.set(col.doc(r.id),{
+      type:r.type,
+      title:r.title,
+      time:r.time,
+      days:r.days,
+      enabled:true,
+      nextAtMs:r.nextAtMs,
+      timezoneOffset:r.timezoneOffset,
+      source:r.source,
+      planId:r.planId,
+      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true});
+  });
+  try{await batch.commit();}catch(e){console.warn('syncPlannerReminders',e);}
+  try{
+    if(window.CodexReminders&&CodexReminders.syncToServer)CodexReminders.syncToServer();
+  }catch(e2){}
+}
+async function save(opts){opts=opts||{};if(!uid)return;var data=collectPlan();try{if(currentId)await db.collection('study_plans').doc(currentId).set(data,{merge:true});else{data.createdAt=firebase.firestore.FieldValue.serverTimestamp();var ref=await db.collection('study_plans').add(data);currentId=ref.id;}setSaveState('Saved just now');updateSaveButton();try{await syncPlannerReminders(currentId,data);}catch(eSync){console.warn(eSync);}if(!opts.silent)toast(currentId?'Plan saved · reminders scheduled':'Plan created');await loadSaved();}catch(e){console.error('Study Planner save error',e);setSaveState('Not saved · check your connection');if(!opts.silent)toast('Could not save the plan.')}}
 function queueAutoSave(){if(!currentId){setSaveState('Unsaved changes · save the plan');updateSaveButton();return}setSaveState('Saving…');clearTimeout(saveTimer);saveTimer=setTimeout(()=>save({silent:true}),350)}
 async function loadSaved(){var s=await db.collection('study_plans').where('uid','==',uid).limit(40).get();var rows=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>ms(b.updatedAt)-ms(a.updatedAt));$("savedPlans").innerHTML=rows.length?rows.map(p=>{var ts=(p.tasks||[]),done=ts.filter(t=>t.done).length;return '<div class="plan-row '+(p.id===currentId?'current':'')+'" data-plan-row="'+p.id+'"><div class="plan-main" data-open="'+p.id+'"><strong>'+esc(p.name||'Untitled plan')+'</strong><small>'+((ts.length-done))+' pending · '+done+' completed · '+esc(p.mode||'plan')+'</small></div><div class="plan-actions"><button type="button" data-open="'+p.id+'">Open</button><button type="button" data-duplicate="'+p.id+'">Duplicate</button><button type="button" class="danger" data-delete="'+p.id+'">Delete</button></div></div>'}).join(''):'<div class="empty">No saved plans yet. Save your first plan from Plan settings.</div>';
 $("savedPlans").querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>loadPlan(b.dataset.open));$("savedPlans").querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>deletePlan(b.dataset.delete));$("savedPlans").querySelectorAll('[data-duplicate]').forEach(b=>b.onclick=()=>duplicatePlan(b.dataset.duplicate));}
@@ -324,8 +390,38 @@ async function loadPlan(id){try{var d=await db.collection('study_plans').doc(id)
 function reset(){currentId=null;tasks=[];$("nameInput").value='My study plan';$("modeInput").value='today';$("durationInput").value='45';$("startInput").value='';$("dueInput").value='';$("reminderInput").value='none';$("planTitle").textContent='My study plan';$("planMeta").textContent='Build a plan, add tasks, then save it.';setSaveState('New plan · not saved');updateSaveButton();render();window.scrollTo({top:0,behavior:'smooth'});}
 async function deletePlan(id){if(!confirm('Delete this saved plan and all of its tasks?'))return;try{await db.collection('study_plans').doc(id).delete();if(currentId===id)reset();await loadSaved();toast('Plan deleted');}catch(e){console.error(e);toast('Could not delete the plan.')}}
 async function duplicatePlan(id){try{var d=await db.collection('study_plans').doc(id).get();if(!d.exists)return;var p=d.data()||{};if(p.uid!==uid)return;currentId=null;$("nameInput").value=(p.name||'My study plan')+' copy';$("modeInput").value=p.mode||'today';$("durationInput").value=String(p.defaultDuration||45);$("reminderInput").value=String(p.reminderMinutes||0);$("startInput").value=inputValue(p.startAt);$("dueInput").value=inputValue(p.dueAt);tasks=JSON.parse(JSON.stringify(p.tasks||[]));$("planTitle").textContent=$("nameInput").value;$("planMeta").textContent='Copied plan · not saved';setSaveState('New copy · not saved');updateSaveButton();render();window.scrollTo({top:0,behavior:'smooth'});toast('Plan duplicated · save it when ready');}catch(e){console.error(e);toast('Could not duplicate the plan.')}}
-function requestReminders(){if('Notification' in window){Notification.requestPermission().then(x=>toast(x==='granted'?'Reminders enabled on this device':'Reminder permission not enabled'));}else toast('This browser does not support device notifications.')}
-function checkReminders(){var now=Date.now();tasks.forEach(t=>{if(t.done||!t.dueAt||t._reminded)return;var due=ms(t.dueAt),lead=(Number(t.reminderMinutes)||0)*60000;if(due-now<=lead&&due-now>=-60000){t._reminded=true;if('Notification' in window&&Notification.permission==='granted')new Notification('Codex Hub reminder',{body:'Complete: '+t.title});else toast('Reminder: '+t.title);}})}
+async function requestReminders(){
+  try{
+    if(window.CodexPush&&CodexPush.registerAndSaveToken){
+      await CodexPush.registerAndSaveToken();
+      toast('Reminders enabled · you will get alerts even when the app is closed');
+      return;
+    }
+  }catch(e){console.warn('CodexPush',e);}
+  if('Notification' in window){
+    var x=await Notification.requestPermission();
+    toast(x==='granted'?'Reminders enabled on this device · save your plan to schedule them':'Reminder permission not enabled');
+  }else toast('This browser does not support device notifications.');
+}
+function checkReminders(){
+  var now=Date.now();
+  tasks.forEach(function(t){
+    if(t.done||!t.dueAt||t._reminded)return;
+    var due=ms(t.dueAt),lead=(Number(t.reminderMinutes)||0)*60000;
+    if(due-now<=lead&&due-now>=-120000){
+      t._reminded=true;
+      var body='Complete: '+t.title;
+      if(navigator.serviceWorker&&navigator.serviceWorker.ready){
+        navigator.serviceWorker.ready.then(function(reg){
+          try{reg.showNotification('Codex Hub · Study Planner',{body:body,tag:'planner-'+String(t.title).slice(0,24),icon:'/assets/icons/icon-192.png'});}
+          catch(e){if(Notification.permission==='granted')new Notification('Codex Hub reminder',{body:body});}
+        });
+      }else if('Notification' in window&&Notification.permission==='granted'){
+        new Notification('Codex Hub reminder',{body:body});
+      }else toast('Reminder: '+t.title);
+    }
+  });
+}
 async function boot(){var r;try{r=await CodexAuth.requireUser();}catch(e){console.error('Study Planner auth error',e);toast('Your session could not be verified. Please refresh.');return}uid=r.user.uid;var shellProfile=Object.assign({},r.profile||{});try{var pub=await db.collection('public_profiles').doc(uid).get();if(pub.exists){var pp=pub.data()||{};if(pp.avatarKey)shellProfile.avatarKey=pp.avatarKey;if(pp.photoURL)shellProfile.photoURL=pp.photoURL;}}catch(ePub){console.warn('Planner public profile',ePub)}CodexShell.mountShell({page:'todo',title:'Study Planner',user:r.user,profile:shellProfile});try{await loadSaved();}catch(eLoad){console.error('Study Planner load error',eLoad);toast('Could not load saved plans. Your session is still active.');}render();$("startTask").onclick=function(){$("emptyStart").style.display='none';$("taskComposer").classList.remove('is-hidden');$("taskInput").focus()};$("addTask").onclick=taskFromInput;$("taskInput").onkeydown=e=>{if(e.key==='Enter')taskFromInput()};$("savePlan").onclick=()=>save();$("deletePlan").onclick=()=>currentId&&deletePlan(currentId);$("newPlan").onclick=reset;$("notifyBtn").onclick=requestReminders;$("nameInput").oninput=()=>{$("planTitle").textContent=$("nameInput").value||'My study plan';queueAutoSave()};["modeInput","durationInput","startInput","dueInput","reminderInput"].forEach(id=>$(id).onchange=queueAutoSave);setInterval(checkReminders,30000);}boot();})();
 </script>
 <script>try{if(window.CodexOnboarding)CodexOnboarding.auto("todo",700);}catch(e){}</script>
