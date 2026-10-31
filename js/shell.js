@@ -225,7 +225,7 @@
   function mountShell(opts) {
     opts = opts || {};
     if (opts.profile) _lastProfile = opts.profile;
-    var page = opts.page || "home";
+    var page = (opts.page === undefined || opts.page === null) ? "home" : opts.page;
     var title = opts.title || "Codex Hub";
     var user = opts.user || {};
     var name = user.fullName || (opts.profile && (opts.profile.fullName || opts.profile.displayName)) || "Student";
@@ -797,6 +797,60 @@
         });
       }
     } catch (e) {}
+  }
+
+  /* ── Instant chrome ────────────────────────────────────────────────
+     shell.js is loaded as the FIRST script inside <body> on every shared
+     page, so this runs before the Firebase SDK tags below it are even
+     requested. The header and bottom nav therefore paint immediately,
+     instead of waiting on three gstatic SDK downloads, an auth-state
+     restore, the user.reload() round-trip and a Firestore profile read.
+     mountShell() is idempotent: when the page later calls
+     CodexShell.mountShell({user, profile}) the chrome already exists, so it
+     only fills in the name/avatar/title instead of rebuilding the DOM. */
+  function currentPageId() {
+    try {
+      var b = document.body;
+      if (b && b.dataset && b.dataset.page) return b.dataset.page;
+      var file = (location.pathname.split("/").pop() || "").toLowerCase();
+      var map = {
+        "home.html": "home", "announcements.html": "home",
+        "ai-lab.html": "ai", "nova.html": "ai",
+        "leaderboard.html": "board", "stats.html": "board",
+        "todo.html": "todo", "student-tools.html": "tools",
+        "resources.html": "pdf", "my-resources.html": "pdf",
+        "resource-view.html": "pdf", "resource-upload.html": "pdf",
+        "tool-code.html": "tools", "tool-assignment.html": "tools",
+        "tool-diagram.html": "tools", "tool-flowchart.html": "tools",
+        "tool-scan-solve.html": "tools",
+        "chats.html": "chats", "profile.html": "profile",
+        "settings.html": "profile"
+      };
+      return map[file] === undefined ? "" : map[file];
+    } catch (e) { return ""; }
+  }
+
+  function bootChrome() {
+    if (window.__codexChromeBooted) return;
+    var b = document.body;
+    if (!b) return;
+    /* Pages with their own bespoke header opt out via data-shell="off". */
+    if (b.dataset && b.dataset.shell === "off") return;
+    window.__codexChromeBooted = true;
+    try {
+      mountShell({ page: currentPageId() });
+    } catch (e) {
+      window.__codexChromeBooted = false;
+      try { console.log("shell boot:", e && e.message); } catch (e2) {}
+    }
+  }
+
+  if (document.body) {
+    bootChrome();
+  } else if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bootChrome, { once: true });
+  } else {
+    bootChrome();
   }
 
   w.CodexShell = {

@@ -1152,17 +1152,41 @@
     });
   }
 
-  auth.onAuthStateChanged(async function (user) {
-    if (!user) {
-      hubGo("login");
-      return;
-    }
-    state.user = user;
-    try { setCatalogReady(false); } catch (e) {}
-    try { bind(); } catch (eBind) { console.error("[library] bind failed", eBind); }
-    try { await loadProfile(user.uid); } catch (eP) { console.warn("[library] profile", eP); }
-    try { await loadLibrary(); } catch (eL) { console.warn("[library] library", eL); }
-    try { await ensureProgrammeCourses(false); } catch (eS) { console.warn("[library] seed", eS); }
+  /* ---------- Phase 2: instant paint from a local cache ---------- */
+  var LIB_CACHE_KEY = "codex_lib_cache_v1";
+  var CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
+  var PROFILE_KEYS = ["faculty", "department", "level", "semester", "university", "fullName", "name"];
+
+  function readLibCache(uid) {
+    try {
+      var raw = localStorage.getItem(LIB_CACHE_KEY);
+      if (!raw) return null;
+      var o = JSON.parse(raw);
+      if (!o || o.uid !== uid) return null;
+      if (!o.t || Date.now() - o.t > CACHE_TTL) return null;
+      return o;
+    } catch (e) { return null; }
+  }
+
+  function writeLibCache(uid) {
+    try {
+      var p = null;
+      if (state.profile) {
+        p = {};
+        PROFILE_KEYS.forEach(function (k) {
+          if (state.profile[k] != null) p[k] = state.profile[k];
+        });
+      }
+      localStorage.setItem(LIB_CACHE_KEY, JSON.stringify({
+        uid: uid,
+        t: Date.now(),
+        profile: p,
+        library: state.library || {}
+      }));
+    } catch (e) { /* quota / private mode - cache is optional */ }
+  }
+
+  function paintLibrary() {
     if (state.profile && state.profile.level) {
       state.level = String(state.profile.level);
     }
@@ -1182,13 +1206,51 @@
     }
 
     if (personalPage || state.entryMode === "cbt" || state.entryMode === "notes") {
-      document.title = (state.entryMode === "cbt" ? "CBT · " : state.entryMode === "notes" ? "Notes · " : "") + "My Library · Codex Hub";
+      document.title = (state.entryMode === "cbt" ? "CBT \u00b7 " : state.entryMode === "notes" ? "Notes \u00b7 " : "") + "My Library \u00b7 Codex Hub";
       try { renderMyLib(); } catch (eM) { console.error("[library] renderMyLib", eM); }
       if ($("myLibPanel")) $("myLibPanel").classList.add("open");
       try { setMyLibSkel(false); } catch (eSk) {}
     } else {
       try { setCatalogReady(true); } catch (e) {}
     }
+  }
+
+  auth.onAuthStateChanged(async function (user) {
+    if (!user) {
+      hubGo("login");
+      return;
+    }
+    state.user = user;
+    try { setCatalogReady(false); } catch (e) {}
+    try { bind(); } catch (eBind) { console.error("[library] bind failed", eBind); }
+
+    // 1. First paint from this device's last known library - zero network calls.
+    var cached = readLibCache(user.uid);
+    var cachedJson = null;
+    if (cached) {
+      if (!state.profile && cached.profile) state.profile = cached.profile;
+      if (cached.library) state.library = cached.library || {};
+      cachedJson = JSON.stringify(state.library || {});
+      paintLibrary();
+    }
+
+    // 2. Both Firestore documents in parallel (previously two serial round-trips).
+    await Promise.all([
+      loadProfile(user.uid).catch(function (eP) { console.warn("[library] profile", eP); }),
+      loadLibrary().catch(function (eL) { console.warn("[library] library", eL); })
+    ]);
+    writeLibCache(user.uid);
+
+    // 3. Repaint only when the server had something newer than the cache.
+    if (JSON.stringify(state.library || {}) !== cachedJson) paintLibrary();
+
+    // 4. Programme seeding no longer blocks the first paint.
+    ensureProgrammeCourses(false).then(function (n) {
+      if (!n) return;
+      writeLibCache(user.uid);
+      try { renderMyLib(); } catch (e) {}
+      try { renderGrid(false); } catch (e) {}
+    }).catch(function (eS) { console.warn("[library] seed", eS); });
   });
 
 })();

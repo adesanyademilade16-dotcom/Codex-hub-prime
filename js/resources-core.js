@@ -131,12 +131,50 @@
     return CodexMedia.uploadToCloudinary(file, { folder: "codex_resources/files" });
   }
 
+  function apiBase() {
+    try {
+      if (w.CODEX_API_BASE) return String(w.CODEX_API_BASE).replace(/\/$/, "");
+      if (w.CodexConfig && CodexConfig.apiBase) return String(CodexConfig.apiBase).replace(/\/$/, "");
+    } catch (e) {}
+    return "https://codex-backend-new.onrender.com";
+  }
+
+  /** Phase 7 — claim 3 welcome PDF credits once (server-side, Admin SDK). */
+  async function claimWelcomeCredits() {
+    try {
+      var user = auth().currentUser;
+      if (!user) return null;
+      var token = await user.getIdToken();
+      var r = await fetch(apiBase() + "/credits/claim-welcome", {
+        method: "POST",
+        headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
+        body: "{}"
+      });
+      if (!r.ok) return null;
+      return await r.json();
+    } catch (e) {
+      console.warn("claimWelcomeCredits", e && e.message);
+      return null;
+    }
+  }
+
   async function getUserCredits(userId) {
     var id = userId || uid();
     if (!id) return 0;
     var snap = await db().collection("users").doc(id).get();
-    if (!snap.exists) return 0;
-    var n = Number((snap.data() || {}).downloadCredits);
+    var data = snap.exists ? snap.data() || {} : {};
+    var n = Number(data.downloadCredits);
+    if ((!isFinite(n) || n < 1) && data.welcomeCreditsGranted !== true) {
+      var claim = await claimWelcomeCredits();
+      if (claim && isFinite(Number(claim.downloadCredits))) {
+        n = Number(claim.downloadCredits);
+      } else {
+        // re-read after claim attempt
+        snap = await db().collection("users").doc(id).get();
+        data = snap.exists ? snap.data() || {} : {};
+        n = Number(data.downloadCredits);
+      }
+    }
     return isFinite(n) && n > 0 ? Math.floor(n) : 0;
   }
 
@@ -1224,6 +1262,7 @@
     uploadThumbnailBlob: uploadThumbnailBlob,
     uploadResourceFile: uploadResourceFile,
     getUserCredits: getUserCredits,
+    claimWelcomeCredits: claimWelcomeCredits,
     consumeDownloadCredit: consumeDownloadCredit,
     grantCredits: grantCredits,
     createPendingResource: createPendingResource,

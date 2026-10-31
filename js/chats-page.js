@@ -52,7 +52,9 @@
     voiceSecs: 0,
     voiceTick: null,
     lightboxUrls: [],
-    lightboxMsg: null
+    lightboxMsg: null,
+    senderProfiles: Object.create(null),
+    senderProfileLoads: Object.create(null)
   };
 
   function $(id) { return document.getElementById(id); }
@@ -405,6 +407,37 @@
     return '<span class="ticks">✓</span>';
   }
 
+  function groupSenderProfile(uid) {
+    return state.senderProfiles[String(uid || "")] || null;
+  }
+  function ownGroupSenderProfile() {
+    var p = state.profile || {}, u = state.me || {};
+    return { fullName: p.fullName || p.displayName || u.displayName || "You", username: p.username || "", photoURL: p.photoURL || u.photoURL || "", avatarKey: p.avatarKey || "" };
+  }
+  function warmGroupSenderProfiles(msgs, convId) {
+    if (!(state.other && state.other.isGroup) || !window.firebase || !firebase.firestore) return;
+    var ids = [];
+    (msgs || []).forEach(function(m){ var uid=String(m.senderId||""); if(uid && uid !== String((state.me&&state.me.uid)||(firebase.auth().currentUser&&firebase.auth().currentUser.uid)||"") && !state.senderProfiles[uid] && !state.senderProfileLoads[uid]) ids.push(uid); });
+    ids = ids.filter(function(uid,i){return ids.indexOf(uid)===i;});
+    ids.forEach(function(uid){
+      state.senderProfileLoads[uid] = firebase.firestore().collection("public_profiles").doc(uid).get().then(function(doc){
+        var d = doc && doc.exists ? (doc.data()||{}) : {};
+        state.senderProfiles[uid] = { uid: uid, fullName: d.displayName || d.fullName || d.username || "Student", username: d.username || "", photoURL: d.photoURL || "", avatarKey: d.avatarKey || "" };
+      }).catch(function(){ state.senderProfiles[uid] = { uid:uid, fullName:"Student", photoURL:"", avatarKey:"" }; }).then(function(){
+        delete state.senderProfileLoads[uid];
+        if (state.convId === convId && state.other && state.other.isGroup) renderMsgs(state.allMsgs || []);
+      });
+    });
+  }
+  function groupAvatarHtml(profile) {
+    profile = profile || {};
+    var name = profile.fullName || profile.username || "Student";
+    var fallback = escapeHtml(initials(name).toUpperCase());
+    var src = profile.photoURL || (profile.avatarKey ? "../assets/avatars/" + encodeURIComponent(profile.avatarKey) + ".png" : "");
+    if (src) return '<span class="group-sender-avatar" aria-label="' + escapeAttr(name) + '">' + fallback + '<img loading="lazy" decoding="async" src="' + escapeAttr(src) + '" alt="" onerror="this.remove()"></span>';
+    return '<span class="group-sender-avatar" aria-hidden="true">' + fallback + '</span>';
+  }
+
   function renderMsgs(msgs) {
     state.allMsgs = msgs;
     var me = String((state.me && state.me.uid) || (firebase.auth().currentUser && firebase.auth().currentUser.uid) || "");
@@ -415,6 +448,7 @@
         return (m.text || "").toLowerCase().indexOf(q) !== -1 || (m.mediaName || "").toLowerCase().indexOf(q) !== -1;
       });
     }
+    if (state.other && state.other.isGroup) warmGroupSenderProfiles(msgs, state.convId);
     if (!msgs.length) {
       box.innerHTML = '<div class="empty"><p>No messages yet. Say hi 👋</p></div>';
       return;
@@ -469,13 +503,16 @@
         if (m.text) body += escapeHtml(m.text);
         if (m.edited) body += ' <span style="font-size:.7rem;opacity:.7">(edited)</span>';
       }
-      parts.push(
-        '<div class="bubble-row ' + (mine ? "me" : "them") + '">' +
-          '<div class="bubble' + (m.deleted ? " deleted" : "") + '" data-mid="' + escapeAttr(m.id) + '" data-mine="' + (mine ? "1" : "0") + '">' +
-            body +
+      var inGroup = !!(state.other && state.other.isGroup);
+      var sender = inGroup ? (mine ? ownGroupSenderProfile() : groupSenderProfile(m.senderId)) : null;
+      var senderHeader = inGroup ? '<div class="group-sender-name">' + escapeHtml((sender && (sender.fullName || sender.username)) || (mine ? "You" : "Student")) + '</div>' : '';
+      var avatar = inGroup ? groupAvatarHtml(sender) : '';
+      var bubbleHtml = '<div class="bubble' + (m.deleted ? " deleted" : "") + '" data-mid="' + escapeAttr(m.id) + '" data-mine="' + (mine ? "1" : "0") + '">' +
+            senderHeader + body +
             '<div class="meta-line"><span>' + escapeHtml(clock(m.createdAt)) + '</span>' + ticksHtml(m, me) + '</div>' +
-          '</div></div>'
-      );
+          '</div>';
+      parts.push('<div class="bubble-row ' + (mine ? "me" : "them") + (inGroup ? " group-message" : "") + '">' +
+        (inGroup && mine ? bubbleHtml + avatar : avatar + bubbleHtml) + '</div>');
     });
     var html = parts.join("");
     box.innerHTML = html;
