@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <script src="../js/theme-boot.js"></script>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -119,6 +120,7 @@
   </style>
 </head>
 <body class="app-body" data-page="profile">
+<script src="../js/shell.js"></script>
   <div class="page">
     <div class="top">
       <a href="profile.html" aria-label="Back">←</a>
@@ -221,6 +223,77 @@
       </div>
     </div>
 
+    <style>
+      .rem-card { display: flex; flex-direction: column; gap: 12px; }
+      .rem-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; }
+      .rem-field { display: flex; flex-direction: column; gap: 4px; font-size: .72rem; font-weight: 700; opacity: .8; }
+      .rem-field input, .rem-field select { padding: 8px 10px; border-radius: 10px; border: 1px solid rgba(148,163,184,.4);
+        background: transparent; color: inherit; font-size: .8rem; font-family: inherit; }
+      .rem-days { display: flex; gap: 4px; flex-wrap: wrap; }
+      .rem-days button { border: 1px solid rgba(148,163,184,.4); background: transparent; color: inherit;
+        font-size: .68rem; font-weight: 700; padding: 6px 9px; border-radius: 999px; cursor: pointer; }
+      .rem-days button.on { background: rgba(124,58,237,.22); border-color: rgba(124,58,237,.65); color: #C4B5FD; }
+      .rem-add { border: 0; background: #7C3AED; color: #fff; font-weight: 800; font-size: .78rem;
+        padding: 10px 16px; border-radius: 10px; cursor: pointer; }
+      .rem-add[disabled] { opacity: .6; cursor: default; }
+      .rem-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid rgba(148,163,184,.22); }
+      .rem-row:first-child { border-top: 0; }
+      .rem-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+      .rem-main strong { font-size: .84rem; }
+      .rem-main span { font-size: .68rem; opacity: .7; }
+      .rem-toggle { width: 44px; height: 24px; border-radius: 999px; border: 0; cursor: pointer;
+        background: rgba(148,163,184,.35); position: relative; flex: 0 0 auto; }
+      .rem-toggle i { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%;
+        background: #fff; transition: left .16s ease; }
+      .rem-toggle.on { background: #34D399; }
+      .rem-toggle.on i { left: 23px; }
+      .rem-del { border: 0; background: transparent; color: inherit; opacity: .55; font-size: 1.1rem;
+        cursor: pointer; padding: 4px 6px; border-radius: 8px; flex: 0 0 auto; }
+      .rem-del:hover { opacity: 1; background: rgba(239,68,68,.15); }
+      .rem-empty, .rem-hint { font-size: .72rem; opacity: .7; line-height: 1.5; }
+      .rem-hint { color: #F59E0B; }
+      @media (max-width: 520px) { .rem-form { gap: 6px } .rem-field input, .rem-field select { font-size: .76rem } }
+      @media (prefers-reduced-motion: reduce) { .rem-toggle i { transition: none } }
+    </style>
+
+    <p class="sec">Daily reminder</p>
+    <div class="card rem-card">
+      <div class="row">
+        <div class="grow">
+          <strong>Study reminders on this device</strong>
+          <span>Task, revision session, deadline and study-schedule nudges</span>
+        </div>
+        <button type="button" class="toggle" id="remMaster" aria-pressed="false"><i></i></button>
+      </div>
+      <p class="rem-hint" id="remHint" hidden></p>
+      <div id="reminderList" aria-live="polite"></div>
+      <div class="rem-form">
+        <label class="rem-field">Type
+          <select id="remType">
+            <option value="study">Study session</option>
+            <option value="revision">Revision session</option>
+            <option value="deadline">Assignment deadline</option>
+            <option value="task">Task reminder</option>
+          </select>
+        </label>
+        <label class="rem-field">Time
+          <input type="time" id="remTime" value="19:00" step="300">
+        </label>
+        <div class="rem-field" style="flex:1 1 100%">Days
+          <div class="rem-days" id="remDays">
+            <button type="button" data-day="1" aria-pressed="false">Mon</button>
+            <button type="button" data-day="2" aria-pressed="false">Tue</button>
+            <button type="button" data-day="3" aria-pressed="false">Wed</button>
+            <button type="button" data-day="4" aria-pressed="false">Thu</button>
+            <button type="button" data-day="5" aria-pressed="false">Fri</button>
+            <button type="button" data-day="6" aria-pressed="false">Sat</button>
+            <button type="button" data-day="0" aria-pressed="false">Sun</button>
+          </div>
+        </div>
+        <button type="button" class="rem-add" id="remAdd">Add reminder</button>
+      </div>
+    </div>
+
     <p class="sec">Notifications</p>
     <div class="card">
       <div class="row">
@@ -311,11 +384,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
 <script src="../js/fcm-config.js"></script>
 <script src="../js/push-client.js"></script>
+<script src="../js/reminders-client.js"></script>
   <script src="../js/firebase-config.js"></script>
   <script src="../js/app-auth.js"></script>
   <script src="../js/media.js"></script>
   <script src="../js/onboarding.js"></script>
-  <script src="../js/shell.js"></script>
+  
   <script src="../js/codex-quota.js"></script>
   <script>
   (function () {
@@ -624,5 +698,6 @@
 })();
 </script>
 
+<script>try{if(window.CodexReminders)CodexReminders.mountUI();}catch(e){console.warn("reminders",e);}</script>
 </body>
 </html>

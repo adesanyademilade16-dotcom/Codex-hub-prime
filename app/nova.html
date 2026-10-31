@@ -324,6 +324,53 @@
     body.nova-light .sheet { background: #fff; color: #0F172A; }
     body.nova-light .sheet .lead { color: #64748B; }
     body.nova-light .sheet .ghost { color: #475569; }
+    /* Phase 3 - coding workspace */
+    .coding-chip {
+      display: flex; align-items: center; gap: 10px; margin: 0 0 8px;
+      padding: 8px 12px; border-radius: 12px;
+      background: linear-gradient(135deg, rgba(124,58,237,.18), rgba(14,165,233,.14));
+      border: 1px solid rgba(124,58,237,.45); color: #E9D5FF; font-size: .72rem; line-height: 1.3;
+    }
+    .coding-chip[hidden] { display: none; }
+    .coding-chip .dot { width: 8px; height: 8px; border-radius: 50%; background: #34D399;
+      box-shadow: 0 0 0 3px rgba(52,211,153,.18); flex: 0 0 auto; animation: cwPulse 2.4s ease-in-out infinite; }
+    .coding-chip-text { display: flex; flex-direction: column; min-width: 0; }
+    .coding-chip-text b { color: #F5F3FF; font-size: .74rem; letter-spacing: .02em; }
+    .coding-chip-text small { color: #C4B5FD; font-size: .66rem; }
+    .coding-chip button { margin-left: auto; border: 1px solid rgba(196,181,253,.5); background: transparent;
+      color: #EDE9FE; font-size: .66rem; font-weight: 700; padding: 5px 10px; border-radius: 999px; cursor: pointer; flex: 0 0 auto; }
+    .coding-chip button:hover { background: rgba(196,181,253,.18); }
+    body.coding-mode .composer { border-color: rgba(124,58,237,.55);
+      box-shadow: 0 0 0 1px rgba(124,58,237,.22) inset, 0 10px 26px -20px rgba(124,58,237,.9); }
+    body.coding-mode .composer textarea::placeholder { color: #A78BFA; }
+    @keyframes cwPulse { 0%,100% { opacity: 1 } 50% { opacity: .45 } }
+    .cw-card { margin: 12px 0; border: 1px solid rgba(148,163,184,.28); border-radius: 14px; background: #0B1220; overflow: hidden; }
+    .cw-head { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #111827;
+      border-bottom: 1px solid rgba(148,163,184,.15); flex-wrap: wrap; }
+    .cw-badge { font-size: .66rem; font-weight: 800; color: #A5F3FC; letter-spacing: .05em; text-transform: uppercase; }
+    .cw-actions { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+    .cw-actions button { border: 0; background: rgba(124,58,237,.28); color: #E9D5FF; font-size: .68rem;
+      font-weight: 700; padding: 5px 10px; border-radius: 8px; cursor: pointer; }
+    .cw-actions button.cw-ghost { background: rgba(148,163,184,.14); color: #CBD5E1; }
+    .cw-tabs { display: flex; gap: 2px; overflow-x: auto; padding: 6px 8px 0; background: #0E1526; }
+    .cw-tabs button { border: 0; background: transparent; color: #94A3B8; font-size: .7rem; font-weight: 600;
+      padding: 6px 10px; border-radius: 8px 8px 0 0; cursor: pointer; white-space: nowrap; }
+    .cw-tabs button[aria-selected="true"] { background: #0B1220; color: #E2E8F0; box-shadow: inset 0 -2px 0 #7C3AED; }
+    .cw-code { margin: 0; padding: 12px 14px; color: #E2E8F0; background: transparent; max-height: 420px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .76rem; line-height: 1.55;
+      overflow: auto; white-space: pre; }
+    .cw-preview-bg { position: fixed; inset: 0; background: rgba(2,6,23,.74); z-index: 9999;
+      display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .cw-preview { width: min(980px,100%); height: min(86vh,760px); background: #0B1220;
+      border: 1px solid rgba(148,163,184,.3); border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; }
+    .cw-preview-head { display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+      border-bottom: 1px solid rgba(148,163,184,.18); color: #E2E8F0; font-size: .74rem; flex-wrap: wrap; }
+    .cw-preview-head .cw-note { color: #94A3B8; font-size: .64rem; }
+    .cw-preview-head button { margin-left: auto; border: 0; background: rgba(148,163,184,.16); color: #E2E8F0;
+      padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: .7rem; font-weight: 700; }
+    .cw-frame { flex: 1; width: 100%; border: 0; background: #fff; }
+    @media (max-width: 640px) { .cw-preview { height: 92vh } .cw-code { max-height: 300px } }
+    @media (prefers-reduced-motion: reduce) { .coding-chip .dot { animation: none } }
     .msg-code-wrap {
       position: relative; margin: 10px 0; border-radius: 12px; overflow: hidden;
       border: 1px solid rgba(148,163,184,.25); background: #0B1220;
@@ -333,6 +380,7 @@
       padding: 6px 10px; background: #111827; border-bottom: 1px solid rgba(148,163,184,.15);
       font-size: .68rem; color: #94A3B8; font-weight: 600; letter-spacing: .04em;
     }
+    .msg-code-tools { display: flex; gap: 6px; align-items: center; }
     .msg-code-bar button {
       border: 0; background: rgba(124,58,237,.25); color: #E9D5FF; font-size: .68rem;
       font-weight: 700; padding: 4px 10px; border-radius: 8px; cursor: pointer;
@@ -743,7 +791,10 @@
     .file-preview{display:flex!important;flex-wrap:wrap!important;gap:10px!important}
     .file-preview .sq{width:88px!important;height:88px!important;flex:0 0 88px!important;max-width:88px!important}
     .msg-media{display:flex!important;flex-wrap:wrap!important;gap:8px!important}
-    .msg-img,.msg-file{width:110px!important;height:110px!important;max-width:110px!important;flex:0 0 110px!important;object-fit:cover}
+     .msg-img{width:110px!important;height:110px!important;max-width:110px!important;flex:0 0 110px!important;object-fit:cover;display:block!important}
+    .msg-file{display:flex!important;align-items:center!important;gap:8px!important;width:min(260px,72vw)!important;height:auto!important;min-height:64px!important;max-width:72vw!important;flex:0 1 auto!important;padding:10px 12px!important;box-sizing:border-box!important;overflow:hidden!important;white-space:normal!important;word-break:normal!important;border-radius:14px!important}
+    .msg-file span{min-width:0!important;overflow-wrap:anywhere!important;word-break:break-word!important;line-height:1.35!important}
+    @media(max-width:480px){.file-preview .sq{max-width:calc(50% - 5px)!important}.msg-file{max-width:76vw!important;width:min(260px,76vw)!important}}
 
   
     /* Compact liquid charge pill — does not cover title */
@@ -901,7 +952,223 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
     .md-ol li { margin: 0.25rem 0; line-height: 1.45; }
     .md-ol li::marker { font-weight: 800; color: #A5B4FC; }
     .md-ul { padding-left: 1.2rem; margin: 0.4rem 0; }
-    </style>
+      /* Nova responsive polish: keep controls reachable on phones and reduce layout jank. */
+    .top, .composer-wrap { -webkit-backdrop-filter: none; }
+    .msgs { contain: layout style; scrollbar-gutter: stable; }
+    .img-carousel .icard { transition: transform .16s ease, border-color .16s ease; }
+    .img-carousel .icard:active { transform: scale(.985); }
+    .img-carousel .icard img { aspect-ratio: 4 / 3; }
+    .img-carousel .icard.broken { display: none; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    @media (min-width: 900px) {
+      .shell { max-width: 1440px; }
+      .msgs { padding-left: clamp(20px, 4vw, 64px); padding-right: clamp(20px, 4vw, 64px); }
+      .composer-wrap { max-width: none; padding-left: clamp(18px, 4vw, 64px); padding-right: clamp(18px, 4vw, 64px); }
+    }
+    @media (max-width: 600px) {
+      .top { gap: 6px; padding: 7px 8px; }
+      .top button, .top a { width: 34px; height: 34px; border-radius: 11px; }
+      .msgs { padding: 12px 12px calc(120px + env(safe-area-inset-bottom)); gap: 10px; }
+      .welcome { padding: 22px 10px 18px; }
+      .welcome .bot { width: 78px; height: 78px; border-radius: 23px; }
+      .welcome .bot svg { width: 94px; height: 94px; }
+      .bubble { font-size: .88rem; }
+      .img-carousel .icard { flex-basis: min(190px, 68vw); }
+      .img-carousel .icard img { height: 132px; }
+      .composer-wrap { padding: 8px 9px calc(8px + env(safe-area-inset-bottom)); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+    /* Nova Orbital Studio — visual layer only; existing IDs and logic stay intact. */
+    :root {
+      color-scheme: dark;
+      --accent: #8B7CFF;
+      --accent2: #4D8DFF;
+      --ink: #F4F5FF;
+      --muted: #9AA5BD;
+      --bg: #090B14;
+      --panel: #101321;
+      --bubble: #171B2B;
+      --nova-line: rgba(165, 177, 219, .14);
+      --nova-glass: rgba(19, 23, 40, .88);
+      --nova-shadow: 0 18px 55px rgba(0,0,0,.24);
+    }
+    html { background: var(--bg); }
+    body { color: var(--ink); background-color: var(--bg); background-image: radial-gradient(ellipse 55% 42% at 74% -18%, rgba(89,78,226,.16), transparent 72%), radial-gradient(ellipse 40% 30% at 0% 100%, rgba(48,113,255,.07), transparent 76%); }
+    .shell { max-width: 1600px; border-inline: 1px solid rgba(148,163,184,.05); background: transparent; }
+    @media (min-width: 900px) { .shell { grid-template-columns: 264px minmax(0,1fr); } }
+    .hist { background: rgba(12,15,27,.94); border-right: 1px solid var(--nova-line); padding: 8px 10px; }
+    .hist-top { padding: 13px 8px 17px; border-bottom-color: var(--nova-line); }
+    .hist-top h1 { letter-spacing: -.045em; font-size: 1.02rem; }
+    .nova-brand-mark { display:inline-grid; place-items:center; width:30px; height:30px; margin-right:8px; vertical-align:middle; border:1px solid rgba(151,139,255,.22); border-radius:11px; background:linear-gradient(145deg,rgba(133,116,255,.16),rgba(75,141,255,.05)); box-shadow:0 0 22px rgba(118,104,255,.1); }
+    .nova-brand-mark svg { width:25px; height:25px; display:block; }
+    .hist-top a, .hist-top button { border-color: transparent; background: rgba(255,255,255,.045); color: #CBD3EA; }
+    .new-chat { margin: 14px 2px 9px; min-height: 44px; border-radius: 14px; background: linear-gradient(120deg,#7668F5,#4E8DFA); box-shadow: 0 8px 24px rgba(91,89,230,.22); letter-spacing: -.01em; transition: transform .18s ease, box-shadow .18s ease; }
+    .new-chat:hover { transform: translateY(-1px); box-shadow: 0 12px 28px rgba(91,89,230,.3); }
+    #changeModule { background: rgba(255,255,255,.045)!important; border: 1px solid var(--nova-line); color: #DDE3F7; }
+    #histSearch { min-height: 42px; margin: 8px 2px 12px!important; width: calc(100% - 4px)!important; border-radius: 12px!important; background: rgba(255,255,255,.035)!important; border-color: var(--nova-line)!important; }
+    .sess { border-radius: 11px; color: #9BA6C0; padding: 11px 12px; }
+    .sess:hover, .sess.on { color: #F2F2FF; background: linear-gradient(90deg,rgba(126,109,255,.16),rgba(126,109,255,.045)); box-shadow: inset 2px 0 #8D7DFF; }
+    .main { background: transparent; }
+    .top { min-height: 66px; padding: 10px clamp(12px,2.2vw,30px); gap: 10px; background: rgba(9,11,20,.76); border-bottom: 1px solid var(--nova-line); backdrop-filter: blur(18px); }
+    .top button, .top a { width: 40px; height: 40px; border-radius: 13px; border-color: var(--nova-line); color: #C5CDE2; background: rgba(255,255,255,.025); transition: background .16s ease, border-color .16s ease, transform .16s ease; }
+    .top button:hover, .top a:hover { background: rgba(133,117,255,.12); border-color: rgba(153,139,255,.32); transform: translateY(-1px); }
+    .top .title { gap: 11px; }
+    .top .title .mascot { width: 38px; height: 38px; border: 1px solid rgba(155,142,255,.32); box-shadow: 0 0 0 4px rgba(119,101,255,.07),0 0 24px rgba(101,114,255,.16); }
+    .top .title b { font-size: .94rem; letter-spacing: -.035em; }
+    .top .title span { font-size: .69rem; letter-spacing: .015em; }
+    .nova-charge { border-color: rgba(149,139,255,.22)!important; background: rgba(124,112,255,.08)!important; min-height: 38px; padding: 4px 10px 4px 6px; }
+    .nova-charge .liq-wrap { width: 18px; height: 24px; border-color: #8188B1; border-radius: 5px; }
+    .nova-charge .liq-wrap { border:0; background:transparent; overflow:hidden; border-radius:5px; }
+    .nova-charge .liq-wrap::before { display:none; }
+    .nova-charge .liq-wrap .liq-wrap-inner { display:none; }
+    .nova-charge .bat-outline { position:absolute; inset:0; width:100%; height:100%; color:#9BA6D1; pointer-events:none; z-index:2; }
+    .nova-charge .liq-wrap { isolation:isolate; }
+    .nova-charge .liq { z-index:0; left:3px; right:3px; bottom:0; border-radius:2px 2px 3px 3px; }
+    .nova-charge .liq::before { top:-3px; height:5px; }
+    body.nova-light .nova-charge .bat-outline { color:#737EA4; }
+    .nova-charge .chg-num { font-size: .68rem; color: #E1E4FF; }
+    .msgs { padding: clamp(20px,3vw,42px) clamp(16px,5vw,76px) 170px; gap: 18px; scrollbar-color: rgba(138,128,200,.35) transparent; }
+    .welcome { width: min(100%, 700px); max-width: 700px; padding: clamp(34px,7vh,76px) 16px 32px; }
+    .welcome .bot { position: relative; isolation: isolate; width: 112px; height: 112px; margin-bottom: 27px; border-radius: 36px; border: 1px solid rgba(157,145,255,.25); background: radial-gradient(circle at 50% 35%,rgba(121,104,255,.2),rgba(20,23,42,.84) 68%); box-shadow: 0 0 0 7px rgba(110,96,255,.045), 0 20px 58px rgba(0,0,0,.3), inset 0 1px rgba(255,255,255,.09); }
+    .welcome .bot::before, .welcome .bot::after { content: ''; position: absolute; z-index: -1; inset: -11px; border: 1px solid rgba(123,145,255,.22); border-radius: 42%; transform: rotate(-26deg); animation: novaOrbit 18s linear infinite; }
+    .welcome .bot::after { inset: -18px; border-color: rgba(170,111,255,.18); border-radius: 47%; transform: rotate(38deg); animation-direction: reverse; animation-duration: 26s; }
+    .welcome .bot svg { position: relative; z-index: 1; width: 100px; height: 100px; filter: drop-shadow(0 0 16px rgba(129,113,255,.24)); }
+    @keyframes novaOrbit { to { transform: rotate(334deg); } }
+    .welcome-eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 7px 11px; margin: 0 auto 15px; border: 1px solid rgba(148,136,255,.22); border-radius: 999px; color: #C2BAFF; background: rgba(118,103,255,.08); font-size: .66rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    .welcome-eyebrow svg { width: 13px; height: 13px; }
+    .welcome h2 { font-size: clamp(1.8rem,4vw,2.65rem); line-height: 1.12; letter-spacing: -.065em; font-weight: 700; margin: 0 0 13px; color: #F6F5FF; }
+    .welcome p { max-width: 490px; margin: 0 auto; color: #A6AEC5; font-size: clamp(.9rem,1.5vw,1rem); line-height: 1.75; }
+    .chips { gap: 9px; margin-top: 25px; }
+    .chips button { min-height: 42px; padding: 10px 15px; color: #D5D9F0; background: rgba(255,255,255,.035); border: 1px solid rgba(160,170,210,.15); border-radius: 13px; font-size: .77rem; font-weight: 600; transition: all .18s ease; }
+    .chips button:hover { color: #F8F7FF; border-color: rgba(147,130,255,.42); background: rgba(123,104,255,.11); transform: translateY(-2px); }
+    .row.bot { max-width: min(100%, 860px); align-self: center; width: 100%; padding: 9px 0 18px; }
+    .row.bot .bot-head { margin-bottom: 9px; gap: 10px; }
+    .row.bot .bot-head .av { width: 30px; height: 30px; box-shadow: 0 0 0 3px rgba(134,116,255,.08); }
+    .row.bot .bot-name { font-size: .7rem; letter-spacing: .09em; }
+    .row.bot .bubble { font-size: .94rem; line-height: 1.78; color: #DDE2F2; padding: 0 1px 10px!important; }
+    .row.user { max-width: min(100%,860px); width: 100%; align-self: center; }
+    .row.user .bubble { max-width: min(78%,660px); padding: 12px 16px; border-radius: 19px 19px 5px 19px; background: linear-gradient(135deg,#665CE4,#526FE8); box-shadow: 0 9px 26px rgba(71,79,194,.15); line-height: 1.65; }
+    .bubble h1,.bubble h2,.bubble h3 { letter-spacing: -.035em; line-height: 1.3; }
+    .bubble p { margin: .55em 0; }
+    .bubble pre, .msg-code-wrap { max-width: 100%; }
+    .bubble table, .md-table { max-width: 100%; display: block; overflow-x: auto; border-radius: 12px; }
+    .src-box { background: rgba(120,108,255,.07); border-color: rgba(151,139,255,.18); }
+    .src-chip { background: rgba(255,255,255,.035); border-color: var(--nova-line); color: #D9DEEF; }
+    .img-carousel { gap: 12px; padding: 10px 2px 14px; }
+    .img-carousel .icard { border-radius: 17px; background: #111626; border-color: rgba(153,163,204,.18); box-shadow: 0 8px 25px rgba(0,0,0,.12); transition: transform .2s ease,border-color .2s ease; }
+    .img-carousel .icard:hover { transform: translateY(-3px); border-color: rgba(145,129,255,.5); }
+    .img-carousel .icard img { height: 155px; background: #171B2D; }
+    .img-carousel .icard a { color: #BBC4DC; padding: 9px 10px 11px; }
+    .composer-wrap { left: 264px; right: 0; width: auto; max-width: none; padding: 12px clamp(14px,4vw,56px) calc(13px + env(safe-area-inset-bottom)); border-top: 1px solid rgba(149,158,202,.12); background: linear-gradient(180deg,rgba(9,11,20,.68),rgba(9,11,20,.97) 24%); box-shadow: 0 -16px 44px rgba(0,0,0,.15); backdrop-filter: blur(18px); }
+    .composer { max-width: 860px; margin: 0 auto; gap: 9px; padding: 8px 9px; border: 1px solid rgba(153,163,210,.18); border-radius: 22px; background: rgba(23,27,44,.95); box-shadow: 0 12px 40px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.035); transition: border-color .2s ease,box-shadow .2s ease; }
+    .composer:focus-within { border-color: rgba(145,130,255,.55); box-shadow: 0 0 0 4px rgba(124,108,255,.08),0 14px 42px rgba(0,0,0,.2); }
+    .composer button.icon { width: 42px; height: 42px; border-radius: 14px; color: #AAB3CD; }
+    .composer button.icon:hover { color: #E8E7FF; background: rgba(145,130,255,.11); }
+    .composer textarea { color: #F1F3FC!important; -webkit-text-fill-color: #F1F3FC; font-size: .93rem; min-height: 28px; padding: 10px 5px; }
+    .composer .send { width: 42px; height: 42px; border-radius: 15px; background: linear-gradient(135deg,#9483FF,#4D8DFF); box-shadow: 0 5px 18px rgba(92,105,244,.27); transition: transform .16s ease,filter .16s ease; }
+    .composer .send:hover { transform: translateY(-1px); filter: brightness(1.08); }
+    .status-line { max-width: 860px; margin: 0 auto; color: #B7B1FF; }
+    .file-chip { max-width: 860px; margin: 0 auto 9px; border: 1px solid rgba(145,130,255,.2); background: rgba(111,96,255,.09); border-radius: 16px; color: #E3E5F6; }
+    .file-preview { align-items: stretch; }
+    .file-preview .sq { border-radius: 14px; border-color: rgba(160,170,210,.18); }
+    .file-preview .sq-doc { width: min(240px,100%)!important; max-width: min(240px,100%)!important; height: auto!important; min-height: 68px; flex: 1 1 180px!important; aspect-ratio: auto!important; background: rgba(15,19,34,.7); }
+    .file-preview .sq-doc .doc-tile { flex-direction: row; align-items: center; justify-content: flex-start; text-align: left; gap: 10px; padding: 12px 32px 12px 12px; min-width: 0; color: #DCE2F7; }
+    .file-preview .sq-doc .doc-tile strong { display: grid; place-items: center; flex: 0 0 38px; width: 38px; height: 42px; border-radius: 10px; background: rgba(128,111,255,.17); color: #C7BCFF; font-size: .65rem; letter-spacing: .02em; }
+    .file-preview .sq-doc .doc-tile span { min-width: 0; text-align: left; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: anywhere; line-height: 1.35; }
+    .file-preview .sq-doc button { top: 7px; right: 7px; }
+    .msg-file { background: rgba(122,111,255,.08)!important; border: 1px solid rgba(151,139,255,.22)!important; color: #DDE2F5!important; }
+    .overlay .sheet { border: 1px solid rgba(151,139,255,.18); border-radius: 24px; box-shadow: 0 24px 80px rgba(0,0,0,.4); }
+    .menu-list button { border-radius: 15px; transition: transform .16s ease,border-color .16s ease,background .16s ease; }
+    .menu-list button:hover { transform: translateY(-1px); border-color: rgba(145,130,255,.36); }
+    .char-pick-card { border-radius: 20px!important; transition: transform .2s ease,box-shadow .2s ease,border-color .2s ease!important; }
+    .char-pick-card.on { box-shadow: 0 0 0 2px rgba(139,124,255,.4),0 16px 36px rgba(92,81,214,.12)!important; }
+    :where(button,a,input,textarea,[tabindex]):focus-visible { outline: 2px solid #A89AFF; outline-offset: 3px; }
+    body.nova-light { color-scheme: light; --bg:#F5F6FC; --panel:#FFFFFF; --bubble:#FFFFFF; --muted:#68728A; --nova-line:rgba(65,72,112,.12); background-color:#F5F6FC; background-image:radial-gradient(ellipse 60% 42% at 70% -18%,rgba(124,102,255,.13),transparent 70%),radial-gradient(ellipse 45% 35% at 0% 100%,rgba(77,141,255,.07),transparent 75%); }
+    body.nova-light .hist { background: rgba(255,255,255,.9); border-right-color: #E6E8F2; }
+    body.nova-light .hist-top { border-bottom-color: #E6E8F2; }
+    body.nova-light .hist-top a, body.nova-light .hist-top button { color:#4A5268; background:#F6F7FC; border-color:#E8EAF3; }
+    body.nova-light .new-chat { color:#fff; }
+    body.nova-light #changeModule { background:#F6F7FC!important; color:#4A5268; border-color:#E5E7F1; }
+    body.nova-light #histSearch { background:#F7F8FC!important; color:#172036!important; }
+    body.nova-light .sess { color:#67718A; }
+    body.nova-light .sess:hover, body.nova-light .sess.on { color:#332A7A; background:linear-gradient(90deg,rgba(124,102,255,.12),rgba(124,102,255,.035)); }
+    body.nova-light .top, body.nova-light .composer-wrap { background:rgba(250,250,255,.88); border-color:#E7E8F2; }
+    body.nova-light .top button, body.nova-light .top a { color:#424A62; background:rgba(255,255,255,.7); border-color:#E5E7F1; }
+    body.nova-light .top .title b { color:#151B2D; }
+    body.nova-light .top .title span { color:#69738B; }
+    body.nova-light .welcome .bot { background:radial-gradient(circle at 50% 35%,rgba(124,102,255,.16),rgba(255,255,255,.95) 70%); border-color:rgba(117,101,220,.22); box-shadow:0 0 0 7px rgba(110,96,255,.035),0 18px 48px rgba(61,62,110,.1); }
+    body.nova-light .welcome h2 { color:#17182D; }
+    body.nova-light .welcome p { color:#66708A; }
+    body.nova-light .welcome-eyebrow { color:#5949B8; background:rgba(124,102,255,.07); border-color:rgba(117,101,220,.2); }
+    body.nova-light .chips button { color:#454B68!important; background:rgba(255,255,255,.78)!important; border-color:#E3E5F1!important; box-shadow:0 3px 10px rgba(40,48,90,.025); }
+    body.nova-light .chips button:hover { color:#342779!important; background:#F4F1FF!important; border-color:#CFC6FF!important; }
+    body.nova-light .row.bot .bubble { color:#293148; }
+    body.nova-light .row.bot .bot-name { color:#5F50C8; }
+    body.nova-light .row.user .bubble { color:#fff; }
+    body.nova-light .composer { background:rgba(255,255,255,.96)!important; border-color:#E1E4F0!important; box-shadow:0 12px 36px rgba(43,50,93,.08),inset 0 1px #fff; }
+    body.nova-light .composer textarea { color:#20263A!important; -webkit-text-fill-color:#20263A!important; }
+    body.nova-light .composer textarea::placeholder { color:#8991A5!important; -webkit-text-fill-color:#8991A5!important; }
+    body.nova-light .composer button.icon { color:#6D7590; }
+    body.nova-light .file-chip { background:rgba(124,102,255,.06); color:#303653; border-color:#E1DDFB; }
+    body.nova-light .file-preview .sq-doc { background:#F7F7FD; border-color:#E5E5F2; }
+    body.nova-light .file-preview .sq-doc .doc-tile { color:#3C435B; }
+    body.nova-light .file-preview .sq-doc .doc-tile strong { color:#5547B5; background:#EDEAFF; }
+    body.nova-light .src-box { background:#F7F6FF; border-color:#E4E0FB; }
+    body.nova-light .src-chip { color:#45406D; background:#fff; border-color:#E4E1F5; }
+    body.nova-light .img-carousel .icard { background:#fff; border-color:#E4E6F1; box-shadow:0 8px 24px rgba(40,48,90,.06); }
+    body.nova-light .img-carousel .icard a { color:#5E6680; }
+    body.nova-light .msg-file { background:#F7F6FF!important; color:#3D4260!important; border-color:#E0DDF6!important; }
+    body.nova-light .overlay .sheet { border-color:#E6E3F6; box-shadow:0 24px 80px rgba(36,37,75,.2); }
+    @media (min-width: 900px) { .composer-wrap { left:264px; } }
+    @media (max-width: 899px) {
+      .shell { border:0; }
+      .composer-wrap { left:0; padding-left:12px; padding-right:12px; }
+      .msgs { padding:22px 16px 160px; }
+      .welcome { padding-top:clamp(30px,6vh,60px); }
+      .row.user .bubble { max-width:88%; }
+      .top { min-height:60px; }
+    }
+    @media (max-width: 480px) {
+      .top { gap:6px; padding:8px 9px; }
+      .top button, .top a { width:36px; height:36px; border-radius:11px; }
+      .top .title { gap:8px; }
+      .top .title .mascot { width:32px; height:32px; }
+      .top .title b { font-size:.84rem; }
+      .nova-charge { gap:4px; padding:3px 6px 3px 4px; }
+      .nova-charge .liq-wrap { width:15px; height:21px; }
+      .nova-charge .chg-num { font-size:.59rem; }
+      .top a[aria-label="AI Lab"] { font-size:.63rem!important; padding:0 7px!important; }
+      .msgs { padding:20px 13px 155px; gap:13px; }
+      .welcome { padding-left:6px; padding-right:6px; }
+      .welcome .bot { width:94px; height:94px; border-radius:30px; margin-bottom:23px; }
+      .welcome .bot svg { width:86px; height:86px; }
+      .welcome h2 { font-size:1.85rem; }
+      .welcome p { font-size:.87rem; }
+      .chips { margin-top:21px; gap:7px; }
+      .chips button { font-size:.72rem; padding:9px 11px; min-height:40px; }
+      .row.bot .bubble { font-size:.9rem; line-height:1.72; }
+      .row.user .bubble { max-width:91%; padding:11px 13px; font-size:.88rem; }
+      .composer { gap:4px; padding:6px; border-radius:19px; }
+      .composer button.icon,.composer .send { width:39px; height:39px; }
+      .composer textarea { font-size:.88rem; padding:8px 2px; }
+      .file-preview .sq-doc { flex-basis:100%!important; max-width:100%!important; }
+    }
+    @media (max-width: 340px) {
+      .top .title span { display:none; }
+      .top { gap:4px; }
+      .top .title { gap:5px; }
+      .top .title .mascot { display:none; }
+      .top a[aria-label="AI Lab"] { display:none; }
+      .nova-charge .chg-num { max-width:30px; overflow:hidden; }
+      .composer button.icon { width:34px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *,*::before,*::after { scroll-behavior:auto!important; animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; }
+    }
+  </style>
+  <link rel="stylesheet" href="../css/nova-refresh.css">
   <script src="../js/keyboard-fix.js" defer></script>
 </head>
 <body data-page="nova">
@@ -946,7 +1213,7 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
   </div>
 
   <!-- Character onboarding -->
-  <div class="overlay show" id="onboard">
+  <div class="overlay" id="onboard" hidden style="display:none">
     <div class="sheet">
       <h2>Meet your Nova</h2>
       <p class="lead">Pick a module. Each has a different tone. Some unlock with Regular or Pro.</p>
@@ -1003,17 +1270,17 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
     <aside class="hist" id="hist">
       <div class="hist-top">
         <a href="ai-lab.html" aria-label="Back">←</a>
-        <h1>Nova</h1>
+        <h1><span class="nova-brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="5" fill="url(#novaBrandCore)"/><ellipse cx="16" cy="16" rx="13" ry="6.2" stroke="url(#novaBrandOrbit)" stroke-width="1.3" transform="rotate(-32 16 16)"/><ellipse cx="16" cy="16" rx="10.5" ry="14" stroke="rgba(157,143,255,.68)" stroke-width="1.1" transform="rotate(28 16 16)"/><circle cx="26" cy="8" r="1.6" fill="#8DDCFF"/><defs><linearGradient id="novaBrandCore" x1="11" y1="10" x2="22" y2="22" gradientUnits="userSpaceOnUse"><stop stop-color="#C7BCFF"/><stop offset="1" stop-color="#5D8FFF"/></linearGradient><linearGradient id="novaBrandOrbit" x1="3" y1="9" x2="28" y2="22" gradientUnits="userSpaceOnUse"><stop stop-color="#A79BFF"/><stop offset="1" stop-color="#60C7FF"/></linearGradient></defs></svg></span>Nova</h1>
         <button type="button" id="closeHist" aria-label="Close">✕</button>
       </div>
-      <button type="button" class="new-chat" id="newChat">+ New chat</button>
-      <button type="button" class="new-chat" id="changeModule" style="background:#1A2238;margin-top:0">Change AI module</button>
-      <input type="search" id="histSearch" placeholder="Search chats…" aria-label="Search chats" style="width:calc(100% - 24px);margin:8px 12px;padding:8px 12px;border-radius:12px;border:1px solid rgba(148,163,184,.3);background:rgba(0,0,0,.15);color:inherit;font:inherit;box-sizing:border-box"><div class="sess-list" id="sessList"></div>
+      <button type="button" class="new-chat" id="newChat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>New chat</span></button>
+      <button type="button" class="module-switch" id="changeModule"><span class="module-switch-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.7 1.7-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.2h-2.4v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1L8 17l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H6.7v-2.4h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9L8 8.6l1.7-1.7.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5v-.2h2.4v.2a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.7 1.7-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.2V14h-.2a1.7 1.7 0 0 0-1.5 1Z"/></svg></span><span><b>Change module</b><small>Choose your Nova personality</small></span><svg class="module-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+      <label class="history-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg><input type="search" id="histSearch" placeholder="Search conversations" aria-label="Search conversations"><kbd>/</kbd></label><div class="history-label">RECENT</div><div class="sess-list" id="sessList"></div>
     </aside>
 
     <div class="main">
       <header class="top">
-        <button type="button" id="openHist" aria-label="History">
+        <button type="button" id="openHist" aria-label="Toggle conversation sidebar" aria-expanded="true">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h10M4 18h14"/></svg>
         </button>
         <div class="title">
@@ -1024,7 +1291,7 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
           </div>
         </div>
         <button type="button" class="nova-charge" id="novaCharge" title="Nova Charge" aria-label="Nova Charge">
-          <span class="liq-wrap"><span class="liq" id="batFill" style="height:100%"></span></span>
+          <span class="liq-wrap"><span class="liq" id="batFill" style="height:100%"></span><svg class="bat-outline" viewBox="0 0 24 32" aria-hidden="true"><rect x="3" y="5" width="18" height="25" rx="4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 2.5h6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>
           <span class="chg-num" id="chgNum">—</span>
         </button>
         <button type="button" id="settingsBtn" aria-label="Settings" title="Settings">
@@ -1047,6 +1314,7 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
     <div class="msgs" id="msgs">
         <div class="welcome" id="welcome">
           <div class="bot" id="welcomeBot"></div>
+          <div class="welcome-eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="9" ry="4.5" transform="rotate(-32 12 12)"/><circle cx="19.5" cy="7" r="1" fill="currentColor" stroke="none"/></svg> NOVA ORBITAL STUDIO</div>
           <h2 id="welcomeHi">Hi — I’m Nova</h2>
           <p id="welcomeSub">A serious study co-pilot for your courses. I use your Codex profile — I never invent scores.</p>
           <div class="chips" id="chips"></div>
@@ -1071,6 +1339,11 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
             <small>Chat stays as-is until you send. Cancel to keep the original reply.</small>
           </div>
           <button type="button" class="btn-cancel-edit" id="cancelEditBtn">Cancel</button>
+        </div>
+        <div class="coding-chip" id="codingChip" hidden role="status">
+          <span class="dot" aria-hidden="true"></span>
+          <span class="coding-chip-text"><b>Coding mode ON</b><small>Code-first answers, numbered debugging, multi-file projects with preview &amp; ZIP export.</small></span>
+          <button type="button" id="codingChipOff">Turn off</button>
         </div>
         <div class="composer">
           <button type="button" class="icon" id="plusBtn" aria-label="Add">+</button>
@@ -1111,6 +1384,8 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
   <script src="../js/codex-quota.js"></script>
   <script src="../js/nova-characters.js"></script>
   <script src="../js/nova-heroes.js"></script>
+  <script src="../js/codex-zip.js"></script>
+  <script src="../js/nova-code-workspace.js"></script>
   <script>
   (function () {
     "use strict";
@@ -1260,6 +1535,39 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
         fill.className = "liq" + (pct <= 10 ? " crit" : pct <= 25 ? " low" : pct <= 50 ? " mid" : "");
       }
     }
+    function novaToast(msg) {
+      try {
+        var sl = document.getElementById("statusLine");
+        if (sl) {
+          sl.textContent = msg || "";
+          sl.classList.add("show");
+          clearTimeout(novaToast._t);
+          novaToast._t = setTimeout(function () {
+            sl.textContent = "";
+            sl.classList.remove("show");
+          }, 3500);
+          return;
+        }
+      } catch (e) {}
+      try { console.log("[Nova]", msg); } catch (e2) {}
+    }
+    function setCodingMode(on, announce) {
+      state.codingMode = !!on;
+      try { localStorage.setItem("nova_coding_mode", state.codingMode ? "1" : "0"); } catch (e) {}
+      document.body.classList.toggle("coding-mode", state.codingMode);
+      var chip = document.getElementById("codingChip");
+      if (chip) {
+        chip.hidden = !state.codingMode;
+        chip.setAttribute("aria-hidden", state.codingMode ? "false" : "true");
+      }
+      var skBtn = document.querySelector('#skillList button[data-skill="codingmode"]');
+      if (skBtn) skBtn.classList.toggle("active", state.codingMode);
+      if (announce) {
+        novaToast(state.codingMode
+          ? "Coding mode ON — code-first answers, file tree and ZIP export."
+          : "Coding mode OFF — back to general study mode.");
+      }
+    }
     function canSendNova(text) {
       if (!window.CodexQuota) return true;
       var cost = CodexQuota.estimateCost(text || "", {
@@ -1311,9 +1619,10 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
             '</div></div>';
         }
         var label = item.name || "File";
-        var short = label.length > 28 ? label.slice(0, 24) + "…" : label;
-        var ext = (label.split(".").pop() || "DOC").toUpperCase().slice(0, 4);
-        return '<div class="msg-file" title="' + escape(label) + '"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5"/></svg><span style="font-size:.65rem;opacity:.75">' + escape(ext) + '</span><span>' + escape(short) + '</span></div>';
+        var ext = (label.indexOf(".") > -1 ? label.split(".").pop() : "FILE").toUpperCase().slice(0, 4);
+        return '<div class="msg-file" role="group" title="' + escape(label) + '" aria-label="Attachment: ' + escape(label) + '">' +
+          '<span class="mf-ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5"/></svg></span>' +
+          '<span class="mf-meta"><span class="mf-name">' + escape(label) + '</span><span class="mf-ext">' + escape(ext) + '</span></span></div>';
       }).join("") + "</div>";
     }
     function messageMedia(m) {
@@ -1405,14 +1714,18 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
       var raw = String(s || "");
       if (!window.__novaCodeBlocks) window.__novaCodeBlocks = {};
       var n = Object.keys(window.__novaCodeBlocks).length;
+      var codeBlocks = [];
       raw = raw.replace(/```([\w]*)\n([\s\S]*?)```/g, function (_, lang, code) {
         var id = "cb" + (n++);
         var clean = String(code || "").replace(/^\n+|\n+$/g, "");
         window.__novaCodeBlocks[id] = clean;
+        codeBlocks.push({ id: id, lang: lang, code: clean });
         var label = (lang || "code").toUpperCase();
         var hi = highlightCode(clean, lang);
         return '<div class="msg-code-wrap"><div class="msg-code-bar"><span>' + escape(label) +
-          '</span><button type="button" data-copy-code="' + id + '">Copy code</button></div>' +
+          '</span><span class="msg-code-tools"><button type="button" data-dl-code="' + id +
+          '" data-lang="' + escape(lang || "") + '">Download</button>' +
+          '<button type="button" data-copy-code="' + id + '">Copy code</button></span></div>' +
           '<pre class="msg-code">' + hi + '</pre></div>';
       });
       raw = raw.replace(/`([^`]+)`/g, function (_, c) {
@@ -1556,6 +1869,12 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
             return '<span class="src-chip">' + inner + "</span>";
           }).join("") + "</div></details>";
       }
+      if (window.CodexWorkspace && codeBlocks.length >= 2) {
+        try {
+          var projCard = CodexWorkspace.cardHtml(codeBlocks);
+          if (projCard) raw += projCard;
+        } catch (eProj) { console.warn("[nova] project card", eProj); }
+      }
       return raw;
     }
     function highlightCode(code, lang) {
@@ -1591,8 +1910,9 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
       if (!u || typeof u !== "string") return false;
       u = u.trim();
       if (!/^https?:\/\//i.test(u)) return false;
-      if (/\.(jpg|jpeg|png|gif|webp|svg)(\?|#|$)/i.test(u)) return true;
-      if (/\/images?\//i.test(u) || /cdn\.|cloudinary|imgur|wikimedia|googleusercontent|ggpht|pinimg|staticflickr/i.test(u)) return true;
+      if (/\.(pdf|docx?|pptx?|xlsx?)(\?|#|$)/i.test(u)) return false;
+      if (/\.(jpg|jpeg|png|gif|webp|svg|avif)(\?|#|$)/i.test(u)) return true;
+      if (/\/images?\//i.test(u) || /cdn\.|cloudinary|imgur|wikimedia|googleusercontent|ggpht|pinimg|staticflickr|tavily/i.test(u)) return true;
       // block obvious HTML pages
       if (/\.(html?|php|aspx?)(\?|#|$)/i.test(u)) return false;
       if (/clevelandclinic\.org\/health|kenhub\.com\/en\/library|adobe\.com\//i.test(u)) return false;
@@ -2390,13 +2710,36 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
             updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
             preview: content.slice(0, 80)
           };
-          if (role === "user") patch.title = content.slice(0, 48);
+          if (role === "user" && state.messages.filter(function (m) { return m.role === "user"; }).length <= 1) patch.title = makeConversationTitle(content);
           if (imageUrl) patch.preview = "🖼️ " + content.slice(0, 60);
           return col.set(patch, { merge: true });
         });
       }).catch(function (err) {
         console.warn("persist", err);
       });
+    }
+
+    function makeConversationTitle(message) {
+      var value = String(message || "").replace(/https?:\/\/\S+/g, " ").replace(/!\[[^\]]*\]\([^)]*\)/g, "image ");
+      value = value.replace(/```[\s\S]*?```/g, " code ").replace(/[#*_`~>]/g, " ").replace(/\s+/g, " ").trim();
+      if (!value) return "New conversation";
+      var patterns = [
+        [/\b(explain|teach me|what is|what are|how does|how do)\b/i, "Understanding"],
+        [/\b(solve|calculate|work out|compute)\b/i, "Solutions"],
+        [/\b(summarize|summarise|summary|outline)\b/i, "Summary"],
+        [/\b(generate|create|design|draw)\b/i, "Creative concept"],
+        [/\b(compare|difference between|differentiate)\b/i, "Comparison"],
+        [/\b(plan|schedule|timetable)\b/i, "Study plan"],
+        [/\b(debug|fix|error|bug|code)\b/i, "Code help"]
+      ];
+      var prefix = "";
+      for (var i = 0; i < patterns.length; i++) { if (patterns[i][0].test(value)) { prefix = patterns[i][1]; break; } }
+      var words = value.replace(/^(please|can you|could you|i want you to|i need you to|help me|kindly)\s+/i, "").split(" ").filter(Boolean);
+      var stop = /^(please|can|could|you|me|my|i|the|a|an|to|for|with|about|on|in|of|is|are|be|this|that|these|those|help|need|want)$/i;
+      var topic = words.filter(function(w){ return !stop.test(w); }).slice(0, 5).join(" ").replace(/[.,!?;:]+$/, "");
+      if (prefix && topic) return (prefix + " " + topic).slice(0, 48);
+      var title = words.slice(0, 6).join(" ").replace(/[.,!?;:]+$/, "");
+      return (title || "New conversation").slice(0, 48);
     }
 
     function loadSessions() {
@@ -2418,7 +2761,9 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
             var btn = document.createElement("button");
             btn.type = "button";
             btn.style.cssText = "all:unset;display:block;width:100%;cursor:pointer;padding:10px 42px 10px 12px;box-sizing:border-box";
-            btn.innerHTML = "<b style=\"display:block;font-size:.85rem\">" + escape(d.title || d.preview || "Chat") + "</b><span style=\"font-size:.72rem;opacity:.7\">" + escape((d.preview || "").slice(0, 40)) + "</span>";
+            btn.className = "sess-open";
+            btn.setAttribute("aria-label", "Open conversation: " + (d.title || "Chat"));
+            btn.innerHTML = "<b>" + escape(d.title || "Untitled conversation") + "</b>";
             btn.onclick = function () { openSession(doc.id); };
             var ren = document.createElement("button");
             ren.type = "button";
@@ -2672,7 +3017,7 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
         (ch.id === "nova_forge" ? "FORGE DEPTH: Give fuller breakdowns than a free chatbot — numbered reasoning, exam traps, and how marks are earned. If the last few assistant replies were insults/comebacks, invent a NEW comeback wording — never repeat the previous comeback almost verbatim. " : "") + 
         "CONDUCT: Never refuse a message only because the student was rude. For insults, stay in character with a sharp PG-13 comeback then continue or invite a real question. Never spam \"I can't continue this conversation\" or \"I can't help with that\" after insults. After an apology, resume teaching immediately. " +
         
-        (state.codingMode ? "CODING MODE ON: Prefer complete, runnable code with explanations. Debug carefully. Use clear comments. " : "") +
+        (state.codingMode ? "CODING MODE ON: Prefer complete, runnable code with explanations. Debug carefully. Use clear comments. For any multi-file or website request, output each file in its own fenced block whose FIRST line is a comment naming the file path (// index.html, /* styles.css */, # main.py), include every file needed to run it, and briefly list the architecture before the code. Never claim the code was executed or tested. " : "") +
         "You have tools: web search (when the server injects LIVE SEARCH), image generation, and document reading. " +
         "When LIVE SEARCH results are in the system message, use them and never claim you cannot search. " +
         "Student: " + ctxLine() + ". Interests: " + (state.interests.join(", ") || "general study") + ". " +
@@ -2944,7 +3289,10 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
     function wantsReferenceImages(text) {
       var t = String(text || "").toLowerCase();
       // Online search + pictures / diagram / show me photos — NOT pure “generate an image of”
-      if (/\b(show|find|search|look\s*up|bring|reference)\b.{0,40}\b(image|images|picture|pictures|photo|photos|diagram|diagrams)\b/i.test(t)) return true;
+      if (/\b(show|find|search|look\s*up|bring|fetch|get|reference)\b.{0,40}\b(image|images|picture|pictures|photo|photos|diagram|diagrams)\b/i.test(t)) return true;
+      // "Do you know Roman Reigns?" / "Tell me about John Cena" should show real reference photos.
+      if (/\b(do\s+you\s+know|tell\s+me\s+about|who\s+is|who's)\b/i.test(t) &&
+          /\b(roman\s+reigns?|john\s+cena|wrestler|actor|actress|celebrity|footballer|singer|rapper|player)\b/i.test(t)) return true;
       if (/\b(image|images|picture|pictures|photo|photos)\b.{0,30}\b(of|for|about)\b/i.test(t) && /\b(search|online|web|google|reference)\b/i.test(t)) return true;
       if (/\blabelled?\s+diagram\b|\banatomy\s+diagram\b|\btextbook\s+figure\b/i.test(t)) return true;
       if (/\bsea\s+animals?\b|\banimals?\b.{0,20}\b(images?|pictures?|photos?)\b/i.test(t)) return true;
@@ -2955,7 +3303,11 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
       var m = t.match(/(?:images?|pictures?|photos?|diagrams?|references?)\s+(?:of|for|about|on)\s+(.+)$/i);
       var subject = m ? m[1].replace(/[?.!].*$/, "").trim() : "";
       if (!subject) {
-        m = t.match(/(?:search|look\s*up|find|show|bring)\s+(?:me\s+)?(?:online\s+)?(?:images?|pictures?|photos?)?\s*(?:of|for|about)?\s*(.+)$/i);
+        m = t.match(/(?:do\s+you\s+know|tell\s+me\s+about|who\s+is|who's)\s+(.+)$/i);
+        if (m) subject = m[1].replace(/[?.!].*$/, "").trim();
+      }
+      if (!subject) {
+        m = t.match(/(?:search|look\s*up|find|show|bring|fetch|get)\s+(?:me\s+)?(?:online\s+)?(?:images?|pictures?|photos?)?\s*(?:of|for|about)?\s*(.+)$/i);
         if (m) subject = m[1].replace(/[?.!].*$/, "").trim();
       }
       if (!subject) subject = t.replace(/\b(please|online|search|images?|pictures?|photos?|reference|bring|show|me)\b/gi, " ").replace(/\s+/g, " ").trim();
@@ -3006,11 +3358,12 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
       if (!clean.length) clean = images.slice(0, 4); // fallback if filter too aggressive
       var gid = "g" + Date.now() + Math.floor(Math.random() * 9999);
       return '<div class="img-carousel" data-gallery="' + gid + '">' + clean.filter(function(im){ return isLikelyImageUrl(im.url || im.src || im); }).slice(0,6).map(function (im, i) {
-        var u = im.full || im.url || "";
-        var thumb = im.url || u;
+        var u = im.original || im.full || im.url || "";
+        var thumb = im.original || im.url || u;
+        var proxied = API_BASE + "/img-proxy?u=" + encodeURIComponent(thumb);
         var title = im.title || ("Photo " + (i + 1));
         return '<div class="icard" data-gallery="' + gid + '" data-idx="' + i + '">' +
-          '<img src="' + escape(thumb) + '" data-full="' + escape(u) + '" alt="' + escape(title) + '" loading="lazy" onerror="this.parentNode.classList.add(\'broken\')">' +
+          '<img src="' + escape(proxied) + '" data-direct="' + escape(thumb) + '" data-full="' + escape(u) + '" alt="' + escape(title) + '" loading="lazy" decoding="async" onerror="if(!this.dataset.directTried){this.dataset.directTried=\'1\';this.src=this.dataset.direct;}else{this.parentNode.classList.add(\'broken\');this.parentNode.style.display=\'none\';}">' +
           '<a href="' + escape(u) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + escape(String(title).slice(0, 40)) + "</a></div>";
       }).join("") + "</div>";
     }
@@ -3573,11 +3926,12 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
       prev.innerHTML = files.map(function (f, i) {
         if (f.type && f.type.indexOf("image/") === 0) {
           var url = URL.createObjectURL(f);
-          return '<div class="sq"><img alt="" src="' + url + '"><button type="button" data-rm="' + i + '" aria-label="Remove">×</button></div>';
+          return '<div class="sq" title="' + escape(f.name || "Image") + '"><img alt="' + escape(f.name || "Image") + '" src="' + url + '"><button type="button" data-rm="' + i + '" aria-label="Remove ' + escape(f.name || "image") + '">×</button></div>';
         }
-        var ext = (f.name || "file").split(".").pop().toUpperCase().slice(0, 4);
-        return '<div class="sq"><div class="doc-tile"><strong>' + escape(ext) + '</strong><span>' +
-          escape((f.name || "File").slice(0, 18)) + '</span></div><button type="button" data-rm="' + i + '">×</button></div>';
+        var fname = f.name || "File";
+        var ext = (fname.indexOf(".") > -1 ? fname.split(".").pop() : "FILE").toUpperCase().slice(0, 4);
+        return '<div class="sq sq-doc" title="' + escape(fname) + '"><div class="doc-tile"><strong>' + escape(ext) + '</strong><span>' +
+          escape(fname) + '</span></div><button type="button" data-rm="' + i + '" aria-label="Remove ' + escape(fname) + '">×</button></div>';
       }).join("");
       prev.querySelectorAll("[data-rm]").forEach(function (btn) {
         btn.onclick = function (e) {
@@ -3727,15 +4081,15 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
       hideOverlay("skillsModal");
       var sk = btn.getAttribute("data-skill");
       if (sk === "codingmode") {
-        state.codingMode = !state.codingMode;
-        alert(state.codingMode
-          ? "Coding mode ON — Nova will prioritise solid code, debugging, and complete examples."
-          : "Coding mode OFF — back to general study mode.");
+        setCodingMode(!state.codingMode, true);
         return;
       }
       input.value = skillPrompts[sk] || "";
       input.focus();
     };
+
+    var codingChipOff = document.getElementById("codingChipOff");
+    if (codingChipOff) codingChipOff.onclick = function () { setCodingMode(false, true); };
 
     document.getElementById("newChat").onclick = function () {
       state.sessionId = null;
@@ -3746,12 +4100,28 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
     /* changeModule replaced */
 
     function openHistMobile() {
-      document.getElementById("hist").classList.add("open-mobile");
-      document.getElementById("histBackdrop").classList.add("show");
+      var hist = document.getElementById("hist");
+      var backdrop = document.getElementById("histBackdrop");
+      if (window.matchMedia && window.matchMedia("(min-width: 900px)").matches) {
+        document.body.classList.remove("nova-sidebar-collapsed");
+        document.getElementById("openHist").setAttribute("aria-expanded", "true");
+        return;
+      }
+      hist.classList.add("open-mobile");
+      backdrop.classList.add("show");
+      document.body.classList.add("nova-drawer-open");
+      document.getElementById("openHist").setAttribute("aria-expanded", "true");
     }
     function closeHistMobile() {
-      document.getElementById("hist").classList.remove("open-mobile");
-      document.getElementById("histBackdrop").classList.remove("show");
+      var hist = document.getElementById("hist");
+      var backdrop = document.getElementById("histBackdrop");
+      hist.classList.remove("open-mobile");
+      backdrop.classList.remove("show");
+      document.body.classList.remove("nova-drawer-open");
+      if (window.matchMedia && window.matchMedia("(min-width: 900px)").matches) {
+        document.body.classList.add("nova-sidebar-collapsed");
+      }
+      document.getElementById("openHist").setAttribute("aria-expanded", "false");
     }
     var histSearch = document.getElementById("histSearch");
     if (histSearch) {
@@ -3779,7 +4149,18 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
       alert("Nova Charge (" + tier + ")\n\n" + left + " of " + cap + " remaining today.\n\nCosts: chat 1 · plans 2 · search 3 · image/code 4.\nResets at midnight.");
     };
 
-    document.getElementById("openHist").onclick = openHistMobile;
+    document.getElementById("openHist").onclick = function () {
+      if (window.matchMedia && window.matchMedia("(min-width: 900px)").matches && !document.body.classList.contains("nova-sidebar-collapsed")) closeHistMobile();
+      else openHistMobile();
+    };
+    window.addEventListener("resize", function () {
+      if (window.matchMedia && window.matchMedia("(min-width: 900px)").matches) {
+        document.getElementById("hist").classList.remove("open-mobile");
+        document.getElementById("histBackdrop").classList.remove("show");
+        document.body.classList.remove("nova-drawer-open");
+      }
+    });
+
     document.getElementById("closeHist").onclick = closeHistMobile;
     document.getElementById("histBackdrop").onclick = closeHistMobile;
 
@@ -3897,6 +4278,8 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
       });
       applyTheme(ch);
       hideOverlay("onboard");
+      try { if (state.user) localStorage.setItem("nova_char_" + state.user.uid, ch.id); } catch (e) {}
+      if (state.profile) state.profile.novaCharacter = ch.id;
       var name = ((state.profile && state.profile.fullName) || "there").split(/\s+/)[0];
       document.getElementById("welcomeHi").textContent = "Hi " + name + " — I’m " + ch.name;
       document.getElementById("welcomeSub").textContent =
@@ -4038,6 +4421,13 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
       state.tier = (state.profile.subscriptionTier || state.profile.plan || "free").toString().toLowerCase();
       try { refreshChargeUI(); } catch (e) {}
 
+      // Firestore profile is authoritative; local value is only a fallback for a stale/cached profile read.
+      if (!state.profile.novaCharacter) {
+        try {
+          var localChar = localStorage.getItem("nova_char_" + res.user.uid);
+          if (localChar && window.NovaCharacters && NovaCharacters.getById(localChar) && NovaCharacters.getById(localChar).id === localChar) state.profile.novaCharacter = localChar;
+        } catch (e) {}
+      }
       if (state.profile.novaCharacter) {
         selectedCharId = state.profile.novaCharacter;
         state.character = NovaCharacters.getById(selectedCharId);
@@ -4051,6 +4441,7 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
       if (ws) ws.textContent = tg2.tip + " I use your Codex profile — I never invent scores.";
       } else {
         paintCharGrid();
+        showOverlay("onboard");
       }
 
       var chipData = [
@@ -4109,6 +4500,9 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
     var car = img.closest(".img-carousel");
     if (car && !car.querySelector(".icard:not([style*='display: none'])")) car.style.display = "none";
   }, true);
+
+  /* Phase 3: restore the persisted coding-mode state */
+  try { setCodingMode(localStorage.getItem("nova_coding_mode") === "1", false); } catch (e) {}
 })();
 </script>
 </body>

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <script src="../js/theme-boot.js"></script>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -122,6 +123,7 @@
   <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
 <body class="app-body" data-page="ai">
+<script src="../js/shell.js"></script>
   <div class="page">
     <p class="greet" id="greet">Your AI workspace</p>
     <h1 class="hero-title">AI Lab</h1>
@@ -191,7 +193,7 @@
   <script src="../js/app-auth.js"></script>
   <script src="../js/media.js"></script>
   <script src="../js/onboarding.js"></script>
-  <script src="../js/shell.js"></script>
+  
   <script>
     CodexShell.mountShell({ page: "ai", title: "AI Lab", user: { fullName: "Student" } });
     CodexAuth.requireUser().then(function (res) {

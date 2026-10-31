@@ -2,94 +2,28 @@
 <html lang="en">
 <head>
   <script src="../js/theme-boot.js"></script>
-
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>Viewer — Codex Hub</title>
-<link rel="stylesheet" href="../css/resources.css">
-<style>
-html,body{margin:0;height:100%;background:#0f172a}
-.pdf-viewer-shell{display:flex;flex-direction:column;height:100%}
-.pdf-viewer-bar{
-  display:flex;flex-wrap:wrap;gap:8px;align-items:center;
-  padding:10px 12px;background:#111827;color:#e2e8f0;
-  position:sticky;top:0;z-index:5;
-}
-.pdf-viewer-bar button{
-  border:0;background:#1e293b;color:#f8fafc;border-radius:999px;
-  padding:8px 12px;font:600 0.8rem system-ui;cursor:pointer;
-}
-.pdf-viewer-bar button:active{transform:scale(.97)}
-.pdf-viewer-bar .title{
-  flex:1 1 120px;font-size:.82rem;font-weight:700;color:#cbd5e1;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;
-}
-.pdf-viewer-stage{
-  flex:1;overflow:auto;-webkit-overflow-scrolling:touch;
-  display:flex;justify-content:center;padding:12px;
-}
-#canvas{
-  background:#fff;border-radius:4px;
-  box-shadow:0 8px 30px rgba(0,0,0,.35);
-  max-width:100%;height:auto;
-}
-.viewer-empty{
-  max-width:340px;margin:48px auto;padding:24px;text-align:center;
-  color:#fca5a5;line-height:1.55;font:500 0.95rem system-ui;
-}
-.viewer-empty strong{color:#fecaca}
-.viewer-empty a{
-  display:inline-block;margin-top:14px;padding:10px 16px;border-radius:12px;
-  background:#4f46e5;color:#fff;text-decoration:none;font-weight:700;
-}
-</style>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>PDF Viewer — Codex Hub</title>
+  <link rel="stylesheet" href="../css/tokens.css"><link rel="stylesheet" href="../css/resources.css">
+  <style>
+    :root{color-scheme:dark}html,body{margin:0;min-height:100%;background:#0b1020;color:#e5e7eb;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+    .pdf-shell{min-height:100dvh;display:flex;flex-direction:column}.pdf-bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;background:rgba(15,23,42,.96);border-bottom:1px solid #293449;backdrop-filter:blur(12px)}
+    .pdf-bar button{border:1px solid #344155;background:#1e293b;color:#f8fafc;border-radius:12px;padding:9px 12px;font:600 .82rem system-ui;cursor:pointer}.pdf-title{flex:1;min-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.85rem;font-weight:700}.pdf-stage{flex:1;overflow:auto;display:flex;flex-direction:column;align-items:center;gap:16px;padding:16px 10px 32px;min-height:65vh;box-sizing:border-box}.pdf-page{max-width:100%;background:white;box-shadow:0 8px 30px #0006;border-radius:4px}.pdf-skeleton{width:min(720px,94vw);height:min(960px,125vw);min-height:420px;background:linear-gradient(110deg,#182238 8%,#26344c 18%,#182238 33%);background-size:200% 100%;animation:shimmer 1.35s linear infinite;border:1px solid #334155;border-radius:6px;position:relative;overflow:hidden}.pdf-skeleton:before{content:"";position:absolute;left:9%;right:9%;top:9%;height:6%;border-radius:6px;background:#334155;box-shadow:0 70px 0 #26344c,0 110px 0 #26344c,0 150px 0 #26344c,0 220px 0 #26344c,0 260px 0 #26344c,0 300px 0 #26344c,0 370px 0 #26344c}.pdf-status{max-width:520px;text-align:center;color:#aab7ca;padding:24px;line-height:1.5}.pdf-status.error{color:#fecaca}.pdf-status a{color:#c4b5fd}.hidden{display:none!important}@keyframes shimmer{to{background-position:-200% 0}}@media(prefers-reduced-motion:reduce){.pdf-skeleton{animation:none}}@media(min-width:900px){.pdf-stage{padding:24px}.pdf-bar{padding:12px 20px}}
+  </style>
 </head>
-<body>
-<div class="pdf-viewer-shell" id="shell">
-  <div class="pdf-viewer-bar">
-    <button type="button" id="btnBack" aria-label="Close">Close</button>
-    <span class="title" id="title">Loading…</span>
-    <button type="button" id="btnPrev" aria-label="Previous page">Prev</button>
-    <span id="pageLbl" style="font-size:.78rem;min-width:4.5rem;text-align:center">—</span>
-    <button type="button" id="btnNext" aria-label="Next page">Next</button>
-    <button type="button" id="btnZoomOut" aria-label="Zoom out">−</button>
-    <button type="button" id="btnZoomIn" aria-label="Zoom in">+</button>
-    <button type="button" id="btnFit" aria-label="Fit width">Fit</button>
-  </div>
-  <div class="pdf-viewer-stage" id="stage">
-    <canvas id="canvas"></canvas>
-  </div>
-</div>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="../js/firebase-config.js"></script>
-<script src="../js/app-auth.js"></script>
-<script src="../js/resources-core.js"></script>
+<body><div class="pdf-shell"><header class="pdf-bar"><button id="back" type="button">← Back</button><span id="title" class="pdf-title">Preparing document…</span><button id="prev" type="button" disabled>Previous</button><span id="pageLabel" aria-live="polite">— / —</span><button id="next" type="button" disabled>Next</button><button id="zoomOut" type="button" disabled>−</button><button id="zoomIn" type="button" disabled>+</button></header><main id="stage" class="pdf-stage"><div id="skeleton" class="pdf-skeleton" aria-label="Loading PDF preview"></div><p id="status" class="pdf-status" role="status">Preparing your PDF preview…</p></main></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script><script src="../js/firebase-config.js"></script><script src="../js/app-auth.js"></script><script src="../js/resources-core.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
-(function () {
-  var id = new URLSearchParams(location.search).get("id");
-  var pdfDoc = null, pageNum = 1, scale = 1.2, rendering = false, renderToken = 0;
-
-  document.getElementById("btnBack").onclick = function () {
-  var id = (typeof id !== "undefined" && id) ? id : new URLSearchParams(location.search).get("id");
-  // replace so Back cannot re-open the viewer from history
-  if (id) location.replace("resource-view.html?id=" + encodeURIComponent(id));
-  else location.replace("resources.html");
+(function(){
+  'use strict';
+  var id=new URLSearchParams(location.search).get('id'),doc=null,page=1,scale=1.15,busy=false,token=0;
+  var stage=document.getElementById('stage'),skel=document.getElementById('skeleton'),status=document.getElementById('status'),title=document.getElementById('title'),label=document.getElementById('pageLabel');
+  function back(){location.replace(id?'resource-view.html?id='+encodeURIComponent(id):'resources.html')}
+  document.getElementById('back').addEventListener('click',back);
+  function fail(message){skel.classList.add('hidden');status.className='pdf-status error';status.innerHTML=message;}
+  async function render(){if(!doc||busy)return;busy=true;var own=++token;try{var p=await doc.getPage(page);if(own!==token)return;var base=p.getViewport({scale:1});var maxW=Math.max(280,Math.min(stage.clientWidth-24,1000));var vp=p.getViewport({scale:Math.min(scale,maxW/base.width)});var canvas=document.createElement('canvas');canvas.className='pdf-page';canvas.width=Math.floor(vp.width);canvas.height=Math.floor(vp.height);canvas.style.width=vp.width+'px';canvas.style.height=vp.height+'px';var ctx=canvas.getContext('2d',{alpha:false});await p.render({canvasContext:ctx,viewport:vp}).promise;if(own!==token)return;var old=stage.querySelector('canvas');if(old)old.remove();stage.insertBefore(canvas,status);skel.classList.add('hidden');status.classList.add('hidden');label.textContent=page+' / '+doc.numPages;document.getElementById('prev').disabled=page<=1;document.getElementById('next').disabled=page>=doc.numPages;document.getElementById('zoomIn').disabled=false;document.getElementById('zoomOut').disabled=false;}catch(e){console.error('PDF render failed',e);fail('This PDF could not be previewed in the browser. Try <a href="'+String((window.__pdfUrl||'#')).replace(/"/g,'&quot;')+'" target="_blank" rel="noopener">opening the original file</a> or downloading it.')}finally{busy=false}}
+  document.getElementById('prev').onclick=function(){if(page>1){page--;render()}};document.getElementById('next').onclick=function(){if(doc&&page<doc.numPages){page++;render()}};document.getElementById('zoomIn').onclick=function(){scale=Math.min(2.5,scale+.15);render()};document.getElementById('zoomOut').onclick=function(){scale=Math.max(.6,scale-.15);render()};window.addEventListener('resize',function(){if(doc){clearTimeout(window.__pdfResize);window.__pdfResize=setTimeout(render,160)}});
+  async function init(){try{if(!id)throw new Error('Missing resource ID');if(!window.pdfjsLib)throw new Error('PDF preview library did not load.');pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';if(!window.CodexResources)throw new Error('Resource service did not load.');var r=await CodexResources.getResource(id);if(!r||!r.fileUrl)throw new Error('Resource not found or no file URL is available.');if(String(r.fileType||'pdf').toLowerCase()!=='pdf')throw new Error('This resource is not a PDF. Open or download it from the resource page.');window.__pdfUrl=r.fileUrl;title.textContent=r.title||'PDF preview';var task=pdfjsLib.getDocument({url:r.fileUrl,withCredentials:false});doc=await task.promise;await render()}catch(e){console.error('PDF viewer init failed',e);fail((e&&e.message?e.message:'Could not load PDF')+'<br><br><a href="resource-view.html?id='+encodeURIComponent(id||'')+'">Return to resource details</a>.')}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
-</script>
-
-<script>
-(function () {
-  var btn = document.getElementById("btnBack");
-  if (!btn) return;
-  btn.onclick = function (e) {
-    if (e) { e.preventDefault(); e.stopPropagation(); }
-    var qid = new URLSearchParams(location.search).get("id");
-    if (qid) location.replace("resource-view.html?id=" + encodeURIComponent(qid));
-    else location.replace("resources.html");
-  };
-})();
-</script>
-</body>
-</html>
+</script></body></html>
