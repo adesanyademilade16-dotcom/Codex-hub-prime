@@ -108,40 +108,32 @@
     var me = uid();
     var map = {};
     try {
-      var pubSnap = await db().collection("public_profiles").limit(200).get();
-      pubSnap.forEach(function (doc) {
-        if (doc.id === me) return;
-        map[doc.id] = displayFromUser({
-          fullName: doc.data().displayName, photoURL: doc.data().photoURL,
-          university: doc.data().university, faculty: doc.data().faculty,
-          department: doc.data().department, level: doc.data().level, bio: doc.data().bio
-        }, doc.id);
-      });
+      // Public discovery must use public_profiles only. Fetch every page instead
+      // of silently stopping at the first 200 legacy/newer accounts.
+      var pubRef = db().collection("public_profiles");
+      var cursor = null, pageSize = 200, pages = 0;
+      while (pages++ < 25) {
+        var pubQuery = pubRef.orderBy(firebase.firestore.FieldPath.documentId()).limit(pageSize);
+        if (cursor) pubQuery = pubQuery.startAfter(cursor);
+        var pubSnap = await pubQuery.get();
+        pubSnap.forEach(function (doc) {
+          if (doc.id === me) return;
+          var pd = doc.data() || {};
+          map[doc.id] = displayFromUser({
+            fullName: pd.displayName || pd.fullName, username: pd.username,
+            photoURL: pd.photoURL, avatarKey: pd.avatarKey,
+            university: pd.university, faculty: pd.faculty,
+            department: pd.department, level: pd.level, bio: pd.bio
+          }, doc.id);
+        });
+        if (pubSnap.size < pageSize) break;
+        cursor = pubSnap.docs[pubSnap.docs.length - 1];
+      }
     } catch (e) {}
-    try {
-      var userSnap = await db().collection("users").limit(200).get();
-      userSnap.forEach(function (doc) {
-        if (doc.id === me) return;
-        var leg = displayFromUser(doc.data(), doc.id);
-        if (map[doc.id]) {
-          var cur = map[doc.id];
-          map[doc.id] = {
-            uid: doc.id,
-            fullName: cur.fullName !== "Student" ? cur.fullName : leg.fullName,
-            username: cur.username || leg.username,
-            university: cur.university || leg.university,
-            faculty: cur.faculty || leg.faculty,
-            department: cur.department || leg.department,
-            level: cur.level || leg.level,
-            photoURL: cur.photoURL || leg.photoURL,
-            bio: cur.bio || leg.bio,
-            xpPoints: leg.xpPoints || cur.xpPoints,
-            rank: leg.rank || cur.rank,
-            incomplete: !(cur.university || leg.university)
-          };
-        } else map[doc.id] = leg;
-      });
-    } catch (e2) {}
+    // Deliberately do not enumerate /users here: it contains private account
+    // fields. Older accounts need a one-time Admin-SDK backfill into
+    // /public_profiles rather than weakening client read rules.
+
 
     var blocked = await listBlockedIds();
     var list = Object.keys(map).map(function (k) { return map[k]; })
