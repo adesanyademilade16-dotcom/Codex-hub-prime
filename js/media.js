@@ -85,19 +85,41 @@
     var fallback = '<span class="avatar-ini">' + ini + "</span>";
     var url = profile.photoURL || profile.avatarUrl || profile.photo || profile.avatar || "";
     if (url && (String(url).indexOf("http") === 0 || String(url).indexOf("data:") === 0)) {
-      return '<img class="avatar-img" alt="" src="' + String(url).replace(/"/g, "&quot;") + '" onerror="this.onerror=null;this.outerHTML=\'' + fallback.replace(/'/g, "") + '\'">';
+      return '<img class="avatar-img" alt="" data-ini="' + attrSafe(ini) + '" referrerpolicy="no-referrer" src="' + String(url).replace(/"/g, "&quot;") + '">';
     }
     var key = profile.avatarKey || profile.characterKey || profile.portraitId || "";
     if (key) {
       key = String(key).replace(/[^a-zA-Z0-9_]/g, "");
       var src = portraitSrc(key);
-      return '<img class="avatar-img" alt="" src="' + src + '" onerror="this.onerror=null;this.style.display=\'none\';this.parentNode.innerHTML=\'' + fallback.replace(/'/g, "") + '\'">';
+      return '<img class="avatar-img" alt="" data-ini="' + attrSafe(ini) + '" src="' + src + '">';
     }
     if (profile.novaCharacter && w.NovaCharacters && NovaCharacters.getById) {
       var ch = NovaCharacters.getById(profile.novaCharacter);
       if (ch && ch.svg) return ch.svg;
     }
     return fallback;
+  }
+
+  function attrSafe(v) {
+    var t = String(v == null ? "" : v).replace(/[^A-Za-z0-9]/g, "").slice(0, 3);
+    return t || "ST";
+  }
+
+  /* A broken avatar degrades to initials through ONE delegated listener.
+     The old inline onerror handlers had to nest quotes inside an HTML
+     attribute, which closed the attribute early and spilled the rest of the
+     avatar markup (AE">) into the page as text - that fused the leaderboard
+     rank + name + level cells into one jam-packed strip and hid the grid. */
+  if (typeof document !== "undefined" && !w.__codexAvatarErrBound) {
+    w.__codexAvatarErrBound = true;
+    document.addEventListener("error", function (e) {
+      var img = e.target;
+      if (!img || img.tagName !== "IMG" || !img.classList || !img.classList.contains("avatar-img")) return;
+      var span = document.createElement("span");
+      span.className = "avatar-ini";
+      span.textContent = img.getAttribute("data-ini") || "ST";
+      if (img.parentNode) img.parentNode.replaceChild(span, img);
+    }, true);
   }
 
   w.CodexMedia = {
