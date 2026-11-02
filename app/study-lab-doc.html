@@ -315,6 +315,13 @@
       min-height: 280px;
       box-shadow: inset 0 0 0 1px #E2E8F0;
     }
+    .summary-paper h1, .summary-paper h2, .summary-paper h3 { margin: .8em 0 .35em; line-height:1.25; }
+    .summary-table-wrap { width:100%; overflow-x:auto; margin:14px 0; border:1px solid var(--line); border-radius:12px; }
+    .summary-table { width:100%; min-width:420px; border-collapse:collapse; font-size:.88rem; }
+    .summary-table th,.summary-table td { padding:10px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+    .summary-table th { background:#EEF2FF; font-weight:800; }
+    .summary-table tr:last-child td { border-bottom:0; }
+    .summary-paper pre { overflow:auto; padding:12px; border-radius:10px; background:#F1F5F9; }
     .summary-paper h3, .summary-paper strong {
       color: #1E3A8A;
       font-weight: 800;
@@ -989,6 +996,46 @@
       if (next) next.onclick = function () { notePageIdx = (notePageIdx + 1) % pages.length; paintPage(); };
       paintPage();
     }
+    function escapeSummaryHtml(value) {
+      return String(value == null ? "" : value).replace(/[&<>"']/g, function (c) {
+        return ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"})[c];
+      });
+    }
+    function renderStudyMarkdown(markdown) {
+      var lines = String(markdown || "").replace(/\r/g, "").split("\n");
+      var out = [], paragraph = [], listType = "", inCode = false, code = [], i = 0;
+      function inline(src) {
+        var x = escapeSummaryHtml(src);
+        x = x.replace(/`([^`]+)`/g, "<code>$1</code>")
+          .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+          .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+          .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+        return x;
+      }
+      function flushP(){ if(paragraph.length){out.push("<p>"+paragraph.map(inline).join("<br>")+"</p>");paragraph=[];} }
+      function flushList(){ if(listType){out.push("</"+listType+">");listType="";} }
+      function isTableRow(line){ return /^\s*\|.*\|\s*$/.test(line); }
+      function cells(line){ return line.trim().replace(/^\|/,'').replace(/\|$/,'').split('|').map(function(v){return v.trim();}); }
+      while(i<lines.length){ var line=lines[i];
+        if(/^\s*```/.test(line)){flushP();flushList();if(inCode){out.push("<pre><code>"+escapeSummaryHtml(code.join("\n"))+"</code></pre>");code=[];inCode=false;}else inCode=true;i++;continue;}
+        if(inCode){code.push(line);i++;continue;}
+        if(isTableRow(line) && i+1<lines.length && /^\s*\|?\s*:?-{3,}/.test(lines[i+1])){
+          flushP();flushList();var heads=cells(line);i+=2;var rows=[];
+          while(i<lines.length && isTableRow(lines[i])){rows.push(cells(lines[i]));i++;}
+          out.push('<div class="summary-table-wrap"><table class="summary-table"><thead><tr>'+heads.map(function(c){return '<th>'+inline(c)+'</th>';}).join('')+'</tr></thead><tbody>'+rows.map(function(r){return '<tr>'+heads.map(function(_,j){return '<td>'+inline(r[j]||'')+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div>');continue;
+        }
+        var h=line.match(/^\s{0,3}(#{1,3})\s+(.+)$/);if(h){flushP();flushList();out.push('<h'+h[1].length+'>'+inline(h[2])+'</h'+h[1].length+'>');i++;continue;}
+        var ul=line.match(/^\s*[-*+]\s+(.+)$/), ol=line.match(/^\s*\d+[.)]\s+(.+)$/);
+        if(ul||ol){flushP();var wanted=ul?'ul':'ol';if(listType!==wanted){flushList();listType=wanted;out.push('<'+wanted+'>');}out.push('<li>'+inline((ul||ol)[1])+'</li>');i++;continue;}
+        if(!line.trim()){flushP();flushList();i++;continue;}
+        flushList();paragraph.push(line.trim());i++;
+      }
+      if(inCode)out.push('<pre><code>'+escapeSummaryHtml(code.join("\n"))+'</code></pre>');flushP();flushList();return out.join('');
+    }
+    function typesetSummary(el) {
+      if (!el || !window.MathJax || !MathJax.typesetPromise) return;
+      try { if (MathJax.typesetClear) MathJax.typesetClear([el]); MathJax.typesetPromise([el]).catch(function(e){console.warn('MathJax summary',e);}); } catch(e){}
+    }
     function renderSummary() {
       var box = document.getElementById("sumBox");
       var sum = loadSummary(docData || "");
@@ -1038,6 +1085,9 @@
           iconBtn("speak","noteSpeak",ICO.mic,"Read") +
           iconBtn("nova","noteNova",ICO.nova,"Ask Nova") +
         "</div>";
+      var summaryEl = document.getElementById('sumText');
+      summaryEl.innerHTML = renderStudyMarkdown(sum);
+      typesetSummary(summaryEl);
       bindNoteActions(sum);
     }
 

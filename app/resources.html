@@ -171,16 +171,37 @@
       items.map(CodexResources.cardHtml).join("") + "</div></section>";
   }
 
+  function resourceCacheKey() {
+    var u = firebase.auth().currentUser;
+    return "codex_resources_v2_" + (u ? u.uid : "guest") + "_" + [state.category || "all", state.sort || "recent", state.q || ""].join("_");
+  }
   async function load(more) {
     if (busy) return;
     busy = true;
     var grid = document.getElementById("grid");
     var moreBtn = document.getElementById("loadMore");
     var rails = document.getElementById("rails");
+    var cacheKey = !more ? resourceCacheKey() : "";
+    var showedCache = false;
     if (!more) {
-      showState('<p>Loading resources…</p>', "res-loading");
       if (rails) rails.innerHTML = "";
-      grid.innerHTML = "";
+      try {
+        var cached = sessionStorage.getItem(cacheKey);
+        if (cached) {
+          var pack = JSON.parse(cached);
+          if (pack && Date.now() - pack.savedAt < 6 * 60 * 60 * 1000) {
+            grid.innerHTML = pack.grid || "";
+            if (rails) rails.innerHTML = pack.rails || "";
+            showState("", "res-empty"); showedCache = true;
+          }
+        }
+      } catch (cacheErr) {}
+      if (!showedCache) {
+        var sk = document.getElementById("resSkel");
+        if (sk) sk.hidden = false;
+        showState("", "res-loading");
+        grid.innerHTML = "";
+      }
     }
     try {
       var res = await CodexResources.listResources({
@@ -228,14 +249,20 @@
         else grid.innerHTML = list.map(CodexResources.cardHtml).join("");
         if (CodexResources.paintLikedCards) CodexResources.paintLikedCards(document);
       }
+      if (!more) {
+        try { sessionStorage.setItem(cacheKey, JSON.stringify({ savedAt: Date.now(), grid: grid.innerHTML, rails: rails ? rails.innerHTML : "" })); } catch (cacheErr2) {}
+      }
+      var skelDone = document.getElementById("resSkel"); if (skelDone) skelDone.hidden = true;
     } catch (err) {
       console.error(err);
+      var skelFail = document.getElementById("resSkel"); if (skelFail) skelFail.hidden = true;
       showState(
         "<h3>Could not load resources</h3><p>" + CodexResources.escapeHtml(err.message || "Permission or network error") +
         "</p><p style=\"font-size:.8rem\">Legacy PDFs still load if the pdfs collection is readable. Composite index is optional (fallback is on).</p>",
         "res-error"
       );
     }
+    var skelFinally = document.getElementById("resSkel"); if (skelFinally) skelFinally.hidden = true;
     busy = false;
   }
 

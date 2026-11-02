@@ -3381,7 +3381,14 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
       });
       if (!clean.length) clean = images.slice(0, 4); // fallback if filter too aggressive
       var gid = "g" + Date.now() + Math.floor(Math.random() * 9999);
-      var tiles = clean.filter(function (im) { return isLikelyImageUrl(im.original || im.full || im.url || im.src || im); }).slice(0, 8);
+      var tiles = clean.map(function (im) {
+        if (typeof im === "string") im = { url: im, full: im, title: "Reference image" };
+        im = im || {};
+        var candidate = im.original || im.full || im.image_url || im.imageUrl || im.src || im.url || "";
+        // Some upstream providers return a page/link object rather than a URL.
+        if (typeof candidate !== "string" || !/^https?:\/\//i.test(candidate)) return null;
+        return { url: candidate, full: candidate, original: candidate, title: im.title || im.description || "Reference image", source: im.source || "web" };
+      }).filter(function (im) { return im && isLikelyImageUrl(im.full); }).slice(0, 8);
       if (!tiles.length) return "";
       return '<div class="img-carousel" data-gallery="' + gid + '">' + tiles.map(function (im, i) {
         var full = im.original || im.full || im.url || "";
@@ -3425,7 +3432,8 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
       return fetch(url, { method: "GET" })
         .then(function (r) { if (!r.ok) throw new Error("img_http_" + r.status); return r.json(); })
         .then(function (data) {
-          var imgs = (data && data.images) || [];
+          var imgs = (data && (data.images || data.results || data.data)) || [];
+          if (!Array.isArray(imgs)) imgs = [];
           console.log("[Nova] image provider=", (data && data.provider) || "?", "count=", imgs.length);
           if (imgs.length) return imgs;
           return fromWiki();
@@ -4501,34 +4509,8 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
   })();
   </script>
 <script>
-/* Nova: never show broken image icons.
- * 1st failure → retry once through our backend image relay (beats hotlink blocks)
- * 2nd failure → hide that picture (and its Download/Open buttons) cleanly. */
-(function () {
-  var API = (window.CODEX_API_BASE || "https://codex-backend-new.onrender.com").replace(/\/$/, "");
-  function holder(img) {
-    return img.closest(".msg-img-wrap, .icard, .gen-fig") || img;
-  }
-  document.addEventListener("error", function (e) {
-    var img = e.target;
-    if (!img || img.tagName !== "IMG") return;
-    if (!img.closest(".msg-media, .img-carousel, .gen-fig, .msg-img-wrap")) return;
-    var src = img.getAttribute("src") || "";
-    if (!img.dataset.retried && /^https?:/i.test(src) && src.indexOf("/img-proxy?") < 0) {
-      img.dataset.retried = "1";
-      img.referrerPolicy = "no-referrer";
-      img.src = API + "/img-proxy?u=" + encodeURIComponent(src);
-      return;
-    }
-    var h = holder(img);
-    h.style.display = "none";
-    var car = img.closest(".img-carousel");
-    if (car && !car.querySelector(".icard:not([style*='display: none'])")) car.style.display = "none";
-  }, true);
-
-  /* Phase 3: restore the persisted coding-mode state */
-  try { setCodingMode(localStorage.getItem("nova_coding_mode") === "1", false); } catch (e) {}
-})();
+/* The inline carousel handler owns image retries; avoid a second competing listener. */
+try { setCodingMode(localStorage.getItem("nova_coding_mode") === "1", false); } catch (e) {}
 </script>
 </body>
 </html>
