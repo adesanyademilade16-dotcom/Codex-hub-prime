@@ -131,67 +131,42 @@
       box-shadow: 0 6px 18px rgba(15,23,42,.04);
     }
     .list-head {
-      display: grid; grid-template-columns: 44px minmax(0, 1fr) minmax(3rem, auto); gap: 10px;
+      display: grid; grid-template-columns: 48px 1fr auto; gap: 8px;
       padding: 10px 14px; font-size: .65rem; font-weight: 800; letter-spacing: .1em;
       text-transform: uppercase; color: var(--muted); border-bottom: 1px solid #F1F5F9;
     }
-    .row {
-      display: grid;
-      grid-template-columns: 44px minmax(0, 1fr) minmax(3rem, auto);
-      gap: 10px;
-      align-items: center;
-      padding: 12px 14px;
-      border-bottom: 1px solid #F8FAFC;
-      min-width: 0;
+    .lb-row {
+      display: grid; grid-template-columns: 48px 1fr auto; gap: 8px; align-items: center;
+      padding: 12px 14px; border-bottom: 1px solid #F8FAFC;
     }
-    .row:last-child { border-bottom: 0; }
-    .row.me {
+    .lb-row:last-child { border-bottom: 0; }
+    .lb-row.me {
       background: #EEF2FF;
     }
-    .row .r {
+    .lb-row .r {
       font-weight: 800; font-size: .9rem; color: var(--muted);
-      text-align: center;
     }
-    .row .r.top { color: var(--indigo); }
-    .who { display: flex; align-items: center; gap: 10px; min-width: 0; overflow: hidden; }
+    .lb-row .r.top { color: var(--indigo); }
+    .who { display: flex; align-items: center; gap: 10px; min-width: 0; }
     .who .av {
       width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex-shrink: 0;
       background: linear-gradient(135deg, #4F46E5, #7C3AED); color: #fff;
       display: grid; place-items: center; font-size: .7rem; font-weight: 800;
     }
-    .who .av img, .who .av svg, .who .av .avatar-img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .who .av .avatar-ini { font-size: .7rem; font-weight: 800; color: #fff; }
-    .who .meta { min-width: 0; flex: 1; overflow: hidden; }
+    .who .av img, .who .av svg { width: 100%; height: 100%; object-fit: cover; }
+    .who .meta { min-width: 0; }
     .who .meta b {
       display: block; font-size: .88rem; font-weight: 700;
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-      max-width: 100%;
     }
-    .who .meta span {
-      display: block;
-      font-size: .7rem;
-      color: var(--muted);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      max-width: 100%;
-      line-height: 1.3;
-      margin-top: 2px;
-    }
+    .who .meta span { font-size: .7rem; color: var(--muted); }
     .badge {
       display: inline-block; margin-left: 6px; padding: 2px 7px; border-radius: 999px;
       font-size: .6rem; font-weight: 800; vertical-align: middle;
       background: #F5F3FF; color: #6D28D9;
     }
     .badge.free { background: #F1F5F9; color: #64748B; }
-    .xp {
-      font-weight: 800;
-      font-size: .88rem;
-      color: var(--ink);
-      white-space: nowrap;
-      text-align: right;
-      justify-self: end;
-    }
+    .xp { font-weight: 800; font-size: .88rem; color: var(--ink); white-space: nowrap; }
 
     .empty {
       text-align: center; padding: 36px 20px; color: var(--muted); font-size: .9rem; line-height: 1.5;
@@ -233,10 +208,9 @@
     .slot.rank1, .slot.rank2, .slot.rank3 { position: relative; overflow: hidden; }
     /* shine removed — caused layout overflow */
     /* rankBeam removed */
-    }
-    .row .r.top1 { color: #B45309; font-weight: 900; text-shadow: 0 0 8px rgba(245,158,11,.5); }
-    .row .r.top2 { color: #64748B; font-weight: 900; text-shadow: 0 0 8px rgba(148,163,184,.45); }
-    .row .r.top3 { color: #C2410C; font-weight: 900; text-shadow: 0 0 8px rgba(234,88,12,.45); }
+    .lb-row .r.top1 { color: #B45309; font-weight: 900; text-shadow: 0 0 8px rgba(245,158,11,.5); }
+    .lb-row .r.top2 { color: #64748B; font-weight: 900; text-shadow: 0 0 8px rgba(148,163,184,.45); }
+    .lb-row .r.top3 { color: #C2410C; font-weight: 900; text-shadow: 0 0 8px rgba(234,88,12,.45); }
 
   </style>
 
@@ -362,31 +336,17 @@ html.theme-dark .muted, html.theme-dark .sub { color: #94A3B8 !important; }
     }
     function avatarHtml(row) {
       row = row || {};
-      var photo = row.photoURL || row.avatarUrl || row.photo || "";
-      var key = row.avatarKey || row.avatar || row.characterKey || row.portraitId || "";
-      if (key) key = String(key).replace(/[^a-zA-Z0-9_]/g, "");
       var ini = initials(personName(row));
       if (window.CodexMedia && typeof CodexMedia.resolveAvatar === "function") {
         return CodexMedia.resolveAvatar({
-          photoURL: photo,
-          avatarUrl: row.avatarUrl,
-          avatarKey: key,
-          characterKey: key,
-          portraitId: key
+          photoURL: row.photoURL || row.avatarUrl || row.photo || "",
+          avatarKey: row.avatarKey || row.avatar || "",
+          novaCharacter: row.novaCharacter || ""
         }, ini);
       }
-      if (photo && (String(photo).indexOf("http") === 0 || String(photo).indexOf("data:") === 0)) {
-        return '<img class="avatar-img" alt="" src="' + String(photo).replace(/"/g, "&quot;") + '" onerror="this.style.display=\'none\'">';
-      }
-      if (key) {
-        var src = (window.CodexMedia && CodexMedia.PORTRAIT && CodexMedia.PORTRAIT[key])
-          ? CodexMedia.PORTRAIT[key]
-          : ("../assets/avatars/" + key + ".png");
-        return '<img class="avatar-img" alt="" src="' + src + '" onerror="this.onerror=null;this.outerHTML=\'<span class=avatar-ini>' + ini + '</span>\'">';
-      }
-      return '<span class="avatar-ini">' + ini + '</span>';
+      return '<span class="avatar-ini">' + escape(ini) + '</span>';
     }
-        function scoreOf(d) {
+    function scoreOf(d) {
       var n = d.score != null ? d.score : (d.xp != null ? d.xp : (d.points != null ? d.points : 0));
       return Number(n) || 0;
     }
@@ -507,11 +467,11 @@ html.theme-dark .muted, html.theme-dark .sub { color: #94A3B8 !important; }
           if (tier.indexOf("pro") >= 0) badge = '<span class="badge">Pro</span>';
           else if (tier.indexOf("regular") >= 0) badge = '<span class="badge">Regular</span>';
           return (
-            '<div class="row' + (me ? " me" : "") + '">' +
+            '<div class="lb-row' + (me ? " me" : "") + '">' +
               '<div class="r' + (rank === 1 ? " top top1" : rank === 2 ? " top top2" : rank === 3 ? " top top3" : "") + '>#' + rank + '</div>' +
               '<div class="who"><div class="av">' + avatarHtml(row) + '</div>' +
               '<div class="meta"><b>' + escape(name) + badge + '</b>' +
-              '<span>' + escape([row.level, row.department].filter(Boolean).join(" · ") || "Student") + '</span></div></div>' +
+              '<span>' + escape([row.level, row.department].filter(Boolean).join(" · ")) + '</span></div></div>' +
               '<div class="xp">' + scoreOf(row).toLocaleString() + '</div>' +
             '</div>'
           );
@@ -523,7 +483,7 @@ html.theme-dark .muted, html.theme-dark .sub { color: #94A3B8 !important; }
           var name = personName(row);
           var me = row._id === myUid || row.uid === myUid;
           return (
-            '<div class="row' + (me ? " me" : "") + '">' +
+            '<div class="lb-row' + (me ? " me" : "") + '">' +
               '<div class="r top">#' + rank + '</div>' +
               '<div class="who"><div class="av">' + avatarHtml(row) + '</div>' +
               '<div class="meta"><b>' + escape(name) + '</b>' +
@@ -595,12 +555,8 @@ html.theme-dark .muted, html.theme-dark .sub { color: #94A3B8 !important; }
             if (p.exists) {
               var d = p.data() || {};
               if (!row.photoURL && d.photoURL) row.photoURL = d.photoURL;
-              if (!row.avatarKey && (d.avatarKey || d.characterKey)) row.avatarKey = d.avatarKey || d.characterKey;
-              if (!row.displayName && (d.displayName || d.username || d.userName)) {
-                row.displayName = d.displayName || d.username || d.userName;
-              }
-              if (!row.level && d.level) row.level = d.level;
-              if (!row.department && d.department) row.department = d.department;
+              if (!row.avatarKey && d.avatarKey) row.avatarKey = d.avatarKey;
+              if (!row.displayName && (d.displayName || d.username)) row.displayName = d.displayName || d.username;
             }
           } catch (e) {}
           if (!row.photoURL && !row.avatarKey) {
@@ -609,12 +565,10 @@ html.theme-dark .muted, html.theme-dark .sub { color: #94A3B8 !important; }
               if (u.exists) {
                 var d2 = u.data() || {};
                 if (d2.photoURL) row.photoURL = d2.photoURL;
-                if (d2.avatarKey || d2.characterKey) row.avatarKey = d2.avatarKey || d2.characterKey;
-                if (!row.displayName && (d2.fullName || d2.displayName || d2.username)) {
-                  row.displayName = d2.fullName || d2.displayName || d2.username;
+                if (d2.avatarKey) row.avatarKey = d2.avatarKey;
+                if (!row.displayName && (d2.fullName || d2.displayName)) {
+                  row.displayName = d2.fullName || d2.displayName;
                 }
-                if (!row.level && d2.level) row.level = d2.level;
-                if (!row.department && d2.department) row.department = d2.department;
               }
             } catch (e2) {}
           }

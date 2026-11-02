@@ -55,6 +55,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="../js/firestore-boot.js"></script>
   <script src="../js/firebase-config.js"></script>
     <script>
+    // This page is public and does not load app-auth.js, so it must initialize
+    // Firebase itself. firestore-boot.js runs before firebase-config.js on this
+    // page and cannot initialize when the config has not loaded yet.
+    if (window.firebase && firebase.apps && !firebase.apps.length && window.FIREBASE_CONFIG) {
+      firebase.initializeApp(window.FIREBASE_CONFIG);
+    }
     var root = document.getElementById("root");
     var id = new URLSearchParams(location.search).get("id");
     if (!id) {
@@ -94,7 +100,20 @@
       var f=document.getElementById("fin"); if(f) f.onclick=function(){
         var s=root.querySelector('input:checked');if(s)answers[idx]=+s.value;
         var correct=0;
-        quiz.forEach(function(q,i){ if(typeof q.answer==='number' && answers[i]===q.answer) correct++; });
+        quiz.forEach(function(q,i){
+          var correctIndex = (typeof q.ans === "number") ? q.ans : q.answer;
+          if (typeof correctIndex === "string") {
+            var letter = correctIndex.trim().match(/^([A-D])$/i);
+            if (letter) correctIndex = letter[1].toUpperCase().charCodeAt(0) - 65;
+            else {
+              var found = (q.options || []).findIndex(function (o) {
+                return String(o).trim().toLowerCase() === correctIndex.trim().toLowerCase();
+              });
+              if (found >= 0) correctIndex = found;
+            }
+          }
+          if (typeof correctIndex === "number" && answers[i] === correctIndex) correct++;
+        });
         root.innerHTML = '<div class="start"><h1>Done</h1><p class="big">'+correct+' / '+quiz.length+'</p>'+
           '<button class="pri" style="width:100%;height:48px;border:0;border-radius:14px;font-weight:800;margin-top:12px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff" id="retry">Retry</button></div>';
         document.getElementById("retry").onclick=function(){paintStart();};

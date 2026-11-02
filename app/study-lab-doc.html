@@ -2,6 +2,23 @@
 <html lang="en">
 <head>
   <script src="../js/theme-boot.js"></script>
+  <script>
+    /* MathJax for Study Lab notes: $x$ and \(x\) inline, $x$ and \[x\] display.
+       Built with String.fromCharCode(92) so the delimiters never depend on how
+       this file's escaping survives an upload. */
+    (function () {
+      var bs = String.fromCharCode(92);
+      var dl = String.fromCharCode(36) + String.fromCharCode(36);
+      window.MathJax = {
+        tex: {
+          inlineMath: [["$", "$"], [bs + "(", bs + ")"]],
+          displayMath: [[dl, dl], [bs + "[", bs + "]"]]
+        },
+        svg: { fontCache: "global" }
+      };
+    })();
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
   <meta charset="UTF-8">
@@ -392,9 +409,26 @@
 
     
     var NOVA_API = "https://codex-backend-new.onrender.com/chat";
+    /* The whole document, not just its opening pages. A long PDF was cut at ~28k
+       characters from the start, so the model only ever saw the first chapters and
+       never asked about the rest. This samples head, evenly spaced middle slices and
+       the tail, each labelled, so the AI reads the entire file end to end. */
     function sourceBlob(doc) {
-      var t = (doc && (doc.extractedText || doc.sourceText || doc.textContent || "")) || "";
-      return String(t).trim().slice(0, 28000);
+      var t = String((doc && (doc.extractedText || doc.sourceText || doc.textContent || "")) || "").trim();
+      if (!t) return "";
+      var BUDGET = 30000;
+      if (t.length <= BUDGET) return t;
+      var parts = 6;
+      var size = Math.floor(BUDGET / parts);
+      var chunks = [];
+      for (var i = 0; i < parts; i++) {
+        var start = Math.round((t.length - size) * (i / (parts - 1)));
+        if (start < 0) start = 0;
+        chunks.push(t.slice(start, start + size));
+      }
+      return chunks.map(function (c, i) {
+        return "[part " + (i + 1) + " of " + parts + "]\n" + c;
+      }).join("\n\n");
     }
     function parseJsonBlock(raw) {
       var s = String(raw || "").trim();
@@ -450,23 +484,45 @@
           var btn = document.getElementById("genCards");
           if (btn) { btn.disabled = true; btn.textContent = "Generating with AI…"; }
           var prompt =
-            "Create " + n + " flashcards for university revision on: " + topic + ".\n" +
+            "You are an experienced university examiner writing revision cards for a student.\n" +
+            "MATERIAL: " + topic + "\n\n" +
             (src
-              ? "SOURCE TEXT from the student's document (use this heavily):\n" + src + "\n\n"
-              : "No extracted document text was available — use the topic title and standard syllabus knowledge for " + topic + ".\n\n") +
-            "Return ONLY a JSON array of objects with keys q and a. No markdown outside JSON. " +
-            "Each q is a clear question; each a is a concise accurate answer from the source when possible.";
-          callStudyAI(prompt, "Output valid JSON array only.")
+              ? "SOURCE DOCUMENT (read all of it - the parts are consecutive slices of ONE document):\n" + src + "\n\n"
+              : "No text could be extracted from the upload, so write cards a lecturer would set on " + topic + " from the standard syllabus.\n\n") +
+            "HOW TO CHOOSE WHAT TO ASK - follow this carefully:\n" +
+            "1. Cover the WHOLE document. Spread cards over every distinct section or topic that appears, not just the opening pages.\n" +
+            "2. Ask only what is examinable: definitions a student must recall exactly, classifications and lists, names/dates/figures the source stresses, processes in the right order, differences between similar concepts, formulas and their conditions, causes and effects.\n" +
+            "3. Never write filler. No cards about the document itself (its title, file name, page numbers, author, 'key idea 1'), and no question whose answer is a topic label - every card must stand alone and teach something.\n" +
+            "4. Do not leak the answer inside the question.\n" +
+            "5. Mix difficulty: about 40% recall, 40% understanding or application, 20% the tricky distinctions students actually get wrong.\n" +
+            "6. Answers: 1-3 precise sentences, self-contained, keeping exact terms, figures and orderings.\n" +
+            "7. No two cards may test the same fact.\n\n" +
+            "Return ONLY a JSON array of " + n + " objects shaped exactly like [{\"q\":\"question\",\"a\":\"answer\"}]. No markdown, no commentary.";
+          callStudyAI(prompt, "You are an exam setter. Output a valid JSON array only, keys q and a.")
             .then(function (raw) {
+              function pick(obj, keys) {
+                for (var k = 0; k < keys.length; k++) {
+                  var v = obj && obj[keys[k]];
+                  if (typeof v === "string" && v.trim()) return v.trim();
+                }
+                return "";
+              }
               var parsed = parseJsonBlock(raw);
-              var list = Array.isArray(parsed) ? parsed : (parsed && parsed.cards) || [];
-              cards = list.map(function (item, i) {
-                return {
-                  q: String((item && (item.q || item.question)) || ("Key idea " + (i + 1) + " — " + topic)).slice(0, 400),
-                  a: String((item && (item.a || item.answer)) || "").slice(0, 800)
-                };
-              }).filter(function (c) { return c.q && c.a; });
-              if (!cards.length) throw new Error("Could not parse flashcards");
+              var list = Array.isArray(parsed) ? parsed : (parsed && (parsed.cards || parsed.flashcards || parsed.items)) || [];
+              var seen = {};
+              cards = list.map(function (item) {
+                if (!item || typeof item === "string") return null;
+                var q = pick(item, ["q", "question", "front", "term", "prompt", "key", "title"]);
+                var a = pick(item, ["a", "answer", "back", "definition", "explanation", "meaning", "value"]);
+                if (!q || !a) return null;
+                var key = q.toLowerCase().replace(/\s+/g, " ").trim();
+                if (seen[key]) return null;
+                seen[key] = 1;
+                return { q: q.slice(0, 400), a: a.slice(0, 900) };
+              }).filter(Boolean).slice(0, n);
+              if (cards.length < 3) {
+                throw new Error("The AI reply did not contain usable questions (" + cards.length + " readable). Try again, or upload a document with selectable text rather than a scan.");
+              }
               docData.flashcards = cards;
               saveArtifacts();
               renderCards();
@@ -531,27 +587,58 @@
           var btn = document.getElementById("genQuiz");
           if (btn) { btn.disabled = true; btn.textContent = "Generating quiz…"; }
           var prompt =
-            "Create a " + n + "-question multiple-choice quiz for university students on: " + topic + ".\n" +
+            "You are an experienced university examiner setting a practice test on: " + topic + ".\n\n" +
             (src
-              ? "SOURCE TEXT:\n" + src + "\n\n"
-              : "No source text — use standard knowledge for the topic.\n\n") +
-            "Return ONLY a JSON array. Each item: {\"q\": question, \"options\": [A,B,C,D], \"ans\": indexOfCorrect (0-3)}. " +
-            "Questions must test understanding of the source, not generic study tips.";
-          callStudyAI(prompt, "JSON array only.")
+              ? "SOURCE DOCUMENT (read all of it - the parts are consecutive slices of ONE document):\n" + src + "\n\n"
+              : "No text could be extracted from the upload, so use the standard syllabus for " + topic + ".\n\n") +
+            "RULES FOR THE QUESTIONS:\n" +
+            "1. Draw them from the WHOLE source: cover every section, and do not put several questions on the same paragraph.\n" +
+            "2. Test what lecturers really ask: exact definitions, distinctions between easily confused terms, correct order of a process, causes and effects, figures/dates the source stresses, and (at most one) a 'which is NOT' check.\n" +
+            "3. Exactly 4 options. One unambiguously correct answer; the other three plausible, similar in length and from the same topic. No 'All of the above', no 'None of the above', no joke options.\n" +
+            "4. Do not copy a sentence and leave a blank in it - that is guessable by word-matching.\n" +
+            "5. Vary difficulty: about 40% recall, 40% understanding, 20% hard, where the wrong options are common misconceptions.\n" +
+            "6. Never ask about the document itself (title, file name, page numbers). No two questions on the same fact.\n\n" +
+            "Return ONLY a JSON array of " + n + " objects shaped exactly like " +
+            "[{\"q\":\"question\",\"options\":[\"\",\"\",\"\",\"\"],\"ans\":0}], where ans is the 0-based index of the correct option. No markdown, no commentary.";
+          callStudyAI(prompt, "You are an exam setter. Output a valid JSON array only.")
             .then(function (raw) {
+              var LETTERS = { a: 0, b: 1, c: 2, d: 3, e: 4 };
               var parsed = parseJsonBlock(raw);
-              var list = Array.isArray(parsed) ? parsed : (parsed && parsed.quiz) || [];
+              var list = Array.isArray(parsed) ? parsed : (parsed && (parsed.quiz || parsed.questions || parsed.items)) || [];
+              var seenQ = {};
               var quiz = list.map(function (item) {
-                var opts = (item && item.options) || [];
+                if (!item || typeof item === "string") return null;
+                var opts = item.options || item.choices || item.answers || [];
                 if (!Array.isArray(opts) || opts.length < 2) return null;
-                var ans = typeof item.ans === "number" ? item.ans : (typeof item.correct === "number" ? item.correct : 0);
-                return {
-                  q: String(item.q || item.question || "").slice(0, 500),
-                  options: opts.map(function (o) { return String(o).slice(0, 200); }).slice(0, 6),
-                  ans: Math.max(0, Math.min(ans, opts.length - 1))
-                };
-              }).filter(function (x) { return x && x.q && x.options && x.options.length >= 2; });
-              if (!quiz.length) throw new Error("Could not parse quiz");
+                opts = opts.map(function (o) {
+                  return String(o == null ? "" : o).replace(/^\s*[A-Da-d][\.\)]\s*/, "").replace(/\s+/g, " ").trim().slice(0, 220);
+                }).slice(0, 6);
+                var q = String(item.q || item.question || item.prompt || "").replace(/\s+/g, " ").trim().slice(0, 500);
+                if (!q) return null;
+                var rawAns = item.ans != null ? item.ans : (item.answer != null ? item.answer : item.correct);
+                var ans = -1;
+                if (typeof rawAns === "number") ans = rawAns;
+                else if (typeof rawAns === "string") {
+                  var t = rawAns.trim();
+                  if (/^[0-9]+$/.test(t)) ans = parseInt(t, 10);
+                  else if (t.length === 1 && LETTERS[t.toLowerCase()] != null) ans = LETTERS[t.toLowerCase()];
+                  else {
+                    var i = -1;
+                    for (var k = 0; k < opts.length; k++) {
+                      if (opts[k].toLowerCase() === t.toLowerCase()) { i = k; break; }
+                    }
+                    ans = i;
+                  }
+                }
+                if (!(ans >= 0 && ans < opts.length)) ans = 0;
+                var dk = q.toLowerCase();
+                if (seenQ[dk]) return null;
+                seenQ[dk] = 1;
+                return { q: q, options: opts, ans: Math.max(0, Math.min(ans, opts.length - 1)) };
+              }).filter(Boolean).slice(0, n);
+              if (quiz.length < 3) {
+                throw new Error("The AI reply did not contain usable questions (" + quiz.length + " readable). Try again, or upload a document with selectable text rather than a scan.");
+              }
               docData.quiz = quiz;
               saveArtifacts();
               renderQuiz();
@@ -762,6 +849,9 @@
         void sheet.offsetWidth;
         sheet.classList.add("flip-in");
         sheet.innerHTML = formatNotes(pages[notePageIdx] || "");
+        if (window.MathJax && MathJax.typesetPromise) {
+          MathJax.typesetPromise([sheet]).catch(function () {});
+        }
         var nav = document.getElementById("pageNav");
         if (nav) {
           nav.style.display = pages.length > 1 ? "flex" : "none";
@@ -1010,11 +1100,41 @@
         return { q: q, options: options, ans: ans };
       }).filter(function (item) { return item.q && item.options.length; });
     }
+    /* Older saves stored the model's whole HTTP envelope
+       ({"id":"chatcmpl-...","choices":[...]}) instead of the prose inside it, which
+       is what printed as raw JSON in the Summary tab. Unwrap it on read so existing
+       documents heal themselves, not only newly generated ones. */
+    function unwrapAIEnvelope(raw) {
+      var s = String(raw == null ? "" : raw).trim();
+      if (!s) return "";
+      // Up to three layers: some older saves stringified the envelope twice.
+      for (var pass = 0; pass < 3; pass++) {
+        var looksWrapped = /^[[{]/.test(s) && /"choices"\s*:|"chat\.completion"|"message"\s*:/.test(s);
+        if (!looksWrapped) break;
+        var parsed = parseJsonBlock(s);
+        var next = "";
+        if (parsed && !Array.isArray(parsed)) {
+          var c = parsed.choices && parsed.choices[0] && parsed.choices[0].message && parsed.choices[0].message.content;
+          var keys = [c, parsed.content, parsed.summary, parsed.text, parsed.reply, parsed.answer, parsed.notes];
+          for (var i = 0; i < keys.length; i++) {
+            if (typeof keys[i] === "string" && keys[i].trim()) { next = keys[i].trim(); break; }
+          }
+        }
+        if (!next) {
+          var m = s.match(/"content"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+          if (m) { try { next = JSON.parse('"' + m[1] + '"'); } catch (e) {} }
+        }
+        if (!next || next === s) break;
+        s = next.trim();
+      }
+      return s;
+    }
+
     function loadSummary(data) {
-      if (data.summary) return data.summary;
+      if (data.summary) return unwrapAIEnvelope(data.summary);
       if (data.outputs) {
-        if (data.outputs.summary) return data.outputs.summary;
-        if (data.outputs.notes) return data.outputs.notes;
+        if (data.outputs.summary) return unwrapAIEnvelope(data.outputs.summary);
+        if (data.outputs.notes) return unwrapAIEnvelope(data.outputs.notes);
         if (Array.isArray(data.outputs.keyPoints)) {
           return data.outputs.keyPoints.map(function (k, i) { return (i + 1) + ". " + k; }).join("\n");
         }
