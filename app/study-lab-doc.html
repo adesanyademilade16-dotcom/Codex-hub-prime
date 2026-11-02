@@ -682,8 +682,13 @@
       function shareQuizLink() {
         if (!user) { alert("Sign in to share quizzes."); return; }
         var title = (docData.title || docData.fileName || "Study quiz");
+        var courseCode = docData.courseCode || docData.detectedSubject || docData.subjectCode || "";
+        var courseTitle = docData.courseTitle || docData.subjectTitle || docData.title || docData.fileName || "Study material";
         var payload = {
           title: title,
+          courseCode: courseCode,
+          courseTitle: courseTitle,
+          durationMinutes: mins,
           questions: quiz,
           uid: user.uid,
           ownerUid: user.uid,
@@ -698,7 +703,8 @@
           if (path.indexOf("shared_quiz") === -1) path = "/app/shared_quiz.html";
           var url = "https://codex-hub-prime.vercel.app/q/" + encodeURIComponent(id);
           if (location.protocol === "file:") url = "shared_quiz.html?id=" + id;
-          var msg = ["📚 Codex Hub quiz (" + quiz.length + " questions)", "", "Open link:", "https://codex-hub-prime.vercel.app/q/" + id].join(String.fromCharCode(10));
+          var courseLabel = [courseCode, courseTitle].filter(Boolean).join(" — ");
+          var msg = ["📚 Codex Hub CBT Practice", courseLabel, quiz.length + " questions · " + mins + " minutes", "", "Take the quiz:", "https://codex-hub-prime.vercel.app/q/" + id].filter(Boolean).join(String.fromCharCode(10));
           openShareModal(url, msg);
           if (navigator.share) {
             navigator.share({ title: title, text: msg, url: url }).catch(function () {});

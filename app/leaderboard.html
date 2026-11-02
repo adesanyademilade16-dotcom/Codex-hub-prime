@@ -131,12 +131,12 @@
       box-shadow: 0 6px 18px rgba(15,23,42,.04);
     }
     .list-head {
-      display: grid; grid-template-columns: 48px 1fr auto; gap: 8px;
+      display: grid; grid-template-columns: 48px minmax(0,1fr) auto; gap: 8px;
       padding: 10px 14px; font-size: .65rem; font-weight: 800; letter-spacing: .1em;
       text-transform: uppercase; color: var(--muted); border-bottom: 1px solid #F1F5F9;
     }
     .lb-row {
-      display: grid; grid-template-columns: 48px 1fr auto; gap: 8px; align-items: center;
+      display: grid; grid-template-columns: 48px minmax(0,1fr) auto; gap: 8px; align-items: center; min-width: 0;
       padding: 12px 14px; border-bottom: 1px solid #F8FAFC;
     }
     .lb-row:last-child { border-bottom: 0; }
@@ -147,26 +147,27 @@
       font-weight: 800; font-size: .9rem; color: var(--muted);
     }
     .lb-row .r.top { color: var(--indigo); }
-    .who { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .who { display: flex; align-items: center; gap: 10px; min-width: 0; overflow: hidden; }
     .who .av {
       width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex-shrink: 0;
       background: linear-gradient(135deg, #4F46E5, #7C3AED); color: #fff;
       display: grid; place-items: center; font-size: .7rem; font-weight: 800;
     }
     .who .av img, .who .av svg { width: 100%; height: 100%; object-fit: cover; }
-    .who .meta { min-width: 0; }
+    .who .meta { min-width: 0; flex: 1 1 auto; overflow: hidden; }
     .who .meta b {
       display: block; font-size: .88rem; font-weight: 700;
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
-    .who .meta span { font-size: .7rem; color: var(--muted); }
+    .who .meta span { display:block; font-size: .7rem; color: var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%; }
     .badge {
       display: inline-block; margin-left: 6px; padding: 2px 7px; border-radius: 999px;
       font-size: .6rem; font-weight: 800; vertical-align: middle;
       background: #F5F3FF; color: #6D28D9;
     }
     .badge.free { background: #F1F5F9; color: #64748B; }
-    .xp { font-weight: 800; font-size: .88rem; color: var(--ink); white-space: nowrap; }
+    .xp { font-weight: 800; font-size: .88rem; color: var(--ink); white-space: nowrap; justify-self:end; }
+    @media (max-width:420px) { .list-head,.lb-row { grid-template-columns:42px minmax(0,1fr) auto; gap:6px; padding-left:10px; padding-right:10px; } .who { gap:7px; } .who .av { width:32px; height:32px; } .who .meta b { max-width:100%; } }
 
     .empty {
       text-align: center; padding: 36px 20px; color: var(--muted); font-size: .9rem; line-height: 1.5;
@@ -372,11 +373,27 @@ html.theme-dark .muted, html.theme-dark .sub { color: #94A3B8 !important; }
       if (period === "week") return age <= 7 * 24 * 60 * 60 * 1000;
       return true;
     }
+    function normFilterValue(v) {
+      return String(v == null ? "" : v).trim().toLowerCase().replace(/\s+/g, " ");
+    }
     function matchesCat(d, cat, profile) {
-      if (cat === "all" || !profile) return true;
-      if (cat === "level") return !d.level || d.level === profile.level;
-      if (cat === "semester") return !d.semester || d.semester === profile.semester;
-      if (cat === "dept") return !d.department || d.department === profile.department;
+      if (cat === "all") return true;
+      if (!profile) return true;
+      if (cat === "level") {
+        var lv = normFilterValue(d.level || d.studyLevel);
+        var pl = normFilterValue(profile.level || profile.studyLevel);
+        return !lv || !pl || lv === pl;
+      }
+      if (cat === "semester") {
+        var sm = normFilterValue(d.semester || d.currentSemester);
+        var ps = normFilterValue(profile.semester || profile.currentSemester);
+        return !sm || !ps || sm === ps;
+      }
+      if (cat === "dept") {
+        var dp = normFilterValue(d.department || d.departmentName);
+        var pd = normFilterValue(profile.department || profile.departmentName);
+        return !dp || !pd || dp === pd;
+      }
       return true;
     }
 

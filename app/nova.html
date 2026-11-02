@@ -1768,7 +1768,7 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
         }
         if (!_imgs.length) return '<p style="font-size:.8rem;color:#64748B">No diagram images available.</p>';
         return '<div class="img-carousel" data-gallery="' + gid + '">' + _imgs.map(function (u, i) {
-          return '<div class="icard" data-gallery="' + gid + '" data-idx="' + i + '"><img src="' + escape(u) + '" alt="Photo ' + (i + 1) + '" loading="eager" referrerpolicy="no-referrer" data-full="' + escape(u) + '" data-proxy="' + escape(API_BASE + "/img-proxy?u=" + encodeURIComponent(u)) + '" onerror="__novaimgErr(this)"><a href="' + escape(u) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">Open</a></div>';
+          return '<div class="icard" data-gallery="' + gid + '" data-idx="' + i + '"><img src="' + escape(u) + '" alt="Photo ' + (i + 1) + '" loading="eager" referrerpolicy="no-referrer" data-full="' + escape(u) + '" data-proxy="' + escape(API_BASE + "/img-proxy?u=" + encodeURIComponent(u)) + '"><a href="' + escape(u) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">Open</a></div>';
         }).join("") + '</div>';
       });
       raw = raw.replace(/%%CAROUSEL_START%%([\s\S]*?)%%CAROUSEL_END%%/g, function (_, body) { return body; });
@@ -3388,7 +3388,7 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
         var proxied = API_BASE + "/img-proxy?u=" + encodeURIComponent(full);
         var title = im.title || ("Photo " + (i + 1));
         return '<div class="icard" data-gallery="' + gid + '" data-idx="' + i + '" role="button" tabindex="0" aria-label="Open image ' + (i + 1) + ' of ' + tiles.length + '">' +
-          '<img src="' + escape(full) + '" data-proxy="' + escape(proxied) + '" data-full="' + escape(full) + '" alt="' + escape(title) + '" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="__novaimgErr(this)">' +
+          '<img src="' + escape(full) + '" data-proxy="' + escape(proxied) + '" data-full="' + escape(full) + '" alt="' + escape(title) + '" loading="eager" decoding="async" referrerpolicy="no-referrer">' +
           '<a href="' + escape(full) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + escape(String(title).slice(0, 46)) + "</a></div>";
       }).join("") + "</div>";
     }
@@ -3426,6 +3426,15 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
         .then(function (r) { if (!r.ok) throw new Error("img_http_" + r.status); return r.json(); })
         .then(function (data) {
           var imgs = (data && data.images) || [];
+          // Providers return different property names. Normalize to the shape
+          // consumed by buildCarouselHtml instead of silently dropping valid URLs.
+          imgs = imgs.map(function (im) {
+            if (typeof im === "string") return { url: im, full: im, original: im, title: "Reference image" };
+            im = im || {};
+            var full = im.original || im.full || im.image_url || im.imageUrl || im.url || im.src || im.link || im.thumbnail_url || im.thumbnail || "";
+            var thumb = im.thumbnail_url || im.thumbnail || im.thumb || im.url || full;
+            return Object.assign({}, im, { url: thumb, full: full, original: full, title: im.title || im.name || im.alt || "Reference image" });
+          }).filter(function (im) { return isLikelyImageUrl(im.full || im.url); });
           console.log("[Nova] image provider=", (data && data.provider) || "?", "count=", imgs.length);
           if (imgs.length) return imgs;
           return fromWiki();
@@ -4506,27 +4515,24 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
  * 2nd failure → hide that picture (and its Download/Open buttons) cleanly. */
 (function () {
   var API = (window.CODEX_API_BASE || "https://codex-backend-new.onrender.com").replace(/\/$/, "");
-  function holder(img) {
-    return img.closest(".msg-img-wrap, .icard, .gen-fig") || img;
-  }
+  function holder(img) { return img.closest(".msg-img-wrap, .icard, .gen-fig") || img; }
+  // One capture-phase handler only. The former inline handler plus this
+  // delegated handler could both retry/hide the same thumbnail on one error.
   document.addEventListener("error", function (e) {
     var img = e.target;
     if (!img || img.tagName !== "IMG") return;
     if (!img.closest(".msg-media, .img-carousel, .gen-fig, .msg-img-wrap")) return;
     var src = img.getAttribute("src") || "";
-    if (!img.dataset.retried && /^https?:/i.test(src) && src.indexOf("/img-proxy?") < 0) {
-      img.dataset.retried = "1";
+    if (!img.dataset.proxyTried && img.dataset.proxy && /^https?:/i.test(src)) {
+      img.dataset.proxyTried = "1";
       img.referrerPolicy = "no-referrer";
-      img.src = API + "/img-proxy?u=" + encodeURIComponent(src);
+      img.src = img.dataset.proxy;
       return;
     }
     var h = holder(img);
-    h.style.display = "none";
-    var car = img.closest(".img-carousel");
-    if (car && !car.querySelector(".icard:not([style*='display: none'])")) car.style.display = "none";
+    h.classList.add("broken");
+    img.alt = "Image unavailable — open original";
   }, true);
-
-  /* Phase 3: restore the persisted coding-mode state */
   try { setCodingMode(localStorage.getItem("nova_coding_mode") === "1", false); } catch (e) {}
 })();
 </script>

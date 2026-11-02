@@ -51,6 +51,8 @@
     <a class="brand" href="../index.html"><img src="../assets/logo.png" alt=""><b>Codex Hub</b></a>
     <div class="card" id="root"><p class="meta">Loading quiz…</p></div>
   </div>
+  <script>window.MathJax={tex:{inlineMath:[["$","$"],["\\(","\\)"]],displayMath:[["$$","$$"],["\\[","\\]"]]},svg:{fontCache:"global"}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script><script src="../js/firestore-boot.js"></script>
   <script src="../js/firebase-config.js"></script>
@@ -76,18 +78,19 @@
     if (!id) { root.innerHTML = '<p class="err">Missing quiz link.</p>'; }
     else {
     var db = firebase.firestore();
-    var quiz = [], title = "Shared quiz", idx = 0, answers = {};
+    var quiz = [], title = "Shared quiz", courseLabel = "", durationMinutes = 0, deadline = 0, timerId = null, idx = 0, answers = {};
     function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
     function paintStart(){
-      root.innerHTML = '<div class="start"><p class="meta">Shared quiz</p><h1>'+esc(title)+'</h1>'+
-        '<p class="meta">'+quiz.length+' questions</p>'+
+      root.innerHTML = '<div class="start"><p class="meta">Codex Hub · Shared CBT</p><h1>'+esc(title)+'</h1>'+
+        (courseLabel ? '<p class="meta">'+esc(courseLabel)+'</p>' : '') +
+        '<p class="meta">'+quiz.length+' questions'+(durationMinutes ? ' · '+durationMinutes+' minutes' : '')+'</p>'+
         '<button class="pri" style="width:100%;height:52px;border:0;border-radius:14px;font-weight:800;font-family:inherit;cursor:pointer;margin-top:12px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff" id="go">Start</button></div>';
-      document.getElementById("go").onclick = function(){ idx=0; answers={}; paintQ(); };
+      document.getElementById("go").onclick = function(){ idx=0; answers={}; deadline = durationMinutes ? Date.now() + durationMinutes*60000 : 0; if(timerId) clearInterval(timerId); if(deadline) timerId=setInterval(tickTimer,1000); paintQ(); };
     }
     function paintQ(){
       var item = quiz[idx];
       if (!item) { root.innerHTML = '<p class="err">No questions in this quiz.</p>'; return; }
-      root.innerHTML = '<p class="meta">Question '+(idx+1)+' / '+quiz.length+'</p><h1 style="font-size:1.05rem">'+esc(item.q)+'</h1>'+
+      root.innerHTML = '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><p class="meta">Question '+(idx+1)+' / '+quiz.length+'</p>'+(deadline ? '<strong id="quizClock" class="meta" style="white-space:nowrap;color:#4F46E5">--:--</strong>' : '')+'</div><div style="height:6px;background:#E2E8F0;border-radius:99px;overflow:hidden;margin:0 0 16px"><div style="height:100%;width:'+(((idx+1)/quiz.length)*100)+'%;background:linear-gradient(90deg,#4F46E5,#7C3AED)"></div></div><h1 style="font-size:1.05rem;line-height:1.65">'+esc(item.q)+'</h1>'+
         (item.options||[]).map(function(o,i){
           var c = answers[idx]===i?' checked':'';
           return '<label class="opt"><input type="radio" name="q" value="'+i+'"'+c+'> '+esc(o)+'</label>';
@@ -95,10 +98,13 @@
         '<div class="nav"><button class="sec" id="back"'+(idx===0?' disabled':'')+'>Back</button>'+
         (idx<quiz.length-1?'<button class="pri" id="next">Next</button>':'<button class="pri" id="fin">Finish</button>')+'</div>';
       root.querySelectorAll('input[name=q]').forEach(function(inp){ inp.onchange=function(){ answers[idx]=+inp.value; }; });
+      if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([root]).catch(function(){});
+      tickTimer();
       var b=document.getElementById("back"); if(b) b.onclick=function(){idx--;paintQ();};
       var n=document.getElementById("next"); if(n) n.onclick=function(){var s=root.querySelector('input:checked');if(s)answers[idx]=+s.value;idx++;paintQ();};
       var f=document.getElementById("fin"); if(f) f.onclick=function(){
         var s=root.querySelector('input:checked');if(s)answers[idx]=+s.value;
+        if(timerId) clearInterval(timerId);
         var correct=0;
         quiz.forEach(function(q,i){
           var correctIndex = (typeof q.ans === "number") ? q.ans : q.answer;
@@ -119,6 +125,20 @@
         document.getElementById("retry").onclick=function(){paintStart();};
       };
     }
+    function tickTimer(){
+      if(!deadline) return;
+      var left=Math.max(0,Math.ceil((deadline-Date.now())/1000));
+      var el=document.getElementById("quizClock");
+      if(el) el.textContent=String(Math.floor(left/60)).padStart(2,"0")+":"+String(left%60).padStart(2,"0");
+      if(left<=0 && timerId){ clearInterval(timerId); timerId=null; finishQuiz(); }
+    }
+    function finishQuiz(){
+      if(timerId){clearInterval(timerId);timerId=null;}
+      var correct=0;
+      quiz.forEach(function(q,i){ var ci=(typeof q.ans==="number")?q.ans:q.answer; if(typeof ci==="string"){var m=ci.trim().match(/^([A-D])$/i); if(m) ci=m[1].toUpperCase().charCodeAt(0)-65; else ci=(q.options||[]).findIndex(function(o){return String(o).trim().toLowerCase()===ci.trim().toLowerCase();});} if(typeof ci==="number" && answers[i]===ci) correct++; });
+      root.innerHTML='<div class="start"><h1>Time / quiz completed</h1><p class="big">'+correct+' / '+quiz.length+'</p><button class="pri" style="width:100%;height:48px;border:0;border-radius:14px;font-weight:800;margin-top:12px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff" id="retry">Retry</button></div>';
+      document.getElementById("retry").onclick=function(){paintStart();};
+    }
     var loadTimer = setTimeout(function(){
       if (root && /Loading quiz/i.test(root.textContent||"")) {
         root.innerHTML = '<p class="err">Still loading…</p><p class="meta">Firestore is slow or blocked on this network (same issue as login). Try VPN / other network, then Retry.</p>'+
@@ -131,6 +151,8 @@
       if(!snap.exists){ root.innerHTML='<p class="err">This quiz link is invalid or was removed.</p>'; return; }
       var data = snap.data() || {};
       title = data.title || title;
+      courseLabel = [data.courseCode, data.courseTitle].filter(Boolean).join(" — ");
+      durationMinutes = Math.max(0, Number(data.durationMinutes) || 0);
       quiz = Array.isArray(data.questions) ? data.questions : [];
       if (!quiz.length) { root.innerHTML='<p class="err">This quiz has no questions.</p>'; return; }
       try{ db.collection("shared_quizzes").doc(id).update({views:firebase.firestore.FieldValue.increment(1)}); }catch(e){}
