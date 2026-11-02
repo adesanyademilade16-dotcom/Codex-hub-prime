@@ -452,13 +452,26 @@
         "Follow the user format exactly. Prefer content grounded in the provided SOURCE TEXT. " +
         "If SOURCE TEXT is thin, still produce useful study material from the title/topic, and note that source text was limited. " +
         (systemExtra || "");
-      return fetch(NOVA_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          system: system,
-          messages: [{ role: "user", content: userPrompt }]
-        })
+      // The backend protects /chat with a verified Firebase ID token.
+      // Study Lab must use the same authenticated session as Nova; never put
+      // provider API keys in this browser request.
+      var authUser = user || (window.firebase && firebase.auth && firebase.auth().currentUser);
+      if (!authUser || typeof authUser.getIdToken !== "function") {
+        return Promise.reject(new Error("Your session has expired. Please sign in again."));
+      }
+      return authUser.getIdToken().then(function (idToken) {
+        if (!idToken) throw new Error("Could not verify your session. Please sign in again.");
+        return fetch(NOVA_API, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + idToken
+          },
+          body: JSON.stringify({
+            system: system,
+            messages: [{ role: "user", content: userPrompt }]
+          })
+        });
       }).then(function (r) {
         if (!r.ok) throw new Error("AI HTTP " + r.status);
         return r.json();

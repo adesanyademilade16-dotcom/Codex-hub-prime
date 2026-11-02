@@ -382,17 +382,17 @@ html.theme-dark .muted, html.theme-dark .sub { color: #94A3B8 !important; }
       if (cat === "level") {
         var lv = normFilterValue(d.level || d.studyLevel);
         var pl = normFilterValue(profile.level || profile.studyLevel);
-        return !lv || !pl || lv === pl;
+        return !!lv && !!pl && lv === pl;
       }
       if (cat === "semester") {
         var sm = normFilterValue(d.semester || d.currentSemester);
         var ps = normFilterValue(profile.semester || profile.currentSemester);
-        return !sm || !ps || sm === ps;
+        return !!sm && !!ps && sm === ps;
       }
       if (cat === "dept") {
         var dp = normFilterValue(d.department || d.departmentName);
         var pd = normFilterValue(profile.department || profile.departmentName);
-        return !dp || !pd || dp === pd;
+        return !!dp && !!pd && dp === pd;
       }
       return true;
     }
@@ -474,42 +474,63 @@ html.theme-dark .muted, html.theme-dark .sub { color: #94A3B8 !important; }
         return;
       }
       var startRank = filtered.length > 3 ? 4 : 1;
-      if (filtered.length > 3) {
-        listBody.innerHTML = rest.map(function (row, i) {
-          var rank = startRank + i;
-          var name = personName(row);
-          var me = row._id === myUid || row.uid === myUid;
-          var tier = (row.subscriptionTier || row.plan || "").toString().toLowerCase();
-          var badge = "";
-          if (tier.indexOf("pro") >= 0) badge = '<span class="badge">Pro</span>';
-          else if (tier.indexOf("regular") >= 0) badge = '<span class="badge">Regular</span>';
-          return (
-            '<div class="lb-row' + (me ? " me" : "") + '">' +
-              '<div class="r' + (rank === 1 ? " top top1" : rank === 2 ? " top top2" : rank === 3 ? " top top3" : "") + '>#' + rank + '</div>' +
-              '<div class="who"><div class="av">' + avatarHtml(row) + '</div>' +
-              '<div class="meta"><b>' + escape(name) + badge + '</b>' +
-              '<span>' + escape([row.level, row.department].filter(Boolean).join(" · ")) + '</span></div></div>' +
-              '<div class="xp">' + scoreOf(row).toLocaleString() + '</div>' +
-            '</div>'
-          );
-        }).join("");
-      } else {
-        // show all in list too when fewer than 4
-        listBody.innerHTML = filtered.map(function (row, i) {
-          var rank = i + 1;
-          var name = personName(row);
-          var me = row._id === myUid || row.uid === myUid;
-          return (
-            '<div class="lb-row' + (me ? " me" : "") + '">' +
-              '<div class="r top">#' + rank + '</div>' +
-              '<div class="who"><div class="av">' + avatarHtml(row) + '</div>' +
-              '<div class="meta"><b>' + escape(name) + '</b>' +
-              '<span>' + escape([row.level, row.department].filter(Boolean).join(" · ")) + '</span></div></div>' +
-              '<div class="xp">' + scoreOf(row).toLocaleString() + '</div>' +
-            '</div>'
-          );
-        }).join("");
-      }
+      var rowsToShow = filtered.length > 3 ? rest : filtered;
+      var frag = document.createDocumentFragment();
+
+      rowsToShow.forEach(function (row, i) {
+        var rank = startRank + i;
+        var name = personName(row);
+        var me = row._id === myUid || row.uid === myUid;
+        var rowEl = document.createElement("div");
+        rowEl.className = "lb-row" + (me ? " me" : "");
+
+        var rankEl = document.createElement("div");
+        rankEl.className = "r" + (rank <= 3 ? " top top" + rank : "");
+        rankEl.textContent = "#" + rank;
+
+        var whoEl = document.createElement("div");
+        whoEl.className = "who";
+        var avatarEl = document.createElement("div");
+        avatarEl.className = "av";
+        // CodexMedia returns the trusted avatar fragment; profile fields below
+        // are inserted with textContent, never concatenated into row HTML.
+        var avatarMarkup = avatarHtml(row);
+        var avatarHolder = document.createElement("div");
+        avatarHolder.innerHTML = avatarMarkup;
+        while (avatarHolder.firstChild) avatarEl.appendChild(avatarHolder.firstChild);
+
+        var metaEl = document.createElement("div");
+        metaEl.className = "meta";
+        var nameEl = document.createElement("b");
+        nameEl.textContent = name;
+        var tier = String(row.subscriptionTier || row.plan || "").toLowerCase();
+        if (tier.indexOf("pro") >= 0 || tier.indexOf("regular") >= 0) {
+          var badgeEl = document.createElement("span");
+          badgeEl.className = "badge";
+          badgeEl.textContent = tier.indexOf("pro") >= 0 ? "Pro" : "Regular";
+          nameEl.appendChild(document.createTextNode(" "));
+          nameEl.appendChild(badgeEl);
+        }
+        var detailEl = document.createElement("span");
+        detailEl.textContent = [row.level || row.studyLevel, row.department || row.departmentName]
+          .filter(Boolean).join(" · ");
+
+        metaEl.appendChild(nameEl);
+        metaEl.appendChild(detailEl);
+        whoEl.appendChild(avatarEl);
+        whoEl.appendChild(metaEl);
+
+        var xpEl = document.createElement("div");
+        xpEl.className = "xp";
+        xpEl.textContent = scoreOf(row).toLocaleString();
+
+        rowEl.appendChild(rankEl);
+        rowEl.appendChild(whoEl);
+        rowEl.appendChild(xpEl);
+        frag.appendChild(rowEl);
+      });
+
+      listBody.replaceChildren(frag);
     }
 
     function wireSeg(id, attr, key) {
