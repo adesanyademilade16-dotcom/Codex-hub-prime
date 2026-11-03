@@ -1,88 +1,157 @@
-/* Codex Hub — PWA install helper.
- * Registers the service worker once per visit and reveals any
- * #btnInstallApp button on the current page only when the browser has
- * actually signaled the app is installable (beforeinstallprompt). On iOS
- * Safari, which never fires that event, we instead show a short "Add to
- * Home Screen" instruction the first time, since the only install path
- * there is the native Share sheet — nothing this script can trigger.
+/* Codex Hub PWA install controls.
+ * Works on Chromium browsers with beforeinstallprompt and gives platform-
+ * appropriate manual instructions on iOS / browsers without the install API.
+ *
+ * Install detection is intentionally conservative:
+ * - "Installed" is shown when running in standalone display mode or after
+ *   appinstalled fires in this page session.
+ * - Browsers do not expose a reliable cross-platform API to detect whether a
+ *   user installed the PWA but is currently browsing the website, or later
+ *   deleted it. In that case we show "Install app" rather than guessing.
  */
 (function (w, d) {
   "use strict";
   if (w.__codexPwaInstallBooted) return;
   w.__codexPwaInstallBooted = true;
 
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", function () {
-      // Relative to this script's own page (index.html, at the site root),
-      // so this keeps working whether the site is hosted at a domain root
-      // or a subpath (e.g. a GitHub Pages project page).
-      navigator.serviceWorker.register("/service-worker.js", { scope: "/" }).catch(function () {});
-    });
-  }
-
   var deferredPrompt = null;
-  var isStandalone = w.matchMedia && w.matchMedia("(display-mode: standalone)").matches ||
-    w.navigator.standalone === true;
+  var installedThisSession = false;
+  var standaloneQuery = w.matchMedia ? w.matchMedia("(display-mode: standalone)") : null;
 
-  function showButtons() {
-    d.querySelectorAll("#btnInstallApp, .btn-install-app").forEach(function (btn) {
-      btn.hidden = false;
-      btn.style.display = "";
-    });
-  }
-  function hideButtons() {
-    d.querySelectorAll("#btnInstallApp, .btn-install-app").forEach(function (btn) {
-      btn.hidden = true;
-      btn.style.display = "none";
-    });
-  }
-
-  if (isStandalone) {
-    // Already installed and running from the home screen — nothing to offer.
-    d.addEventListener("DOMContentLoaded", hideButtons);
-  } else {
-    w.addEventListener("beforeinstallprompt", function (e) {
-      e.preventDefault();
-      deferredPrompt = e;
-      showButtons();
-    });
-    w.addEventListener("appinstalled", function () {
-      deferredPrompt = null;
-      hideButtons();
-    });
+  function isStandalone() {
+    return !!((standaloneQuery && standaloneQuery.matches) || w.navigator.standalone === true);
   }
 
   function isIos() {
-    return /iphone|ipad|ipod/i.test(navigator.userAgent || "") && !w.MSStream;
+    return /iphone|ipad|ipod/i.test(w.navigator.userAgent || "") ||
+      (w.navigator.platform === "MacIntel" && w.navigator.maxTouchPoints > 1);
   }
 
-  function wireClick() {
-    d.querySelectorAll("#btnInstallApp, .btn-install-app").forEach(function (btn) {
-      if (btn.__codexWired) return;
-      btn.__codexWired = true;
-      btn.addEventListener("click", async function () {
-        if (deferredPrompt) {
-          deferredPrompt.prompt();
-          try { await deferredPrompt.userChoice; } catch (e) {}
-          deferredPrompt = null;
-          hideButtons();
-          return;
-        }
-        if (isIos()) {
-          alert("To install: tap the Share icon in Safari, then \u201cAdd to Home Screen\u201d.");
-          return;
-        }
-        alert("Your browser doesn't support one-tap install here yet — you can still open Codex Hub from your browser bookmarks.");
+  function isSafari() {
+    var ua = w.navigator.userAgent || "";
+    return /safari/i.test(ua) && !/(crios|fxios|edgios|opios|chrome|android)/i.test(ua);
+  }
+
+  function buttons() {
+    return Array.prototype.slice.call(d.querySelectorAll(".btn-install-app"));
+  }
+
+  function paintInstalled() {
+    buttons().forEach(function (btn) {
+      btn.hidden = false;
+      btn.style.display = "";
+      btn.textContent = "✓ Installed";
+      btn.disabled = true;
+      btn.classList.add("is-installed");
+      btn.setAttribute("aria-label", "Codex Hub is installed on this device");
+      btn.title = "Codex Hub is installed";
+    });
+  }
+
+  function paintInstall() {
+    buttons().forEach(function (btn) {
+      btn.hidden = false;
+      btn.style.display = "";
+      btn.textContent = "↓ Install app";
+      btn.disabled = false;
+      btn.classList.remove("is-installed");
+      btn.setAttribute("aria-label", "Install Codex Hub on this device");
+      btn.removeAttribute("title");
+    });
+  }
+
+  function refreshState() {
+    if (isStandalone() || installedThisSession) paintInstalled();
+    else paintInstall();
+  }
+
+  if ("serviceWorker" in navigator) {
+    w.addEventListener("load", function () {
+      navigator.serviceWorker.register("/service-worker.js", { scope: "/" }).catch(function (err) {
+        console.warn("Codex Hub service worker registration:", err);
       });
     });
   }
 
-  if (d.readyState === "loading") d.addEventListener("DOMContentLoaded", wireClick);
-  else wireClick();
-
-  // Buttons start hidden (except iOS, where we can't detect install-readiness
-  // via an event, so we offer the Share-sheet instructions proactively).
-  d.addEventListener("DOMContentLoaded", function () {
-    if (!isStandalone && isIos()) showButtons();
+  w.addEventListener("beforeinstallprompt", function (event) {
+    event.preventDefault();
+    deferredPrompt = event;
+    refreshState();
   });
+
+  w.addEventListener("appinstalled", function () {
+    installedThisSession = true;
+    deferredPrompt = null;
+    paintInstalled();
+  });
+
+  async function handleInstallClick() {
+    if (isStandalone() || installedThisSession) {
+      paintInstalled();
+      return;
+    }
+
+    if (deferredPrompt) {
+      var promptEvent = deferredPrompt;
+      deferredPrompt = null;
+      try {
+        await promptEvent.prompt();
+        var choice = await promptEvent.userChoice;
+        if (choice && choice.outcome === "accepted") {
+          // appinstalled will normally follow; don't claim success prematurely.
+          buttons().forEach(function (btn) { btn.textContent = "Installing…"; });
+        } else {
+          paintInstall();
+        }
+      } catch (error) {
+        console.warn("PWA install prompt failed:", error);
+        paintInstall();
+        showManualInstructions();
+      }
+      return;
+    }
+
+    showManualInstructions();
+  }
+
+  function showManualInstructions() {
+    if (isIos()) {
+      if (!isSafari()) {
+        w.alert("To install Codex Hub on iPhone or iPad, open this page in Safari, tap Share, then choose “Add to Home Screen”.");
+      } else {
+        w.alert("To install Codex Hub: tap the Share icon in Safari, scroll down, choose “Add to Home Screen”, then tap “Add”.");
+      }
+      return;
+    }
+
+    var ua = w.navigator.userAgent || "";
+    if (/android/i.test(ua)) {
+      w.alert("To install Codex Hub, open your browser menu (⋮) and choose “Install app” or “Add to Home screen”. If the option is missing, try Chrome and make sure you are online.");
+      return;
+    }
+
+    w.alert("To install Codex Hub, use your browser’s Install app option or Add to Home Screen option. The wording depends on your browser.");
+  }
+
+  function wireButtons() {
+    buttons().forEach(function (btn) {
+      if (btn.__codexPwaWired) return;
+      btn.__codexPwaWired = true;
+      btn.addEventListener("click", handleInstallClick);
+    });
+    refreshState();
+  }
+
+  if (d.readyState === "loading") d.addEventListener("DOMContentLoaded", wireButtons);
+  else wireButtons();
+
+  if (standaloneQuery && standaloneQuery.addEventListener) {
+    standaloneQuery.addEventListener("change", refreshState);
+  } else if (standaloneQuery && standaloneQuery.addListener) {
+    standaloneQuery.addListener(refreshState);
+  }
+
+  // iOS has no beforeinstallprompt event, so the install control remains visible.
+  // The same is true for Chromium when the prompt is temporarily unavailable:
+  // the control still provides manual installation guidance.
 })(window, document);
