@@ -315,18 +315,20 @@
       min-height: 280px;
       box-shadow: inset 0 0 0 1px #E2E8F0;
     }
-    .summary-paper h1, .summary-paper h2, .summary-paper h3 { margin: .8em 0 .35em; line-height:1.25; }
-    .summary-table-wrap { width:100%; overflow-x:auto; margin:14px 0; border:1px solid var(--line); border-radius:12px; }
-    .summary-table { width:100%; min-width:420px; border-collapse:collapse; font-size:.88rem; }
-    .summary-table th,.summary-table td { padding:10px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
-    .summary-table th { background:#EEF2FF; font-weight:800; }
-    .summary-table tr:last-child td { border-bottom:0; }
-    .summary-paper pre { overflow:auto; padding:12px; border-radius:10px; background:#F1F5F9; }
     .summary-paper h3, .summary-paper strong {
       color: #1E3A8A;
       font-weight: 800;
     }
     .summary-paper p { margin: 0 0 0.25em; }
+
+    .study-table-wrap{max-width:100%;overflow-x:auto;margin:14px 0 18px;border:1px solid #dbe3ef;border-radius:12px;background:#fff;-webkit-overflow-scrolling:touch}
+    .study-md-table{width:100%;min-width:420px;border-collapse:separate;border-spacing:0;font-size:.94em;line-height:1.5}
+    .study-md-table th{background:#eef2ff;color:#253b75;text-align:left;font-weight:700;padding:11px 13px;border-bottom:1px solid #dbe3ef;white-space:nowrap}
+    .study-md-table td{padding:10px 13px;vertical-align:top;border-bottom:1px solid #e8edf5;min-width:110px}
+    .study-md-table tr:nth-child(even) td{background:#f8faff}
+    .study-md-table tr:last-child td{border-bottom:0}
+    .study-md-table code{font-size:.9em;overflow-wrap:anywhere}
+    @media(prefers-color-scheme:dark){.study-table-wrap{background:#111827;border-color:#334155}.study-md-table th{background:#202b4a;color:#dbeafe;border-color:#334155}.study-md-table td{border-color:#334155}.study-md-table tr:nth-child(even) td{background:#172033}}
 </style>
 
   <!-- Vercel Speed Insights -->
@@ -384,6 +386,9 @@
 
     function formatNotes(raw) {
       var s = escape(String(raw || ""));
+      // Convert GitHub-style Markdown tables before paragraph/line-break formatting.
+      // Input is HTML-escaped first, and every cell remains escaped.
+      s = renderMarkdownTables(s);
       // headings
       s = s.replace(/^### (.+)$/gm, '<h4 style="margin:14px 0 6px;font-size:1rem;color:#1E3A8A">$1</h4>');
       s = s.replace(/^## (.+)$/gm, '<h3 style="margin:16px 0 8px;font-size:1.1rem;color:#1E3A8A">$1</h3>');
@@ -403,6 +408,39 @@
       return String(s || "").replace(/[&<>"']/g, function (m) {
         return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[m];
       });
+    }
+    function renderMarkdownTables(source) {
+      var lines = String(source || "").split("\n");
+      var out = [];
+      function cells(line) {
+        return String(line || "").trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map(function (v) { return v.trim(); });
+      }
+      function inlineCell(v) {
+        return String(v || "").replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+          .replace(/`([^`]+)`/g, "<code>$1</code>");
+      }
+      for (var i = 0; i < lines.length; i++) {
+        var header = lines[i];
+        var separator = lines[i + 1] || "";
+        if (header.indexOf("|") !== -1 && /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(separator)) {
+          var heads = cells(header);
+          var table = '<div class="study-table-wrap"><table class="study-md-table"><thead><tr>';
+          heads.forEach(function (h) { table += "<th>" + inlineCell(h) + "</th>"; });
+          table += "</tr></thead><tbody>";
+          i += 2;
+          while (i < lines.length && lines[i].indexOf("|") !== -1 && lines[i].trim()) {
+            var row = cells(lines[i]);
+            table += "<tr>";
+            for (var c = 0; c < heads.length; c++) table += "<td>" + inlineCell(row[c] || "") + "</td>";
+            table += "</tr>";
+            i++;
+          }
+          table += "</tbody></table></div>";
+          out.push(table);
+          i--;
+        } else out.push(lines[i]);
+      }
+      return out.join("\n");
     }
 
     document.querySelectorAll(".tabs button").forEach(function (btn) {
@@ -459,26 +497,13 @@
         "Follow the user format exactly. Prefer content grounded in the provided SOURCE TEXT. " +
         "If SOURCE TEXT is thin, still produce useful study material from the title/topic, and note that source text was limited. " +
         (systemExtra || "");
-      // The backend protects /chat with a verified Firebase ID token.
-      // Study Lab must use the same authenticated session as Nova; never put
-      // provider API keys in this browser request.
-      var authUser = user || (window.firebase && firebase.auth && firebase.auth().currentUser);
-      if (!authUser || typeof authUser.getIdToken !== "function") {
-        return Promise.reject(new Error("Your session has expired. Please sign in again."));
-      }
-      return authUser.getIdToken().then(function (idToken) {
-        if (!idToken) throw new Error("Could not verify your session. Please sign in again.");
-        return fetch(NOVA_API, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + idToken
-          },
-          body: JSON.stringify({
-            system: system,
-            messages: [{ role: "user", content: userPrompt }]
-          })
-        });
+      return fetch(NOVA_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system: system,
+          messages: [{ role: "user", content: userPrompt }]
+        })
       }).then(function (r) {
         if (!r.ok) throw new Error("AI HTTP " + r.status);
         return r.json();
@@ -996,46 +1021,6 @@
       if (next) next.onclick = function () { notePageIdx = (notePageIdx + 1) % pages.length; paintPage(); };
       paintPage();
     }
-    function escapeSummaryHtml(value) {
-      return String(value == null ? "" : value).replace(/[&<>"']/g, function (c) {
-        return ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"})[c];
-      });
-    }
-    function renderStudyMarkdown(markdown) {
-      var lines = String(markdown || "").replace(/\r/g, "").split("\n");
-      var out = [], paragraph = [], listType = "", inCode = false, code = [], i = 0;
-      function inline(src) {
-        var x = escapeSummaryHtml(src);
-        x = x.replace(/`([^`]+)`/g, "<code>$1</code>")
-          .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-          .replace(/\*([^*]+)\*/g, "<em>$1</em>")
-          .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
-        return x;
-      }
-      function flushP(){ if(paragraph.length){out.push("<p>"+paragraph.map(inline).join("<br>")+"</p>");paragraph=[];} }
-      function flushList(){ if(listType){out.push("</"+listType+">");listType="";} }
-      function isTableRow(line){ return /^\s*\|.*\|\s*$/.test(line); }
-      function cells(line){ return line.trim().replace(/^\|/,'').replace(/\|$/,'').split('|').map(function(v){return v.trim();}); }
-      while(i<lines.length){ var line=lines[i];
-        if(/^\s*```/.test(line)){flushP();flushList();if(inCode){out.push("<pre><code>"+escapeSummaryHtml(code.join("\n"))+"</code></pre>");code=[];inCode=false;}else inCode=true;i++;continue;}
-        if(inCode){code.push(line);i++;continue;}
-        if(isTableRow(line) && i+1<lines.length && /^\s*\|?\s*:?-{3,}/.test(lines[i+1])){
-          flushP();flushList();var heads=cells(line);i+=2;var rows=[];
-          while(i<lines.length && isTableRow(lines[i])){rows.push(cells(lines[i]));i++;}
-          out.push('<div class="summary-table-wrap"><table class="summary-table"><thead><tr>'+heads.map(function(c){return '<th>'+inline(c)+'</th>';}).join('')+'</tr></thead><tbody>'+rows.map(function(r){return '<tr>'+heads.map(function(_,j){return '<td>'+inline(r[j]||'')+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div>');continue;
-        }
-        var h=line.match(/^\s{0,3}(#{1,3})\s+(.+)$/);if(h){flushP();flushList();out.push('<h'+h[1].length+'>'+inline(h[2])+'</h'+h[1].length+'>');i++;continue;}
-        var ul=line.match(/^\s*[-*+]\s+(.+)$/), ol=line.match(/^\s*\d+[.)]\s+(.+)$/);
-        if(ul||ol){flushP();var wanted=ul?'ul':'ol';if(listType!==wanted){flushList();listType=wanted;out.push('<'+wanted+'>');}out.push('<li>'+inline((ul||ol)[1])+'</li>');i++;continue;}
-        if(!line.trim()){flushP();flushList();i++;continue;}
-        flushList();paragraph.push(line.trim());i++;
-      }
-      if(inCode)out.push('<pre><code>'+escapeSummaryHtml(code.join("\n"))+'</code></pre>');flushP();flushList();return out.join('');
-    }
-    function typesetSummary(el) {
-      if (!el || !window.MathJax || !MathJax.typesetPromise) return;
-      try { if (MathJax.typesetClear) MathJax.typesetClear([el]); MathJax.typesetPromise([el]).catch(function(e){console.warn('MathJax summary',e);}); } catch(e){}
-    }
     function renderSummary() {
       var box = document.getElementById("sumBox");
       var sum = loadSummary(docData || "");
@@ -1085,9 +1070,6 @@
           iconBtn("speak","noteSpeak",ICO.mic,"Read") +
           iconBtn("nova","noteNova",ICO.nova,"Ask Nova") +
         "</div>";
-      var summaryEl = document.getElementById('sumText');
-      summaryEl.innerHTML = renderStudyMarkdown(sum);
-      typesetSummary(summaryEl);
       bindNoteActions(sum);
     }
 
