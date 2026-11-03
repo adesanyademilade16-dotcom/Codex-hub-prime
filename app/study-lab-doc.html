@@ -320,16 +320,9 @@
       font-weight: 800;
     }
     .summary-paper p { margin: 0 0 0.25em; }
-    /* Light blue study-table theme — matches the ruled notebook and keeps body text readable. */
-    .summary-paper .study-md-table-wrap { width:100%; overflow-x:auto; margin:14px 0 18px; border:1px solid #BFDBFE; border-radius:12px; background:#fff; box-shadow:0 3px 10px rgba(30,64,175,.06); }
-    .summary-paper table.study-md-table { width:100%; min-width:320px; border-collapse:separate; border-spacing:0; background:#fff; color:#111827; font-size:.88rem; line-height:1.45; }
-    .summary-paper .study-md-table th { background:#2563EB; color:#fff; font-weight:800; text-align:left; padding:11px 12px; border-bottom:1px solid #1D4ED8; }
-    .summary-paper .study-md-table td { color:#111827; background:#fff; padding:11px 12px; vertical-align:top; border-bottom:1px solid #DBEAFE; overflow-wrap:anywhere; }
-    .summary-paper .study-md-table tbody tr:nth-child(even) td { background:#EFF6FF; }
-    .summary-paper .study-md-table tbody tr:last-child td { border-bottom:0; }
-    .summary-paper .study-md-table td:first-child { color:#1D4ED8; font-weight:800; }
-    .summary-paper .study-md-table th + th, .summary-paper .study-md-table td + td { border-left:1px solid #DBEAFE; }
-
+    .summary-paper .study-md-code { font-family:ui-monospace,SFMono-Regular,monospace; background:#E2E8F0; color:#111827; border-radius:5px; padding:1px 5px; font-size:.9em; }
+    .summary-paper h2,.summary-paper h3,.summary-paper h4 { line-height:1.35; }
+    .summary-paper p,.summary-paper li { overflow-wrap:anywhere; }
 </style>
 
   <!-- Vercel Speed Insights -->
@@ -386,7 +379,15 @@
     var cards = [];
 
     function formatNotes(raw) {
-      var lines = String(raw || "").replace(/\r/g, "").split("\n");
+      var normalized = String(raw || "")
+        .replace(/\r\n?/g, "\n")
+        // AI sometimes emits HTML line breaks inside otherwise Markdown notes.
+        .replace(/<\s*br\s*\/?\s*>/gi, "\n")
+        .replace(/&lt;\s*br\s*\/?\s*&gt;/gi, "\n")
+        .replace(/<\s*\/p\s*>\s*<\s*p[^>]*>/gi, "\n\n")
+        .replace(/<\s*p[^>]*>/gi, "")
+        .replace(/<\s*\/p\s*>/gi, "\n\n");
+      var lines = normalized.split("\n");
       var out = [], paragraph = [];
       function flushParagraph() {
         if (!paragraph.length) return;
@@ -446,8 +447,10 @@
       return out.join("");
     }
     function inlineFormat(s) {
-      return String(s).replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-        .replace(/(^|\s)\*([^*]+)\*(?=\s|$)/g, "$1<em>$2</em>");
+      return String(s)
+        .replace(/`([^`]+)`/g, '<code class="study-md-code">$1</code>')
+        .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+        .replace(/(^|\s)\*([^*]+)\*(?=[\s.,!?;:]|$)/g, "$1<em>$2</em>");
     }
     function escape(s) {
       return String(s || "").replace(/[&<>"']/g, function (m) {
@@ -739,13 +742,8 @@
       function shareQuizLink() {
         if (!user) { alert("Sign in to share quizzes."); return; }
         var title = (docData.title || docData.fileName || "Study quiz");
-        var courseCode = docData.courseCode || docData.detectedSubject || docData.subjectCode || "";
-        var courseTitle = docData.courseTitle || docData.subjectTitle || docData.title || docData.fileName || "Study material";
         var payload = {
           title: title,
-          courseCode: courseCode,
-          courseTitle: courseTitle,
-          durationMinutes: mins,
           questions: quiz,
           uid: user.uid,
           ownerUid: user.uid,
@@ -760,8 +758,7 @@
           if (path.indexOf("shared_quiz") === -1) path = "/app/shared_quiz.html";
           var url = "https://codex-hub-prime.vercel.app/q/" + encodeURIComponent(id);
           if (location.protocol === "file:") url = "shared_quiz.html?id=" + id;
-          var courseLabel = [courseCode, courseTitle].filter(Boolean).join(" — ");
-          var msg = ["📚 Codex Hub CBT Practice", courseLabel, quiz.length + " questions · " + mins + " minutes", "", "Take the quiz:", "https://codex-hub-prime.vercel.app/q/" + id].filter(Boolean).join(String.fromCharCode(10));
+          var msg = ["📚 Codex Hub quiz (" + quiz.length + " questions)", "", "Open link:", "https://codex-hub-prime.vercel.app/q/" + id].join(String.fromCharCode(10));
           openShareModal(url, msg);
           if (navigator.share) {
             navigator.share({ title: title, text: msg, url: url }).catch(function () {});
@@ -911,9 +908,10 @@
         sheet.classList.remove("flip-in");
         void sheet.offsetWidth;
         sheet.classList.add("flip-in");
+        if (window.MathJax && MathJax.typesetClear) MathJax.typesetClear([sheet]);
         sheet.innerHTML = formatNotes(pages[notePageIdx] || "");
         if (window.MathJax && MathJax.typesetPromise) {
-          MathJax.typesetPromise([sheet]).catch(function () {});
+          MathJax.typesetPromise([sheet]).catch(function (err) { console.warn("Study Lab MathJax typeset failed", err); });
         }
         var nav = document.getElementById("pageNav");
         if (nav) {
