@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
   <script src="../js/theme-boot.js"></script>
+  <!-- Full Markdown parser (GFM tables, lists, headings, emphasis) plus HTML sanitizer. -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
   <script>
     /* MathJax for Study Lab notes: $x$ and \(x\) inline, $x$ and \[x\] display.
        Built with String.fromCharCode(92) so the delimiters never depend on how
@@ -14,7 +17,8 @@
           inlineMath: [["$", "$"], [bs + "(", bs + ")"]],
           displayMath: [[dl, dl], [bs + "[", bs + "]"]]
         },
-        svg: { fontCache: "global" }
+        svg: { fontCache: "global" },
+        startup: { typeset: false }
       };
     })();
   </script>
@@ -235,6 +239,12 @@
     }
     .note-sheet h2, .note-sheet h3, .note-sheet h4 { font-weight: 800; }
     .note-sheet strong { color: #1E3A8A; }
+    .study-md-table-wrap { width:100%; overflow-x:auto; margin:12px 0; border:1px solid #93C5FD; border-radius:10px; background:#FFFFFF; }
+    .study-md-table { width:100%; min-width:280px; border-collapse:collapse; color:#111827; background:#FFFFFF; font-size:.88rem; line-height:1.45; }
+    .study-md-table th { background:#DBEAFE; color:#1E3A8A; text-align:left; font-weight:800; }
+    .study-md-table th, .study-md-table td { padding:9px 11px; border:1px solid #BFDBFE; vertical-align:top; }
+    .study-md-table tbody tr:nth-child(even) { background:#EFF6FF; }
+    .study-md-code { padding:1px 4px; border-radius:4px; background:#E5E7EB; color:#111827; font-family:ui-monospace,monospace; }
     .tool-bar {
       display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; justify-content: center;
     }
@@ -323,6 +333,26 @@
     .summary-paper .study-md-code { font-family:ui-monospace,SFMono-Regular,monospace; background:#E2E8F0; color:#111827; border-radius:5px; padding:1px 5px; font-size:.9em; }
     .summary-paper h2,.summary-paper h3,.summary-paper h4 { line-height:1.35; }
     .summary-paper p,.summary-paper li { overflow-wrap:anywhere; }
+    .summary-paper h1,.summary-paper h2,.summary-paper h3,.summary-paper h4 { color:#1E3A8A; font-weight:800; margin:16px 0 8px; line-height:1.35; }
+    .summary-paper h1 { font-size:1.25rem; }
+    .summary-paper h2 { font-size:1.12rem; }
+    .summary-paper h3 { font-size:1rem; }
+    .summary-paper p { margin:0 0 10px; line-height:1.7; }
+    .summary-paper ul,.summary-paper ol { padding-left:24px; margin:6px 0 12px; line-height:1.7; }
+    .summary-paper li { margin:3px 0; }
+    .summary-paper blockquote { margin:12px 0; padding:8px 12px; border-left:4px solid #60A5FA; background:#EFF6FF; color:#1E3A8A; }
+    .summary-paper hr { border:0; border-top:1px solid #93C5FD; margin:16px 0; }
+    .summary-paper .study-md-table-wrap { width:100%; overflow-x:auto; margin:12px 0; border:1px solid #93C5FD; border-radius:10px; background:#FFFFFF; -webkit-overflow-scrolling:touch; }
+    .summary-paper .study-md-table { width:100%; min-width:320px; border-collapse:collapse; color:#111827; background:#FFFFFF; font-size:.88rem; line-height:1.45; }
+    .summary-paper .study-md-table th { background:#DBEAFE; color:#1E3A8A; text-align:left; font-weight:800; }
+    .summary-paper .study-md-table th,.summary-paper .study-md-table td { padding:9px 11px; border:1px solid #BFDBFE; vertical-align:top; }
+    .summary-paper .study-md-table tbody tr:nth-child(even) { background:#EFF6FF; }
+    .summary-paper .study-md-code { font-family:ui-monospace,SFMono-Regular,monospace; background:#E2E8F0; color:#111827; border-radius:5px; padding:1px 5px; font-size:.9em; }
+    .summary-paper pre { overflow-x:auto; padding:12px; border-radius:8px; background:#E2E8F0; color:#111827; line-height:1.5; }
+    .summary-paper .study-safe-fallback { white-space:pre-wrap; overflow-wrap:anywhere; color:#111827; }
+    .summary-paper .study-empty-note { color:#64748B; font-style:italic; }
+    .summary-paper strong { color:#1E3A8A; font-weight:800; }
+    .summary-paper em { color:#111827; }
 </style>
 
   <!-- Vercel Speed Insights -->
@@ -379,78 +409,54 @@
     var cards = [];
 
     function formatNotes(raw) {
-      var normalized = String(raw || "")
-        .replace(/\r\n?/g, "\n")
-        // AI sometimes emits HTML line breaks inside otherwise Markdown notes.
-        .replace(/<\s*br\s*\/?\s*>/gi, "\n")
-        .replace(/&lt;\s*br\s*\/?\s*&gt;/gi, "\n")
-        .replace(/<\s*\/p\s*>\s*<\s*p[^>]*>/gi, "\n\n")
-        .replace(/<\s*p[^>]*>/gi, "")
-        .replace(/<\s*\/p\s*>/gi, "\n\n");
-      var lines = normalized.split("\n");
-      var out = [], paragraph = [];
-      function flushParagraph() {
-        if (!paragraph.length) return;
-        out.push('<p style="margin:8px 0;line-height:1.55">' + paragraph.map(function (part) { return inlineFormat(escape(part)); }).join("<br>") + '</p>');
-        paragraph = [];
+      var source = String(raw == null ? "" : raw).replace(/\r\n?/g, "\n").replace(/&lt;\s*br\s*\/?\s*&gt;/gi, "\n").trim();
+      if (!source) return '<p class="study-empty-note">No summary content available yet.</p>';
+
+      // Protect TeX before Markdown parsing so underscores, braces and operators
+      // are not mistaken for Markdown formatting. Restore as escaped text for MathJax.
+      var mathParts = [];
+      var mathPattern = /(\$\$[\s\S]+?\$\$|\\\[[\s\S]+?\\\]|\\\([\s\S]+?\\\)|\$[^$\n]+\$)/g;
+      source = source.replace(mathPattern, function (match) {
+        var token = "STUDYMATHPLACEHOLDER" + mathParts.length + "END";
+        mathParts.push(match);
+        return token;
+      });
+
+      var html;
+      if (window.marked && typeof window.marked.parse === "function") {
+        window.marked.setOptions({
+          gfm: true,
+          breaks: true,
+          headerIds: false,
+          mangle: false
+        });
+        html = window.marked.parse(source);
+      } else {
+        // Safe readable fallback if the Markdown CDN is unavailable.
+        html = '<p>' + escape(source).replace(/\n/g, '<br>') + '</p>';
       }
-      function cells(line) {
-        return line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map(function (v) { return v.trim(); });
+
+      // Sanitize model-generated HTML before inserting it into the document.
+      if (window.DOMPurify && typeof window.DOMPurify.sanitize === "function") {
+        html = window.DOMPurify.sanitize(html, {
+          USE_PROFILES: { html: true },
+          ADD_ATTR: ["target", "rel"]
+        });
+      } else {
+        // If the sanitizer is unavailable, do not inject parser-produced HTML.
+        html = '<pre class="study-safe-fallback">' + escape(source) + '</pre>';
       }
-      function isSeparator(line) {
-        var c = cells(line);
-        return c.length > 0 && c.every(function (v) { return /^:?-{3,}:?$/.test(v.replace(/\s/g, "")); });
-      }
-      for (var i = 0; i < lines.length;) {
-        var line = lines[i];
-        if (line.trim().charAt(0) === "|" && i + 1 < lines.length && isSeparator(lines[i + 1])) {
-          flushParagraph();
-          var headers = cells(line), rows = [];
-          i += 2;
-          while (i < lines.length && lines[i].trim().charAt(0) === "|") {
-            rows.push(cells(lines[i])); i++;
-          }
-          var table = '<div class="study-md-table-wrap"><table class="study-md-table"><thead><tr>';
-          headers.forEach(function (h) { table += '<th>' + escape(h) + '</th>'; });
-          table += '</tr></thead><tbody>';
-          rows.forEach(function (row) {
-            table += '<tr>';
-            headers.forEach(function (_, col) { table += '<td>' + escape(row[col] || "") + '</td>'; });
-            table += '</tr>';
-          });
-          table += '</tbody></table></div>';
-          out.push(table);
-          continue;
-        }
-        var trimmed = line.trim();
-        if (!trimmed) { flushParagraph(); i++; continue; }
-        var heading = trimmed.match(/^(#{1,3})\s+(.+)$/);
-        if (heading) {
-          flushParagraph();
-          var level = heading[1].length;
-          var tag = level === 1 ? "h2" : level === 2 ? "h3" : "h4";
-          var color = level === 1 ? "#0F172A" : "#1E40AF";
-          out.push('<' + tag + ' style="margin:16px 0 8px;font-size:' + (level === 1 ? '1.2rem' : level === 2 ? '1.1rem' : '1rem') + ';color:' + color + '">' + inlineFormat(escape(heading[2])) + '</' + tag + '>');
-          i++; continue;
-        }
-        var bullet = trimmed.match(/^[-*]\s+(.+)$/);
-        var numbered = trimmed.match(/^\d+\.\s+(.+)$/);
-        if (bullet || numbered) {
-          flushParagraph();
-          out.push('<div style="padding-left:12px;margin:4px 0;line-height:1.55">' + (bullet ? '• ' : '') + inlineFormat(escape((bullet || numbered)[1])) + '</div>');
-          i++; continue;
-        }
-        paragraph.push(trimmed);
-        i++;
-      }
-      flushParagraph();
-      return out.join("");
-    }
-    function inlineFormat(s) {
-      return String(s)
-        .replace(/`([^`]+)`/g, '<code class="study-md-code">$1</code>')
-        .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-        .replace(/(^|\s)\*([^*]+)\*(?=[\s.,!?;:]|$)/g, "$1<em>$2</em>");
+
+      // Apply the notebook table design and make wide tables scroll on phones.
+      html = html.replace(/<table\b[^>]*>/gi, '<div class="study-md-table-wrap"><table class="study-md-table">')
+                 .replace(/<\/table>/gi, '</table></div>')
+                 .replace(/<code>/gi, '<code class="study-md-code">');
+
+      mathParts.forEach(function (math, index) {
+        var token = "STUDYMATHPLACEHOLDER" + index + "END";
+        html = html.split(token).join(escape(math));
+      });
+      return html;
     }
     function escape(s) {
       return String(s || "").replace(/[&<>"']/g, function (m) {
@@ -899,6 +905,25 @@
       return pages.length ? pages : [text || ""];
     }
     var notePageIdx = 0;
+    function typesetStudyMath(sheet) {
+      if (!sheet) return;
+      var mj = window.MathJax;
+      if (mj && typeof mj.typesetPromise === "function") {
+        if (typeof mj.typesetClear === "function") mj.typesetClear([sheet]);
+        mj.typesetPromise([sheet]).catch(function (err) { console.warn("Study Lab MathJax typeset failed", err); });
+        return;
+      }
+      // MathJax is loaded with defer; saved notes can render before its CDN script.
+      window.addEventListener("load", function onMathJaxReady() {
+        window.removeEventListener("load", onMathJaxReady);
+        var ready = window.MathJax;
+        if (ready && typeof ready.typesetPromise === "function") {
+          if (typeof ready.typesetClear === "function") ready.typesetClear([sheet]);
+          ready.typesetPromise([sheet]).catch(function (err) { console.warn("Study Lab MathJax typeset failed", err); });
+        }
+      }, { once: true });
+    }
+
     function bindNoteActions(text) {
       var pages = notePages(text);
       notePageIdx = 0;
@@ -908,11 +933,8 @@
         sheet.classList.remove("flip-in");
         void sheet.offsetWidth;
         sheet.classList.add("flip-in");
-        if (window.MathJax && MathJax.typesetClear) MathJax.typesetClear([sheet]);
         sheet.innerHTML = formatNotes(pages[notePageIdx] || "");
-        if (window.MathJax && MathJax.typesetPromise) {
-          MathJax.typesetPromise([sheet]).catch(function (err) { console.warn("Study Lab MathJax typeset failed", err); });
-        }
+        typesetStudyMath(sheet);
         var nav = document.getElementById("pageNav");
         if (nav) {
           nav.style.display = pages.length > 1 ? "flex" : "none";
@@ -973,7 +995,8 @@
           var style = "body{font-family:Georgia,serif;max-width:720px;margin:24px auto;padding:20px;line-height:1.65;color:#0F172A;background:#F8FAFC}"
             + "h1{font-family:system-ui,sans-serif;color:#4F46E5;font-size:1.25rem;word-break:break-word;overflow-wrap:anywhere;line-height:1.3}"
             + ".meta{color:#64748B;font-size:.85rem;margin-bottom:20px}"
-            + ".sheet{background:#fff;border-radius:16px;padding:20px;border:1px solid #E2E8F0}";
+            + ".sheet{background:#fff;border-radius:16px;padding:20px;border:1px solid #E2E8F0}"
+            + ".study-md-table-wrap{width:100%;overflow-x:auto;margin:12px 0}.study-md-table{width:100%;border-collapse:collapse;color:#111827;background:#fff}.study-md-table th{background:#DBEAFE;color:#1E3A8A}.study-md-table th,.study-md-table td{padding:9px 11px;border:1px solid #BFDBFE;text-align:left;vertical-align:top}.sheet h1,.sheet h2,.sheet h3{color:#1E3A8A}.sheet p,.sheet li{line-height:1.7;margin-bottom:8px}";
           var html = "<!doctype html><html><head><meta charset=utf-8>"
             + "<meta name=viewport content=\"width=device-width,initial-scale=1\">"
             + "<title>" + escape(title) + "</title><style>" + style + "</style></head><body>"
