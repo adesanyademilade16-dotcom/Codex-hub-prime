@@ -1112,22 +1112,29 @@
             var n = Math.max(1, Math.min(50, parseInt(qs(".ref-award-n", row).value, 10) || 1));
             if (!confirm("Award +" + n + " CBT trial(s) to this referrer? Only do this after you trust the invites are real.")) return;
             btn.disabled = true;
-            db().collection("users").doc(uid).get().then(function (us) {
-              var cur = us.exists ? (Number((us.data() || {}).cbtTrialsBonus) || 0) : 0;
-              var next = cur + n;
-              return db().collection("users").doc(uid).set({
-                cbtTrialsBonus: next,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-              }, { merge: true }).then(function () {
-                return db().collection("referral_rewards").add({
+            var userRef = db().collection("users").doc(uid);
+            var rewardRef = db().collection("referral_rewards").doc();
+            db().runTransaction(function (tx) {
+              return tx.get(userRef).then(function (us) {
+                if (!us.exists) throw new Error("Referrer account was not found");
+                var cur = Number((us.data() || {}).cbtTrialsBonus) || 0;
+                var next = cur + n;
+                tx.set(userRef, {
+                  cbtTrialsBonus: next,
+                  updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                tx.set(rewardRef, {
                   uid: uid,
                   trialsAwarded: n,
                   bonusAfter: next,
                   grantedByAdmin: state.user.email || state.user.uid,
-                  grantedAt: firebase.firestore.FieldValue.serverTimestamp()
+                  grantedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                  source: "manual_referral_award"
                 });
-              }).then(function () {
-                writeAudit("referral_trials_award", { uid: uid }, { trials: n, bonusAfter: next });
+                return next;
+              });
+            }).then(function (next) {
+              return Promise.resolve(writeAudit("referral_trials_award", { uid: uid }, { trials: n, bonusAfter: next })).then(function () {
                 qs(".ref-bonus", row).textContent = String(next);
                 btn.disabled = false;
                 alert("Awarded +" + n + " trials. New bonus total: " + next);
