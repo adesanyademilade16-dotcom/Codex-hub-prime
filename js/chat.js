@@ -107,33 +107,41 @@
     var q = (opts.query || "").trim().toLowerCase();
     var me = uid();
     var map = {};
+    // Discover from the intentionally public projection only. Firestore rules
+    // correctly deny reading other students' private users/{uid} documents.
+    // Walk document-id pages so legacy cohorts are not cut off at the first 200.
     try {
-      // Public discovery must use public_profiles only. Fetch every page instead
-      // of silently stopping at the first 200 legacy/newer accounts.
-      var pubRef = db().collection("public_profiles");
-      var cursor = null, pageSize = 200, pages = 0;
-      while (pages++ < 25) {
-        var pubQuery = pubRef.orderBy(firebase.firestore.FieldPath.documentId()).limit(pageSize);
-        if (cursor) pubQuery = pubQuery.startAfter(cursor);
-        var pubSnap = await pubQuery.get();
+      var collection = db().collection("public_profiles");
+      var cursor = null;
+      var pageSize = 200;
+      var pageCount = 0;
+      while (pageCount++ < 25) { // safety ceiling: 5,000 public profiles per search
+        var query = collection.orderBy(firebase.firestore.FieldPath.documentId()).limit(pageSize);
+        if (cursor) query = query.startAfter(cursor);
+        var pubSnap = await query.get();
+        if (pubSnap.empty) break;
         pubSnap.forEach(function (doc) {
           if (doc.id === me) return;
-          var pd = doc.data() || {};
+          var d = doc.data() || {};
           map[doc.id] = displayFromUser({
-            fullName: pd.displayName || pd.fullName, username: pd.username,
-            photoURL: pd.photoURL, avatarKey: pd.avatarKey,
-            university: pd.university, faculty: pd.faculty,
-            department: pd.department, level: pd.level, bio: pd.bio
+            fullName: d.displayName || d.fullName,
+            username: d.username,
+            photoURL: d.photoURL,
+            university: d.university,
+            faculty: d.faculty,
+            department: d.department,
+            level: d.level,
+            bio: d.bio,
+            xpPoints: d.xpPoints,
+            rank: d.rank
           }, doc.id);
         });
-        if (pubSnap.size < pageSize) break;
         cursor = pubSnap.docs[pubSnap.docs.length - 1];
+        if (pubSnap.size < pageSize) break;
       }
-    } catch (e) {}
-    // Deliberately do not enumerate /users here: it contains private account
-    // fields. Older accounts need a one-time Admin-SDK backfill into
-    // /public_profiles rather than weakening client read rules.
-
+    } catch (e) {
+      console.warn("[Chats] public student discovery failed", e && (e.code || e.message));
+    }
 
     var blocked = await listBlockedIds();
     var list = Object.keys(map).map(function (k) { return map[k]; })
