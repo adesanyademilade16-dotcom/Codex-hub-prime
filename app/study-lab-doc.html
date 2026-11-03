@@ -320,15 +320,16 @@
       font-weight: 800;
     }
     .summary-paper p { margin: 0 0 0.25em; }
+    /* Light blue study-table theme — matches the ruled notebook and keeps body text readable. */
+    .summary-paper .study-md-table-wrap { width:100%; overflow-x:auto; margin:14px 0 18px; border:1px solid #BFDBFE; border-radius:12px; background:#fff; box-shadow:0 3px 10px rgba(30,64,175,.06); }
+    .summary-paper table.study-md-table { width:100%; min-width:320px; border-collapse:separate; border-spacing:0; background:#fff; color:#111827; font-size:.88rem; line-height:1.45; }
+    .summary-paper .study-md-table th { background:#2563EB; color:#fff; font-weight:800; text-align:left; padding:11px 12px; border-bottom:1px solid #1D4ED8; }
+    .summary-paper .study-md-table td { color:#111827; background:#fff; padding:11px 12px; vertical-align:top; border-bottom:1px solid #DBEAFE; overflow-wrap:anywhere; }
+    .summary-paper .study-md-table tbody tr:nth-child(even) td { background:#EFF6FF; }
+    .summary-paper .study-md-table tbody tr:last-child td { border-bottom:0; }
+    .summary-paper .study-md-table td:first-child { color:#1D4ED8; font-weight:800; }
+    .summary-paper .study-md-table th + th, .summary-paper .study-md-table td + td { border-left:1px solid #DBEAFE; }
 
-    .study-table-wrap{max-width:100%;overflow-x:auto;margin:14px 0 18px;border:1px solid #dbe3ef;border-radius:12px;background:#fff;-webkit-overflow-scrolling:touch}
-    .study-md-table{width:100%;min-width:420px;border-collapse:separate;border-spacing:0;font-size:.94em;line-height:1.5}
-    .study-md-table th{background:#eef2ff;color:#253b75;text-align:left;font-weight:700;padding:11px 13px;border-bottom:1px solid #dbe3ef;white-space:nowrap}
-    .study-md-table td{padding:10px 13px;vertical-align:top;border-bottom:1px solid #e8edf5;min-width:110px}
-    .study-md-table tr:nth-child(even) td{background:#f8faff}
-    .study-md-table tr:last-child td{border-bottom:0}
-    .study-md-table code{font-size:.9em;overflow-wrap:anywhere}
-    @media(prefers-color-scheme:dark){.study-table-wrap{background:#111827;border-color:#334155}.study-md-table th{background:#202b4a;color:#dbeafe;border-color:#334155}.study-md-table td{border-color:#334155}.study-md-table tr:nth-child(even) td{background:#172033}}
 </style>
 
   <!-- Vercel Speed Insights -->
@@ -385,62 +386,73 @@
     var cards = [];
 
     function formatNotes(raw) {
-      var s = escape(String(raw || ""));
-      // Convert GitHub-style Markdown tables before paragraph/line-break formatting.
-      // Input is HTML-escaped first, and every cell remains escaped.
-      s = renderMarkdownTables(s);
-      // headings
-      s = s.replace(/^### (.+)$/gm, '<h4 style="margin:14px 0 6px;font-size:1rem;color:#1E3A8A">$1</h4>');
-      s = s.replace(/^## (.+)$/gm, '<h3 style="margin:16px 0 8px;font-size:1.1rem;color:#1E3A8A">$1</h3>');
-      s = s.replace(/^# (.+)$/gm, '<h2 style="margin:18px 0 10px;font-size:1.2rem;color:#0F172A">$1</h2>');
-      // bold + italic
-      s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
-      s = s.replace(/(^|\s)\*([^*]+)\*(?=\s|$)/g, "$1<em>$2</em>");
-      // bullet lines
-      s = s.replace(/^\s*[-*] (.+)$/gm, '<div style="padding-left:12px;margin:4px 0">• $1</div>');
-      s = s.replace(/^\s*\d+\. (.+)$/gm, '<div style="padding-left:12px;margin:4px 0">$1</div>');
-      // paragraphs
-      s = s.replace(/\n\n/g, "</p><p style=\"margin:8px 0;line-height:1.55\">");
-      s = s.replace(/\n/g, "<br>");
-      return '<p style="margin:0;line-height:1.55">' + s + "</p>";
+      var lines = String(raw || "").replace(/\r/g, "").split("\n");
+      var out = [], paragraph = [];
+      function flushParagraph() {
+        if (!paragraph.length) return;
+        out.push('<p style="margin:8px 0;line-height:1.55">' + paragraph.map(function (part) { return inlineFormat(escape(part)); }).join("<br>") + '</p>');
+        paragraph = [];
+      }
+      function cells(line) {
+        return line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map(function (v) { return v.trim(); });
+      }
+      function isSeparator(line) {
+        var c = cells(line);
+        return c.length > 0 && c.every(function (v) { return /^:?-{3,}:?$/.test(v.replace(/\s/g, "")); });
+      }
+      for (var i = 0; i < lines.length;) {
+        var line = lines[i];
+        if (line.trim().charAt(0) === "|" && i + 1 < lines.length && isSeparator(lines[i + 1])) {
+          flushParagraph();
+          var headers = cells(line), rows = [];
+          i += 2;
+          while (i < lines.length && lines[i].trim().charAt(0) === "|") {
+            rows.push(cells(lines[i])); i++;
+          }
+          var table = '<div class="study-md-table-wrap"><table class="study-md-table"><thead><tr>';
+          headers.forEach(function (h) { table += '<th>' + escape(h) + '</th>'; });
+          table += '</tr></thead><tbody>';
+          rows.forEach(function (row) {
+            table += '<tr>';
+            headers.forEach(function (_, col) { table += '<td>' + escape(row[col] || "") + '</td>'; });
+            table += '</tr>';
+          });
+          table += '</tbody></table></div>';
+          out.push(table);
+          continue;
+        }
+        var trimmed = line.trim();
+        if (!trimmed) { flushParagraph(); i++; continue; }
+        var heading = trimmed.match(/^(#{1,3})\s+(.+)$/);
+        if (heading) {
+          flushParagraph();
+          var level = heading[1].length;
+          var tag = level === 1 ? "h2" : level === 2 ? "h3" : "h4";
+          var color = level === 1 ? "#0F172A" : "#1E40AF";
+          out.push('<' + tag + ' style="margin:16px 0 8px;font-size:' + (level === 1 ? '1.2rem' : level === 2 ? '1.1rem' : '1rem') + ';color:' + color + '">' + inlineFormat(escape(heading[2])) + '</' + tag + '>');
+          i++; continue;
+        }
+        var bullet = trimmed.match(/^[-*]\s+(.+)$/);
+        var numbered = trimmed.match(/^\d+\.\s+(.+)$/);
+        if (bullet || numbered) {
+          flushParagraph();
+          out.push('<div style="padding-left:12px;margin:4px 0;line-height:1.55">' + (bullet ? '• ' : '') + inlineFormat(escape((bullet || numbered)[1])) + '</div>');
+          i++; continue;
+        }
+        paragraph.push(trimmed);
+        i++;
+      }
+      flushParagraph();
+      return out.join("");
+    }
+    function inlineFormat(s) {
+      return String(s).replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+        .replace(/(^|\s)\*([^*]+)\*(?=\s|$)/g, "$1<em>$2</em>");
     }
     function escape(s) {
       return String(s || "").replace(/[&<>"']/g, function (m) {
         return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[m];
       });
-    }
-    function renderMarkdownTables(source) {
-      var lines = String(source || "").split("\n");
-      var out = [];
-      function cells(line) {
-        return String(line || "").trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map(function (v) { return v.trim(); });
-      }
-      function inlineCell(v) {
-        return String(v || "").replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-          .replace(/`([^`]+)`/g, "<code>$1</code>");
-      }
-      for (var i = 0; i < lines.length; i++) {
-        var header = lines[i];
-        var separator = lines[i + 1] || "";
-        if (header.indexOf("|") !== -1 && /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(separator)) {
-          var heads = cells(header);
-          var table = '<div class="study-table-wrap"><table class="study-md-table"><thead><tr>';
-          heads.forEach(function (h) { table += "<th>" + inlineCell(h) + "</th>"; });
-          table += "</tr></thead><tbody>";
-          i += 2;
-          while (i < lines.length && lines[i].indexOf("|") !== -1 && lines[i].trim()) {
-            var row = cells(lines[i]);
-            table += "<tr>";
-            for (var c = 0; c < heads.length; c++) table += "<td>" + inlineCell(row[c] || "") + "</td>";
-            table += "</tr>";
-            i++;
-          }
-          table += "</tbody></table></div>";
-          out.push(table);
-          i--;
-        } else out.push(lines[i]);
-      }
-      return out.join("\n");
     }
 
     document.querySelectorAll(".tabs button").forEach(function (btn) {
