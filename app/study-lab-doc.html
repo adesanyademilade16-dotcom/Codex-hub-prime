@@ -512,27 +512,69 @@
       }
       return null;
     }
+    function getStudyLabIdToken(forceRefresh) {
+      // CodexAuth.requireUser() resolves before the document controls are enabled.
+      // Prefer Firebase's live currentUser so token refreshes use the active session.
+      var authUser = null;
+      try {
+        authUser = (window.CodexAuth && window.CodexAuth.auth && window.CodexAuth.auth.currentUser) ||
+          (window.firebase && window.firebase.auth && window.firebase.auth().currentUser) || user || null;
+      } catch (e) { authUser = user || null; }
+      if (!authUser || typeof authUser.getIdToken !== "function") {
+        return Promise.reject(new Error("Your sign-in session is not ready. Please refresh the page and sign in again."));
+      }
+      return authUser.getIdToken(!!forceRefresh).then(function (token) {
+        if (!token || typeof token !== "string") throw new Error("Firebase could not provide a sign-in token. Please sign in again.");
+        return token;
+      });
+    }
+
     function callStudyAI(userPrompt, systemExtra) {
       var system =
         "You are Nova Study Lab for Codex Hub (Nigerian university students). " +
         "Follow the user format exactly. Prefer content grounded in the provided SOURCE TEXT. " +
         "If SOURCE TEXT is thin, still produce useful study material from the title/topic, and note that source text was limited. " +
         (systemExtra || "");
-      return fetch(NOVA_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          system: system,
-          messages: [{ role: "user", content: userPrompt }]
-        })
-      }).then(function (r) {
-        if (!r.ok) throw new Error("AI HTTP " + r.status);
-        return r.json();
-      }).then(function (data) {
-        var c = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
-        if (!c && data && data.reply) c = data.reply;
-        if (!c) throw new Error("Empty AI reply");
-        return c;
+      var payload = {
+        system: system,
+        messages: [{ role: "user", content: userPrompt }],
+        quotaCost: 1
+      };
+
+      function send(token) {
+        return fetch(NOVA_API, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
+          body: JSON.stringify(payload)
+        });
+      }
+
+      // The backend's /chat route enforces Firebase ID-token authentication.
+      // If a cached token has expired, refresh it and retry exactly once.
+      return getStudyLabIdToken(false).then(function (token) {
+        return send(token).then(function (response) {
+          if (response.status !== 401) return response;
+          return getStudyLabIdToken(true).then(send);
+        });
+      }).then(function (response) {
+        return response.text().then(function (raw) {
+          var data = {};
+          try { data = raw ? JSON.parse(raw) : {}; } catch (e) { data = { message: raw }; }
+          if (!response.ok) {
+            var detail = data.message || data.error || data.details || "";
+            if (response.status === 401) {
+              throw new Error("Your sign-in session could not be verified. Please sign out, sign in again, and retry.");
+            }
+            throw new Error("AI HTTP " + response.status + (detail ? ": " + detail : ""));
+          }
+          var c = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+          if (!c && data && data.reply) c = data.reply;
+          if (!c) throw new Error("The AI service returned an empty reply. Please try again.");
+          return c;
+        });
       });
     }
 
