@@ -556,6 +556,25 @@
       });
     }
 
+    function claimWelcomeCreditsNow(user) {
+      if (!user || !user.getIdToken) return Promise.resolve(null);
+      return user.getIdToken().then(function (token) {
+        return fetch("https://codex-backend-new.onrender.com/credits/claim-welcome", {
+          method: "POST",
+          headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" },
+          body: "{}"
+        });
+      }).then(function (response) {
+        if (!response || !response.ok) throw new Error("Welcome credits could not be claimed yet");
+        return response.json();
+      }).catch(function (err) {
+        // Do not block account creation if the backend is temporarily asleep;
+        // resources-core retries the same idempotent server claim later.
+        console.warn("[Signup] welcome credit claim deferred", err && err.message);
+        return null;
+      });
+    }
+
     function createProfile(user, extra) {
       extra = extra || {};
       var uni = el("university").value === "OTHER" ? el("otherUniversity").value.trim() : "Olabisi Onabanjo University";
@@ -604,6 +623,8 @@
           return claimUsername(cred.user.uid, username).then(function () {
             return cred.user.updateProfile({ displayName: el("fullName").value.trim() }).then(function () {
               return createProfile(cred.user, { authProvider: "email" }).then(function () {
+                return claimWelcomeCreditsNow(cred.user);
+              }).then(function () {
                 // Brevo 6-digit code is sent on verify-email.html (not Firebase link)
                 try { sessionStorage.setItem("codex_just_signed_up", "1"); } catch (e) {}
                 location.href = "verify-email.html";

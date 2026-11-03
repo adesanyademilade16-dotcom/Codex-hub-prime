@@ -202,12 +202,6 @@
             <label for="department">Department</label>
             <select id="department" required disabled><option value="">Choose a faculty first</option></select>
           </div>
-          <div class="department-finder" style="margin:0 0 16px;padding:12px;border:1px solid var(--border, #dbe2ea);border-radius:14px;background:var(--surface, rgba(127,127,127,.04))">
-          <label for="departmentSearch" style="display:block;font-weight:650;margin-bottom:6px">Can't find your department?</label>
-          <input id="departmentSearch" type="search" autocomplete="off" placeholder="Search all departments…" aria-controls="departmentSearchResults" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--border, #dbe2ea);border-radius:10px;background:var(--card, #fff);color:inherit">
-          <p class="hint" style="margin:6px 0 8px">Search all departments and select a result. Faculty categories organize Codex's national course catalogue; your university may use a different official faculty name.</p>
-          <div id="departmentSearchResults" role="listbox" aria-label="Matching departments" hidden style="max-height:210px;overflow:auto;border-radius:10px"></div>
-          </div>
           <div class="field">
             <label for="semester">Current semester</label>
             <select id="semester" required>
@@ -316,16 +310,6 @@
 
     var facultySel = el("faculty");
     var deptSel = el("department");
-    function setupDepartmentSearch() {
-      var input = el("departmentSearch"), results = el("departmentSearchResults");
-      if (!input || !results) return;
-      function allDepartments() { var data = window.FACULTY_DATA || FACULTY_DATA || {}, out = []; Object.keys(data).forEach(function(key){ (data[key].departments||[]).forEach(function(item){ var name=typeof item==="string"?item:item.name; if(name) out.push({faculty:key,facultyLabel:data[key].label||key,name:name,hasContent:typeof item==="string"?true:item.hasContent!==false}); }); }); return out; }
-      function esc(v){ return String(v||"").replace(/[&<>"']/g,function(c){return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"": "&quot;", "'":"&#39;"})[c];}); }
-      function render(){ var q=input.value.trim().toLowerCase(); results.innerHTML=""; if(q.length<2){results.hidden=true;return;} var matches=allDepartments().filter(function(d){return d.name.toLowerCase().indexOf(q)>=0||d.facultyLabel.toLowerCase().indexOf(q)>=0;}).slice(0,30); if(!matches.length){results.hidden=false;results.innerHTML='<div style="padding:10px;font-size:.9rem;opacity:.75">No match found. Check the spelling or try a shorter department name. If your programme is missing, contact Codex support so it can be added to the national list.</div>';return;} matches.forEach(function(d){var b=document.createElement("button");b.type="button";b.setAttribute("role","option");b.style.cssText="display:block;width:100%;text-align:left;padding:10px 12px;border:0;border-bottom:1px solid var(--border, #e5e7eb);background:transparent;color:inherit;cursor:pointer";b.innerHTML='<strong>'+esc(d.name)+'</strong><span style="display:block;font-size:.78rem;opacity:.7">'+esc(d.facultyLabel)+(d.hasContent?'':' · Course content coming soon')+'</span>';b.addEventListener("click",function(){facultySel.value=d.faculty;loadDepts();deptSel.value=d.name;input.value=d.name;results.hidden=true;results.innerHTML="";deptSel.dispatchEvent(new Event("change",{bubbles:true}));});results.appendChild(b);});results.hidden=false;}
-      input.addEventListener("input",render); input.addEventListener("keydown",function(e){if(e.key==="Escape")results.hidden=true;}); document.addEventListener("click",function(e){if(!results.contains(e.target)&&e.target!==input)results.hidden=true;});
-    }
-    setupDepartmentSearch();
-
     function loadFaculties() {
       facultySel.innerHTML = '<option value="">Select faculty…</option>';
       Object.keys(FACULTY_DATA || {}).forEach(function (key) {
@@ -367,6 +351,28 @@
         el("terms").checked = true;
         modal.classList.remove("show");
       };
+    }
+
+    // Claim the one-time welcome reward after Google users finish academic onboarding.
+    // The backend verifies the Firebase ID token and enforces one-time eligibility.
+    function claimWelcomeCreditsAfterOnboarding(user) {
+      if (!user || !user.getIdToken) return Promise.resolve(false);
+      return user.getIdToken().then(function (token) {
+        return fetch("https://codex-backend-new.onrender.com/credits/claim-welcome", {
+          method: "POST",
+          headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" },
+          body: JSON.stringify({})
+        });
+      }).then(function (response) {
+        if (!response || !response.ok) throw new Error("Welcome credit claim was not completed");
+        return response.json().catch(function () { return {}; });
+      }).then(function () {
+        return true;
+      }).catch(function (err) {
+        // Do not block profile completion if the reward endpoint is temporarily unavailable.
+        console.warn("[Onboarding] welcome credit claim deferred", err && err.message);
+        return false;
+      });
     }
 
     auth.onAuthStateChanged(function (user) {
@@ -457,6 +463,7 @@
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
               }, { merge: true });
             } catch (e) {}
+            return claimWelcomeCreditsAfterOnboarding(user).then(function () {
             localStorage.setItem("loggedInUser", JSON.stringify({
               uid: user.uid, email: user.email || "", fullName: data.fullName,
               username: uname, university: uni, level: lev, faculty: fac, department: dept, semester: sem
@@ -464,6 +471,7 @@
             localStorage.setItem("selectedSemester", sem);
             alertMsg("Profile saved. Welcome to Codex Hub.", true);
             setTimeout(function () { location.href = "app/home.html"; }, 800);
+            });
           });
         });
       };
