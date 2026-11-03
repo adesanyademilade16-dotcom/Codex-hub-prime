@@ -8,7 +8,7 @@
   <style>
     :root{color-scheme:dark}html,body{margin:0;min-height:100%;background:#0b1020;color:#e5e7eb;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
     .pdf-shell{min-height:100dvh;display:flex;flex-direction:column}.pdf-bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;background:rgba(15,23,42,.96);border-bottom:1px solid #293449;backdrop-filter:blur(12px)}
-    .pdf-bar button{border:1px solid #344155;background:#1e293b;color:#f8fafc;border-radius:12px;padding:9px 12px;font:600 .82rem system-ui;cursor:pointer}.pdf-title{flex:1;min-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.85rem;font-weight:700}.pdf-stage{flex:1;overflow:auto;display:flex;flex-direction:column;align-items:center;gap:16px;padding:16px 10px 32px;min-height:65vh;box-sizing:border-box}.pdf-page{max-width:100%;background:white;box-shadow:0 8px 30px #0006;border-radius:4px}.pdf-skeleton{width:min(720px,94vw);height:min(960px,125vw);min-height:420px;background:linear-gradient(110deg,#182238 8%,#26344c 18%,#182238 33%);background-size:200% 100%;animation:shimmer 1.35s linear infinite;border:1px solid #334155;border-radius:6px;position:relative;overflow:hidden}.pdf-skeleton:before{content:"";position:absolute;left:9%;right:9%;top:9%;height:6%;border-radius:6px;background:#334155;box-shadow:0 70px 0 #26344c,0 110px 0 #26344c,0 150px 0 #26344c,0 220px 0 #26344c,0 260px 0 #26344c,0 300px 0 #26344c,0 370px 0 #26344c}.pdf-status{max-width:520px;text-align:center;color:#aab7ca;padding:24px;line-height:1.5}.pdf-status.error{color:#fecaca}.pdf-status a{color:#c4b5fd}.hidden{display:none!important}@keyframes shimmer{to{background-position:-200% 0}}@media(prefers-reduced-motion:reduce){.pdf-skeleton{animation:none}}@media(min-width:900px){.pdf-stage{padding:24px}.pdf-bar{padding:12px 20px}}
+    .pdf-bar button{border:1px solid #344155;background:#1e293b;color:#f8fafc;border-radius:12px;padding:9px 12px;font:600 .82rem system-ui;cursor:pointer}.pdf-title{flex:1;min-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.85rem;font-weight:700}.pdf-stage{flex:1;overflow:auto;display:flex;flex-direction:column;align-items:center;gap:16px;padding:16px 10px 32px;min-height:65vh;box-sizing:border-box}.pdf-page{display:block;max-width:100%;height:auto;background:white;box-shadow:0 8px 30px #0006;border-radius:4px;image-rendering:auto}.pdf-skeleton{width:min(720px,94vw);height:min(960px,125vw);min-height:420px;background:linear-gradient(110deg,#182238 8%,#26344c 18%,#182238 33%);background-size:200% 100%;animation:shimmer 1.35s linear infinite;border:1px solid #334155;border-radius:6px;position:relative;overflow:hidden}.pdf-skeleton:before{content:"";position:absolute;left:9%;right:9%;top:9%;height:6%;border-radius:6px;background:#334155;box-shadow:0 70px 0 #26344c,0 110px 0 #26344c,0 150px 0 #26344c,0 220px 0 #26344c,0 260px 0 #26344c,0 300px 0 #26344c,0 370px 0 #26344c}.pdf-status{max-width:520px;text-align:center;color:#aab7ca;padding:24px;line-height:1.5}.pdf-status.error{color:#fecaca}.pdf-status a{color:#c4b5fd}.hidden{display:none!important}@keyframes shimmer{to{background-position:-200% 0}}@media(prefers-reduced-motion:reduce){.pdf-skeleton{animation:none}}@media(min-width:900px){.pdf-stage{padding:24px}.pdf-bar{padding:12px 20px}}
   </style>
 </head>
 <body><div class="pdf-shell"><header class="pdf-bar"><button id="back" type="button">← Back</button><span id="title" class="pdf-title">Preparing document…</span><button id="prev" type="button" disabled>Previous</button><span id="pageLabel" aria-live="polite">— / —</span><button id="next" type="button" disabled>Next</button><button id="zoomOut" type="button" disabled>−</button><button id="zoomIn" type="button" disabled>+</button></header><main id="stage" class="pdf-stage"><div id="skeleton" class="pdf-skeleton" aria-label="Loading PDF preview"></div><p id="status" class="pdf-status" role="status">Preparing your PDF preview…</p></main></div>
@@ -16,14 +16,140 @@
 <script>
 (function(){
   'use strict';
-  var id=new URLSearchParams(location.search).get('id'),doc=null,page=1,scale=1.15,busy=false,token=0;
-  var stage=document.getElementById('stage'),skel=document.getElementById('skeleton'),status=document.getElementById('status'),title=document.getElementById('title'),label=document.getElementById('pageLabel');
-  function back(){location.replace(id?'resource-view.html?id='+encodeURIComponent(id):'resources.html')}
-  document.getElementById('back').addEventListener('click',back);
-  function fail(message){skel.classList.add('hidden');status.className='pdf-status error';status.innerHTML=message;}
-  async function render(){if(!doc||busy)return;busy=true;var own=++token;try{var p=await doc.getPage(page);if(own!==token)return;var base=p.getViewport({scale:1});var maxW=Math.max(280,Math.min(stage.clientWidth-24,1000));var vp=p.getViewport({scale:Math.min(scale,maxW/base.width)});var canvas=document.createElement('canvas');canvas.className='pdf-page';canvas.width=Math.floor(vp.width);canvas.height=Math.floor(vp.height);canvas.style.width=vp.width+'px';canvas.style.height=vp.height+'px';var ctx=canvas.getContext('2d',{alpha:false});await p.render({canvasContext:ctx,viewport:vp}).promise;if(own!==token)return;var old=stage.querySelector('canvas');if(old)old.remove();stage.insertBefore(canvas,status);skel.classList.add('hidden');status.classList.add('hidden');label.textContent=page+' / '+doc.numPages;document.getElementById('prev').disabled=page<=1;document.getElementById('next').disabled=page>=doc.numPages;document.getElementById('zoomIn').disabled=false;document.getElementById('zoomOut').disabled=false;}catch(e){console.error('PDF render failed',e);fail('This PDF could not be previewed in the browser. Try <a href="'+String((window.__pdfUrl||'#')).replace(/"/g,'&quot;')+'" target="_blank" rel="noopener">opening the original file</a> or downloading it.')}finally{busy=false}}
-  document.getElementById('prev').onclick=function(){if(page>1){page--;render()}};document.getElementById('next').onclick=function(){if(doc&&page<doc.numPages){page++;render()}};document.getElementById('zoomIn').onclick=function(){scale=Math.min(2.5,scale+.15);render()};document.getElementById('zoomOut').onclick=function(){scale=Math.max(.6,scale-.15);render()};window.addEventListener('resize',function(){if(doc){clearTimeout(window.__pdfResize);window.__pdfResize=setTimeout(render,160)}});
-  async function init(){try{if(!id)throw new Error('Missing resource ID');if(!window.pdfjsLib)throw new Error('PDF preview library did not load.');pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';if(!window.CodexResources)throw new Error('Resource service did not load.');var r=await CodexResources.getResource(id);if(!r||!r.fileUrl)throw new Error('Resource not found or no file URL is available.');if(String(r.fileType||'pdf').toLowerCase()!=='pdf')throw new Error('This resource is not a PDF. Open or download it from the resource page.');window.__pdfUrl=r.fileUrl;title.textContent=r.title||'PDF preview';var task=pdfjsLib.getDocument({url:r.fileUrl,withCredentials:false});doc=await task.promise;await render()}catch(e){console.error('PDF viewer init failed',e);fail((e&&e.message?e.message:'Could not load PDF')+'<br><br><a href="resource-view.html?id='+encodeURIComponent(id||'')+'">Return to resource details</a>.')}}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+  var id = new URLSearchParams(location.search).get('id');
+  var pdfDoc = null, page = 1, zoom = 1, rendering = false, renderTask = null;
+  var renderToken = 0, resizeTimer = null, lastWidth = 0;
+  var stage = document.getElementById('stage');
+  var skeleton = document.getElementById('skeleton');
+  var status = document.getElementById('status');
+  var title = document.getElementById('title');
+  var label = document.getElementById('pageLabel');
+  var prevBtn = document.getElementById('prev'), nextBtn = document.getElementById('next');
+  var zoomInBtn = document.getElementById('zoomIn'), zoomOutBtn = document.getElementById('zoomOut');
+
+  function back(){ location.replace(id ? 'resource-view.html?id=' + encodeURIComponent(id) : 'resources.html'); }
+  document.getElementById('back').addEventListener('click', back);
+
+  function setStatus(message, isError){
+    status.className = 'pdf-status' + (isError ? ' error' : '');
+    status.textContent = message;
+    status.classList.remove('hidden');
+  }
+  function updateControls(){
+    label.textContent = pdfDoc ? page + ' / ' + pdfDoc.numPages : '— / —';
+    prevBtn.disabled = !pdfDoc || page <= 1;
+    nextBtn.disabled = !pdfDoc || page >= pdfDoc.numPages;
+    zoomInBtn.disabled = !pdfDoc || zoom >= 2.5;
+    zoomOutBtn.disabled = !pdfDoc || zoom <= 0.6;
+  }
+  function clearRenderedPage(){
+    var old = stage.querySelector('canvas.pdf-page');
+    if (old) old.remove();
+  }
+  function getFitScale(viewportAtOne){
+    var available = Math.max(260, stage.clientWidth - 24);
+    return Math.min(1, available / viewportAtOne.width);
+  }
+  async function renderPage(){
+    if (!pdfDoc) return;
+    var myToken = ++renderToken;
+    if (renderTask) {
+      try { renderTask.cancel(); } catch(e) {}
+      renderTask = null;
+    }
+    rendering = true;
+    try {
+      var pdfPage = await pdfDoc.getPage(page);
+      if (myToken !== renderToken) return;
+      var natural = pdfPage.getViewport({scale:1});
+      var fit = getFitScale(natural);
+      var cssScale = Math.max(0.35, Math.min(2.5, fit * zoom));
+      var viewport = pdfPage.getViewport({scale:cssScale});
+      // Render at physical screen density, not merely CSS pixels. Clamp DPR to
+      // keep large textbook pages from exhausting mobile memory.
+      var dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2.5));
+      var pixelRatio = dpr;
+      var maxPixels = 16000000;
+      var requestedPixels = viewport.width * viewport.height * pixelRatio * pixelRatio;
+      if (requestedPixels > maxPixels) pixelRatio = Math.max(1, Math.sqrt(maxPixels / (viewport.width * viewport.height)));
+
+      var canvas = document.createElement('canvas');
+      canvas.className = 'pdf-page';
+      canvas.setAttribute('aria-label', 'PDF page ' + page);
+      canvas.width = Math.max(1, Math.floor(viewport.width * pixelRatio));
+      canvas.height = Math.max(1, Math.floor(viewport.height * pixelRatio));
+      canvas.style.width = viewport.width + 'px';
+      canvas.style.height = viewport.height + 'px';
+      canvas.style.maxWidth = 'none';
+      var context = canvas.getContext('2d', {alpha:false, willReadFrequently:false});
+      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      var task = pdfPage.render({canvasContext:context, viewport:viewport});
+      renderTask = task;
+      await task.promise;
+      if (myToken !== renderToken) return;
+      clearRenderedPage();
+      stage.insertBefore(canvas, status);
+      skeleton.classList.add('hidden');
+      status.classList.add('hidden');
+      lastWidth = stage.clientWidth;
+      updateControls();
+    } catch (err) {
+      if (err && (err.name === 'RenderingCancelledException' || /cancel/i.test(err.message || ''))) return;
+      console.error('PDF page render failed:', err);
+      setStatus('This page could not be rendered. Try reducing zoom or opening the original PDF.', true);
+    } finally {
+      if (myToken === renderToken) {
+        rendering = false;
+        renderTask = null;
+      }
+    }
+  }
+
+  prevBtn.addEventListener('click', function(){ if (page > 1) { page--; renderPage(); } });
+  nextBtn.addEventListener('click', function(){ if (pdfDoc && page < pdfDoc.numPages) { page++; renderPage(); } });
+  zoomInBtn.addEventListener('click', function(){ zoom = Math.min(2.5, +(zoom + 0.2).toFixed(2)); renderPage(); });
+  zoomOutBtn.addEventListener('click', function(){ zoom = Math.max(0.6, +(zoom - 0.2).toFixed(2)); renderPage(); });
+
+  window.addEventListener('resize', function(){
+    if (!pdfDoc) return;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function(){
+      if (Math.abs(stage.clientWidth - lastWidth) > 4) renderPage();
+    }, 180);
+  });
+
+  async function init(){
+    try {
+      if (!id) throw new Error('Missing resource ID.');
+      if (!window.pdfjsLib) throw new Error('PDF preview library did not load. Check your internet connection and reload.');
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      if (!window.CodexResources) throw new Error('Resource service did not load.');
+      var resource = await CodexResources.getResource(id);
+      if (!resource || !resource.fileUrl) throw new Error('Resource not found or no PDF file URL is available.');
+      if (String(resource.fileType || 'pdf').toLowerCase() !== 'pdf') throw new Error('This resource is not a PDF. Open or download it from the resource page.');
+      title.textContent = resource.title || 'PDF preview';
+      window.__pdfUrl = resource.fileUrl;
+      var loadingTask = pdfjsLib.getDocument({url:resource.fileUrl, withCredentials:false, disableAutoFetch:false, disableStream:false});
+      pdfDoc = await loadingTask.promise;
+      skeleton.classList.add('hidden');
+      updateControls();
+      await renderPage();
+    } catch(err) {
+      console.error('PDF viewer initialisation failed:', err);
+      skeleton.classList.add('hidden');
+      setStatus((err && err.message ? err.message : 'Could not load this PDF.') + ' Use the resource page to download the original file.', true);
+      if (window.__pdfUrl) {
+        var link = document.createElement('a');
+        link.href = window.__pdfUrl;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = 'Open original PDF';
+        status.appendChild(document.createTextNode(' '));
+        status.appendChild(link);
+      }
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();
 </script></body></html>
