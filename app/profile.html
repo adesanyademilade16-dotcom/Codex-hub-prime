@@ -115,6 +115,26 @@
     .hero-actions .pri { background: #fff; color: #3730A3; }
     .hero-actions .ghost { background: rgba(255,255,255,.14); color: #fff; border: 1px solid rgba(255,255,255,.28); }
 
+    .profile-install-btn {
+      appearance: none; -webkit-appearance: none; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 38px; padding: 0 15px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.38);
+      background: rgba(255,255,255,.18); color: #fff;
+      font: 700 .78rem var(--font); transition: transform .18s ease, opacity .18s ease;
+    }
+    .profile-install-btn:active { transform: scale(.97); }
+    .profile-install-btn[disabled] { cursor: default; opacity: .92; }
+    .d-profile .actions .profile-install-btn {
+      width: 100%; min-height: 42px; border-radius: 12px;
+      border: 1px solid #C7D2FE; background: #EEF2FF; color: #3730A3;
+      font: 800 .88rem var(--font);
+    }
+    .profile-install-btn.is-installed { background: rgba(255,255,255,.22); }
+    .d-profile .actions .profile-install-btn.is-installed {
+      background: #ECFDF5; border-color: #A7F3D0; color: #047857;
+    }
+
     .stat-row {
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
       margin-top: 12px;
@@ -324,6 +344,7 @@ html.theme-dark .section-label { color: #94A3B8 !important; }
       <div class="hero-actions">
         <a class="pri" href="edit-profile.html">Edit profile</a>
         <a class="ghost" href="settings.html">Settings</a>
+        <button type="button" class="btn-install-app profile-install-btn" aria-live="polite">Install app</button>
         <a class="admin-dash-btn" id="mAdminDash" href="../admin/admin.html" hidden aria-hidden="true">Admin dashboard</a>
       </div>
     </section>
@@ -426,6 +447,7 @@ html.theme-dark .section-label { color: #94A3B8 !important; }
         <p class="sub" id="dSub">…</p>
         <div class="actions">
           <a class="pri" href="edit-profile.html">Edit profile</a>
+          <button type="button" class="btn-install-app profile-install-btn" aria-live="polite">Install app</button>
           <a class="admin-dash-btn" id="dAdminDash" href="../admin/admin.html" hidden aria-hidden="true">Admin dashboard</a>
           <a class="ghost" href="settings.html">Open settings</a>
         </div>
@@ -740,5 +762,6 @@ html.theme-dark .section-label { color: #94A3B8 !important; }
 
 <script>try{if(window.CodexOnboarding)CodexOnboarding.auto("profile",700);}catch(e){}</script>
 <script src="../js/entitlements.js"></script>
+<script src="../js/pwa-install.js"></script>
 </body>
 </html>
