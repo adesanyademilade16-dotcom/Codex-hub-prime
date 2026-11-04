@@ -958,13 +958,7 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
     .img-carousel .icard { transition: transform .16s ease, border-color .16s ease; }
     .img-carousel .icard:active { transform: scale(.985); }
     .img-carousel .icard img { aspect-ratio: 4 / 3; }
-    .img-carousel .icard.broken { opacity: .6; }
-    .img-carousel .icard.broken img { opacity: .28; }
-    .img-carousel .icard.broken::after {
-      content: "Image unavailable"; position: absolute; inset: 0 0 34px; display: flex;
-      align-items: center; justify-content: center; font-size: .68rem; color: #94A3B8; pointer-events: none;
-    }
-    .img-carousel .icard { position: relative; }
+    .img-carousel .icard.broken { display: none; }
     button, a { -webkit-tap-highlight-color: transparent; }
     @media (min-width: 900px) {
       .shell { max-width: 1440px; }
@@ -1768,10 +1762,13 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
         }
         if (!_imgs.length) return '<p style="font-size:.8rem;color:#64748B">No diagram images available.</p>';
         return '<div class="img-carousel" data-gallery="' + gid + '">' + _imgs.map(function (u, i) {
-          return '<div class="icard" data-gallery="' + gid + '" data-idx="' + i + '"><img src="' + escape(u) + '" alt="Photo ' + (i + 1) + '" loading="eager" referrerpolicy="no-referrer" data-full="' + escape(u) + '" data-proxy="' + escape(API_BASE + "/img-proxy?u=" + encodeURIComponent(u)) + '"><a href="' + escape(u) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">Open</a></div>';
+          return '<div class="icard" data-gallery="' + gid + '" data-idx="' + i + '"><img src="' + escape(u) + '" alt="Photo ' + (i + 1) + '" loading="lazy" data-full="' + escape(u) + '" onerror="this.parentNode.classList.add(\'broken\')"><a href="' + escape(u) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">Open</a></div>';
         }).join("") + '</div>';
       });
-      raw = raw.replace(/%%CAROUSEL_START%%([\s\S]*?)%%CAROUSEL_END%%/g, function (_, body) { return body; });
+      // Keep photo galleries safe from later cleanup (it strips <img> tags), restore at the end
+      var _galleries = [];
+      raw = raw.replace(/%%CAROUSEL_START%%([\s\S]*?)%%CAROUSEL_END%%/g, function (_, body) { _galleries.push(body); return "\n@@NOVAGAL" + (_galleries.length - 1) + "@@\n"; });
+      raw = raw.replace(/<div class="img-carousel"[\s\S]*?<\/div><\/div>/g, function (m) { _galleries.push(m); return "\n@@NOVAGAL" + (_galleries.length - 1) + "@@\n"; });
 
       raw = raw.replace(/_\(Free via Pollinations[^_]*_\)/gi, "");
       raw = raw.replace(/_\(Tap and hold[^_]*_\)/gi, "<span style='opacity:.7;font-size:.8em'>Tap image to enlarge · use Download to save</span>");
@@ -1881,6 +1878,7 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
           if (projCard) raw += projCard;
         } catch (eProj) { console.warn("[nova] project card", eProj); }
       }
+      raw = raw.replace(/(?:<p class="md-p">\s*)?(?:<br>)?@@NOVAGAL(\d+)@@(?:<br>)?(?:\s*<\/p>)?/g, function (_, n) { return _galleries[+n] || ""; });
       return raw;
     }
     function highlightCode(code, lang) {
@@ -3297,13 +3295,8 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
       // Online search + pictures / diagram / show me photos — NOT pure “generate an image of”
       if (/\b(show|find|search|look\s*up|bring|fetch|get|reference)\b.{0,40}\b(image|images|picture|pictures|photo|photos|diagram|diagrams)\b/i.test(t)) return true;
       // "Do you know Roman Reigns?" / "Tell me about John Cena" should show real reference photos.
-      // A direct "who is [proper name]" question is itself a visual-reference
-      // intent; do not require the person to be in a hard-coded celebrity list.
-      if (/\b(who\s+is|who's|who\s+was|tell\s+me\s+about|do\s+you\s+know)\b/i.test(t)) {
-        var named = t.match(/\b(?:who\s+is|who's|who\s+was|tell\s+me\s+about|do\s+you\s+know)\s+([A-Z][\p{L}'-]*(?:\s+[A-Z][\p{L}'-]*){0,3})/u);
-        if (named && named[1]) return true;
-        if (/\b(roman\s+reigns?|john\s+cena|wrestler|actor|actress|celebrity|footballer|singer|rapper|player)\b/i.test(text)) return true;
-      }
+      if (/\b(do\s+you\s+know|tell\s+me\s+about|who\s+is|who's)\b/i.test(t) &&
+          /\b(roman\s+reigns?|john\s+cena|wrestler|actor|actress|celebrity|footballer|singer|rapper|player)\b/i.test(t)) return true;
       if (/\b(image|images|picture|pictures|photo|photos)\b.{0,30}\b(of|for|about)\b/i.test(t) && /\b(search|online|web|google|reference)\b/i.test(t)) return true;
       if (/\blabelled?\s+diagram\b|\banatomy\s+diagram\b|\btextbook\s+figure\b/i.test(t)) return true;
       if (/\bsea\s+animals?\b|\banimals?\b.{0,20}\b(images?|pictures?|photos?)\b/i.test(t)) return true;
@@ -3361,24 +3354,6 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
         "landing page", "web design", "powerpoint", "canva template", "component library"];
       return junk.some(function (k) { return s.indexOf(k) >= 0; });
     }
-    /* Thumbnails load the real image straight from the source first: one request,
-       no proxy hop, so the photo is on screen immediately instead of a bare tile.
-       referrerpolicy="no-referrer" defeats most hotlink blocks; if the source still
-       refuses, the server proxy is tried next, and only then does the tile show a
-       quiet "Image unavailable" state. The card is never silently removed, so the
-       lightbox index still lines up with what the student tapped. */
-    window.__novaimgErr = function (img) {
-      try {
-        if (!img.dataset.proxyTried && img.dataset.proxy) {
-          img.dataset.proxyTried = "1";
-          img.src = img.dataset.proxy;
-          return;
-        }
-        img.parentNode && img.parentNode.classList.add("broken");
-        img.alt = "Image unavailable";
-      } catch (e) {}
-    };
-
     function buildCarouselHtml(images) {
       if (!images || !images.length) return "";
       var clean = images.filter(function (im) {
@@ -3386,19 +3361,14 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
       });
       if (!clean.length) clean = images.slice(0, 4); // fallback if filter too aggressive
       var gid = "g" + Date.now() + Math.floor(Math.random() * 9999);
-      var tiles = clean.filter(function (im) { return isLikelyImageUrl(im.original || im.full || im.url || im.src || im); }).slice(0, 8);
-      if (!tiles.length) return "";
-      return '<div class="img-carousel" data-gallery="' + gid + '">' + tiles.map(function (im, i) {
-        var full = im.original || im.full || im.url || "";
-        var proxied = API_BASE + "/img-proxy?u=" + encodeURIComponent(full);
-        var title = String(im.title || im.name || im.alt || "").trim();
-        // Some search providers return a URL or serialized proxy markup as the
-        // title. Never render that noisy payload as the visible caption.
-        if (!title || /^https?:\/\//i.test(title) || /data-proxy=|<img|https?%3a/i.test(title)) title = "Reference photo " + (i + 1);
-        title = title.replace(/\s+/g, " ").slice(0, 46);
-        return '<div class="icard" data-gallery="' + gid + '" data-idx="' + i + '" role="button" tabindex="0" aria-label="Open image ' + (i + 1) + ' of ' + tiles.length + '">' +
-          '<img src="' + escape(full) + '" data-proxy="' + escape(proxied) + '" data-full="' + escape(full) + '" alt="' + escape(title) + '" loading="lazy" decoding="async" referrerpolicy="no-referrer">' +
-          '<a href="' + escape(full) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + escape(String(title).slice(0, 46)) + "</a></div>";
+      return '<div class="img-carousel" data-gallery="' + gid + '">' + clean.filter(function(im){ return isLikelyImageUrl(im.url || im.src || im); }).slice(0,6).map(function (im, i) {
+        var u = im.original || im.full || im.url || "";
+        var thumb = im.original || im.url || u;
+        var proxied = API_BASE + "/img-proxy?u=" + encodeURIComponent(thumb);
+        var title = im.title || ("Photo " + (i + 1));
+        return '<div class="icard" data-gallery="' + gid + '" data-idx="' + i + '">' +
+          '<img src="' + escape(proxied) + '" data-direct="' + escape(thumb) + '" data-full="' + escape(u) + '" alt="' + escape(title) + '" loading="lazy" decoding="async" onerror="if(!this.dataset.directTried){this.dataset.directTried=\'1\';this.src=this.dataset.direct;}else{this.parentNode.classList.add(\'broken\');this.parentNode.style.display=\'none\';}">' +
+          '<a href="' + escape(u) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + escape(String(title).slice(0, 40)) + "</a></div>";
       }).join("") + "</div>";
     }
     function fetchReferenceImages(query) {
@@ -3435,15 +3405,6 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
         .then(function (r) { if (!r.ok) throw new Error("img_http_" + r.status); return r.json(); })
         .then(function (data) {
           var imgs = (data && data.images) || [];
-          // Providers return different property names. Normalize to the shape
-          // consumed by buildCarouselHtml instead of silently dropping valid URLs.
-          imgs = imgs.map(function (im) {
-            if (typeof im === "string") return { url: im, full: im, original: im, title: "Reference image" };
-            im = im || {};
-            var full = im.original || im.full || im.image_url || im.imageUrl || im.url || im.src || im.link || im.thumbnail_url || im.thumbnail || "";
-            var thumb = im.thumbnail_url || im.thumbnail || im.thumb || im.url || full;
-            return Object.assign({}, im, { url: thumb, full: full, original: full, title: im.title || im.name || im.alt || "Reference image" });
-          }).filter(function (im) { return isLikelyImageUrl(im.full || im.url); });
           console.log("[Nova] image provider=", (data && data.provider) || "?", "count=", imgs.length);
           if (imgs.length) return imgs;
           return fromWiki();
@@ -4524,24 +4485,27 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
  * 2nd failure → hide that picture (and its Download/Open buttons) cleanly. */
 (function () {
   var API = (window.CODEX_API_BASE || "https://codex-backend-new.onrender.com").replace(/\/$/, "");
-  function holder(img) { return img.closest(".msg-img-wrap, .icard, .gen-fig") || img; }
-  // One capture-phase handler only. The former inline handler plus this
-  // delegated handler could both retry/hide the same thumbnail on one error.
+  function holder(img) {
+    return img.closest(".msg-img-wrap, .icard, .gen-fig") || img;
+  }
   document.addEventListener("error", function (e) {
     var img = e.target;
     if (!img || img.tagName !== "IMG") return;
     if (!img.closest(".msg-media, .img-carousel, .gen-fig, .msg-img-wrap")) return;
     var src = img.getAttribute("src") || "";
-    if (!img.dataset.proxyTried && img.dataset.proxy && /^https?:/i.test(src)) {
-      img.dataset.proxyTried = "1";
+    if (!img.dataset.retried && /^https?:/i.test(src) && src.indexOf("/img-proxy?") < 0) {
+      img.dataset.retried = "1";
       img.referrerPolicy = "no-referrer";
-      img.src = img.dataset.proxy;
+      img.src = API + "/img-proxy?u=" + encodeURIComponent(src);
       return;
     }
     var h = holder(img);
-    h.classList.add("broken");
-    img.alt = "Image unavailable — open original";
+    h.style.display = "none";
+    var car = img.closest(".img-carousel");
+    if (car && !car.querySelector(".icard:not([style*='display: none'])")) car.style.display = "none";
   }, true);
+
+  /* Phase 3: restore the persisted coding-mode state */
   try { setCodingMode(localStorage.getItem("nova_coding_mode") === "1", false); } catch (e) {}
 })();
 </script>
