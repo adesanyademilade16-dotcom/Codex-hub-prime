@@ -411,55 +411,14 @@
       }
     };
     
-    function notifCol() {
-      var me = firebase.auth().currentUser;
-      if (!me) return null;
-      return firebase.firestore().collection("notifications").doc(me.uid).collection("items");
-    }
+    function notifCol() { var me = nMe(); return me ? itemsCol(me.uid) : null; }
     function markNotifRead(id) {
-      var col = notifCol();
-      if (!col || !id) return Promise.resolve();
-      return col.doc(id).set({ read: true, readAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(function () {});
+      var me = nMe();
+      if (!me || !id) return Promise.resolve();
+      return itemsCol(me.uid).doc(id).update({ read: true, readAt: nTs() })
+        .catch(function (e) { console.warn("mark notification read failed:", e && e.code); });
     }
-    function markAllNotifsRead() {
-      var col = notifCol();
-      if (!col) return Promise.resolve();
-      return col.get().then(function (snap) {
-        if (snap.empty) return null;
-        var batch = firebase.firestore().batch();
-        var n = 0;
-        snap.forEach(function (d) {
-          if (!(d.data() || {}).read) {
-            batch.set(d.ref, { read: true, readAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
-            n++;
-          }
-        });
-        return n ? batch.commit() : null;
-      });
-    }
-    /** Pending friend requests + join requests on groups I own, counted
-     *  directly from their source collections rather than only trusting a
-     *  notifications/{uid}/items doc to exist for every single event. This
-     *  is what used to make the bell look "dead" even when a real request
-     *  was sitting there the whole time — if that one write ever failed, got
-     *  skipped, or raced, the bell had no other way to know. */
-    function countPendingRequests(me) {
-      var fr = firebase.firestore().collection("friend_requests")
-        .where("to", "==", me.uid).where("status", "==", "pending").limit(40).get()
-        .then(function (s) { return s.size || 0; }).catch(function () { return 0; });
-      var gr = firebase.firestore().collection("groups")
-        .where("createdBy", "==", me.uid).limit(20).get()
-        .then(function (snap) {
-          var groupIds = [];
-          snap.forEach(function (d) { groupIds.push(d.id); });
-          if (!groupIds.length) return 0;
-          return Promise.all(groupIds.map(function (gid) {
-            return firebase.firestore().collection("groups").doc(gid).collection("join_requests").limit(20).get()
-              .then(function (s) { return s.size || 0; }).catch(function () { return 0; });
-          })).then(function (counts) { return counts.reduce(function (a, b) { return a + b; }, 0); });
-        }).catch(function () { return 0; });
-      return Promise.all([fr, gr]).then(function (r) { return r[0] + r[1]; });
-    }
+    function markAllNotifsRead() { return markAllRead(); }
     function paintBellDot(unread) {
       ["notifBtn", "notifBtnDesk"].forEach(function (id) {
         var btn = document.getElementById(id);
@@ -470,27 +429,28 @@
       });
     }
     function refreshNotifBadge() {
-      var col = notifCol();
-      if (!col) return;
-      var me = firebase.auth().currentUser;
+      var me = nMe();
+      if (!me) return;
       Promise.all([
-        col.get(),
-        me ? firebase.firestore().collection("announcements").where("status", "==", "active").limit(25).get() : Promise.resolve({ docs: [] }),
-        me ? firebase.firestore().collection("announcement_reads").doc(me.uid).get() : Promise.resolve({ exists:false }),
-        me ? countPendingRequests(me) : Promise.resolve(0)
-      ]).then(function (results) {
-        var personal = 0;
-        results[0].forEach(function (d) { if (!(d.data() || {}).read) personal++; });
-        var readStates = results[2].exists ? ((results[2].data() || {}).states || {}) : {};
-        var now = Date.now(), announcements = 0;
-        results[1].docs.forEach(function (d) {
-          var a = d.data() || {};
-          var start = a.startAt && a.startAt.toMillis ? a.startAt.toMillis() : 0;
-          var expiry = a.expiresAt && a.expiresAt.toMillis ? a.expiresAt.toMillis() : 0;
-          if ((!start || start <= now) && (!expiry || now < expiry) && !readStates[d.id]) announcements++;
+        itemsCol(me.uid).orderBy("createdAt", "desc").limit(200).get(),
+        nDb().collection("announcements").where("status", "==", "active").limit(25).get(),
+        annReadsRef(me.uid).get(),
+        pendingRequests(me)
+      ]).then(function (r) {
+        var personal = 0, keys = {};
+        r[0].forEach(function (d) {
+          var x = d.data() || {};
+          if (!x.read) personal++;
+          var k = reqKey(x); if (k) keys[k] = true;
         });
-        var pendingReqs = results[3] || 0;
-        paintBellDot(personal + announcements + pendingReqs);
+        var rd = r[2].exists ? (r[2].data() || {}) : {};
+        var states = annStates(rd), dis = annDismissed(rd), now = Date.now(), ann = 0;
+        r[1].docs.forEach(function (d) {
+          if (annIsLive(d.data() || {}, now) && !states[d.id] && !dis[d.id]) ann++;
+        });
+        // A pending request that already has its own notification item is counted once (via the item).
+        var orphans = r[3].filter(function (p) { return !keys[p.key]; }).length;
+        paintBellDot(personal + ann + orphans);
       }).catch(function () {});
     }
 
@@ -509,8 +469,7 @@
           '<button type="button" class="codex-notif-close" aria-label="Close">×</button></div>' +
           '<div class="codex-notif-actions"><button type="button" id="codexNotifMarkAll">Mark all as read</button></div>' +
           '<div class="codex-notif-list" id="codexNotifList"><p class="codex-notif-empty">Loading…</p></div>' +
-          '<a class="codex-notif-footer" href="announcements.html">View announcements →</a>' +
-          '<a class="codex-notif-footer" href="/chats">Open Requests / Chats →</a>' +
+          '<a class="codex-notif-footer" href="notifications.html">Open notification centre →</a>' +
         '</div>';
       document.body.appendChild(panel);
       // styles once
@@ -541,10 +500,15 @@
       var markAllBtn = document.getElementById("codexNotifMarkAll");
       if (markAllBtn) {
         markAllBtn.onclick = function () {
+          markAllBtn.disabled = true;
           markAllNotifsRead().then(function () {
             refreshNotifBadge();
             loadNotifList();
-          });
+          }).catch(function (e) {
+            console.warn("mark all read failed:", e);
+            var l = document.getElementById("codexNotifList");
+            if (l) l.insertAdjacentHTML("afterbegin", '<p class="codex-notif-empty" style="color:#DC2626">Could not mark all as read. Check your connection and try again.</p>');
+          }).then(function () { markAllBtn.disabled = false; });
         };
       }
       refreshNotifBadge();
@@ -573,11 +537,11 @@
         var personalSnap = await firebase.firestore().collection("notifications").doc(me.uid).collection("items").orderBy("createdAt", "desc").limit(40).get();
         var annSnap = await firebase.firestore().collection("announcements").where("status", "==", "active").limit(10).get();
         var readSnap = await firebase.firestore().collection("announcement_reads").doc(me.uid).get();
-        var readStates = readSnap.exists ? ((readSnap.data() || {}).states || {}) : {};
+        var rdData = readSnap.exists ? (readSnap.data() || {}) : {}; var readStates = annStates(rdData), dismissedMap = annDismissed(rdData);
         var now = Date.now(), rows = [];
         annSnap.forEach(function(d){
           var a=d.data()||{}, st=a.startAt&&a.startAt.toMillis?a.startAt.toMillis():0, ex=a.expiresAt&&a.expiresAt.toMillis?a.expiresAt.toMillis():0;
-          if((!st||st<=now)&&(!ex||now<ex)) rows.push({kind:"announcement",id:d.id,title:a.title||"Announcement",message:a.description||"New update from Codex Hub.",read:!!readStates[d.id],data:a});
+          if((!st||st<=now)&&(!ex||now<ex)&&!dismissedMap[d.id]) rows.push({kind:"announcement",id:d.id,title:a.title||"Announcement",message:a.description||"New update from Codex Hub.",read:!!readStates[d.id],data:a});
         });
         personalSnap.forEach(function(d){
           var x=d.data()||{};
@@ -716,15 +680,18 @@
         var me = firebase.auth().currentUser;
         if (!me) return;
         var db = firebase.firestore();
-        var personal = 0, announcements = 0, pendingReqs = 0, readStates = {};
-        function paint() { paintBellDot(personal + announcements + pendingReqs); }
+        var personal = 0, announcements = 0, pendingList = [], itemKeys = {}, readStates = {}, dismissed = {};
+        function paint() {
+          var orphans = pendingList.filter(function (p) { return !itemKeys[p.key]; }).length;
+          paintBellDot(personal + announcements + orphans);
+        }
         // friend_requests / group join_requests don't have a cheap single
         // realtime listener (join_requests is a per-group subcollection), so
-        // these are polled instead — but on a short enough interval that a
-        // pending request shows up within half a minute of arriving, not
-        // only once the bell happens to get tapped.
+        // these are polled — a pending request with no notification item of its
+        // own still lights the bell within ~25s. Requests that DO have an item
+        // are counted once, through the item (no double counting).
         function pollPendingRequests() {
-          countPendingRequests(me).then(function (n) { pendingReqs = n; paint(); });
+          pendingRequests(me).then(function (list) { pendingList = list; paint(); }).catch(function () {});
         }
         pollPendingRequests();
         var pendingPollTimer = setInterval(pollPendingRequests, 25000);
@@ -732,25 +699,26 @@
         function recalcAnnouncements(snap) {
           var now = Date.now(), count = 0;
           snap.forEach(function (d) {
-            var a = d.data() || {};
-            var start = a.startAt && a.startAt.toMillis ? a.startAt.toMillis() : 0;
-            var expiry = a.expiresAt && a.expiresAt.toMillis ? a.expiresAt.toMillis() : 0;
-            if ((!start || start <= now) && (!expiry || now < expiry) && !readStates[d.id]) count++;
+            if (annIsLive(d.data() || {}, now) && !readStates[d.id] && !dismissed[d.id]) count++;
           });
           announcements = count;
           paint();
         }
-        var personalCol = db.collection("notifications").doc(me.uid).collection("items");
+        var personalCol = db.collection("notifications").doc(me.uid).collection("items").orderBy("createdAt", "desc").limit(200);
         notifBadgeUnsubs.push(personalCol.onSnapshot(function (snap) {
-          personal = 0;
-          snap.forEach(function (d) { if (!(d.data() || {}).read) personal++; });
+          personal = 0; itemKeys = {};
+          snap.forEach(function (d) {
+            var x = d.data() || {};
+            if (!x.read) personal++;
+            var k = reqKey(x); if (k) itemKeys[k] = true;
+          });
           paint();
         }, function () { refreshNotifBadge(); }));
         var annCol = db.collection("announcements").where("status", "==", "active").limit(25);
         var annSnap = null;
         notifBadgeUnsubs.push(annCol.onSnapshot(function (snap) { annSnap = snap; recalcAnnouncements(snap); }, function () { refreshNotifBadge(); }));
         notifBadgeUnsubs.push(db.collection("announcement_reads").doc(me.uid).onSnapshot(function (snap) {
-          readStates = snap.exists ? ((snap.data() || {}).states || {}) : {};
+          var rdd = snap.exists ? (snap.data() || {}) : {}; readStates = annStates(rdd); dismissed = annDismissed(rdd);
           if (annSnap) recalcAnnouncements(annSnap);
           else paint();
         }, function () { refreshNotifBadge(); }));
@@ -774,6 +742,168 @@
       setTimeout(function () { location.href = href; }, 180);
     });
   }
+
+
+  /* ───────── CodexNotifs: shared read-state + notification helpers ─────────
+   * Firestore: set({"states.<id>": v}, {merge:true}) writes a field LITERALLY named
+   * "states.<id>" — dotted paths are only parsed by update()/FieldPath. Announcement
+   * reads were therefore never stored where the readers looked (data.states[id]) and
+   * every announcement came back unread after reload. We now write a real nested map
+   * (set + merge deep-merges it) and still READ legacy literal "states.<id>" keys, so
+   * reads saved by the old code are honoured without a migration. */
+  var REQ_TYPES = { friend_request: true, group_join_request: true };
+  function nDb() { return firebase.firestore(); }
+  function nMe() { try { return firebase.auth().currentUser; } catch (e) { return null; } }
+  function nTs() { return firebase.firestore.FieldValue.serverTimestamp(); }
+  function itemsCol(uid) { return nDb().collection("notifications").doc(uid).collection("items"); }
+  function annReadsRef(uid) { return nDb().collection("announcement_reads").doc(uid); }
+
+  function annStates(data) {
+    data = data || {};
+    var out = {}, nested = data.states;
+    if (nested && typeof nested === "object") {
+      Object.keys(nested).forEach(function (k) { if (nested[k]) out[k] = nested[k]; });
+    }
+    Object.keys(data).forEach(function (k) {            // legacy literal "states.<id>" fields
+      if (k.indexOf("states.") === 0 && data[k]) out[k.slice(7)] = data[k];
+    });
+    return out;
+  }
+  function annDismissed(data) {
+    var d = (data || {}).dismissed;
+    return d && typeof d === "object" ? d : {};
+  }
+  function annIsLive(a, now) {
+    var st = a && a.startAt && a.startAt.toMillis ? a.startAt.toMillis() : 0;
+    var ex = a && a.expiresAt && a.expiresAt.toMillis ? a.expiresAt.toMillis() : 0;
+    return (!st || st <= now) && (!ex || now < ex);
+  }
+  /** Mark announcement ids read for THIS user only (single write to announcement_reads/{uid}). */
+  function annSetStates(uid, ids, status) {
+    if (!uid || !ids || !ids.length) return Promise.resolve(0);
+    var map = {};
+    ids.forEach(function (id) { map[id] = status || "seen"; });
+    return annReadsRef(uid).set({ states: map, updatedAt: nTs() }, { merge: true })
+      .then(function () { return ids.length; });
+  }
+  function annClearState(uid, id) {                      // mark unread again (removes nested + legacy key)
+    var FP = firebase.firestore.FieldPath, del = firebase.firestore.FieldValue.delete();
+    return annReadsRef(uid).update(new FP("states", id), del, new FP("states." + id), del)
+      .catch(function (e) { if (!(e && e.code === "not-found")) throw e; });
+  }
+  /** "Delete" an announcement notification: per-user hide flag only; the shared announcement is untouched. */
+  function annDismiss(uid, ids) {
+    if (!uid || !ids || !ids.length) return Promise.resolve(0);
+    var map = {};
+    ids.forEach(function (id) { map[id] = true; });
+    return annReadsRef(uid).set({ dismissed: map, updatedAt: nTs() }, { merge: true })
+      .then(function () { return ids.length; });
+  }
+  function reqKey(x) {
+    if (!x) return "";
+    if (x.type === "friend_request") return "f:" + (x.from || "");
+    if (x.type === "group_join_request") return "j:" + (x.groupId || "") + ":" + (x.from || "");
+    return "";
+  }
+  function reqItemId(p) {                                  // deterministic id => idempotent
+    return p.kind === "friend" ? "friend_request_" + p.from : "group_join_request_" + p.groupId + "_" + p.from;
+  }
+  /** Pending requests read from their authoritative collections (friend_requests, groups/*\/join_requests). */
+  function pendingRequests(me) {
+    var db = nDb();
+    var fr = db.collection("friend_requests").where("to", "==", me.uid).where("status", "==", "pending").limit(40).get()
+      .then(function (s) {
+        return s.docs.map(function (d) {
+          var x = d.data() || {};
+          return { key: "f:" + x.from, kind: "friend", id: d.id, from: x.from, createdAt: x.createdAt || null };
+        });
+      }).catch(function () { return []; });
+    var gr = db.collection("groups").where("createdBy", "==", me.uid).limit(20).get()
+      .then(function (snap) {
+        return Promise.all(snap.docs.map(function (g) {
+          return g.ref.collection("join_requests").limit(20).get().then(function (s) {
+            var out = [];
+            s.forEach(function (d) {
+              var x = d.data() || {};
+              if ((x.status || "pending") !== "pending") return;   // "invited" = WE invited them, not an incoming request
+              var from = x.from || d.id;
+              out.push({ key: "j:" + g.id + ":" + from, kind: "join", id: d.id, from: from, groupId: g.id,
+                         groupName: (g.data() || {}).name || x.groupName || "Group", createdAt: x.createdAt || null });
+            });
+            return out;
+          }).catch(function () { return []; });
+        })).then(function (lists) { return [].concat.apply([], lists); });
+      }).catch(function () { return []; });
+    return Promise.all([fr, gr]).then(function (r) { return r[0].concat(r[1]); });
+  }
+  async function commitChunked(list, apply) {              // Firestore batches cap at 500 writes
+    var db = nDb();
+    for (var i = 0; i < list.length; i += 400) {
+      var batch = db.batch();
+      list.slice(i, i + 400).forEach(function (x) { apply(batch, x); });
+      await batch.commit();
+    }
+  }
+  function setItemsRead(uid, ids, read) {
+    var col = itemsCol(uid), FV = firebase.firestore.FieldValue;
+    return commitChunked(ids, function (b, id) {
+      b.update(col.doc(id), read ? { read: true, readAt: nTs() } : { read: false, readAt: FV.delete() });
+    });
+  }
+  function deleteItems(uid, ids) {                         // personal notification docs only
+    var col = itemsCol(uid);
+    return commitChunked(ids, function (b, id) { b.delete(col.doc(id)); });
+  }
+  /** Persist a read marker for a pending request that has no notification item yet. */
+  function ensureRequestItems(uid, pend, read) {
+    var col = itemsCol(uid);
+    return commitChunked(pend, function (b, p) {
+      b.set(col.doc(reqItemId(p)), {
+        type: p.kind === "friend" ? "friend_request" : "group_join_request",
+        from: p.from, groupId: p.groupId || null, groupName: p.groupName || null,
+        message: p.kind === "friend" ? "Sent you a friend request." : "Requested to join " + (p.groupName || "your group"),
+        createdAt: p.createdAt || nTs(), read: !!read, recovered: true
+      }, { merge: true });
+    });
+  }
+  /** Mark everything read for the signed-in user, across all categories. Throws on failure. */
+  async function markAllRead() {
+    var me = nMe();
+    if (!me) throw new Error("Not signed in");
+    var out = { items: 0, announcements: 0, requests: 0 };
+    // 1) personal notification docs (only unread ones are written)
+    for (var round = 0; round < 25; round++) {
+      var snap = await itemsCol(me.uid).where("read", "==", false).limit(400).get();
+      if (snap.empty) break;
+      var ids = snap.docs.map(function (d) { return d.id; });
+      await setItemsRead(me.uid, ids, true);
+      out.items += ids.length;
+      if (snap.size < 400) break;
+    }
+    // 2) pending requests with no item of their own
+    var recent = await itemsCol(me.uid).orderBy("createdAt", "desc").limit(300).get();
+    var keys = {};
+    recent.forEach(function (d) { var k = reqKey(d.data()); if (k) keys[k] = true; });
+    var orphans = (await pendingRequests(me)).filter(function (p) { return !keys[p.key]; });
+    if (orphans.length) { await ensureRequestItems(me.uid, orphans, true); out.requests = orphans.length; }
+    // 3) this user's unread, visible announcements (one write to announcement_reads/{uid})
+    var res = await Promise.all([
+      nDb().collection("announcements").where("status", "==", "active").limit(50).get(),
+      annReadsRef(me.uid).get()
+    ]);
+    var rd = res[1].exists ? (res[1].data() || {}) : {}, st = annStates(rd), dis = annDismissed(rd), now = Date.now();
+    var annIds = res[0].docs.filter(function (d) { return annIsLive(d.data() || {}, now) && !st[d.id] && !dis[d.id]; })
+      .map(function (d) { return d.id; });
+    if (annIds.length) { await annSetStates(me.uid, annIds, "seen"); out.announcements = annIds.length; }
+    return out;
+  }
+  w.CodexNotifs = {
+    REQ_TYPES: REQ_TYPES, annStates: annStates, annDismissed: annDismissed, annIsLive: annIsLive,
+    annSetStates: annSetStates, annClearState: annClearState, annDismiss: annDismiss,
+    itemsCol: itemsCol, reqKey: reqKey, reqItemId: reqItemId, pendingRequests: pendingRequests,
+    setItemsRead: setItemsRead, deleteItems: deleteItems, ensureRequestItems: ensureRequestItems,
+    markAllRead: markAllRead
+  };
 
   function updateUser(user) {
     if (!user) return;

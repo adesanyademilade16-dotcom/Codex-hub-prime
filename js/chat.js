@@ -197,10 +197,11 @@
       var myCard = null;
       try { myCard = await getUserCard(me); } catch (e0) {}
       var fromName = (myCard && (myCard.fullName || myCard.displayName || myCard.username)) || "Someone";
-      await db().collection("notifications").doc(toUid).collection("items").add({
+      // Deterministic id => retries/double taps cannot create duplicate notifications.
+      await db().collection("notifications").doc(toUid).collection("items").doc("friend_request_" + me).set({
         type: "friend_request",
         from: me,
-        message: fromName + " sent you a friend request. Open Chats → Requests to respond.",
+        message: fromName + " sent you a friend request.",
         createdAt: nowTs(),
         read: false
       });
@@ -241,6 +242,23 @@
     } catch (e) {}
   }
 
+  /** Resolve (read + status) MY notification items so they stop looking actionable. Best-effort, logged. */
+  async function resolveMyItems(type, match, status) {
+    var me = uid();
+    if (!me) return;
+    try {
+      var snap = await db().collection("notifications").doc(me).collection("items").where("type", "==", type).limit(50).get();
+      var batch = db().batch(), n = 0;
+      snap.forEach(function (d) {
+        if (match(d.data() || {})) {
+          batch.set(d.ref, { read: true, resolved: true, status: status, resolvedAt: nowTs() }, { merge: true });
+          n++;
+        }
+      });
+      if (n) await batch.commit();
+    } catch (e) { console.warn("resolveMyItems", type, e); }
+  }
+
   async function respondFriendRequest(requestId, accept) {
     var me = uid();
     if (!me) throw new Error("Not signed in");
@@ -252,6 +270,7 @@
     if (data.status !== "pending") throw new Error("Already handled");
     if (!accept) {
       await ref.update({ status: "declined", resolvedAt: nowTs() });
+      await resolveMyItems("friend_request", function (x) { return x.from === data.from; }, "declined");
       return;
     }
     var batch = db().batch();
@@ -259,11 +278,12 @@
     batch.set(db().collection("friendships").doc(data.from).collection("friends").doc(data.to), { since: nowTs(), uid: data.to });
     batch.set(db().collection("friendships").doc(data.to).collection("friends").doc(data.from), { since: nowTs(), uid: data.from });
     await batch.commit();
+    await resolveMyItems("friend_request", function (x) { return x.from === data.from; }, "accepted");
     try {
       var myCard2 = null;
       try { myCard2 = await getUserCard(me); } catch (e1) {}
       var accName = (myCard2 && (myCard2.fullName || myCard2.displayName || myCard2.username)) || "Someone";
-      await db().collection("notifications").doc(data.from).collection("items").add({
+      await db().collection("notifications").doc(data.from).collection("items").doc("friend_accepted_" + me).set({
         type: "friend_accepted",
         from: me,
         createdAt: nowTs(),
@@ -271,9 +291,9 @@
         message: accName + " accepted your friend request."
       });
       try {
-        if (window.CodexPush && typeof fromUid !== "undefined" && fromUid) {
+        if (window.CodexPush && window.CodexPush.notifyUser && data.from) {
           window.CodexPush.notifyUser({
-            toUid: fromUid,
+            toUid: data.from,
             title: "Friend request accepted",
             body: (accName || "Someone") + " accepted your friend request",
             url: "https://codex-hub-prime.vercel.app/app/chats.html",
@@ -1339,7 +1359,32 @@
         createdAt: nowTs(),
         read: false
       });
-    } catch (e5) {}
+      } catch (e5) {}
+    await resolveMyItems("group_join_request", function (x) { return x.groupId === groupId && x.from === fromUid; }, "accepted");
+    return groupId;
+  }
+
+  /** Decline an incoming join request (same permission model as acceptJoinGroup) and tell the requester. */
+  async function declineJoinGroup(groupId, fromUid) {
+    var me = uid();
+    if (!me) throw new Error("Not signed in");
+    if (!groupId || !fromUid) throw new Error("Missing group or requester");
+    var gref = db().collection("groups").doc(groupId);
+    var g = await gref.get();
+    if (!g.exists) throw new Error("Group not found");
+    var data = g.data() || {};
+    if (data.createdBy !== me && (data.members || []).indexOf(me) === -1) {
+      throw new Error("Only group members can decline join requests");
+    }
+    await gref.collection("join_requests").doc(fromUid).set({ status: "declined", resolvedAt: nowTs(), resolvedBy: me }, { merge: true });
+    try {
+      await db().collection("notifications").doc(fromUid).collection("items").add({
+        type: "group_join_declined", groupId: groupId, groupName: data.name || "Group", from: me,
+        message: "Your request to join " + (data.name || "the group") + " was declined",
+        createdAt: nowTs(), read: false
+      });
+    } catch (e) {}
+    await resolveMyItems("group_join_request", function (x) { return x.groupId === groupId && x.from === fromUid; }, "declined");
     return groupId;
   }
 
@@ -1493,6 +1538,7 @@
     getGroupPresenceStats: getGroupPresenceStats,
     deleteGroup: deleteGroup,
     acceptJoinGroup: acceptJoinGroup,
+    declineJoinGroup: declineJoinGroup,
     countFriends: countFriends,
     touchPresence: touchPresence,
     setPresenceOffline: setPresenceOffline,
