@@ -1175,11 +1175,13 @@ html.theme-dark .muted, html.theme-dark .sub { color: #94A3B8 !important; }
         var snap = await firebase.firestore().collection("announcements")
           .where("status", "==", "active").limit(20).get();
         var reads = await firebase.firestore().collection("announcement_reads").doc(uid).get();
-        var states = reads.exists ? ((reads.data() || {}).states || {}) : {};
+        var readsData = reads.exists ? (reads.data() || {}) : {};
+        var states = window.CodexNotifs ? CodexNotifs.annStates(readsData) : (readsData.states || {});
+        var dismissedMap = window.CodexNotifs ? CodexNotifs.annDismissed(readsData) : {};
         var best = null;
         snap.forEach(function (d) {
           var a = Object.assign({ id: d.id }, d.data() || {});
-          if (states[d.id]) return; // already seen/dismissed
+          if (states[d.id] || dismissedMap[d.id]) return; // already seen/dismissed
           var start = a.startAt && a.startAt.toMillis ? a.startAt.toMillis() : 0;
           var expiry = a.expiresAt && a.expiresAt.toMillis ? a.expiresAt.toMillis() : 0;
           if (start && start > now) return;
@@ -1208,9 +1210,12 @@ html.theme-dark .muted, html.theme-dark .sub { color: #94A3B8 !important; }
           pop.classList.remove("show");
           setTimeout(function () { pop.hidden = true; }, 400);
           try {
-            var patch = {};
-            patch["states." + best.id] = true;
-            firebase.firestore().collection("announcement_reads").doc(uid).set(patch, { merge: true });
+            // Real nested map (a dotted key in set() would create a literal "states.<id>" field).
+            var saved = window.CodexNotifs
+              ? CodexNotifs.annSetStates(uid, [best.id], "seen")
+              : firebase.firestore().collection("announcement_reads").doc(uid)
+                  .set({ states: (function () { var m = {}; m[best.id] = "seen"; return m; })() }, { merge: true });
+            Promise.resolve(saved).catch(function (err) { console.warn("announcement read not saved", err); });
           } catch (e) {}
         }
         document.getElementById("codexAnnDismiss").onclick = dismiss;

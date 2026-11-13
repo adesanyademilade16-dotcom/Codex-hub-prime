@@ -1,9 +1,534 @@
-<!doctype html><html><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
   <script src="../js/theme-boot.js"></script>
-<meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta http-equiv='refresh' content='0;url=announcements.html'><title>Announcements · Codex Hub</title>
-  <!-- Vercel Speed Insights -->
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Notifications · Codex Hub</title>
+  <meta name="theme-color" content="#4F46E5">
+  <link rel="icon" href="../assets/favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/shell.css">
+  <style>
+    html, body { overflow-x: hidden; max-width: 100vw; }
+    .nc { max-width: 720px; margin: 0 auto; padding: 16px 14px 96px; font-family: "Plus Jakarta Sans", var(--font); }
+    .nc-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+    .nc-head h1 { font-size: 1.5rem; line-height: 1.2; font-weight: 800; letter-spacing: -.01em; }
+    .nc-head p { color: var(--muted); font-size: .86rem; margin-top: 4px; max-width: 46ch; }
+    .nc-head-r { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .nc-unread { font-size: .75rem; font-weight: 700; color: #4338CA; background: rgba(79,70,229,.1); border-radius: 999px; padding: 6px 10px; }
+    html.theme-dark .nc-unread { color: #C7D2FE; background: rgba(129,140,248,.16); }
+    .nc-btn { min-height: 40px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-weight: 700; font-size: .8rem; transition: background var(--ease), transform var(--ease), opacity var(--ease); }
+    .nc-btn:hover { background: rgba(79,70,229,.06); }
+    .nc-btn:active { transform: scale(.98); }
+    .nc-btn[disabled] { opacity: .55; cursor: default; }
+    .nc-btn.primary { background: linear-gradient(135deg,#4F46E5,#7C3AED); border-color: transparent; color: #fff; }
+    .nc-btn.primary:hover { filter: brightness(1.06); }
+    .nc-btn.danger { color: #DC2626; }
+    .nc-btn.sm { min-height: 36px; padding: 0 14px; font-size: .78rem; }
+
+    .nc-cats { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 10px; margin: 0 -2px; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .nc-cats::-webkit-scrollbar { display: none; }
+    .nc-chip { flex: 0 0 auto; scroll-snap-align: start; display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-weight: 700; font-size: .82rem; white-space: nowrap; transition: all var(--ease); }
+    .nc-chip.on { background: #4F46E5; border-color: #4F46E5; color: #fff; box-shadow: 0 4px 14px rgba(79,70,229,.28); }
+    .nc-chip .ct { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: #EF4444; color: #fff; font-size: .66rem; font-weight: 800; line-height: 18px; text-align: center; }
+    .nc-chip.on .ct { background: #fff; color: #4F46E5; }
+    .nc-tools { display: flex; justify-content: flex-end; margin: 2px 0 6px; }
+    .nc-toggle { display: inline-flex; align-items: center; gap: 8px; font-size: .78rem; font-weight: 600; color: var(--muted); cursor: pointer; user-select: none; min-height: 32px; }
+    .nc-toggle input { width: 16px; height: 16px; accent-color: #4F46E5; }
+
+    .nc-group { font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 14px 4px 8px; }
+    .nc-card { position: relative; display: flex; gap: 12px; padding: 12px 40px 12px 12px; margin-bottom: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); cursor: pointer; transition: border-color var(--ease), background var(--ease), transform var(--ease); animation: ncIn .22s ease both; }
+    .nc-card:hover { border-color: rgba(79,70,229,.35); }
+    .nc-card.unread { background: linear-gradient(0deg, rgba(79,70,229,.05), rgba(79,70,229,.05)), var(--surface); border-left: 3px solid #4F46E5; padding-left: 10px; }
+    .nc-card.busy { opacity: .6; pointer-events: none; }
+    @keyframes ncIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    .nc-ico { flex: 0 0 40px; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; overflow: hidden; font-weight: 800; font-size: .85rem; }
+    .nc-ico svg { width: 20px; height: 20px; }
+    .nc-ico img { width: 100%; height: 100%; object-fit: cover; }
+    .tone-req { background: rgba(79,70,229,.12); color: #4F46E5; }
+    .tone-study { background: rgba(16,185,129,.14); color: #059669; }
+    .tone-ann { background: rgba(124,58,237,.14); color: #7C3AED; }
+    .tone-sys { background: rgba(100,116,139,.16); color: #64748B; }
+    .nc-main { min-width: 0; flex: 1; }
+    .nc-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .nc-title { font-size: .9rem; font-weight: 800; line-height: 1.3; overflow-wrap: anywhere; }
+    .nc-time { flex: 0 0 auto; font-size: .7rem; color: var(--muted); font-weight: 600; }
+    .nc-msg { font-size: .83rem; color: var(--muted); margin-top: 3px; overflow-wrap: anywhere; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .nc-img { margin-top: 8px; border-radius: 12px; max-height: 150px; width: 100%; object-fit: cover; }
+    .nc-status { display: inline-block; margin-top: 8px; font-size: .7rem; font-weight: 700; color: var(--muted); background: rgba(100,116,139,.14); padding: 3px 9px; border-radius: 999px; }
+    .nc-status.ok { color: #047857; background: rgba(16,185,129,.14); }
+    .nc-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .nc-more { position: absolute; top: 6px; right: 4px; width: 36px; height: 36px; border: 0; background: transparent; color: var(--muted); border-radius: 10px; display: grid; place-items: center; }
+    .nc-more:hover { background: rgba(100,116,139,.14); }
+    .nc-more svg { width: 18px; height: 18px; }
+    .nc-dot { position: absolute; top: 14px; right: 40px; width: 8px; height: 8px; border-radius: 50%; background: #4F46E5; display: none; }
+    .nc-card.unread .nc-dot { display: block; }
+
+    .nc-skel { height: 76px; border-radius: 16px; margin-bottom: 8px; background: linear-gradient(90deg, rgba(100,116,139,.10) 25%, rgba(100,116,139,.2) 37%, rgba(100,116,139,.10) 63%); background-size: 400% 100%; animation: ncSh 1.3s ease infinite; }
+    @keyframes ncSh { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+    .nc-empty { text-align: center; padding: 44px 20px; color: var(--muted); }
+    .nc-empty .ei { width: 64px; height: 64px; margin: 0 auto 12px; border-radius: 20px; display: grid; place-items: center; background: rgba(79,70,229,.1); color: #4F46E5; }
+    .nc-empty .ei svg { width: 30px; height: 30px; }
+    .nc-empty h2 { color: var(--text); font-size: 1rem; font-weight: 800; margin-bottom: 4px; }
+    .nc-empty p { font-size: .84rem; max-width: 34ch; margin: 0 auto 12px; }
+
+    .nc-menu { position: fixed; z-index: 400; min-width: 190px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow-lg); padding: 6px; display: none; }
+    .nc-menu.open { display: block; }
+    .nc-menu button { display: block; width: 100%; text-align: left; border: 0; background: transparent; color: var(--text); min-height: 42px; padding: 0 12px; border-radius: 10px; font-size: .85rem; font-weight: 600; }
+    .nc-menu button:hover { background: rgba(79,70,229,.08); }
+    .nc-menu button.danger { color: #DC2626; }
+    .nc-modal { position: fixed; inset: 0; z-index: 450; display: none; align-items: flex-end; justify-content: center; background: rgba(15,23,42,.45); padding: 16px; }
+    .nc-modal.open { display: flex; }
+    .nc-sheet { width: min(420px, 100%); background: var(--surface); border-radius: 20px; padding: 18px; box-shadow: var(--shadow-lg); }
+    .nc-sheet h3 { font-size: 1rem; font-weight: 800; margin-bottom: 6px; }
+    .nc-sheet p { font-size: .85rem; color: var(--muted); margin-bottom: 14px; }
+    .nc-sheet .row { display: flex; gap: 8px; justify-content: flex-end; }
+    @media (min-width: 640px) { .nc-modal { align-items: center; } }
+    .nc-toast { position: fixed; left: 50%; bottom: 88px; transform: translateX(-50%); z-index: 500; max-width: min(92vw, 420px); padding: 11px 16px; border-radius: 12px; background: #0F172A; color: #fff; font-size: .82rem; font-weight: 600; box-shadow: var(--shadow-lg); opacity: 0; pointer-events: none; transition: opacity .2s; }
+    .nc-toast.show { opacity: 1; }
+    .nc-toast.err { background: #B91C1C; }
+  </style>
   <script>
     window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
   </script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
-</head><body><script>location.replace('announcements.html'+location.search)</script><p>Opening announcements…</p></body></html>
+</head>
+<body class="app-body" data-page="home">
+<script src="../js/shell.js"></script>
+<div id="shell-root"></div>
+
+<main class="nc">
+  <header class="nc-head">
+    <div>
+      <h1>Notifications</h1>
+      <p>Stay updated on your connections, studies and everything happening on Codex Hub.</p>
+    </div>
+    <div class="nc-head-r">
+      <span class="nc-unread" id="ncUnread" hidden></span>
+      <button class="nc-btn primary" id="ncMarkAll" type="button">Mark all as read</button>
+    </div>
+  </header>
+
+  <nav class="nc-cats" id="ncCats" aria-label="Notification categories"></nav>
+  <div class="nc-tools"><label class="nc-toggle"><input type="checkbox" id="ncUnreadOnly"> Unread only</label></div>
+  <section id="ncList" aria-live="polite"></section>
+</main>
+
+<div class="nc-menu" id="ncMenu" role="menu"></div>
+<div class="nc-modal" id="ncModal" role="dialog" aria-modal="true" aria-labelledby="ncModalTitle">
+  <div class="nc-sheet">
+    <h3 id="ncModalTitle">Delete notification?</h3>
+    <p id="ncModalText"></p>
+    <div class="row"><button class="nc-btn" id="ncModalNo" type="button">Cancel</button><button class="nc-btn primary" id="ncModalYes" type="button">Delete</button></div>
+  </div>
+</div>
+<div class="nc-toast" id="ncToast" role="status"></div>
+
+<script src="../js/firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
+<script src="../js/firestore-boot.js"></script>
+<script src="../js/app-auth.js"></script>
+<script src="../js/fcm-config.js"></script>
+<script src="../js/push-client.js"></script>
+<script src="../js/chat.js"></script>
+<script>
+(function () {
+  "use strict";
+  var N = window.CodexNotifs, C = window.CodexChat;
+  var me = null, meUser = null;
+  var state = { rows: [], cat: "all", unreadOnly: false, loading: true, error: "" };
+  var CAT_KEY = "codex_notif_cat";
+  var CATS = [
+    { id: "all", label: "All" }, { id: "requests", label: "Requests" }, { id: "study", label: "Study" },
+    { id: "announcements", label: "Announcements" }, { id: "system", label: "System" }
+  ];
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---------- tiny utils ---------- */
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function ms(v) { if (!v) return 0; if (v.toMillis) return v.toMillis(); var n = Number(v); return isNaN(n) ? 0 : n; }
+  function safeImg(v) { var s = String(v || "").trim(); return /^https:\/\//i.test(s) ? s : ""; }
+  var PAGES = { todo: 1, settings: 1, chats: 1, home: 1, announcements: 1, notifications: 1, nova: 1, profile: 1, cbt: 1, "study-lab": 1, leaderboard: 1 };
+  function safeDest(v) {                                   // internal pages or https only
+    var s = String(v || "").trim();
+    if (!s) return "";
+    if (/^https:\/\//i.test(s)) return s;
+    var m = s.match(/^\/?([a-z-]+)(?:\.html)?(\?[^#]*)?(#.*)?$/i);
+    return m && PAGES[m[1].toLowerCase()] ? m[1].toLowerCase() + ".html" + (m[2] || "") + (m[3] || "") : "";
+  }
+  var toastT;
+  function toast(msg, isErr) {
+    var t = $("ncToast"); t.textContent = msg; t.className = "nc-toast show" + (isErr ? " err" : "");
+    clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove("show"); }, isErr ? 4200 : 2200);
+  }
+  function dayStart(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); }
+  function groupOf(t) {
+    if (!t) return "Today";                                // pending server timestamp = just created
+    var today = dayStart(new Date());
+    if (t >= today) return "Today";
+    if (t >= today - 864e5) return "Yesterday";
+    return "Earlier";
+  }
+  function fmtTime(t, g) {
+    if (!t) return "Just now";
+    var d = new Date(t);
+    if (g !== "Earlier") return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    return d.toLocaleDateString([], { day: "numeric", month: "short" }) + (d.getFullYear() !== new Date().getFullYear() ? " " + d.getFullYear() : "");
+  }
+
+  /* ---------- icons ---------- */
+  function svg(p) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + "</svg>"; }
+  var IC = {
+    userPlus: svg('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/>'),
+    userCheck: svg('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/>'),
+    users: svg('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>'),
+    clock: svg('<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>'),
+    cal: svg('<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>'),
+    mega: svg('<path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 6a9 9 0 0 1 0 12"/>'),
+    gift: svg('<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v9H5v-9M7.5 8a2.5 2.5 0 1 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 1 1 0 5"/>'),
+    bell: svg('<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>'),
+    check: svg('<path d="M20 6 9 17l-5-5"/>'),
+    x: svg('<path d="M18 6 6 18M6 6l12 12"/>'),
+    more: svg('<circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/>')
+  };
+  var META = {
+    friend_request: { cat: "requests", tone: "req", ic: "userPlus", title: "Friend request" },
+    friend_accepted: { cat: "requests", tone: "req", ic: "userCheck", title: "Friend request accepted" },
+    group_invite: { cat: "requests", tone: "req", ic: "users", title: "Group invitation" },
+    group_join_request: { cat: "requests", tone: "req", ic: "users", title: "Group join request" },
+    group_join_accepted: { cat: "requests", tone: "req", ic: "check", title: "Group request accepted" },
+    group_join_declined: { cat: "requests", tone: "req", ic: "x", title: "Group request declined" },
+    reminder: { cat: "study", tone: "study", ic: "clock", title: "Study reminder" },
+    study_plan: { cat: "study", tone: "study", ic: "cal", title: "Study plan" },
+    announcement: { cat: "announcements", tone: "ann", ic: "mega", title: "Announcement" },
+    referral_joined: { cat: "system", tone: "sys", ic: "gift", title: "Referral" }
+  };
+  function meta(t) { return META[t] || { cat: "system", tone: "sys", ic: "bell", title: "Update" }; }
+
+  /* ---------- row building (pure; exposed for tests) ---------- */
+  function cleanMsg(s) { return String(s || "").replace(/\s*Open Chats\s*→\s*Requests to respond\.?/i, "").trim(); }
+  function itemRow(id, x, ctx) {
+    var t = x.type || "update", m = meta(t), key = N.reqKey(x);
+    var r = { id: "i:" + id, src: "item", docId: id, type: t, cat: m.cat, tone: m.tone, ic: m.ic,
+      ts: ms(x.createdAt), unread: !x.read, from: x.from || "", groupId: x.groupId || "",
+      title: x.title || m.title, msg: cleanMsg(x.message) || "", status: "", actions: [], go: null };
+    var st = x.status || (x.resolved ? "handled" : "");
+    if (t === "friend_request") {
+      var pend = ctx.pend[key];
+      r.requestId = r.from + "_" + me; r.pending = !!pend;
+      if (pend) r.actions = ["accept", "decline"]; else r.status = st || "handled";
+    } else if (t === "group_join_request") {
+      var p2 = ctx.pend[key];
+      r.pending = !!p2;
+      if (p2) r.actions = ["accept", "decline"]; else r.status = st || "";
+      r.go = { label: "View group", href: "chats.html" };
+    } else if (t === "group_invite") {
+      var active = !!ctx.invites[r.groupId] && !x.resolved && !/^(accepted|declined|expired)$/.test(x.status || "");
+      r.pending = active;
+      if (active) r.actions = ["accept", "decline"]; else r.status = st || "handled";
+      r.go = { label: "View group", href: "chats.html" };
+    } else if (t === "friend_accepted") {
+      r.msg = r.msg || "Your friend request was accepted. You can now connect.";
+      r.go = { label: "Open chat", href: "chats.html" };
+    } else if (t === "group_join_accepted" || t === "group_join_declined") {
+      r.go = { label: "View group", href: "chats.html" };
+    } else if (t === "reminder" || t === "study_plan") {
+      var dest = safeDest(x.destination) || "todo.html";
+      r.go = { label: t === "study_plan" ? "View study plan" : "Start studying", href: dest };
+      if (x.delivery === "not_pushed" || x.delivery === "push_failed") r.status = "In-app only";
+    } else if (x.destination) {
+      var d2 = safeDest(x.destination); if (d2) r.go = { label: "Open", href: d2 };
+    }
+    if (!r.msg) r.msg = m.title;
+    return r;
+  }
+  function orphanRow(p) {
+    var friend = p.kind === "friend";
+    return { id: "o:" + p.key, src: "orphan", p: p, type: friend ? "friend_request" : "group_join_request",
+      cat: "requests", tone: "req", ic: friend ? "userPlus" : "users", ts: ms(p.createdAt), unread: true,
+      from: p.from, groupId: p.groupId || "", pending: true, requestId: p.id,
+      title: friend ? "Friend request" : "Group join request",
+      msg: friend ? "Someone sent you a friend request." : "A student requested to join " + (p.groupName || "your group") + ".",
+      status: "", actions: ["accept", "decline"], go: friend ? null : { label: "View group", href: "chats.html" } };
+  }
+  function annRow(id, a, states, now) {
+    var cta = safeDest(a.ctaUrl);
+    return { id: "a:" + id, src: "ann", annId: id, type: "announcement", cat: "announcements", tone: "ann", ic: "mega",
+      ts: ms(a.createdAt) || ms(a.startAt), unread: !states[id], title: a.title || "Announcement",
+      msg: a.description || "New announcement from Codex Hub.", img: safeImg(a.imageUrl), status: a.important ? "Important" : "",
+      actions: [], go: { label: a.ctaText && cta ? a.ctaText : "View announcement", href: a.ctaText && cta ? cta : "announcements.html" } };
+  }
+  function buildRows(items, anns, readsData, pend, invites, now) {
+    var ctx = { pend: {}, invites: {} };
+    pend.forEach(function (p) { ctx.pend[p.key] = p; });
+    invites.forEach(function (i) { ctx.invites[i.groupId] = true; });
+    var rows = [], seen = {};
+    items.forEach(function (d) {
+      var x = d.data ? d.data() : d.x, id = d.id, k = N.reqKey(x);
+      if (k) seen[k] = true;
+      rows.push(itemRow(id, x || {}, ctx));
+    });
+    pend.forEach(function (p) { if (!seen[p.key]) rows.push(orphanRow(p)); });
+    var st = N.annStates(readsData), dis = N.annDismissed(readsData);
+    anns.forEach(function (d) {
+      var a = d.data ? d.data() : d.a;
+      if (!N.annIsLive(a || {}, now) || dis[d.id]) return;
+      rows.push(annRow(d.id, a || {}, st, now));
+    });
+    rows.sort(function (a, b) { return (b.ts || now) - (a.ts || now); });   // missing ts = just created
+    return rows;
+  }
+  function counts(rows) {
+    var c = { all: 0, requests: 0, study: 0, announcements: 0, system: 0 };
+    rows.forEach(function (r) { if (r.unread) { c.all++; c[r.cat]++; } });
+    return c;
+  }
+
+  /* ---------- rendering ---------- */
+  function renderCats() {
+    var c = counts(state.rows);
+    $("ncCats").innerHTML = CATS.map(function (k) {
+      var n = c[k.id];
+      return '<button type="button" class="nc-chip' + (state.cat === k.id ? " on" : "") + '" data-cat="' + k.id + '" aria-pressed="' + (state.cat === k.id) + '">' +
+        esc(k.label) + (n ? '<span class="ct">' + (n > 99 ? "99+" : n) + "</span>" : "") + "</button>";
+    }).join("");
+    var u = $("ncUnread");
+    u.hidden = !c.all; u.textContent = c.all + " unread";
+    $("ncMarkAll").disabled = !c.all;
+  }
+  var EMPTY = {
+    all: ["bell", "You're all caught up", "New requests, reminders and announcements will show up here."],
+    requests: ["users", "No requests", "Friend requests and group invitations will appear here."],
+    study: ["clock", "No study notifications", "Study reminders and study plan alerts will appear here."],
+    announcements: ["mega", "No announcements", "Updates from the Codex Hub team will appear here."],
+    system: ["bell", "Nothing here yet", "Account and platform updates will appear here."],
+    unread: ["check", "No unread notifications", "You've read everything. Nice work."]
+  };
+  function emptyHtml() {
+    var e = EMPTY[state.unreadOnly ? "unread" : state.cat];
+    return '<div class="nc-empty"><div class="ei">' + IC[e[0] === "check" ? "check" : e[0] === "users" ? "users" : e[0] === "clock" ? "clock" : e[0] === "mega" ? "mega" : "bell"] + "</div><h2>" + e[1] + "</h2><p>" + e[2] + "</p></div>";
+  }
+  function cardHtml(r, g) {
+    var acts = "";
+    if (r.actions.length) {
+      acts += '<button class="nc-btn sm primary" data-act="accept" type="button">Accept</button><button class="nc-btn sm" data-act="decline" type="button">Decline</button>';
+    }
+    if (r.go) acts += '<button class="nc-btn sm" data-act="go" type="button">' + esc(r.go.label) + "</button>";
+    var stat = r.status ? '<span class="nc-status' + (/^(accepted|Important)$/i.test(r.status) ? " ok" : "") + '">' + esc(r.status.charAt(0).toUpperCase() + r.status.slice(1)) + "</span>" : "";
+    return '<article class="nc-card' + (r.unread ? " unread" : "") + '" data-id="' + esc(r.id) + '" tabindex="0">' +
+      '<div class="nc-ico tone-' + r.tone + '" data-ico="' + esc(r.id) + '">' + IC[r.ic] + "</div>" +
+      '<div class="nc-main"><div class="nc-top"><h3 class="nc-title">' + esc(r.title) + '</h3><span class="nc-time">' + esc(fmtTime(r.ts, g)) + "</span></div>" +
+      '<p class="nc-msg">' + esc(r.msg) + "</p>" + (r.img ? '<img class="nc-img" loading="lazy" alt="" src="' + esc(r.img) + '">' : "") + stat +
+      (acts ? '<div class="nc-actions">' + acts + "</div>" : "") + "</div>" +
+      '<span class="nc-dot" aria-hidden="true"></span>' +
+      '<button class="nc-more" type="button" data-more="' + esc(r.id) + '" aria-label="More options">' + IC.more + "</button></article>";
+  }
+  function render() {
+    renderCats();
+    var list = $("ncList");
+    if (state.loading) { list.innerHTML = '<div class="nc-skel"></div><div class="nc-skel"></div><div class="nc-skel"></div><div class="nc-skel"></div>'; return; }
+    if (state.error) {
+      list.innerHTML = '<div class="nc-empty"><div class="ei">' + IC.bell + "</div><h2>Couldn't load notifications</h2><p>" + esc(state.error) + '</p><button class="nc-btn primary" id="ncRetry" type="button">Try again</button></div>';
+      return;
+    }
+    var rows = state.rows.filter(function (r) { return (state.cat === "all" || r.cat === state.cat) && (!state.unreadOnly || r.unread); });
+    if (!rows.length) { list.innerHTML = emptyHtml(); return; }
+    var html = "", last = "";
+    rows.forEach(function (r) {
+      var g = groupOf(r.ts);
+      if (g !== last) { html += '<div class="nc-group">' + g + "</div>"; last = g; }
+      html += cardHtml(r, g);
+    });
+    list.innerHTML = html;
+    hydrateAvatars(rows);
+  }
+  var hydrated = {};
+  function hydrateAvatars(rows) {                          // names/avatars for people rows, non-blocking, cached
+    if (!C || !C.getUserCard) return;
+    rows.slice(0, 30).forEach(function (r) {
+      if (!r.from || r.src === "ann") return;
+      var f = r.from;
+      var apply = function (card) {
+        if (!card) return;
+        var els = document.querySelectorAll('[data-ico="' + (window.CSS && CSS.escape ? CSS.escape(r.id) : r.id) + '"]');
+        var name = card.username || card.fullName || card.displayName || "";
+        var photo = safeImg(card.photoURL);
+        els.forEach(function (el) {
+          if (photo) el.innerHTML = '<img alt="" loading="lazy" src="' + esc(photo) + '">';
+          else if (name) el.textContent = name.charAt(0).toUpperCase();
+        });
+        if (name && r.src === "orphan" && r.type === "friend_request") {
+          var t = document.querySelector('[data-id="' + r.id.replace(/"/g, "") + '"] .nc-msg'); if (t) t.textContent = name + " sent you a friend request.";
+        }
+      };
+      if (hydrated[f]) return apply(hydrated[f]);
+      C.getUserCard(f).then(function (card) { hydrated[f] = card; apply(card); }).catch(function () {});
+    });
+  }
+
+  /* ---------- data ---------- */
+  async function load(quiet) {
+    if (!quiet) { state.loading = true; state.error = ""; render(); }
+    try {
+      var db = firebase.firestore();
+      var res = await Promise.all([
+        N.itemsCol(me).orderBy("createdAt", "desc").limit(100).get(),
+        db.collection("announcements").where("status", "==", "active").limit(40).get().catch(function (e) { console.warn("announcements", e); return { docs: [] }; }),
+        db.collection("announcement_reads").doc(me).get().catch(function () { return { exists: false }; }),
+        N.pendingRequests(meUser),
+        C && C.listInvitesForMe ? C.listInvitesForMe().catch(function () { return []; }) : Promise.resolve([])
+      ]);
+      state.rows = buildRows(res[0].docs, res[1].docs, res[2].exists ? (res[2].data() || {}) : {}, res[3], res[4], Date.now());
+      state.loading = false; state.error = "";
+    } catch (e) {
+      console.warn("notifications load failed", e);
+      state.loading = false; state.error = "Check your connection and try again.";
+    }
+    render();
+  }
+
+  /* ---------- actions ---------- */
+  function find(id) { for (var i = 0; i < state.rows.length; i++) if (state.rows[i].id === id) return state.rows[i]; return null; }
+  async function setRead(r, read) {
+    if (r.src === "item") await N.setItemsRead(me, [r.docId], read);
+    else if (r.src === "orphan") await N.ensureRequestItems(me, [r.p], read);
+    else if (r.src === "ann") { if (read) await N.annSetStates(me, [r.annId], "seen"); else await N.annClearState(me, r.annId); }
+    r.unread = !read; render();
+  }
+  async function remove(r) {
+    if (r.src === "item") await N.deleteItems(me, [r.docId]);          // this user's notification doc only
+    else if (r.src === "ann") await N.annDismiss(me, [r.annId]);       // per-user hide; shared announcement untouched
+    else return;
+    state.rows = state.rows.filter(function (x) { return x.id !== r.id; }); render();
+  }
+  async function act(r, a) {
+    var el = document.querySelector('[data-id="' + r.id + '"]'); if (el) el.classList.add("busy");
+    try {
+      if (a === "go") {
+        if (r.unread) { try { await setRead(r, true); } catch (e) { console.warn(e); } }
+        location.href = r.go.href; return;
+      }
+      var accept = a === "accept";
+      if (r.type === "friend_request") await C.respondFriendRequest(r.requestId, accept);
+      else if (r.type === "group_join_request") accept ? await C.acceptJoinGroup(r.groupId, r.from) : await C.declineJoinGroup(r.groupId, r.from);
+      else if (r.type === "group_invite") accept ? await C.acceptGroupInvite(r.groupId) : await C.declineGroupInvite(r.groupId);
+      toast(accept ? "Accepted" : "Declined");
+      await load(true);
+    } catch (e) {
+      console.warn("action failed", e);
+      toast((e && e.message) || "That didn't work. Please try again.", true);
+      await load(true);
+    }
+  }
+  function openCard(r) {
+    if (r.unread) setRead(r, true).catch(function (e) { toast("Couldn't update read state.", true); console.warn(e); });
+    if (r.go && !r.actions.length) location.href = r.go.href;
+  }
+
+  /* menu + confirm */
+  var menuFor = null;
+  function openMenu(r, btn) {
+    menuFor = r;
+    var items = [];
+    items.push('<button type="button" role="menuitem" data-m="' + (r.unread ? "read" : "unread") + '">' + (r.unread ? "Mark as read" : "Mark as unread") + "</button>");
+    if (r.src !== "orphan" && !r.pending) items.push('<button type="button" role="menuitem" class="danger" data-m="delete">Delete</button>');
+    var m = $("ncMenu"); m.innerHTML = items.join(""); m.classList.add("open");
+    var b = btn.getBoundingClientRect(), w = m.offsetWidth || 190;
+    m.style.top = Math.min(window.innerHeight - m.offsetHeight - 8, b.bottom + 4) + "px";
+    m.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, b.right - w)) + "px";
+  }
+  function closeMenu() { $("ncMenu").classList.remove("open"); menuFor = null; }
+  var pendingDelete = null;
+  function askDelete(r) {
+    pendingDelete = r;
+    var t = r.src === "ann" ? "This hides the announcement from your notifications only. The announcement itself is not affected and stays on the Announcements page."
+      : "This removes the notification from your list only. It doesn't change any request, group or friendship.";
+    $("ncModalText").textContent = t; $("ncModal").classList.add("open");
+  }
+  function closeModal() { $("ncModal").classList.remove("open"); pendingDelete = null; }
+
+  async function markAll() {
+    var b = $("ncMarkAll"); b.disabled = true;
+    try {
+      await N.markAllRead();
+      toast("All caught up");
+      await load(true);                                   // re-read from the database: UI shows persisted state only
+    } catch (e) {
+      console.warn("mark all failed", e);
+      toast("Couldn't mark all as read. Please try again.", true);
+      b.disabled = false;
+    }
+  }
+
+  /* ---------- wiring ---------- */
+  function bind() {
+    $("ncCats").addEventListener("click", function (e) {
+      var b = e.target.closest("[data-cat]"); if (!b) return;
+      state.cat = b.getAttribute("data-cat");
+      try { sessionStorage.setItem(CAT_KEY, state.cat); } catch (x) {}
+      try { history.replaceState(null, "", "#" + state.cat); } catch (x) {}
+      render();
+      var on = $("ncCats").querySelector(".on"); if (on && on.scrollIntoView) on.scrollIntoView({ inline: "center", block: "nearest" });
+    });
+    $("ncUnreadOnly").addEventListener("change", function (e) { state.unreadOnly = e.target.checked; render(); });
+    $("ncMarkAll").addEventListener("click", markAll);
+    $("ncList").addEventListener("click", function (e) {
+      if (e.target.closest("#ncRetry")) { load(); return; }
+      var more = e.target.closest("[data-more]");
+      if (more) { e.stopPropagation(); var r0 = find(more.getAttribute("data-more")); if (r0) openMenu(r0, more); return; }
+      var card = e.target.closest(".nc-card"); if (!card) return;
+      var r = find(card.getAttribute("data-id")); if (!r) return;
+      var btn = e.target.closest("[data-act]");
+      if (btn) { act(r, btn.getAttribute("data-act")); return; }
+      openCard(r);
+    });
+    $("ncList").addEventListener("keydown", function (e) {
+      if ((e.key === "Enter" || e.key === " ") && e.target.classList.contains("nc-card")) { e.preventDefault(); var r = find(e.target.getAttribute("data-id")); if (r) openCard(r); }
+    });
+    $("ncMenu").addEventListener("click", async function (e) {
+      var b = e.target.closest("[data-m]"); if (!b || !menuFor) return;
+      var r = menuFor, m = b.getAttribute("data-m"); closeMenu();
+      try {
+        if (m === "read") await setRead(r, true);
+        else if (m === "unread") await setRead(r, false);
+        else if (m === "delete") askDelete(r);
+      } catch (err) { console.warn(err); toast("Couldn't update this notification.", true); }
+    });
+    document.addEventListener("click", function (e) { if (!e.target.closest("#ncMenu") && !e.target.closest("[data-more]")) closeMenu(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") { closeMenu(); closeModal(); } });
+    $("ncModalNo").addEventListener("click", closeModal);
+    $("ncModal").addEventListener("click", function (e) { if (e.target === $("ncModal")) closeModal(); });
+    $("ncModalYes").addEventListener("click", async function () {
+      var r = pendingDelete; closeModal(); if (!r) return;
+      try { await remove(r); toast("Notification deleted"); } catch (err) { console.warn(err); toast("Couldn't delete this notification.", true); }
+    });
+    document.addEventListener("visibilitychange", function () { if (!document.hidden && me && !state.loading) load(true); });
+    window.addEventListener("scroll", closeMenu, { passive: true });
+  }
+
+  if (window.__CODEX_TEST) {                               // test hook only; inert in production
+    window.__codexNotifPage = { buildRows: buildRows, counts: counts, groupOf: groupOf, safeDest: safeDest, meta: meta, setMe: function (u) { me = u; } };
+    return;
+  }
+  var h = (location.hash || "").replace("#", "");
+  var saved = ""; try { saved = sessionStorage.getItem(CAT_KEY) || ""; } catch (e) {}
+  [h, saved].some(function (c) { return CATS.some(function (k) { if (k.id === c) { state.cat = c; return true; } return false; }); });
+  render();
+  bind();
+  CodexAuth.requireUser().then(function (r) {
+    meUser = r.user; me = r.user.uid;
+    if (window.CodexShell) CodexShell.mountShell({ page: "home", title: "Notifications", user: r.user, profile: r.profile });
+    return load();
+  }).catch(function () { location.href = "../login.html"; });
+})();
+</script>
+</body>
+</html>
