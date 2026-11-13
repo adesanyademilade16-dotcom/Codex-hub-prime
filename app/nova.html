@@ -1386,6 +1386,7 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
   <script src="../js/nova-heroes.js"></script>
   <script src="../js/codex-zip.js"></script>
   <script src="../js/nova-code-workspace.js"></script>
+  <script src="../js/nova-conversation.js?v=20261112"></script>
   <script>
   (function () {
     "use strict";
@@ -2831,7 +2832,7 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
       try { setEditUi(false); } catch (e) {}
       renderMessages();
       state.db.collection("users").doc(state.user.uid).collection("chats").doc(id)
-        .collection("messages").orderBy("createdAt", "asc").limit(150).get()
+        .collection("messages").orderBy("createdAt", "asc").get()
         .then(function (snap) {
           snap.forEach(function (doc) {
             var d = doc.data() || {};
@@ -3015,13 +3016,14 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
       }
       return (
         "You are Nova module **" + ch.name + "** only (not other modules). Never say you are Pulse if you are " + ch.name + ". " +
-        "You are a capable university study AI on Codex Hub for Nigerian students. " +
+        "You are a capable general-purpose assistant on Codex Hub, also excellent at university study. " +
+        "UNDERSTANDING: Interpret informal wording and follow corrections immediately. Answer the actual question about gadgets, actors, movie characters, everyday life, or academics. Do not force unrelated study advice, mnemonics, or profile facts into answers. Ask one concise clarification only when the subject remains unclear. Distinguish facts from uncertainty. Product configurations vary: verify exact model specifications rather than inventing them. Treat profile and remembered interests as optional background, never the current subject. " +
         "Tone: " + ch.tag + ". " +
         (ch.personality ? ("PERSONALITY (stay in character): " + ch.personality + " ") : "") +
         (ch.id === "nova_forge" ? "FORGE DEPTH: Give fuller breakdowns than a free chatbot — numbered reasoning, exam traps, and how marks are earned. If the last few assistant replies were insults/comebacks, invent a NEW comeback wording — never repeat the previous comeback almost verbatim. " : "") + 
         "CONDUCT: Never refuse a message only because the student was rude. For insults, stay in character with a sharp PG-13 comeback then continue or invite a real question. Never spam \"I can't continue this conversation\" or \"I can't help with that\" after insults. After an apology, resume teaching immediately. " +
         
-        (state.codingMode ? "CODING MODE ON: Prefer complete, runnable code with explanations. Debug carefully. Use clear comments. For any multi-file or website request, output each file in its own fenced block whose FIRST line is a comment naming the file path (// index.html, /* styles.css */, # main.py), include every file needed to run it, and briefly list the architecture before the code. Never claim the code was executed or tested. " : "") +
+        (state.codingMode ? "CODING MODE ON: Act as a careful software engineer. Respect the user's existing language, framework and requirements. Diagnose root causes before proposing focused changes. Preserve working behavior; consider edge cases, security, dependencies and small meaningful tests. Give runnable code rather than placeholders, explain installation and verification steps, and ask for missing error messages when needed. For multi-file requests use one fenced block per file with a path comment on the first line. Never claim execution or successful tests without evidence. " : "") +
         "You have tools: web search (when the server injects LIVE SEARCH), image generation, and document reading. " +
         "When LIVE SEARCH results are in the system message, use them and never claim you cannot search. " +
         "Student: " + ctxLine() + ". Interests: " + (state.interests.join(", ") || "general study") + ". " +
@@ -3050,7 +3052,7 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
         "CONVERSATION MEMORY: Treat the full chat history as long-term memory for this session. When the user refers to earlier answers, quizzes, scores, images you generated, pictures they uploaded, or prior explanations, recall them specifically. If a past image is present in the thread or attached for vision, use what you see and what was said about it. Do not claim you forgot prior turns in this same chat. Do not describe chat UI chrome unless asked. " +
         "When the user attaches a PDF or DOCX, treat extracted text as the document content and answer from it. " +
         "When asked to create a PDF, write a complete structured summary; the app has an Export PDF button on your messages. " +
-        "DIAGRAM / IMAGE SEARCH: Only when the student clearly asks for a labelled diagram, anatomy drawing, map, chart, or “show pictures of…”, include 3–6 markdown images ![short label](https://…direct-image-url…) using DIRECT image file URLs only (must end with .jpg .jpeg .png .webp or be a known CDN image path). Never use HTML page URLs (kenhub.com/…, clevelandclinic.org/…, adobe.com/…). Prefer educational labelled diagrams. If you cannot provide direct image URLs, say so and describe the diagram in text — do not invent broken links. When using web facts, end with Sources: bullets of site names + page URLs (pages OK in Sources, not in ![img]()). " +
+        "REFERENCE PHOTOS: The app retrieves online reference photos when helpful. Never fabricate image URLs or output invented markdown photos. Answer the user's question directly; do not replace it with a list of image captions or claim to see reference pixels that were not attached for vision. If no relevant photos were found, say so only if asked, and never substitute unrelated pictures. Cite real source links when available. " +
         "Include https links when recommending websites. Prefer accurate current facts. Never invent ranked box-office tables or dollar figures. If unsure about 2025/2026 releases, say so and suggest Box Office Mojo."
       );
     }
@@ -3291,45 +3293,12 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
     }
 
     function wantsReferenceImages(text) {
-      var t = String(text || "").toLowerCase();
-      // Online search + pictures / diagram / show me photos — NOT pure “generate an image of”
-      if (/\b(show|find|search|look\s*up|bring|fetch|get|reference)\b.{0,40}\b(image|images|picture|pictures|photo|photos|diagram|diagrams)\b/i.test(t)) return true;
-      // "Do you know Roman Reigns?" / "Tell me about John Cena" should show real reference photos.
-      if (/\b(do\s+you\s+know|tell\s+me\s+about|who\s+is|who's)\b/i.test(t) &&
-          /\b(roman\s+reigns?|john\s+cena|wrestler|actor|actress|celebrity|footballer|singer|rapper|player)\b/i.test(t)) return true;
-      if (/\b(image|images|picture|pictures|photo|photos)\b.{0,30}\b(of|for|about)\b/i.test(t) && /\b(search|online|web|google|reference)\b/i.test(t)) return true;
-      if (/\blabelled?\s+diagram\b|\banatomy\s+diagram\b|\btextbook\s+figure\b/i.test(t)) return true;
-      if (/\bsea\s+animals?\b|\banimals?\b.{0,20}\b(images?|pictures?|photos?)\b/i.test(t)) return true;
-      return false;
+      return NovaConversation.wantsImages(text);
     }
     function resolveImageSubject(text, historyMsgs) {
-      var t = String(text || "").trim();
-      var m = t.match(/(?:images?|pictures?|photos?|diagrams?|references?)\s+(?:of|for|about|on)\s+(.+)$/i);
-      var subject = m ? m[1].replace(/[?.!].*$/, "").trim() : "";
-      if (!subject) {
-        m = t.match(/(?:do\s+you\s+know|tell\s+me\s+about|who\s+is|who's)\s+(.+)$/i);
-        if (m) subject = m[1].replace(/[?.!].*$/, "").trim();
-      }
-      if (!subject) {
-        m = t.match(/(?:search|look\s*up|find|show|bring|fetch|get)\s+(?:me\s+)?(?:online\s+)?(?:images?|pictures?|photos?)?\s*(?:of|for|about)?\s*(.+)$/i);
-        if (m) subject = m[1].replace(/[?.!].*$/, "").trim();
-      }
-      if (!subject) subject = t.replace(/\b(please|online|search|images?|pictures?|photos?|reference|bring|show|me)\b/gi, " ").replace(/\s+/g, " ").trim();
-      // Pronoun / short subject → pull last proper name from history
-      var short = !subject || /^(him|her|them|this|that|it|the\s+same|same)$/i.test(subject) || subject.length < 3;
-      if (short && historyMsgs && historyMsgs.length) {
-        for (var i = historyMsgs.length - 1; i >= 0; i--) {
-          var h = String((historyMsgs[i] && (historyMsgs[i].content || historyMsgs[i].text)) || "");
-          // e.g. "Do you know John Cena" / "John Cena is..."
-          var nm = h.match(/\b(?:know|about|who\s+is|who's)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,3})/);
-          if (nm) return nm[1].trim();
-          nm = h.match(/\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,2})\b/);
-          if (nm && !/^(Yes|The|How|What|When|Pulse|Nova|Quick)\b/.test(nm[1])) return nm[1].trim();
-        }
-      }
-      return subject.slice(0, 80);
+      return NovaConversation.resolveSubject(text, historyMsgs);
     }
-    
+
     function stripLeakedImageHtml(raw) {
       var s = String(raw || "");
       // Model sometimes dumps <figure class="gen-fig"> or full <img ...> into tables — remove
@@ -3421,24 +3390,17 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
       if (/\b(online\s+search|search\s+online|do\s+an?\s+online|live\s+search|search\s+the\s+web|look\s+up\s+online|google\s+it)\b/i.test(q)) return true;
       if (/\b(202[4-9]|2030|today|tonight|latest|current|breaking|released?|premiere|box\s*office)\b/i.test(q)) return true;
       if (/\b(marvel|avengers|doomsday|spider-?man|mcu|disney)\b/i.test(q)) return true;
-      if (/\b(who\s+is|who\s+won|news|trailer|cast\s+of)\b/i.test(q)) return true;
+      if (/\b(who\s+is|who\s+won|news|trailer|cast\s+of|elitebook|laptop|specs|specifications|price|compare|comparison|iphone|macbook)\b/i.test(q)) return true;
       return false;
     }
 
     function sendToApi(text, extra) {
       extra = extra || {};
-      var history = state.messages.slice(-40).map(function (m) {
-        var row = {
-          role: m.role === "assistant" ? "assistant" : "user",
-          content: (m.content || "").toString()
-        };
-        if (m.imageUrl) row.imageUrl = m.imageUrl;
-        return row;
-      });
-      if (!history.length || history[history.length - 1].content !== text) {
-        history.push({ role: "user", content: text });
-      }
+      var history = NovaConversation.history(state.messages, text);
       var sys = systemContext();
+      var subject = resolveImageSubject(text, state.messages);
+      if (subject) sys += "\nCURRENT CONVERSATION SUBJECT: " + subject + ". Follow-up pronouns refer to this user topic, not profile interests or image captions.";
+      if (extra.referenceContext) sys += "\n" + extra.referenceContext;
       if (!_novaUserContext) {
         return loadNovaUserContext().then(function(){ return sendToApi(text, extra); });
       }
@@ -3497,9 +3459,9 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
         });
       }
       if (state.user && state.user.getIdToken) {
-        return state.user.getIdToken().then(function (tok) { return doFetch(tok); }).catch(function () { return doFetch(""); });
+        return state.user.getIdToken().then(function (tok) { return doFetch(tok); });
       }
-      return doFetch("");
+      return Promise.reject(new Error("Please sign in again to use Nova."));
     }
 
 
@@ -3705,22 +3667,19 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
           if (att.images && att.images.length) {
             sendText = (sendText ? sendText + "\n\n" : "") + "[Image attached — analyze the visual content.]";
           }
-          var needImgs = wantsReferenceImages(text);
+          var imageSubject = extractImageQuery(text);
+          var needImgs = wantsReferenceImages(text) && !!imageSubject;
           var imgPromise = needImgs
-            ? fetchReferenceImages(extractImageQuery(text)).then(function (imgs) {
-                return imgs;
+            ? fetchReferenceImages(imageSubject).then(function (imgs) {
+                return NovaConversation.relevantImages(imgs, imageSubject);
               })
             : Promise.resolve([]);
           return imgPromise.then(function (refImages) {
-            var extraSys = "";
-            if (refImages && refImages.length) {
-              extraSys = "\n\nREFERENCE IMAGES (already fetched). " +
-                "Write a short numbered educational description only (e.g. 1. Dolphins: ...). " +
-                "Do NOT output any markdown images ![ ](url), do NOT invent Pollinations/wallpaper/carousel/mockup image links, " +
-                "do NOT paste random poster or UI screenshots. The app already shows a swipeable photo carousel of real wildlife. " +
-                "Subjects: " + refImages.map(function (im) { return im.title || "image"; }).join("; ") + ".";
-            }
-            return sendToApi(sendText + (extraSys ? "\n" + extraSys : ""), { images: att.images || [] }).then(function (result) {
+            var referenceContext = needImgs
+              ? (refImages.length ? "Relevant reference photos of " + imageSubject + " are displayed by the app. Answer the question directly, not the captions. These are search references, not vision input."
+                : "No sufficiently relevant reference photos of " + imageSubject + " were found. Do not invent photos or replace them with unrelated subjects.")
+              : "";
+            return sendToApi(sendText, { images: att.images || [], referenceContext: referenceContext }).then(function (result) {
               if (typeof result === "string") result = { reply: result };
               if (refImages && refImages.length) {
                 result._carousel = buildCarouselHtml(refImages);
@@ -4036,15 +3995,10 @@ body.nova-light .bubble .md-table th { background: #EEF2FF; color: #312E81; }
       // Carousel card → open gallery at that index
       var card = e.target.closest && e.target.closest(".icard");
       if (card && card.getAttribute("data-gallery")) {
-        if (e.target.closest("a")) return; // let Open link work
-        var gid = card.getAttribute("data-gallery");
-        var track = msgsEl.querySelector('.img-carousel[data-gallery="' + gid + '"]') || card.parentNode;
-        var urls = [];
-        track.querySelectorAll(".icard img").forEach(function (img) {
-          urls.push(img.getAttribute("data-full") || img.src);
-        });
-        var idx = parseInt(card.getAttribute("data-idx") || "0", 10) || 0;
-        openLightboxGallery(urls, idx);
+        if (e.target.closest("a") && (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey)) return;
+        e.preventDefault();
+        var selection = NovaConversation.gallerySelection(card);
+        openLightboxGallery(selection.urls, selection.index);
         return;
       }
       if (e.target && e.target.classList && (e.target.classList.contains("msg-img") || e.target.classList.contains("msg-gen-img"))) {
